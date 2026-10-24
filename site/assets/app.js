@@ -181,7 +181,19 @@ function statsDashboard(){
   const v=m.banking;
   panels+='<section class="panel stats-panel stats-panel-wide"><div class="panel-head"><div><h2>Xếp hạng tỷ lệ khai báo tài khoản ngân hàng</h2></div><span class="stats-count-chip">46 Đảng bộ cấp 2</span></div>'+statBreakdown([['Đã có tài khoản',v.registered],['Chưa có tài khoản',v.notRegistered]],v.rowCount)+statsRankingPair(v.unitRanking,'bản ghi')+(Number.isInteger(v.unmappedForRanking)&&v.unmappedForRanking>0?'<p class="stats-scope-note">'+E(String(v.unmappedForRanking))+' bản ghi chưa có đủ quan hệ đơn vị cấp 2, không tính vào Top 10.</p>':'')+'</section>';
  }
- if(m.missing?.rowsByParent?.length)panels+='<section class="panel stats-panel stats-panel-wide"><div class="panel-head"><div><h2>Số dòng chưa khai báo theo đơn vị</h2><p>Chỉ là tỷ trọng trong danh sách chưa khai báo, không phải tỷ lệ trên tổng đảng viên.</p></div></div><div class="stats-parents">'+m.missing.rowsByParent.slice(0,20).map(x=>'<div><span>'+E(x.name)+'</span><b>'+amount(x.rows)+' ('+percent(x.share ?? (x.rows/(m.missing.rowCount||1)))+')</b></div>').join('')+'</div></section>';
+ if(m.missing){
+  const v=m.missing,rank=v.level2Ranking;
+  let rankingContent='';
+  if(rank&&rank.eligibleUnits===46&&rank.top?.length===10&&rank.bottom?.length===10){
+   const rowBlock=(items,tone,title)=>'<div class="stats-leaderboard-col '+tone+'"><div class="stats-leaderboard-head"><strong>'+title+'</strong><span>10 Đảng bộ</span></div>'+
+    items.map((x,i)=>'<div class="stats-leaderboard-row"><span class="stats-leaderboard-rank">'+(i+1)+'</span><div class="stats-leaderboard-unit"><strong>'+E(x.name)+'</strong><small>Dòng chưa khai báo đã đối chiếu</small></div><b>'+amount(x.count)+'</b></div>').join('')+'</div>';
+   rankingContent='<div class="stats-leaderboards stats-missing-leaders">'+rowBlock(rank.top,'is-weak','Top 10 nhiều nhất')+rowBlock(rank.bottom,'is-good','Top 10 ít nhất')+'</div>';
+   rankingContent+='<p class="stats-scope-note">Thống kê theo số dòng chưa khai báo (không phải tỷ lệ đảng viên). Đã xác định cấp 2: '+amount(rank.matchedRows)+' / '+amount(v.rowCount)+' dòng. '+amount(rank.unmatchedRows)+' dòng chưa đủ thông tin ghép cấp 2 hoặc nằm ngoài 46 Đảng bộ, không cộng tùy đoán vào bảng.</p>';
+  }else{
+   rankingContent='<div class="stats-unit-unavailable">Top 10 cấp 2 sẽ hiển thị sau khi cập nhật Apps Script và đồng bộ danh mục tổ chức. Không xếp hạng các đơn vị cấp 3 riêng lẻ.</div>';
+  }
+  panels+='<section class="panel stats-panel stats-panel-wide"><div class="panel-head"><div><h2>Đơn vị chưa khai báo hồ sơ đảng phí</h2></div><span class="stats-count-chip">46 Đảng bộ cấp 2</span></div>'+rankingContent+'</section>';
+ }
  return '<div class="section-heading"><div><h2>Trung tâm thống kê tháng '+E(stats.period||'')+'</h2><p>Dữ liệu tổng hợp được duyệt từ bốn bảng nguồn riêng tư</p></div><span class="badge">Bản công khai đã duyệt</span></div>'+viewCards+'<div class="stats-grid stats-dashboard-grid">'+panels+'</div><p class="stats-disclaimer">Nguồn: các bảng thống kê đã được duyệt. Phạm vi giữa các báo cáo khác nhau; không cộng số liệu khác nguồn. Thời điểm xuất: '+E(DATE(stats.generatedAt))+'</p>';
 }
 function financeView(){return financeCards()+statsDashboard()}

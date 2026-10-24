@@ -71,6 +71,19 @@ class SiteTests(unittest.TestCase):
         self.assertIn('WEB_FINANCE_PUBLIC',script)
         self.assertIn("kind==='finance'",script)
 
+    def test_stats_level2_rankings_and_no_private_columns(self):
+        js=(ROOT/'site/assets/app.js').read_text(encoding='utf-8')
+        gs=(ROOT/'apps-script/Code.gs').read_text(encoding='utf-8')
+        sync=(ROOT/'scripts/sync_public.py').read_text(encoding='utf-8')
+        self.assertIn('stats-ranking-scroll',js)
+        self.assertIn('Top 10 nhiều nhất',js)
+        self.assertIn('Top 10 ít nhất',js)
+        self.assertNotIn("m.missing.rowsByParent.slice(0,20)",js)
+        self.assertIn("getRange(2,2,size,1)",gs)
+        self.assertIn("getRange(2,4,size,1)",gs)
+        self.assertIn("matched+unmatched===modules.missing.rowCount",gs)
+        self.assertIn('approved_missing_level2',sync)
+        self.assertNotIn('Các khu vực liên quan',js)
     def test_js_syntax(self):
         p=subprocess.run(['node','--check',str(ROOT/'site/assets/app.js')],capture_output=True,text=True)
         self.assertEqual(p.returncode,0,p.stderr)

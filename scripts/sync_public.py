@@ -154,6 +154,44 @@ def main():
                 if any(bottom[i]['rate']>bottom[i+1]['rate'] for i in range(9)):
                     return None
                 return {'eligibleUnits':46,'top':top,'bottom':bottom}
+
+            def approved_missing_level2(value, source_count):
+                if not isinstance(value,dict):
+                    return None
+                unit_count=bounded_int(value.get('eligibleUnits'),46)
+                matched=bounded_int(value.get('matchedRows'),source_count)
+                unmatched=bounded_int(value.get('unmatchedRows'),source_count)
+                if (unit_count!=46 or matched is None or unmatched is None
+                    or matched+unmatched!=source_count or matched==0):
+                    return None
+                def validated_side(key):
+                    items=value.get(key)
+                    if not isinstance(items,list) or len(items)!=10:
+                        return None
+                    output=[]
+                    seen=set()
+                    for item in items:
+                        if not isinstance(item,dict):
+                            return None
+                        name=item.get('name')
+                        count=bounded_int(item.get('count'),source_count)
+                        if (not isinstance(name,str) or not 2<=len(name.strip())<=190
+                            or not name.strip().lower().startswith('đảng bộ')
+                            or count is None or name.strip() in seen):
+                            return None
+                        seen.add(name.strip())
+                        output.append({'name':name.strip(),'count':count})
+                    return output
+                top=validated_side('top')
+                bottom=validated_side('bottom')
+                if top is None or bottom is None:
+                    return None
+                if any(top[i]['count']<top[i+1]['count'] for i in range(9)):
+                    return None
+                if any(bottom[i]['count']>bottom[i+1]['count'] for i in range(9)):
+                    return None
+                return {'eligibleUnits':46,'matchedRows':matched,'unmatchedRows':unmatched,
+                        'top':top,'bottom':bottom}
             payment=raw.get('payment')
             if isinstance(payment,dict):
                 rate=bounded_rate(payment.get('completionRate'))
@@ -187,6 +225,9 @@ def main():
                     modules['missing']={'rowCount':count,'distinctParents':parents,
                         'rowsByParent':rows,
                         'countType':'Số dòng chưa khai báo theo danh sách riêng, không phải tỷ lệ chưa khai báo trên tổng đảng viên'}
+                    verified=approved_missing_level2(missing.get('level2Ranking'),count)
+                    if verified is not None:
+                        modules['missing']['level2Ranking']=verified
             allocation=raw.get('allocation')
             if isinstance(allocation,dict):
                 n=bounded_int(allocation.get('rowCount'),30000)

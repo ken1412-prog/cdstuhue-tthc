@@ -409,11 +409,23 @@ function buildStatsFeed_(){
         records:ranked,sourceSnapshot:src.THU_NOP.snapshot};
     }
   }
+  let missingOrgRows=null;
   if(enabled.missing){
-    const data=statsRows_(src.CHUA_KHAI.id,src.CHUA_KHAI.tab,2,5);
+    const sh=SpreadsheetApp.openById(src.CHUA_KHAI.id).getSheetByName(src.CHUA_KHAI.tab);
+    if(!sh)throw new Error('Missing undeclared records source');
+    const size=sh.getLastRow()-1;
+    if(size>25000)throw new Error('Missing records source exceeds safety size limit');
+    // Only organization-name columns B and D. Never read column C (person name).
+    const unitNames=size>0?sh.getRange(2,2,size,1).getDisplayValues():[];
+    const parentNames=size>0?sh.getRange(2,4,size,1).getDisplayValues():[];
     const counts={};let n=0;
-    data.forEach(r=>{const parent=String(r[3]||'').trim();if(!parent||!String(r[0]||'').trim())return;
-      counts[parent]=(counts[parent]||0)+1;n++;});
+    missingOrgRows=[];
+    for(let i=0;i<size;i++){
+      const unit=String(unitNames[i]?.[0]||'').trim(),parent=String(parentNames[i]?.[0]||'').trim();
+      if(!unit||!parent)continue;
+      counts[parent]=(counts[parent]||0)+1;n++;
+      missingOrgRows.push({unit,parent});
+    }
     const byParent=Object.keys(counts).filter(k=>counts[k]>=20)
       .map(name=>({name:name.slice(0,190),rows:counts[name]}))
       .sort((a,b)=>b.rows-a.rows||a.name.localeCompare(b.name,'vi')).slice(0,30);
@@ -435,13 +447,13 @@ function buildStatsFeed_(){
   // Only public organization identifiers, parent links and status cells are read.
   // Column F (bank account number) and individual confirmation columns are NEVER read.
   let unitTree=null;
-  if(enabled.allocation||enabled.banking){
+  if(enabled.allocation||enabled.banking||enabled.missing){
     const sh=SpreadsheetApp.openById(src.NGAN_HANG.id).getSheetByName(src.NGAN_HANG.tab);
     if(!sh)throw new Error('Missing banking hierarchy source');
     const n=sh.getLastRow()-1;
     if(n>25000)throw new Error('Bank source exceeds safety size');
     const info=n>0?sh.getRange(2,2,n,4).getDisplayValues():[];
-    const status=n>0?sh.getRange(2,8,n,1).getDisplayValues():[];
+    const status=enabled.banking&&n>0?sh.getRange(2,8,n,1).getDisplayValues():[];
     const nodes={};
     info.forEach(r=>{const code=String(r[0]||'').trim(),name=String(r[1]||'').trim(),parent=String(r[2]||'').trim();
       if(code&&name&&!Object.prototype.hasOwnProperty.call(nodes,code))nodes[code]={name:name.slice(0,190),parent};});
@@ -476,6 +488,42 @@ function buildStatsFeed_(){
         registrationRate:all?registered/all:null,
         unitRanking:ranked,unmappedForRanking:unmapped,
         sourceSnapshot:src.NGAN_HANG.snapshot};
+    }
+  }
+
+  // Public missing-record ranking: only counts from organization names unambiguously
+  // linked to exactly one of the 46 level-2 organizations. No person-level data.
+  if(enabled.missing&&unitTree&&missingOrgRows){
+    const orgKey=v=>String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+      .replace(/đ/g,'d').replace(/Đ/g,'D').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();
+    const nameRoots={};
+    unitTree.info.forEach(r=>{
+      const root=unitTree.rootOf(r[0]),key=orgKey(r[1]);
+      if(!root||!key)return;
+      if(!nameRoots[key])nameRoots[key]=new Set();
+      nameRoots[key].add(root);
+    });
+    const groups={};
+    unitTree.roots.forEach(code=>{groups[code]={name:unitTree.nodes[code].name,count:0};});
+    let matched=0,unmatched=0;
+    missingOrgRows.forEach(r=>{
+      const candidates=nameRoots[orgKey(r.parent)];
+      const child=nameRoots[orgKey(r.unit)];
+      let code='';
+      if(candidates&&candidates.size===1)code=[...candidates][0];
+      else if(candidates&&candidates.size>1&&child&&child.size===1){
+        const possible=[...child][0];
+        if(candidates.has(possible))code=possible;
+      }
+      // Never assign by the child name alone if its parent is not identifiable.
+      if(code){groups[code].count++;matched++;}else unmatched++;
+    });
+    if(matched+unmatched===modules.missing.rowCount&&unitTree.roots.length===46){
+      const records=Object.values(groups);
+      const byName=(a,b)=>a.name.localeCompare(b.name,'vi');
+      const top=records.slice().sort((a,b)=>b.count-a.count||byName(a,b)).slice(0,10);
+      const bottom=records.slice().sort((a,b)=>a.count-b.count||byName(a,b)).slice(0,10);
+      modules.missing.level2Ranking={eligibleUnits:46,matchedRows:matched,unmatchedRows:unmatched,top,bottom};
     }
   }
   // Allocation sheet has only agency name and status; duplicated names such as

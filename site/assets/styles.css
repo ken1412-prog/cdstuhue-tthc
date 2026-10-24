@@ -161,3 +161,9 @@ body.menu-loading [data-view],body.menu-loading .menu-group,body.menu-loading #o
 .stats-ranking-scroll .stats-rank-row em{text-align:right;white-space:nowrap}
 .stats-sync-pending{margin:10px 0 0;font-size:11px;color:#875b30;background:#fff7e9;padding:9px 11px;border-radius:9px}
 @media(max-width:520px){.stats-dashboard-grid .stats-payment-panel{padding:14px 12px}.stats-ranking-scroll{max-height:330px}.stats-ranking-scroll .stats-rank-row{grid-template-columns:31px minmax(0,1fr) 62px;gap:7px}.stats-payment-panel .stats-count-chip{font-size:10px}}
+
+/* Missing-filing rankings: red = more outstanding records, green = fewer. */
+.stats-missing-leaders .stats-leaderboard-unit{gap:4px}
+.stats-missing-leaders .stats-leaderboard-row{min-height:65px}
+.stats-missing-leaders .stats-leaderboard-row>b{font-variant-numeric:tabular-nums}
+.stats-missing-leaders .stats-leaderboard-unit small{font-size:10px;line-height:1.3}
