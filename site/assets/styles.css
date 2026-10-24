@@ -92,3 +92,27 @@ body.menu-loading [data-view],body.menu-loading .menu-group,body.menu-loading #o
  .footer{flex-direction:column;align-items:stretch;gap:10px}
  .footer-credit{align-self:flex-end;margin-left:0;text-align:right;align-items:flex-end}
 }
+
+/* Minimalist dashboard: remove secondary card captions and decorative microcopy.
+   Preserve the legal footer, warning notices and numerical data context. */
+.mini-plot > small,
+.stat-caption,
+.stats-hero-metric > span,
+.stats-kpi > span,
+.fin-stat-bottom,
+.fin-chart-label > small,
+.fin-caption,
+.stats-rank-row small,
+.mini-card > small,
+.category-card > p,
+.section-heading p,
+.panel-head p,
+.fin-ribbon-copy > p,
+.stats-hero-title p {display:none!important}
+.stat-card{min-height:104px;padding:15px 18px}
+.stat-number{margin-top:9px}
+.stats-hero-metric{gap:8px;padding:14px 15px}
+.stats-kpi{gap:9px}
+.fin-stat{min-height:104px}
+.mini-plot svg{margin-bottom:0}
+.category-card{min-height:auto}
