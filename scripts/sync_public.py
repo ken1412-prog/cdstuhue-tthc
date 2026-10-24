@@ -15,6 +15,7 @@ from urllib.parse import urlparse
 ROOT = Path(__file__).resolve().parents[1]
 OUTPUT = ROOT / 'site' / 'data' / 'approved.json'
 FINANCE_OUTPUT = ROOT / 'site' / 'data' / 'finance.json'
+STATS_OUTPUT = ROOT / 'site' / 'data' / 'stats.json'
 VALID_GROUPS = {'tthc', 'stdv', 'csdl'}
 
 
@@ -105,9 +106,21 @@ def main():
     # Both sources must pass validation before any output is replaced.
     qa=validate(get_json(endpoint+sep+'kind=qa'))
     finance=validate_finance(get_json(endpoint+sep+'kind=finance'))
+    stats={'schema':1,'public':False,'reviewed':False,'period':'2026-10','modules':{},'note':'Chưa có thống kê được duyệt.'}
+    try:
+        candidate=get_json(endpoint+sep+'kind=stats')
+        if isinstance(candidate,dict) and candidate.get('schema')==1 and candidate.get('public') is True and candidate.get('reviewed') is True and isinstance(candidate.get('modules'),dict):
+            allowed={'payment','ranking','missing','allocation','banking'}
+            modules={key:val for key,val in candidate['modules'].items() if key in allowed and isinstance(val,dict)}
+            stats={'schema':1,'public':True,'reviewed':True,'period':str(candidate.get('period') or ''),
+                   'generatedAt':str(candidate.get('generatedAt') or ''),'source':'Google Sheets - reviewed aggregate statistics',
+                   'warning':'Các báo cáo có phạm vi khác nhau; không cộng chéo số liệu.','modules':modules}
+    except (ValueError,RuntimeError,OSError,KeyError,TimeoutError):
+        pass
     OUTPUT.parent.mkdir(parents=True,exist_ok=True)
     OUTPUT.write_text(json.dumps(qa,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
     FINANCE_OUTPUT.write_text(json.dumps(finance,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+    STATS_OUTPUT.write_text(json.dumps(stats,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
     print(f'Prepared {len(qa["items"])} approved QA and finance publication: {finance["public"]}')
 
 
