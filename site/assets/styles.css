@@ -78,3 +78,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
 
 /* Keep owner-disabled categories out of layout and assistive navigation. */
 [hidden]{display:none !important}
+
+/* Category settings load before links can be exposed, preventing a flash of disabled controls. */
+body.menu-loading [data-view],body.menu-loading .menu-group,body.menu-loading #openAssistant {visibility:hidden!important}
+[hidden]{display:none!important}
