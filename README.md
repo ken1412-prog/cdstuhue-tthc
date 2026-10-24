@@ -132,3 +132,19 @@ Mỗi 2 giờ, workflow hiện hành gọi /exec?kind=stats và lưu `site/data/
 Phân hệ thu nộp có bảng xếp hạng chỉ xuất phần trăm, thứ hạng và tên đơn vị; chỉ xét các đơn vị với tối thiểu 100 đảng viên ở cùng báo cáo 46 đơn vị. Không suy diễn xếp hạng là hiệu quả công tác chung; không ghép số liệu từ các nguồn khác nhau. Khi sửa 4 Sheet nguồn, lần đồng bộ *sau khi nguồn được duyệt để công khai* sẽ tính lại tổng hợp và xếp hạng. Nếu cập nhật sang kỳ khác, cần chỉnh kỳ hiển thị và phê duyệt lại phạm vi báo cáo trước khi xuất.
 
 **Phạm vi xuất bản thống kê:** Người quản trị được phép duyệt và công bố cả năm phân hệ (tỷ lệ thu nộp; xếp hạng đơn vị; số dòng chưa khai báo và tỷ trọng theo đơn vị cha; trạng thái/tỷ lệ xác nhận phân bổ; trạng thái/tỷ lệ đăng ký tài khoản ngân hàng). Không công bố bất kỳ số tiền, số tài khoản ngân hàng, tên cá nhân, mã định danh, dữ liệu hồ sơ từng người hoặc bảng nguồn thô nào. Tỷ trọng trong danh sách chưa khai báo không phải tỷ lệ trên tổng đảng viên vì khác mẫu số. Bộ lọc scripts/sync_public.py có danh sách trường được phép cho từng phân hệ.
+
+
+## Quản trị ẨN/HIỆN danh mục (24/10/2026)
+
+Trình quản trị hiện dùng **Google Sheets có xác thực tài khoản Google**, không đặt mật khẩu trong giao diện HTML/JavaScript công khai (vì mật khẩu đó có thể bị xem qua mã nguồn).
+
+- Mở Sheet riêng tư `CDSTUHUE STATS HUB 2026` → tab `QUAN_TRI_DANH_MUC`.
+- Chỉnh **chỉ cột C** cho 4 danh mục `chinh-thuc`, `tam-thoi`, `nhan-xet`, `dang-phi`. Chọn `HIỆN` hoặc `ẨN` trong danh sách thả xuống.
+- Mặc định hiện cả bốn đang đặt là `ẨN`. Mục `Thống kê đảng phí` độc lập ở phần Tổng hợp vẫn hiển thị, không phải cùng với `dang-phi` trong nhóm thủ tục.
+- `apps-script/Code.gs` cung cấp `/exec?kind=menu`: chỉ trả `{schema:1,visible:{...}}` với bốn cờ boolean, không cung cấp Sheet ID hoặc nội dung riêng.
+- `scripts/sync_public.py` xuất bản `site/data/menu.json` sau mỗi lịch đồng bộ. Nếu endpoint chưa cập nhật, không truy cập được hoặc cấu hình sai, toàn bộ bốn mục sẽ **ẨN mặc định**.
+- Menu bên, các thẻ ở Tổng quan, thống kê tiến độ liên quan và các đường dẫn `?view=...` đều tuân theo cờ. Người dùng nhập liên kết trực tiếp của danh mục ẩn sẽ được đưa về Tổng quan. **Ẩn không phải bảo mật nội dung**: một tài nguyên từng công khai có thể còn trong cache, lịch sử hoặc các bản lưu bên ngoài.
+- Để bật cơ chế tự đổi trạng thái: thay phiên bản mới nhất của `apps-script/Code.gs` trong dự án **CDSTUHUE_WEB_PUBLIC**, giữ `CDSTUHUE_STATS_HUB_ID` trỏ đến Sheet riêng tư, chọn **Deploy → Manage deployments → Edit → New version → Deploy**. Không đổi URL /exec. Kiểm tra `/exec?kind=menu`.
+- Sau khi chỉnh cột C, có thể đợi lịch GitHub Actions hai giờ/lần, hoặc chạy workflow **Publish CDSTUHUE website → Run workflow** rồi tải lại web. Không phải sửa mã HTML nữa.
+
+Không bao giờ đưa mật khẩu đăng nhập Google, mã xác thực hoặc thông tin cá nhân vào `menu.json`.
