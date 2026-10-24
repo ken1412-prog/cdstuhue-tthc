@@ -210,22 +210,30 @@ function guideView(){return `<div class="columns"><section class="panel"><div cl
 function reportsView(){const qa=published(),p=progress();return `<div class="report-hero"><div><h3>Xuất báo cáo từ dữ liệu đã công khai</h3><p>Không bao gồm cột Messages nội bộ, độ tin cậy nội bộ, nguồn hỏi và nguồn trả lời chưa duyệt.</p></div><div class="head-actions"><button class="btn dark" data-action="export-qa">⇩ QA (CSV)</button> <button class="btn" data-action="export-finance">⇩ Thống kê đảng phí</button> <button class="btn" data-action="export-progress">⇩ Tiến độ (CSV)</button> <button class="btn" data-action="upload-progress">⇧ Nhập JSON để xem thử</button><input type="file" id="progressFile" accept="application/json,.json" class="hidden"> <button class="btn" data-action="print">▤ In / PDF</button></div></div><div class="columns"><section class="panel"><div class="panel-head"><h2>Kho hỏi – đáp được xuất bản</h2><span class="badge good">${qa.length} QA</span></div><div class="mini-grid">${Object.entries(GROUPS).map(([k,v])=>`<div class="mini-card"><span>${E(v.full)}</span><strong>${qa.filter(x=>x.group===k).length}</strong><small>Đã duyệt công khai</small></div>`).join('')}<div class="mini-card"><span>Bản xuất</span><strong style="font-size:13px">${E(DATE(state.generatedAt))}</strong><small>Google Sheets qua bộ lọc</small></div></div></section><section class="panel"><div class="panel-head"><h2>Tiến độ hành chính</h2><span class="badge ${p.length?'good':'warn'}">${p.length} bản ghi</span></div>${progressBars()}<div class="small-note">Khi chưa có số liệu được kết nối, không tự suy ra mức hoàn thành.</div></section></div><section class="panel"><div class="panel-head"><h2>Kiểm soát trước khi công khai</h2></div><p style="font-size:12px;color:#748396">Mọi nội dung đã xuất bản trên Internet có thể được lưu lại bởi công cụ tìm kiếm và người truy cập. Chỉ duyệt những câu hỏi và câu trả lời được phép công khai. Mặc định không xuất bản mã CCCD, số điện thoại, hồ sơ cụ thể, các đoạn hội thoại nội bộ và nguồn Messages.</p></section>`}
 function subtitle(view){if(view==='overview')return ['Không gian điều hành số','Tổng hợp thống kê đảng phí, tiến độ thủ tục và tri thức hỗ trợ kỹ thuật của Thành phố Huế.'];if(view==='finance')return ['Thống kê đảng phí & tài khoản ngân hàng','Báo cáo tổng hợp theo kỳ, dựa trên dữ liệu được phép công khai hoặc minh họa có gắn nhãn.'];if(view==='units')return ['Bảng tiến độ tổng','Báo cáo tiến độ cho các danh mục hiện được phép hiển thị.'];if(PROCEDURES[view])return [PROCEDURES[view].title,PROCEDURES[view].help];if(view.startsWith('qa-')){const group=selectedGroup();return [group?'Hỏi – đáp '+GROUPS[group].full:'Kho hỏi – đáp kỹ thuật','Tra cứu các tình huống đã được xét duyệt công khai; tìm kiếm có dấu hoặc không dấu.']}if(view==='resources')return ['Tài liệu & liên kết','Thư viện tài nguyên và các hệ thống tham khảo được phép truy cập công khai.'];if(view==='reports')return ['Báo cáo & xuất dữ liệu','In báo cáo, tải bảng dữ liệu và kiểm tra trạng thái đồng bộ.'];if(view==='guide')return ['Hướng dẫn sử dụng','Cách tra cứu, báo cáo và kiểm duyệt nội dung xuất bản.'];return subtitle('overview')}
 function render(){
- if(!viewAllowed(state.view))state.view='overview';
+ if(!state.menuReady){$('#page').innerHTML='<div class="notice"><strong>Đang tải danh mục công khai...</strong></div>';return;}
+ if(!viewAllowed(state.view))state.view=firstVisibleView();
  const view=state.view;
- let page=view==='overview'?overview():view==='finance'||view==='dang-phi'?financeView():view==='units'?progressView():PROCEDURE_GUIDES[view]?procedureGuideView():view.startsWith('qa-')?qaView():view==='resources'?resourcesView():view==='reports'?reportsView():guideView();
+ const page=view==='closed'?'<section class="panel"><h2>Chưa có danh mục công khai</h2><p>Trang hiện không có chuyên mục được bật. Quản trị viên có thể thay đổi danh mục trong bảng quản trị riêng tư.</p></section>':
+ view==='overview'?overview():view==='finance'||view==='dang-phi'?financeView():
+ view==='units'?progressView():PROCEDURE_GUIDES[view]?procedureGuideView():
+ view.startsWith('qa-')?qaView():view==='resources'?resourcesView():
+ view==='reports'?reportsView():guideView();
  $('#page').innerHTML=page;
- const [title,sub]=subtitle(view);$('#pageTitle').textContent=title;$('#pageSubtitle').textContent=sub;
+ const [title,sub]=view==='closed'?['Không có danh mục công khai','Các chức năng đã được quản trị viên tạm ẩn.']:subtitle(view);
+ $('#pageTitle').textContent=title;$('#pageSubtitle').textContent=sub;
  $('#crumb').textContent=view.startsWith('qa-')?'Hỏi – đáp':title;
  $('#heroIndicator').textContent=view==='finance'||view==='dang-phi'?'₫':String(published().length).padStart(2,'0');
  $('#indicatorNote').textContent=view==='finance'||view==='dang-phi'?'THỐNG KÊ ĐÃ KIỂM DUYỆT':'Câu hỏi đã xuất bản';
- $('.nav-link').forEach(el=>el.classList.toggle('active',el.dataset.view===view));bindPage();applyMenuVisibility();
+ $$('.nav-link').forEach(el=>el.classList.toggle('active',el.dataset.view===view));
+ bindPage();
+ applyMenuVisibility();
 }
 function route(view,{replace=false}={}){
- if(!viewAllowed(view))view='overview';
+ if(!viewAllowed(view))view=firstVisibleView();
  if(state.view!==view){state.query='';state.page=0;state.unitQuery='';}
  state.view=view;
  const path=view.startsWith('qa-')?'hoi-dap.html':'index.html';
- const url=path+(view==='qa-all'?'':('?view='+encodeURIComponent(view)));
+ const url=path+'?view='+encodeURIComponent(view);
  if(replace)history.replaceState({},'',url);else history.pushState({},'',url);
  render();window.scrollTo(0,0);closeMobile();
 }
@@ -233,12 +241,13 @@ function syncFromUrl(){
  const url=new URL(location.href),v=url.searchParams.get('view');
  const requested=v||(/hoi-dap\.html$/.test(url.pathname)?'qa-all':'overview');
  if(!state.menuReady)state.pendingView=requested;
- const visible=viewAllowed(requested);
- state.view=visible?requested:'overview';state.query='';state.page=0;
- if(state.menuReady&&!visible)history.replaceState({},'','index.html?view=overview');
+ state.view=viewAllowed(requested)?requested:firstVisibleView();
+ state.query='';state.page=0;
+ if(state.menuReady&&!viewAllowed(requested))
+  history.replaceState({},'','index.html?view='+encodeURIComponent(state.view));
  render();
  const id=url.searchParams.get('id');
- if(id&&state.view.startsWith('qa-'))setTimeout(()=>openQA(id),0);
+ if(id&&state.menuReady&&state.view.startsWith('qa-'))setTimeout(()=>openQA(id),0);
 }
 function openQA(id){const x=published().find(x=>x.id===id);if(!x){toast('Không tìm thấy mã QA này trong bản công khai');return}$('#modalTitle').textContent=x.question;$('#modalGroup').textContent=GROUPS[x.group]?.full||x.group;$('#modalId').textContent=x.id+(state.demo?' · MINH HỌA':'');$('#modalBody').innerHTML=`<h3>Trả lời</h3><div class="answer">${E(x.answer)}</div>${x.publicNote?`<div class="small-note">${E(x.publicNote)}</div>`:''}${x.sourceUrl?`<div class="source-label"><b>Nguồn công khai:</b> <a href="${E(x.sourceUrl)}" target="_blank" rel="noopener noreferrer">${E(x.sourceUrl)}</a></div>`:''}`;$('#copyLinkBtn').dataset.id=x.id;$('#qaModal').classList.remove('hidden');document.body.style.overflow='hidden';}
 function closeQA(){if($('#qaModal').classList.contains('hidden'))return;$('#qaModal').classList.add('hidden');document.body.style.overflow='';}
