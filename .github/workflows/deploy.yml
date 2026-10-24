@@ -32,6 +32,8 @@ jobs:
           python -m json.tool site/data/approved.json > /dev/null
           python -m json.tool site/data/progress.json > /dev/null
           python -m json.tool site/data/finance.json > /dev/null
+          python -m json.tool site/data/stats.json > /dev/null
+          node --check site/assets/app.js
           test -s site/index.html
           test -s site/hoi-dap.html
           test -s site/assets/app.js
