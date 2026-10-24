@@ -38,9 +38,9 @@ const demoProgress=[
 {unit:'Đơn vị minh họa B',procedure:'dang-phi',progress:79,received:125,completed:99,updated:'2026-10-23',public:true,demo:true},
 {unit:'Đơn vị minh họa C',procedure:'dang-phi',progress:54,received:88,completed:47,updated:'2026-10-23',public:true,demo:true}
 ];
-const state={menu: {'chinh-thuc':false,'tam-thoi':false,'nhan-xet':false,'dang-phi':false},menuReady:false,pendingView:null,qa:[],progress:[],finance:null,stats:null,view:'overview',filter:'',query:'',unitQuery:'',sort:'default',page:0,generatedAt:'',demo:false,local:false,loadError:null};
+const state={menu: {overview:true,finance:true,units:false,'chinh-thuc':false,'tam-thoi':false,'nhan-xet':false,'dang-phi':false,'qa-all':true,'qa-tthc':true,'qa-stdv':true,'qa-csdl':true,resources:false,reports:false,guide:false},menuReady:false,pendingView:null,qa:[],progress:[],finance:null,stats:null,view:'overview',filter:'',query:'',unitQuery:'',sort:'default',page:0,generatedAt:'',demo:false,local:false,loadError:null};
 const defaultViews=['overview','finance','units','resources','reports','guide','qa-all','qa-tthc','qa-stdv','qa-csdl'];
-function viewAllowed(v){return defaultViews.includes(v)||(Object.prototype.hasOwnProperty.call(PROCEDURES,v)&&state.menu[v]===true);}
+function viewAllowed(v){return v==='overview'||(Object.prototype.hasOwnProperty.call(state.menu,v)&&state.menu[v]===true);}
 function procedureMenu(){
  const entries=Object.entries(PROCEDURES).filter(([id])=>state.menu[id]===true);
  const menu=$('#procedureNav'),header=$('#procedureMenuGroup');
