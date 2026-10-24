@@ -23,7 +23,7 @@
       <nav class="nav" id="mainNav" aria-label="Điều hướng chính">
         <button type="button" class="nav-link active" data-view="overview"><span class="nav-ico">▦</span><span>Tổng quan điều hành</span></button>
         <button type="button" class="nav-link" data-view="finance"><span class="nav-ico">◫</span><span>Thống kê đảng phí</span><span class="menu-new">MỚI</span></button>
-        <button type="button" class="nav-link" data-view="units"><span class="nav-ico">▤</span><span>Bảng tiến độ (khi có)</span></button>
+        <button type="button" class="nav-link" data-view="units" hidden><span class="nav-ico">▤</span><span>Bảng tiến độ (khi có)</span></button>
       </nav>
       <div class="menu-group" id="procedureMenuGroup" hidden>THỦ TỤC · HƯỚNG DẪN</div>
       <nav class="nav" id="procedureNav" aria-label="Theo dõi thủ tục" hidden></nav>
@@ -34,11 +34,11 @@
         <button type="button" class="nav-link" data-view="qa-stdv"><span class="nav-ico">?</span><span>Hỏi – đáp Sổ tay ĐV</span><span class="nav-count" id="qaStdvSide">0</span></button>
         <button type="button" class="nav-link" data-view="qa-csdl"><span class="nav-ico">?</span><span>Hỏi – đáp CSDL 4.0</span><span class="nav-count" id="qaCsdlSide">0</span></button>
       </nav>
-      <div class="menu-group" id="utilityMenuGroup">TIỆN ÍCH</div>
-      <nav class="nav" id="utilityNav" aria-label="Công cụ">
-        <button type="button" class="nav-link" data-view="resources"><span class="nav-ico">▧</span><span>Tài liệu, liên kết</span></button>
-        <button type="button" class="nav-link" data-view="reports"><span class="nav-ico">▥</span><span>Báo cáo & xuất dữ liệu</span></button>
-        <button type="button" class="nav-link" data-view="guide"><span class="nav-ico">ⓘ</span><span>Hướng dẫn sử dụng</span></button>
+      <div class="menu-group" id="utilityMenuGroup" hidden>TIỆN ÍCH</div>
+      <nav class="nav" id="utilityNav" aria-label="Công cụ" hidden>
+        <button type="button" class="nav-link" data-view="resources" hidden><span class="nav-ico">▧</span><span>Tài liệu, liên kết</span></button>
+        <button type="button" class="nav-link" data-view="reports" hidden><span class="nav-ico">▥</span><span>Báo cáo & xuất dữ liệu</span></button>
+        <button type="button" class="nav-link" data-view="guide" hidden><span class="nav-ico">ⓘ</span><span>Hướng dẫn sử dụng</span></button>
       </nav>
     </div>
     <div class="sidebar-bottom">
