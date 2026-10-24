@@ -183,21 +183,20 @@ def main():
         print(f'Stats export unavailable ({type(exc).__name__}); publishing empty stats safely')
     print('Stats groups ready: ' + ', '.join(stats['modules']) if stats['modules'] else 'Stats groups ready: none')
     # Visibility defaults are safe even before the owner's Apps Script is redeployed.
-    defaults={'overview':True,'finance':True,'units':False,
+    defaults={'overview':True,'finance':True,'units':True,
               'chinh-thuc':False,'tam-thoi':False,'nhan-xet':False,'dang-phi':False,
               'qa-all':True,'qa-tthc':True,'qa-stdv':True,'qa-csdl':True,
-              'resources':False,'reports':False,'guide':False}
+              'resources':True,'reports':True,'guide':True,'assistant':True}
     menu={'schema':1,'visible':defaults.copy()}
     try:
         raw=get_json(endpoint+sep+'kind=menu')
         flags=raw.get('visible') if isinstance(raw,dict) and raw.get('schema')==1 else None
         if isinstance(flags,dict):
             for key in defaults:
-                if key != 'overview' and isinstance(flags.get(key),bool):
+                if isinstance(flags.get(key),bool):
                     menu['visible'][key]=flags[key]
     except (ValueError,RuntimeError,OSError,KeyError,TimeoutError,TypeError) as exc:
-        print(f'Menu feed not ready ({type(exc).__name__}): using configured safe defaults')
-    menu['visible']['overview']=True
+        print(f'Menu feed unavailable ({type(exc).__name__}): using default menu visibility')
     print('Hidden navigation categories: '+', '.join(k for k,v in menu['visible'].items() if not v))
     OUTPUT.parent.mkdir(parents=True,exist_ok=True)
     OUTPUT.write_text(json.dumps(qa,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
