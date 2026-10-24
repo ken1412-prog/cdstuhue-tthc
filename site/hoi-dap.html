@@ -6,10 +6,10 @@
 <meta name="theme-color" content="#172a4a">
 <meta name="description" content="CDSTUHUE — Không gian theo dõi TTHC, thống kê đảng phí và kho hỗ trợ kỹ thuật TTHC, STDV, CSDL 4.0."><meta property="og:title" content="CDSTUHUE — Trung tâm thông tin & hỗ trợ kỹ thuật"><meta property="og:description" content="Dashboard tổng hợp, thống kê đảng phí và kho tri thức được xét duyệt.">
 <title>CDSTUHUE — Trung tâm thông tin & hỗ trợ kỹ thuật</title>
-<link rel="stylesheet" href="assets/styles.css?v=20261024-menu03">
-<script src="assets/app.js?v=20261024-menu03" defer></script>
+<link rel="stylesheet" href="assets/styles.css?v=20261024-menuall04">
+<script src="assets/app.js?v=20261024-menuall04" defer></script>
 </head>
-<body>
+<body class="menu-loading">
 <div class="app">
   <div class="shade" id="shade"></div>
   <aside class="sidebar" id="sidebar">
@@ -19,7 +19,7 @@
       <button class="sidebar-close" id="closeMenu" aria-label="Đóng menu">×</button>
     </div>
     <div class="sidebar-scroll">
-      <div class="menu-group">TỔNG HỢP</div>
+      <div class="menu-group" id="coreMenuGroup">TỔNG HỢP</div>
       <nav class="nav" id="mainNav" aria-label="Điều hướng chính">
         <button type="button" class="nav-link active" data-view="overview"><span class="nav-ico">▦</span><span>Tổng quan điều hành</span></button>
         <button type="button" class="nav-link" data-view="finance"><span class="nav-ico">◫</span><span>Thống kê đảng phí</span><span class="menu-new">MỚI</span></button>
@@ -27,15 +27,15 @@
       </nav>
       <div class="menu-group" id="procedureMenuGroup" hidden>THỦ TỤC · HƯỚNG DẪN</div>
       <nav class="nav" id="procedureNav" aria-label="Theo dõi thủ tục" hidden></nav>
-      <div class="menu-group">KHO HỎI – ĐÁP</div>
-      <nav class="nav" aria-label="Kho tri thức">
+      <div class="menu-group" id="qaMenuGroup">KHO HỎI – ĐÁP</div>
+      <nav class="nav" id="qaNav" aria-label="Kho tri thức">
         <button type="button" class="nav-link" data-view="qa-all"><span class="nav-ico">◈</span><span>Tất cả câu hỏi</span><span class="nav-count" id="qaTotalSide">0</span></button>
         <button type="button" class="nav-link" data-view="qa-tthc"><span class="nav-ico">?</span><span>Hỏi – đáp TTHC</span><span class="nav-count" id="qaTthcSide">0</span></button>
         <button type="button" class="nav-link" data-view="qa-stdv"><span class="nav-ico">?</span><span>Hỏi – đáp Sổ tay ĐV</span><span class="nav-count" id="qaStdvSide">0</span></button>
         <button type="button" class="nav-link" data-view="qa-csdl"><span class="nav-ico">?</span><span>Hỏi – đáp CSDL 4.0</span><span class="nav-count" id="qaCsdlSide">0</span></button>
       </nav>
-      <div class="menu-group">TIỆN ÍCH</div>
-      <nav class="nav" aria-label="Công cụ">
+      <div class="menu-group" id="utilityMenuGroup">TIỆN ÍCH</div>
+      <nav class="nav" id="utilityNav" aria-label="Công cụ">
         <button type="button" class="nav-link" data-view="resources"><span class="nav-ico">▧</span><span>Tài liệu, liên kết</span></button>
         <button type="button" class="nav-link" data-view="reports"><span class="nav-ico">▥</span><span>Báo cáo & xuất dữ liệu</span></button>
         <button type="button" class="nav-link" data-view="guide"><span class="nav-ico">ⓘ</span><span>Hướng dẫn sử dụng</span></button>
