@@ -443,24 +443,24 @@ function buildStatsFeed_(){
  * Do not use a password in browser JavaScript: GitHub Pages is public.
  */
 function buildMenuFeed_(){
+  // Only explicit values from the owner's private Sheet control what is public.
   const defaults={
-    'overview':true,'finance':true,'units':false,
+    'overview':true,'finance':true,'units':true,
     'chinh-thuc':false,'tam-thoi':false,'nhan-xet':false,'dang-phi':false,
     'qa-all':true,'qa-tthc':true,'qa-stdv':true,'qa-csdl':true,
-    'resources':false,'reports':false,'guide':false
+    'resources':true,'reports':true,'guide':true,'assistant':true
   };
   const visible=Object.assign({},defaults);
   const hubId=PropertiesService.getScriptProperties().getProperty('CDSTUHUE_STATS_HUB_ID');
   if(!hubId)return {schema:1,visible};
   const sh=SpreadsheetApp.openById(hubId).getSheetByName('QUAN_TRI_DANH_MUC');
   if(!sh)return {schema:1,visible};
-  const n=Math.min(100,sh.getLastRow()-1);
-  if(n>0)sh.getRange(2,1,n,3).getDisplayValues().forEach(row=>{
+  const n=Math.min(100,Math.max(0,sh.getLastRow()-1));
+  if(n)sh.getRange(2,1,n,3).getDisplayValues().forEach(row=>{
     const id=String(row[0]||'').trim();
-    const state=String(row[2]||'').trim();
-    if(id!=='overview'&&Object.prototype.hasOwnProperty.call(defaults,id) &&
-       (state==='HIỆN'||state==='ẨN'))visible[id]=state==='HIỆN';
+    const setting=String(row[2]||'').trim();
+    if(Object.prototype.hasOwnProperty.call(defaults,id) &&
+       (setting==='HIỆN'||setting==='ẨN'))visible[id]=setting==='HIỆN';
   });
-  visible.overview=true; // Always keep a functional homepage.
   return {schema:1,visible};
 }
