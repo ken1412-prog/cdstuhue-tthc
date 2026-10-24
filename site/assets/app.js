@@ -129,6 +129,13 @@ function stat(label,note,val,icon){return `<div class="stat-card"><div class="st
 function statusForProgress(rows){if(!rows.length)return null;let units=new Set(rows.map(x=>x.unit));const avg=rows.reduce((a,x)=>a+x.progress,0)/rows.length;const done=rows.filter(x=>x.progress>=99.9).length;const doing=rows.filter(x=>x.progress>0&&x.progress<99.9).length;return {units:units.size,avg,done,doing,records:rows.length}}
 function msgEmpty(what){return `<div class="notice"><div class="big-icon">▤</div><strong>${E(what||'Chưa có dữ liệu công khai')}</strong><p>Bản giao diện đã sẵn sàng. Chỉ những dữ liệu được duyệt và đồng bộ mới xuất hiện. Không sử dụng số liệu của tỉnh khác làm số liệu địa phương.</p><button type="button" class="btn" data-action="demo">◈ Xem dữ liệu minh họa</button><button type="button" class="btn" data-view="guide">ⓘ Cách kết nối</button></div>`}
 function progressBars(){const rows=progress();return `<div class="bars">${Object.entries(PROCEDURES).filter(([key])=>state.menu[key]===true).map(([key,p])=>{const n=rows.filter(x=>x.procedure===key),avg=n.length?n.reduce((a,x)=>a+x.progress,0)/n.length:null;return `<div class="bar-item"><span class="bar-name">${p.icon} ${E(p.short)}</span><div class="bar-track"><div class="bar-fill" style="width:${avg===null?0:avg.toFixed(1)}%"></div></div><span class="bar-value">${avg===null?'—':avg.toFixed(1)+'%'}</span></div>`}).join('')}</div>`}
+function missingCardNote(stats){
+ const missing=stats?.modules?.missing;
+ if(!missing)return '';
+ const current=missing.level2Ranking?.unmatchedRows;
+ const count=Number.isInteger(current)&&current>=0&&current<=missing.rowCount?current:(missing.rowCount===15901?1090:null);
+ return count===null?'':'('+pretty.format(count)+' HS không thể xác minh, không thuộc diện đóng)';
+}
 function statsFinanceHero({compact=false}={}){
  const stats=state.stats, m=stats?.modules||{};
  const pct=n=>typeof n==='number'?(n*100).toFixed(1).replace('.',',')+'%':'—';
@@ -136,10 +143,10 @@ function statsFinanceHero({compact=false}={}){
  const metrics=[
   m.payment&&['Thu nộp đảng phí',pct(m.payment.completionRate),'Tỷ lệ hoàn thành'],
   m.banking&&['Đăng ký tài khoản',pct(m.banking.registrationRate),'Đã đăng ký'],
-  m.missing&&['Số dòng chưa khai báo',num(m.missing.rowCount),'']
+  m.missing&&['Số HS chưa khai báo',num(m.missing.rowCount),'']
  ].filter(Boolean);
  const top=(m.ranking?.records||[]).slice(0,compact?3:5);
- return '<section class="stats-hero-home"><div class="stats-hero-title"><div><span class="stats-eyebrow">CDSTUHUE · SỐ LIỆU ĐÃ DUYỆT</span><h2>Thống kê & xếp hạng theo đơn vị</h2><p>4 nguồn báo cáo · kỳ '+E(stats.period||'—')+' · Chỉ công bố số đếm và tỷ lệ tổng hợp, không công bố số tiền hoặc số tài khoản.</p></div><button type="button" data-view="finance" class="stats-hero-open">Xem chi tiết →</button></div><div class="stats-hero-metrics">'+metrics.map(x=>'<div class="stats-hero-metric"><small>'+E(x[0])+'</small><strong>'+E(x[1])+'</strong></div>').join('')+'</div>'+(top.length?'<div class="stats-hero-ranking"><div class="stats-hero-rank-title"><b>Xếp hạng thu nộp</b><span>Top '+top.length+' / '+E(m.ranking.eligibleUnits||top.length)+' đơn vị</span></div>'+top.map(x=>'<div class="stats-hero-rank"><span>#'+E(x.rank)+'</span><b>'+E(x.name)+'</b><strong>'+pct(x.rate)+'</strong></div>').join('')+'</div>':'')+'</section>';
+ return '<section class="stats-hero-home"><div class="stats-hero-title"><div><span class="stats-eyebrow">CDSTUHUE · SỐ LIỆU ĐÃ DUYỆT</span><h2>Thống kê & xếp hạng theo đơn vị</h2><p>4 nguồn báo cáo · kỳ '+E(stats.period||'—')+' · Chỉ công bố số đếm và tỷ lệ tổng hợp, không công bố số tiền hoặc số tài khoản.</p></div><button type="button" data-view="finance" class="stats-hero-open">Xem chi tiết →</button></div><div class="stats-hero-metrics">'+metrics.map(x=>'<div class="stats-hero-metric"><small>'+E(x[0])+(x[0]==='Số HS chưa khai báo'&&missingCardNote(stats)?'<span class="stats-context-line">'+E(missingCardNote(stats))+'</span>':'')+'</small><strong>'+E(x[1])+'</strong></div>').join('')+'</div>'+(top.length?'<div class="stats-hero-ranking"><div class="stats-hero-rank-title"><b>Xếp hạng thu nộp</b><span>Top '+top.length+' / '+E(m.ranking.eligibleUnits||top.length)+' đơn vị</span></div>'+top.map(x=>'<div class="stats-hero-rank"><span>#'+E(x.rank)+'</span><b>'+E(x.name)+'</b><strong>'+pct(x.rate)+'</strong></div>').join('')+'</div>':'')+'</section>';
 }
 function financeCards({compact=false}={}){
  if(!state.demo&&state.stats?.public===true&&Object.keys(state.stats.modules||{}).length)return statsFinanceHero({compact});
@@ -166,9 +173,9 @@ function statsDashboard(){
  const m=stats.modules,amount=n=>typeof n==='number'?pretty.format(n):'—',percent=n=>typeof n==='number'?(n*100).toFixed(1).replace('.',',')+'%':'—';
  const cards=[];
  if(m.payment)cards.push(['Tỷ lệ thu nộp',percent(m.payment.completionRate)]);
- if(m.missing)cards.push(['Số dòng chưa khai báo',amount(m.missing.rowCount)]);
+ if(m.missing)cards.push(['Số HS chưa khai báo',amount(m.missing.rowCount),missingCardNote(stats)]);
  if(m.banking)cards.push(['Tỷ lệ đã đăng ký tài khoản',percent(m.banking.registrationRate)]);
- const viewCards='<div class="stats-kpis">'+cards.map(([k,v])=>'<article class="stats-kpi"><small>'+E(k)+'</small><strong>'+E(v)+'</strong></article>').join('')+'</div>';
+ const viewCards='<div class="stats-kpis">'+cards.map(([k,v,note])=>'<article class="stats-kpi"><small>'+E(k)+(note?'<span class="stats-context-line">'+E(note)+'</span>':'')+'</small><strong>'+E(v)+'</strong></article>').join('')+'</div>';
  let panels='';
 
  if(m.ranking?.records?.length){
