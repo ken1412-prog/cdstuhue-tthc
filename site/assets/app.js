@@ -85,7 +85,7 @@ function statsDashboard(){
  if(!stats||!Object.keys(stats.modules||{}).length)return '<div class="panel stats-notice"><h2>Thống kê theo 4 báo cáo</h2><p>Đã chuẩn bị biểu đồ, xếp hạng và bảng dữ liệu. Số liệu sẽ xuất hiện sau khi người quản trị duyệt từng phân hệ trong Sheet thống kê riêng tư.</p></div>';
  const m=stats.modules,amount=n=>typeof n==='number'?pretty.format(n):'—',percent=n=>typeof n==='number'?(n*100).toFixed(1)+'%':'—';
  let cards=[];
- if(m.payment)cards.push(['Đơn vị báo cáo',amount(m.payment.reportingUnits),'Phạm vi báo cáo 46 đơn vị'],['Tiền đã nộp',amount(m.payment.paid)+' ₫','Theo hồ sơ khai báo'],['Tỷ lệ thu nộp',percent(m.payment.completionRate),'Theo số tiền, không phải số hồ sơ']);
+ if(m.payment)cards.push(['Tỷ lệ thu nộp',percent(m.payment.completionRate),'Theo kỳ báo cáo']);
  if(m.missing)cards.push(['Chưa khai báo',amount(m.missing.rowCount),'Số dòng trong nguồn chi tiết']);
  if(m.allocation)cards.push(['Đã xác nhận phân bổ',amount(m.allocation.confirmed),'Theo danh sách xác nhận']);
  if(m.banking)cards.push(['Đã có tài khoản',amount(m.banking.registered),'Số đơn vị trong nguồn ngân hàng']);
