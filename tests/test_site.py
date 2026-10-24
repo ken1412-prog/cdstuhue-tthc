@@ -84,6 +84,24 @@ class SiteTests(unittest.TestCase):
         self.assertIn("matched+unmatched===modules.missing.rowCount",gs)
         self.assertIn('approved_missing_level2',sync)
         self.assertNotIn('Các khu vực liên quan',js)
+    def test_qa_detail_actions_after_copy_button_removal(self):
+        js=(ROOT/'site/assets/app.js').read_text(encoding='utf-8')
+        for page in ('index.html','hoi-dap.html'):
+            html=(ROOT/'site'/page).read_text(encoding='utf-8')
+            self.assertIn('id="qaModal"',html)
+            self.assertIn('id="closeModal"',html)
+            self.assertNotIn('id="copyLinkBtn"',html)
+        self.assertIn('data-qa="${E(x.id)}"',js)
+        self.assertIn("if(node.dataset.qa){openQA(node.dataset.qa);return}",js)
+        self.assertIn("$('#closeModal').onclick=closeQA",js)
+        self.assertNotIn("$('#copyLinkBtn')",js)
+
+    def test_hue_background_visibility(self):
+        css=(ROOT/'site/assets/styles.css').read_text(encoding='utf-8')
+        self.assertIn("rgba(246,249,253,.72),rgba(247,249,252,.80)",css)
+        self.assertIn("rgba(246,249,253,.76),rgba(247,249,252,.84)",css)
+        self.assertIn("url('./img/hue-bridge-night.webp')",css)
+
     def test_js_syntax(self):
         p=subprocess.run(['node','--check',str(ROOT/'site/assets/app.js')],capture_output=True,text=True)
         self.assertEqual(p.returncode,0,p.stderr)

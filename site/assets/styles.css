@@ -177,7 +177,7 @@ body.menu-loading [data-view],body.menu-loading .menu-group,body.menu-loading #o
 :root{--hue-ink:#18314e;--hue-gold:#ffe19a}
 html,body,button,input,select,textarea{font-family:'Be Vietnam Pro',system-ui,-apple-system,'Segoe UI',sans-serif}
 body{
- background:linear-gradient(180deg,rgba(246,249,253,.94),rgba(247,249,252,.97)),
+ background:linear-gradient(180deg,rgba(246,249,253,.72),rgba(247,249,252,.80)),
   url('./img/hue-city-day.webp') center top/cover fixed no-repeat;
  color:#21334b;
 }
@@ -208,7 +208,7 @@ body{
 .section-heading h2,.panel h2,.stats-kpi strong{color:var(--hue-ink)}
 .panel,.stats-kpi,.stat-card,.category-card{background:#fff;box-shadow:0 9px 27px rgba(18,41,62,.09)}
 @media(max-width:760px){
- body{background:linear-gradient(180deg,rgba(246,249,253,.96),rgba(247,249,252,.98)),url('./img/hue-city-day.webp') center top/cover no-repeat}
+ body{background:linear-gradient(180deg,rgba(246,249,253,.76),rgba(247,249,252,.84)),url('./img/hue-city-day.webp') center top/cover no-repeat}
  .hero{background:linear-gradient(90deg,rgba(6,20,38,.95),rgba(9,27,46,.72)),url('./img/hue-bridge-night.webp') 51% center/cover no-repeat}
  .hero h1{font-size:clamp(23px,5.2vw,29px)}
  .hero p{font-size:12px}
