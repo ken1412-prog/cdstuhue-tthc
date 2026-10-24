@@ -85,7 +85,7 @@ function buildPublicFeed_() {
 function doGet(e){
   try {
     const kind=String((e&&e.parameter&&e.parameter.kind)||'qa');
-    const payload=kind==='finance'?buildFinanceFeed_():kind==='qa'?buildPublicFeed_():kind==='intake-status'?questionIntakeStatus_():kind==='stats'?buildStatsFeed_():{schema:1,error:'Unknown public feed type'};
+    const payload=kind==='finance'?buildFinanceFeed_():kind==='qa'?buildPublicFeed_():kind==='intake-status'?questionIntakeStatus_():kind==='stats'?buildStatsFeed_():kind==='menu'?buildMenuFeed_():{schema:1,error:'Unknown public feed type'};
     return ContentService.createTextOutput(JSON.stringify(payload)).setMimeType(ContentService.MimeType.JSON);
   } catch(err){return ContentService.createTextOutput(JSON.stringify({schema:1,error:'Public feed unavailable'})).setMimeType(ContentService.MimeType.JSON)}
 }
@@ -435,4 +435,24 @@ function buildStatsFeed_(){
     generatedAt:new Date().toISOString(),source:'Four owner-managed Google Sheets, approved aggregates only',
     warning:'Nguồn có phạm vi khác nhau. Không cộng dồn hoặc đồng nhất chỉ tiêu giữa các báo cáo.',
     modules};
+}
+
+/* Owner-managed navigation visibility.
+ * Only the connected owner can edit QUAN_TRI_DANH_MUC in the private reporting hub.
+ * Public output consists of four boolean flags, never private spreadsheet data.
+ * Do not use a password in browser JavaScript: GitHub Pages is public.
+ */
+function buildMenuFeed_(){
+  const allowed=['chinh-thuc','tam-thoi','nhan-xet','dang-phi'];
+  const visible=Object.fromEntries(allowed.map(id=>[id,false]));
+  const hubId=PropertiesService.getScriptProperties().getProperty('CDSTUHUE_STATS_HUB_ID');
+  if(!hubId)return {schema:1,visible};
+  const sh=SpreadsheetApp.openById(hubId).getSheetByName('QUAN_TRI_DANH_MUC');
+  if(!sh)return {schema:1,visible};
+  sh.getRange('A2:C5').getDisplayValues().forEach(row=>{
+    const id=String(row[0]||'').trim();
+    const state=String(row[2]||'').trim();
+    if(allowed.includes(id))visible[id]=state==='HIỆN';
+  });
+  return {schema:1,visible};
 }
