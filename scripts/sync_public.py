@@ -110,11 +110,34 @@ def main():
     try:
         candidate=get_json(endpoint+sep+'kind=stats')
         if isinstance(candidate,dict) and candidate.get('schema')==1 and candidate.get('public') is True and candidate.get('reviewed') is True and isinstance(candidate.get('modules'),dict):
-            allowed={'payment','ranking','missing','allocation','banking'}
-            modules={key:val for key,val in candidate['modules'].items() if key in allowed and isinstance(val,dict)}
-            stats={'schema':1,'public':True,'reviewed':True,'period':str(candidate.get('period') or ''),
-                   'generatedAt':str(candidate.get('generatedAt') or ''),'source':'Google Sheets - reviewed aggregate statistics',
-                   'warning':'Các báo cáo có phạm vi khác nhau; không cộng chéo số liệu.','modules':modules}
+            # Public website uses an explicit field allowlist: percentages and ranks ONLY.
+            raw=candidate['modules']
+            modules={}
+            p=raw.get('payment')
+            if isinstance(p,dict):
+                rate=p.get('completionRate')
+                if (isinstance(rate,(int,float)) and not isinstance(rate,bool)
+                        and 0 <= rate <= 2):
+                    modules['payment']={'completionRate':round(rate,8)}
+            r=raw.get('ranking')
+            if isinstance(r,dict) and isinstance(r.get('records'),list) and len(r['records']) <= 100:
+                records=[]
+                for row in r['records']:
+                    if not isinstance(row,dict):continue
+                    rank,name,rate=row.get('rank'),row.get('name'),row.get('rate')
+                    if (isinstance(rank,int) and not isinstance(rank,bool)
+                            and 1 <= rank <= 100 and isinstance(name,str)
+                            and 2 <= len(name.strip()) <= 190
+                            and isinstance(rate,(int,float)) and not isinstance(rate,bool)
+                            and 0 <= rate <= 2):
+                        records.append({'rank':rank,'name':name.strip(),'rate':round(rate,8)})
+                if records: modules['ranking']={'records':records,'eligibleUnits':len(records)}
+            if modules:
+                stats={'schema':1,'public':True,'reviewed':True,
+                       'period':str(candidate.get('period') or '')[:7],
+                       'generatedAt':str(candidate.get('generatedAt') or '')[:32],
+                       'source':'Google Sheets - approved ratio/ranking only',
+                       'modules':modules}
     except (ValueError,RuntimeError,OSError,KeyError,TimeoutError):
         pass
     OUTPUT.parent.mkdir(parents=True,exist_ok=True)
