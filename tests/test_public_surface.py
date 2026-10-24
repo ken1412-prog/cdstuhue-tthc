@@ -1,7 +1,6 @@
-"""Public-facing asset hygiene; never claims that browser source can be hidden.
+"""Check accidental public-origin link leakage without blocking native copy or selection.
 
-The website remains copyable, screen-capturable and keyboard accessible.
-Client JS/CSS is always inspectable, even with a custom domain.
+HTML, JavaScript and CSS downloaded into browsers always remain inspectable.
 """
 import re
 import unittest
@@ -14,11 +13,11 @@ PUBLIC_ASSETS = [
     SITE / "assets" / "app.js",
     SITE / "assets" / "styles.css",
 ]
-PRIVATE_REPOSITORY_OR_ORIGIN = re.compile(
-    r"(?:https?:)?//(?:www\\.)?(?:"
-    r"github\\.com/ken1412-prog/cdstuhue-tthc"
-    r"|raw\\.githubusercontent\\.com/ken1412-prog/cdstuhue-tthc"
-    r"|ken1412-prog\\.github\\.io(?:/cdstuhue-tthc)?"
+ORIGIN_LINK = re.compile(
+    r"(?:https?:)?//(?:www\.)?(?:"
+    r"github\.com/ken1412-prog/cdstuhue-tthc"
+    r"|raw\.githubusercontent\.com/ken1412-prog/cdstuhue-tthc"
+    r"|ken1412-prog\.github\.io(?:/cdstuhue-tthc)?"
     r")",
     re.IGNORECASE,
 )
@@ -29,8 +28,8 @@ class PublicSurfaceTests(unittest.TestCase):
         for path in PUBLIC_ASSETS:
             with self.subTest(path=path.name):
                 self.assertFalse(
-                    PRIVATE_REPOSITORY_OR_ORIGIN.search(path.read_text(encoding="utf-8")),
-                    f"Do not hard-code the project GitHub URL or Pages origin in {path}",
+                    ORIGIN_LINK.search(path.read_text(encoding="utf-8")),
+                    f"Unexpected hard-coded original host or GitHub repository URL: {path}",
                 )
 
     def test_no_source_maps_published(self):
@@ -46,8 +45,8 @@ class PublicSurfaceTests(unittest.TestCase):
                          for x in ("index.html", "hoi-dap.html"))
         for forbidden in ("oncontextmenu=", "oncopy=", "onselectstart="):
             self.assertNotIn(forbidden, html.lower())
-        self.assertNotRegex(js, r"addEventListener\\s*\\(\\s*['\\\"](?:contextmenu|copy|selectstart)['\\\"]")
-        self.assertNotRegex(css, r"(?is)(?:html|body)\\s*\\{[^{}]*\\buser-select\\s*:\\s*none")
+        self.assertNotRegex(js, r"addEventListener\s*\(\s*['\"](?:contextmenu|copy|selectstart)['\"]")
+        self.assertNotRegex(css, r"(?is)(?:html|body)\s*\{[^{}]*\buser-select\s*:\s*none")
         self.assertIn('id="qaModal"', html)
         self.assertIn("data-qa=", js)
 
