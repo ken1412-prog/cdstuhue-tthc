@@ -1,0 +1,6 @@
+{
+  "schema": 1,
+  "enabled": false,
+  "endpoint": "",
+  "note": "Question intake is disabled until private endpoint has been configured and original Google Sheet access restricted."
+}
