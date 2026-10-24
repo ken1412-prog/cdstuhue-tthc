@@ -38,7 +38,7 @@ const demoProgress=[
 {unit:'Đơn vị minh họa B',procedure:'dang-phi',progress:79,received:125,completed:99,updated:'2026-10-23',public:true,demo:true},
 {unit:'Đơn vị minh họa C',procedure:'dang-phi',progress:54,received:88,completed:47,updated:'2026-10-23',public:true,demo:true}
 ];
-const state={qa:[],progress:[],finance:null,view:'overview',filter:'',query:'',unitQuery:'',sort:'default',page:0,generatedAt:'',demo:false,local:false,loadError:null};
+const state={qa:[],progress:[],finance:null,stats:null,view:'overview',filter:'',query:'',unitQuery:'',sort:'default',page:0,generatedAt:'',demo:false,local:false,loadError:null};
 const published = ()=>state.demo?demoQA:state.qa;
 const progress = ()=>state.demo?demoProgress:state.progress;
 const finance = ()=>state.demo?demoFinance:state.finance;
@@ -54,6 +54,7 @@ async function loadData(){
  catch(e){issues.push('Không đọc được tệp tiến độ: '+e.message);}
  try{const r=await fetch('data/finance.json',{cache:'no-store'});if(!r.ok)throw Error('HTTP '+r.status);const f=await r.json();if(f?.schema!==1)throw Error('Invalid finance schema');if(f.public===true&&f.reviewed===true&&Array.isArray(f.bankGroups)&&f.bankGroups.every(v=>typeof v.name==='string'&&Number.isInteger(v.accounts)&&v.accounts>=0)&&[f.reportRecords,f.notDeclared,f.waitingApproval,f.waitingPayment].every(v=>v==null||(Number.isInteger(v)&&v>=0))&&[f.reportRecords,f.notDeclared,f.waitingApproval,f.waitingPayment,...f.bankGroups.map(g=>g.accounts)].some(v=>v!=null)){fn=f;}}
  catch(e){issues.push('Không đọc được bản thống kê đảng phí: '+e.message);}
+ try{const r=await fetch('data/stats.json',{cache:'no-store'});if(!r.ok)throw Error('HTTP '+r.status);const stats=await r.json();state.stats=stats?.schema===1&&stats?.public===true&&stats?.reviewed===true&&stats?.modules&&typeof stats.modules==='object'?stats:null;}catch(e){state.stats=null;}
  state.finance=fn;
  state.qa=qa?qa.items.filter(x=>x&&x.public===true).map(normQA).filter(x=>x.id&&x.question&&x.answer&&GROUPS[x.group]):[];
  // Fail-closed if accidental duplicates/invalid IDs appear in a publication feed.
@@ -78,7 +79,31 @@ function financeCards({compact=false}={}){
  <section class="panel fin-info-panel"><div class="panel-head"><div><h2>Trạng thái dữ liệu</h2><p>Phân biệt dữ liệu được duyệt và số liệu quan sát</p></div><span class="fin-status-dot"></span></div><div class="fin-info-grid"><div class="fin-info-icon">◈</div><div><b>${state.demo?'Số liệu giả lập — chỉ để thử':f?'Đã kiểm tra điều kiện xuất bản':'Chưa có bản thống kê công khai'}</b><p>${state.demo?'Các số đang hiển thị được tạo giả lập để xem giao diện, không lấy từ cổng TTHC.':'Website chỉ đọc tệp đã được duyệt và không kết nối trực tiếp phiên VNeID.'}</p></div></div><div class="fin-detail-list"><div><span>Kỳ báo cáo</span><b>${E(f?.period||'—')}</b></div><div><span>Nguồn số liệu công khai</span><b>${E(f?.source||'Google Sheets (chưa có bản duyệt)')}</b></div><div><span>Ngày quan sát / cập nhật</span><b>${E(f?.observedAt||'—')}</b></div><div><span>Cơ chế đồng bộ</span><b>${state.demo?'Dữ liệu minh họa':f?'JSON công khai':'Chưa kích hoạt'}</b></div><div><span>Phạm vi hồ sơ cấp dưới</span><b>Chưa tích hợp</b></div></div><div class="fin-next"><b>Không phải dữ liệu thời gian thực</b><span>Số liệu các màn hình có thể có phạm vi và thời điểm khác nhau. Không dùng để xếp hạng hoặc tính tỷ lệ khi chưa xác minh.</span></div></section></div>`}
  `;
 }
-function financeView(){return financeCards()+`<div class="section-heading"><div><h2>Các khu vực liên quan</h2><p>Truy cập nhanh kho hướng dẫn và phần theo dõi bốn thủ tục</p></div></div><div class="category-grid"><button class="category-card" data-view="qa-tthc"><span class="c-icon">?</span><b>Hỏi đáp đảng phí &amp; TTHC</b><p>Tra cứu lỗi kê khai, trạng thái thanh toán và phân quyền</p><div class="c-count">Xem câu hỏi →</div></button><button class="category-card" data-view="units"><span class="c-icon">▣</span><b>Bảng theo dõi đơn vị</b><p>Vùng dữ liệu mở rộng khi có số liệu được duyệt</p><div class="c-count">Xem bảng →</div></button><button class="category-card" data-view="reports"><span class="c-icon">⇩</span><b>Báo cáo &amp; dữ liệu</b><p>Xem cách đưa bản thống kê đã duyệt vào website</p><div class="c-count">Mở báo cáo →</div></button></div>`}
+
+function statsDashboard(){
+ const stats=state.demo?null:state.stats;
+ if(!stats||!Object.keys(stats.modules||{}).length)return '<div class="panel stats-notice"><h2>Thống kê theo 4 báo cáo</h2><p>Đã chuẩn bị biểu đồ, xếp hạng và bảng dữ liệu. Số liệu sẽ xuất hiện sau khi người quản trị duyệt từng phân hệ trong Sheet thống kê riêng tư.</p></div>';
+ const m=stats.modules,amount=n=>typeof n==='number'?pretty.format(n):'—',percent=n=>typeof n==='number'?(n*100).toFixed(1)+'%':'—';
+ let cards=[];
+ if(m.payment)cards.push(['Đơn vị báo cáo',amount(m.payment.reportingUnits),'Phạm vi báo cáo 46 đơn vị'],['Tiền đã nộp',amount(m.payment.paid)+' ₫','Theo hồ sơ khai báo'],['Tỷ lệ thu nộp',percent(m.payment.completionRate),'Theo số tiền, không phải số hồ sơ']);
+ if(m.missing)cards.push(['Chưa khai báo',amount(m.missing.rowCount),'Số dòng trong nguồn chi tiết']);
+ if(m.allocation)cards.push(['Đã xác nhận phân bổ',amount(m.allocation.confirmed),'Theo danh sách xác nhận']);
+ if(m.banking)cards.push(['Đã có tài khoản',amount(m.banking.registered),'Số đơn vị trong nguồn ngân hàng']);
+ const viewCards='<div class="stats-kpis">'+cards.map(([k,v,n])=>'<article class="stats-kpi"><small>'+E(k)+'</small><strong>'+E(v)+'</strong><span>'+E(n)+'</span></article>').join('')+'</div>';
+ let panels='';
+ if(m.ranking?.records?.length){
+  const rec=m.ranking.records,rows=rec.slice(0,30),max=rec.length;
+  panels+='<section class="panel stats-panel"><div class="panel-head"><div><h2>Xếp hạng tỷ lệ thu nộp</h2><p>'+E(m.ranking.scope||'')+' · '+E(String(max))+' đơn vị đủ điều kiện</p></div></div><div class="stats-ranking">'+rows.map(x=>'<div class="stats-rank-row"><b>#'+E(x.rank)+'</b><div><strong>'+E(x.name)+'</strong><small>'+amount(x.members)+' đảng viên · Đã nộp '+amount(x.reportedPaid)+' ₫</small><div class="stats-meter"><i style="width:'+Math.max(0,Math.min(100,100*(x.rate||0))).toFixed(1)+'%"></i></div></div><em>'+percent(x.rate)+'</em></div>').join('')+'</div><p class="stats-footnote">Xếp hạng trong cùng báo cáo, có tối thiểu 100 đảng viên. Không phản ánh chất lượng hoạt động của tổ chức.</p></section>';
+ }
+ if(m.allocation){
+  const v=m.allocation,total=v.rowCount||1;
+  panels+='<section class="panel stats-panel"><div class="panel-head"><div><h2>Xác nhận phân bổ</h2><p>Ba trạng thái trong báo cáo riêng</p></div></div>'+[['Đã xác nhận',v.confirmed],['Chưa xác nhận',v.unconfirmed],['Chờ xác nhận tỷ lệ',v.waitingRate]].map(([k,n])=>'<div class="stats-hbar"><span>'+E(k)+'</span><div class="stats-meter"><i style="width:'+(100*n/total).toFixed(1)+'%"></i></div><b>'+amount(n)+'</b></div>').join('')+'</section>';
+ }
+ if(m.banking){const v=m.banking,total=v.rowCount||1;panels+='<section class="panel stats-panel"><div class="panel-head"><div><h2>Tài khoản ngân hàng</h2><p>Thống kê trạng thái, không hiển thị số tài khoản</p></div></div>'+[['Đã có tài khoản',v.registered],['Chưa có tài khoản',v.notRegistered]].map(([k,n])=>'<div class="stats-hbar"><span>'+E(k)+'</span><div class="stats-meter"><i style="width:'+(100*n/total).toFixed(1)+'%"></i></div><b>'+amount(n)+'</b></div>').join('')+'</section>';}
+ if(m.missing?.rowsByParent?.length)panels+='<section class="panel stats-panel"><div class="panel-head"><div><h2>Đơn vị cần chú ý – chưa khai báo</h2><p>Đếm số dòng theo đơn vị cha, không phải tỷ lệ hoàn thành</p></div></div><div class="stats-parents">'+m.missing.rowsByParent.slice(0,20).map(x=>'<div><span>'+E(x.name)+'</span><b>'+amount(x.rows)+'</b></div>').join('')+'</div></section>';
+ return '<div class="section-heading"><div><h2>Trung tâm thống kê tháng '+E(stats.period||'')+'</h2><p>Dữ liệu tổng hợp được duyệt từ bốn bảng nguồn riêng tư</p></div><span class="badge">Bản công khai đã duyệt</span></div>'+viewCards+'<div class="stats-grid">'+panels+'</div><p class="stats-disclaimer">Nguồn: các bảng thống kê đã được duyệt. Phạm vi giữa các báo cáo khác nhau; không cộng số liệu khác nguồn. Thời điểm xuất: '+E(DATE(stats.generatedAt))+'</p>';
+}
+function financeView(){return financeCards()+statsDashboard()+`<div class="section-heading"><div><h2>Các khu vực liên quan</h2><p>Truy cập nhanh kho hướng dẫn và phần theo dõi bốn thủ tục</p></div></div><div class="category-grid"><button class="category-card" data-view="qa-tthc"><span class="c-icon">?</span><b>Hỏi đáp đảng phí &amp; TTHC</b><p>Tra cứu lỗi kê khai, trạng thái thanh toán và phân quyền</p><div class="c-count">Xem câu hỏi →</div></button><button class="category-card" data-view="units"><span class="c-icon">▣</span><b>Bảng theo dõi đơn vị</b><p>Vùng dữ liệu mở rộng khi có số liệu được duyệt</p><div class="c-count">Xem bảng →</div></button><button class="category-card" data-view="reports"><span class="c-icon">⇩</span><b>Báo cáo &amp; dữ liệu</b><p>Xem cách đưa bản thống kê đã duyệt vào website</p><div class="c-count">Mở báo cáo →</div></button></div>`}
 function overview(){
  const q=published(),f=finance(),cats=['tthc','stdv','csdl'];
  return `${financeCards({compact:true})}
