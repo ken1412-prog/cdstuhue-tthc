@@ -178,8 +178,9 @@ def main():
                     'source':'Approved multi-source summary statistics',
                     'warning':'Nguồn có phạm vi khác nhau; không cộng chéo hoặc suy ra tỷ lệ khi thiếu mẫu số.',
                     'modules':modules}
-    except (ValueError,RuntimeError,OSError,KeyError,TimeoutError):
-        pass
+    except (ValueError,RuntimeError,OSError,KeyError,TimeoutError) as exc:
+        print(f'Stats export unavailable ({type(exc).__name__}); publishing empty stats safely')
+    print('Stats groups ready: ' + ', '.join(stats['modules']) if stats['modules'] else 'Stats groups ready: none')
     OUTPUT.parent.mkdir(parents=True,exist_ok=True)
     OUTPUT.write_text(json.dumps(qa,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
     FINANCE_OUTPUT.write_text(json.dumps(finance,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
