@@ -344,9 +344,16 @@ function buildStatsFeed_(){
   const sources=hub.getSheetByName('NGUON_4_FILE');
   if(!policy||!sources)throw new Error('Missing reporting hub configuration');
   const gates={};
+  let lastApprovedDate='';
   policy.getRange(2,1,5,5).getDisplayValues().forEach(r=>{
-    gates[String(r[0]).trim()]=String(r[1]).trim()==='ĐÃ DUYỆT'&&
-      /^\d{4}-\d{2}-\d{2}$/.test(String(r[3]).trim());
+    const rawDate=String(r[3]||'').trim();
+    const m=rawDate.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+    const iso=m?m[3]+'-'+m[2]+'-'+m[1]:rawDate;
+    const dateValid=/^\d{4}-\d{2}-\d{2}$/.test(iso)&&
+      !Number.isNaN(Date.parse(iso))&&new Date(iso).toISOString().slice(0,10)===iso;
+    const approved=String(r[1]).trim()==='ĐÃ DUYỆT'&&dateValid;
+    gates[String(r[0]).trim()]=approved;
+    if(approved&&iso>lastApprovedDate)lastApprovedDate=iso;
   });
   const src={};
   sources.getRange(2,1,4,8).getDisplayValues().forEach(r=>{
@@ -432,6 +439,7 @@ function buildStatsFeed_(){
   // IMPORTANT: Never expose source spreadsheet IDs, individual names,
   // personal identities, bank account numbers or raw row contents.
   return {schema:1,public:true,reviewed:true,period:'2026-10',
+    approvedDate:lastApprovedDate,
     generatedAt:new Date().toISOString(),source:'Four owner-managed Google Sheets, approved aggregates only',
     warning:'Nguồn có phạm vi khác nhau. Không cộng dồn hoặc đồng nhất chỉ tiêu giữa các báo cáo.',
     modules};
