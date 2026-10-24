@@ -368,28 +368,28 @@ function buildStatsFeed_(){
     const list=statsRows_(src.THU_NOP.id,src.THU_NOP.tab,3,14)
       .filter(r=>statsNumber_(r[0])>0&&String(r[1]||'').trim());
     if(list.length!==46)throw new Error('Unexpected number of payment reporting units');
-    const total={members:0,declared:0,paid:0,notFiled:0,pendingReview:0,waitingPayment:0,paidRecords:0};
-    payments=[];
-    list.forEach(r=>{
-      const declared=statsWhole_(r[11]),paid=statsWhole_(r[12]),members=statsWhole_(r[2]);
-      const item={name:String(r[1]).trim().slice(0,190),members,declared,paid,
-        rate:declared>0?paid/declared:null,notFiled:statsWhole_(r[10]),
-        pendingReview:statsWhole_(r[7]),waitingPayment:statsWhole_(r[8]),paidRecords:statsWhole_(r[9])};
-      total.members+=members;total.declared+=declared;total.paid+=paid;
-      total.notFiled+=item.notFiled;total.pendingReview+=item.pendingReview;
-      total.waitingPayment+=item.waitingPayment;total.paidRecords+=item.paidRecords;
-      payments.push(item);
+    let sumRequired=0,sumReceived=0;
+    payments=list.map(r=>{
+      const required=statsWhole_(r[11]),received=statsWhole_(r[12]);
+      sumRequired+=required;sumReceived+=received;
+      return {name:String(r[1]).trim().slice(0,190),
+        members:statsWhole_(r[2]),required,
+        rate:required>0?received/required:null};
     });
-    if(enabled.payment)modules.payment={scope:'46 đơn vị thuộc báo cáo thu nộp',
-       reportingUnits:list.length,...total,completionRate:total.declared?total.paid/total.declared:null,
-       sourceSnapshot:src.THU_NOP.snapshot};
+    if(enabled.payment)modules.payment={
+      scope:'46 đơn vị trong báo cáo',
+      completionRate:sumRequired>0?sumReceived/sumRequired:null,
+      metric:'Tỷ lệ thu nộp của kỳ báo cáo',
+      sourceSnapshot:src.THU_NOP.snapshot
+    };
     if(enabled.ranking){
-      const ranked=payments.filter(x=>x.declared>0&&x.members>=100)
-        .sort((a,b)=>(b.rate||0)-(a.rate||0)||b.paid-a.paid||a.name.localeCompare(b.name,'vi'))
-        .map((x,i)=>({rank:i+1,name:x.name,members:x.members,
-          rate:x.rate,notFiled:x.notFiled,reportedPaid:x.paid,reportedDeclared:x.declared}));
-      modules.ranking={scope:'Chỉ các đơn vị trong báo cáo thu nộp, có từ 100 đảng viên',
-        eligibleUnits:ranked.length,sort:'Tỷ lệ số tiền đã nộp / số tiền đã khai báo',
+      const ranked=payments.filter(x=>x.required>0&&x.members>=100)
+        .sort((a,b)=>(b.rate||0)-(a.rate||0)||a.name.localeCompare(b.name,'vi'))
+        .map((x,i)=>({rank:i+1,name:x.name,rate:x.rate}));
+      modules.ranking={
+        scope:'Đơn vị có từ 100 đảng viên trong báo cáo',
+        eligibleUnits:ranked.length,
+        sort:'Tỷ lệ thu nộp; đồng tỷ lệ xếp theo tên',
         records:ranked,sourceSnapshot:src.THU_NOP.snapshot};
     }
   }
