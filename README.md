@@ -100,3 +100,20 @@ python -m unittest discover -s tests -v
 ```
 
 Trong Edge, kiểm tra trang Tổng quan, Thống kê đảng phí, ba chuyên mục hướng dẫn, Hỏi đáp, tìm kiếm không dấu và chế độ điện thoại. Đầu tiên hãy thử duyệt **một câu QA đã rà soát không nhạy cảm**, sau đó thử một bản tài chính tổng hợp đã xác minh và được phép công khai. Khi chưa có sự đồng ý xuất bản, không duyệt dữ liệu chỉ để lấp bảng trống.
+
+
+## Hộp nhận câu hỏi riêng tư từ website (mới)
+
+Đã tạo một Google Sheet riêng tư chỉ chủ sở hữu truy cập, tên **CDSTUHUE – Hộp tiếp nhận câu hỏi riêng tư**, tab `INBOX_QUESTIONS`. Không chia sẻ quyền xem/chỉnh sửa Sheet này cho người gửi.
+
+Mã `apps-script/Code.gs` bổ sung `doPost` để nhận câu hỏi trong ba nhóm TTHC / STDV / CSDL 4.0, lưu riêng câu hỏi cùng mã nhận, thời gian và trạng thái MỚI. Có giới hạn độ dài, honeypot, kiểm tra thông tin cá nhân theo mẫu, ngăn lặp gần thời điểm gửi và giới hạn 30 câu/giờ, 150 câu/ngày (toàn hệ thống). Những biện pháp này giảm spam nhưng không thể chặn mọi spam hay thông tin nhạy cảm.
+
+**Để kích hoạt an toàn (chủ sở hữu thực hiện):**
+
+1. Mở Apps Script **CDSTUHUE_WEB_PUBLIC** đã liên kết với Sheet QA gốc. Thay nội dung dự án bằng bản `apps-script/Code.gs` MỚI trong repo (mã cũ không có `doPost`).
+2. Giữ thuộc tính `CDSTUHUE_SHEET_ID` như trước. Thêm `CDSTUHUE_INBOX_ID` = ID Sheet hộp thư riêng đã tạo (tra trong URL Sheet inbox); thêm `CDSTUHUE_QUESTIONS_ENABLED` = `true`.
+3. Trong Apps Script: **Deploy → Manage deployments → Edit → Version: New version → Deploy**. Thử `URL/exec?kind=intake-status`: mong đợi JSON `acceptsQuestions:true` khi đã cấu hình.
+4. Chỉ khi chạy thử tiếp nhận thành công vào `INBOX_QUESTIONS`, cập nhật `site/data/questions-config.json` tại GitHub: `{"schema":1,"enabled":true,"endpoint":"https://script.google.com/macros/s/.../exec"}`. Dùng chính URL web-app đang chạy, không đưa khóa, token hoặc ID Sheet nội bộ vào file này. Website sẽ tự triển khai khi commit.
+5. Vào website, bấm Trợ lý tra cứu nhanh → Đặt câu hỏi mới, thử gửi một câu hỏi giả không có thông tin cá nhân; xác nhận có mã tiếp nhận và dòng mới trong hộp thư. Nếu có lỗi, đặt `enabled:false` trong JSON để tắt nút Gửi. Bản hỏi–đáp đã duyệt vẫn tra cứu bình thường.
+
+**Lưu ý:** Không đặt URL Google Sheet gốc làm endpoint. Đường dẫn Apps Script web app là công khai, nhưng mã chỉ cấp quyền ghi câu hỏi hợp lệ vào Sheet hộp thư riêng, không trả về danh sách câu hỏi hay mở quyền của Sheet. Chống spam bản này chỉ ở mức cơ bản; nếu lượng người dùng lớn, nên dùng dịch vụ có xác thực, CAPTCHA và giới hạn truy cập ngoài.
