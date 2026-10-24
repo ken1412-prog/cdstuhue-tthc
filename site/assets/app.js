@@ -93,7 +93,7 @@ function statsDashboard(){
  let panels='';
  if(m.ranking?.records?.length){
   const rec=m.ranking.records,rows=rec.slice(0,30),max=rec.length;
-  panels+='<section class="panel stats-panel"><div class="panel-head"><div><h2>Xếp hạng tỷ lệ thu nộp</h2><p>'+E(m.ranking.scope||'')+' · '+E(String(max))+' đơn vị đủ điều kiện</p></div></div><div class="stats-ranking">'+rows.map(x=>'<div class="stats-rank-row"><b>#'+E(x.rank)+'</b><div><strong>'+E(x.name)+'</strong><small>'+amount(x.members)+' đảng viên · Đã nộp '+amount(x.reportedPaid)+' ₫</small><div class="stats-meter"><i style="width:'+Math.max(0,Math.min(100,100*(x.rate||0))).toFixed(1)+'%"></i></div></div><em>'+percent(x.rate)+'</em></div>').join('')+'</div><p class="stats-footnote">Xếp hạng trong cùng báo cáo, có tối thiểu 100 đảng viên. Không phản ánh chất lượng hoạt động của tổ chức.</p></section>';
+  panels+='<section class="panel stats-panel"><div class="panel-head"><div><h2>Xếp hạng tỷ lệ thu nộp</h2><p>'+E(m.ranking.scope||'')+' · '+E(String(max))+' đơn vị đủ điều kiện</p></div></div><div class="stats-ranking">'+rows.map(x=>'<div class="stats-rank-row"><b>#'+E(x.rank)+'</b><div><strong>'+E(x.name)+'</strong><small>'Xếp hạng theo tỷ lệ</small><div class="stats-meter"><i style="width:'+Math.max(0,Math.min(100,100*(x.rate||0))).toFixed(1)+'%"></i></div></div><em>'+percent(x.rate)+'</em></div>').join('')+'</div><p class="stats-footnote">Xếp hạng trong cùng báo cáo, có tối thiểu 100 đảng viên. Không phản ánh chất lượng hoạt động của tổ chức.</p></section>';
  }
  if(m.allocation){
   const v=m.allocation,total=v.rowCount||1;
