@@ -33,6 +33,7 @@ jobs:
           python -m json.tool site/data/progress.json > /dev/null
           python -m json.tool site/data/finance.json > /dev/null
           python -m json.tool site/data/stats.json > /dev/null
+          python -m json.tool site/data/menu.json > /dev/null
           node --check site/assets/app.js
           test -s site/index.html
           test -s site/hoi-dap.html
