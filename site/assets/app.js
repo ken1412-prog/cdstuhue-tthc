@@ -135,7 +135,6 @@ function statsFinanceHero({compact=false}={}){
  const num=n=>typeof n==='number'?pretty.format(n):'—';
  const metrics=[
   m.payment&&['Thu nộp đảng phí',pct(m.payment.completionRate),'Tỷ lệ hoàn thành'],
-  m.allocation&&['Xác nhận phân bổ',pct(m.allocation.confirmedRate??m.allocation.confirmed/(m.allocation.rowCount||1)),'Đã xác nhận'],
   m.banking&&['Đăng ký tài khoản',pct(m.banking.registrationRate),'Đã đăng ký'],
   m.missing&&['Số dòng chưa khai báo',num(m.missing.rowCount),'']
  ].filter(Boolean);
@@ -168,7 +167,6 @@ function statsDashboard(){
  const cards=[];
  if(m.payment)cards.push(['Tỷ lệ thu nộp',percent(m.payment.completionRate)]);
  if(m.missing)cards.push(['Số dòng chưa khai báo',amount(m.missing.rowCount)]);
- if(m.allocation)cards.push(['Đã xác nhận phân bổ',percent(m.allocation.confirmedRate ?? (m.allocation.confirmed/(m.allocation.rowCount||1)))]);
  if(m.banking)cards.push(['Tỷ lệ đã đăng ký tài khoản',percent(m.banking.registrationRate)]);
  const viewCards='<div class="stats-kpis">'+cards.map(([k,v])=>'<article class="stats-kpi"><small>'+E(k)+'</small><strong>'+E(v)+'</strong></article>').join('')+'</div>';
  let panels='';
@@ -178,10 +176,6 @@ function statsDashboard(){
   panels+='<section class="panel stats-panel stats-panel-wide"><div class="panel-head"><div><h2>Xếp hạng tỷ lệ thu nộp</h2><p>'+E(String(rec.length))+' Đảng bộ trực thuộc Thành ủy Huế</p></div><span class="stats-count-chip">'+E(String(rec.length))+' đơn vị</span></div><div class="stats-ranking-columns">'+rankColumn(rec.slice(0,mid))+rankColumn(rec.slice(mid))+'</div></section>';
  }
  const statBreakdown=(data,total)=>'<div class="stats-breakdown">'+data.map(([name,count])=>'<div class="stats-breakdown-item"><span>'+E(name)+'</span><strong>'+amount(count)+'</strong><small>'+percent(count/(total||1))+'</small></div>').join('')+'</div>';
- if(m.allocation){
-  const v=m.allocation;
-  panels+='<section class="panel stats-panel stats-panel-wide"><div class="panel-head"><div><h2>Tỷ lệ xác nhận phân bổ</h2></div></div>'+statBreakdown([['Đã xác nhận',v.confirmed],['Chưa xác nhận',v.unconfirmed],['Chờ xác nhận tỷ lệ',v.waitingRate]],v.rowCount)+statsRankingPair(v.unitRanking,'bản ghi')+'</section>';
- }
  if(m.banking){
   const v=m.banking;
   panels+='<section class="panel stats-panel stats-panel-wide"><div class="panel-head"><div><h2>Tỷ lệ khai báo tài khoản ngân hàng</h2></div></div>'+statBreakdown([['Đã có tài khoản',v.registered],['Chưa có tài khoản',v.notRegistered]],v.rowCount)+statsRankingPair(v.unitRanking,'bản ghi')+(Number.isInteger(v.unmappedForRanking)&&v.unmappedForRanking>0?'<p class="stats-scope-note">'+E(String(v.unmappedForRanking))+' bản ghi chưa có đủ quan hệ đơn vị cấp 2, không tính vào Top 10.</p>':'')+'</section>';
