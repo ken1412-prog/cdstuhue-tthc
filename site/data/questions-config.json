@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "enabled": false,
-  "endpoint": "",
-  "note": "Question intake is disabled until private endpoint has been configured and original Google Sheet access restricted."
+  "enabled": true,
+  "endpoint": "https://script.google.com/macros/s/AKfycbzJuBo878if57IWHj1asmGqh4Kq-uVYidPlVYsbjiDZRsS34NhoSZ_1bhiOmS3Ub164/exec",
+  "note": "Owner supplied deployed Apps Script endpoint. The form posts to a private inbox; verify live reception before public promotion."
 }
