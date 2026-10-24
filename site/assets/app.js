@@ -82,23 +82,22 @@ const safeUrl = url => {try{const u=new URL(String(url||''));return ['https:','h
 const normQA = item=>({id:String(item.id||'').trim(),group:qgroup(item),topic:String(item.topic||'').trim(),question:String(item.question||'').trim(),answer:String(item.answer||'').trim(),keywords:String(item.keywords||''),alternatives:String(item.alternatives||''),updated:String(item.updated||''),sourceUrl:safeUrl(item.sourceUrl),publicNote:String(item.publicNote||'')});
 const validProgress = item=>Boolean(item&&item.public===true&&String(item.unit||'').trim()&&PROCEDURES[item.procedure]&&Number.isFinite(Number(item.progress))&&Number(item.progress)>=0&&Number(item.progress)<=100);
 async function loadData(){
- const hiddenMenu={...state.menu};
+ const hiddenMenu={...MENU_DEFAULTS};
  try{
   const r=await fetch('data/menu.json',{cache:'no-store'});if(!r.ok)throw Error('Menu unavailable');
   const payload=await r.json();
   if(payload.schema===1&&payload.visible&&typeof payload.visible==='object'){
-    for(const id of Object.keys(hiddenMenu))if(id!=='overview'&&typeof payload.visible[id]==='boolean')hiddenMenu[id]=payload.visible[id];
+    for(const id of Object.keys(hiddenMenu))if(typeof payload.visible[id]==='boolean')hiddenMenu[id]=payload.visible[id];
   }
  }catch(err){/* Fail closed: no private administrator settings exposed. */}
- hiddenMenu.overview=true;
  state.menu=hiddenMenu;state.menuReady=true;
  procedureMenu();
- if(state.pendingView){const requested=state.pendingView;state.pendingView=null;state.view=viewAllowed(requested)?requested:'overview';}
- if(!viewAllowed(state.view)){state.view='overview';}
- if(new URL(location.href).searchParams.has('view')&&!viewAllowed(new URL(location.href).searchParams.get('view'))){
-   history.replaceState({},'', 'index.html?view=overview');
+ if(state.pendingView){const requested=state.pendingView;state.pendingView=null;state.view=viewAllowed(requested)?requested:firstVisibleView();}
+ if(!viewAllowed(state.view))state.view=firstVisibleView();
+ const current=new URL(location.href),given=current.searchParams.get('view');
+ if(given&&!viewAllowed(given)){
+  history.replaceState({},'','index.html?view='+encodeURIComponent(state.view));
  }
-
  let qa=null,pr=null,fn=null,issues=[];
  try{const r=await fetch('data/approved.json',{cache:'no-store'});if(!r.ok)throw Error('HTTP '+r.status);qa=await r.json();if(!qa||qa.schema!==1||!Array.isArray(qa.items))throw Error('Invalid QA schema');}
  catch(e){issues.push('Không đọc được bản xuất QA: '+e.message);}
