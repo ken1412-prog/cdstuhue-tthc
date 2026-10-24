@@ -110,34 +110,74 @@ def main():
     try:
         candidate=get_json(endpoint+sep+'kind=stats')
         if isinstance(candidate,dict) and candidate.get('schema')==1 and candidate.get('public') is True and candidate.get('reviewed') is True and isinstance(candidate.get('modules'),dict):
-            # Public website uses an explicit field allowlist: percentages and ranks ONLY.
+            # Export only explicitly reviewed aggregate fields. No financial amounts,
+            # bank account identifiers, individual records or private source IDs.
             raw=candidate['modules']
             modules={}
-            p=raw.get('payment')
-            if isinstance(p,dict):
-                rate=p.get('completionRate')
-                if (isinstance(rate,(int,float)) and not isinstance(rate,bool)
-                        and 0 <= rate <= 2):
-                    modules['payment']={'completionRate':round(rate,8)}
-            r=raw.get('ranking')
-            if isinstance(r,dict) and isinstance(r.get('records'),list) and len(r['records']) <= 100:
+            def bounded_int(value, limit=100000):
+                return (int(value) if isinstance(value,int) and
+                        not isinstance(value,bool) and 0<=value<=limit else None)
+            def bounded_rate(value):
+                return (round(float(value),8) if isinstance(value,(int,float))
+                        and not isinstance(value,bool) and 0<=value<=2 else None)
+            payment=raw.get('payment')
+            if isinstance(payment,dict):
+                rate=bounded_rate(payment.get('completionRate'))
+                if rate is not None:
+                    modules['payment']={'completionRate':rate}
+            rank=raw.get('ranking')
+            if isinstance(rank,dict) and isinstance(rank.get('records'),list) and len(rank['records'])<=100:
                 records=[]
-                for row in r['records']:
-                    if not isinstance(row,dict):continue
-                    rank,name,rate=row.get('rank'),row.get('name'),row.get('rate')
-                    if (isinstance(rank,int) and not isinstance(rank,bool)
-                            and 1 <= rank <= 100 and isinstance(name,str)
-                            and 2 <= len(name.strip()) <= 190
-                            and isinstance(rate,(int,float)) and not isinstance(rate,bool)
-                            and 0 <= rate <= 2):
-                        records.append({'rank':rank,'name':name.strip(),'rate':round(rate,8)})
-                if records: modules['ranking']={'records':records,'eligibleUnits':len(records)}
+                for item in rank['records']:
+                    if not isinstance(item,dict): continue
+                    n=bounded_int(item.get('rank'),100)
+                    label=item.get('name')
+                    pct=bounded_rate(item.get('rate'))
+                    if n is not None and n>=1 and isinstance(label,str) and 2<=len(label.strip())<=190 and pct is not None:
+                        records.append({'rank':n,'name':label.strip(),'rate':pct})
+                if records:
+                    modules['ranking']={'records':records,'eligibleUnits':len(records),
+                        'scope':'Đơn vị đủ điều kiện trong báo cáo thu nộp'}
+            missing=raw.get('missing')
+            if isinstance(missing,dict):
+                count=bounded_int(missing.get('rowCount'),30000)
+                parents=bounded_int(missing.get('distinctParents'),2000)
+                if count is not None and parents is not None and count>=1 and isinstance(missing.get('rowsByParent'),list):
+                    rows=[]
+                    for item in missing['rowsByParent'][:30]:
+                        if not isinstance(item,dict): continue
+                        label=item.get('name')
+                        nr=bounded_int(item.get('rows'),count)
+                        if isinstance(label,str) and 2<=len(label.strip())<=190 and nr is not None and nr>=20:
+                            rows.append({'name':label.strip(),'rows':nr,'share':round(nr/count,8)})
+                    modules['missing']={'rowCount':count,'distinctParents':parents,
+                        'rowsByParent':rows,
+                        'countType':'Số dòng chưa khai báo theo danh sách riêng, không phải tỷ lệ chưa khai báo trên tổng đảng viên'}
+            allocation=raw.get('allocation')
+            if isinstance(allocation,dict):
+                n=bounded_int(allocation.get('rowCount'),30000)
+                confirmed=bounded_int(allocation.get('confirmed'),30000)
+                pending=bounded_int(allocation.get('unconfirmed'),30000)
+                wait=bounded_int(allocation.get('waitingRate'),30000)
+                if n is not None and n>0 and all(v is not None for v in (confirmed,pending,wait)) and confirmed+pending+wait==n:
+                    modules['allocation']={'rowCount':n,'confirmed':confirmed,'unconfirmed':pending,
+                        'waitingRate':wait,'confirmedRate':round(confirmed/n,8),
+                        'unconfirmedRate':round(pending/n,8),'waitingRateShare':round(wait/n,8)}
+            bank=raw.get('banking')
+            if isinstance(bank,dict):
+                n=bounded_int(bank.get('rowCount'),30000)
+                registered=bounded_int(bank.get('registered'),30000)
+                absent=bounded_int(bank.get('notRegistered'),30000)
+                if n is not None and n>0 and registered is not None and absent is not None and registered+absent==n:
+                    modules['banking']={'rowCount':n,'registered':registered,
+                        'notRegistered':absent,'registrationRate':round(registered/n,8)}
             if modules:
                 stats={'schema':1,'public':True,'reviewed':True,
-                       'period':str(candidate.get('period') or '')[:7],
-                       'generatedAt':str(candidate.get('generatedAt') or '')[:32],
-                       'source':'Google Sheets - approved ratio/ranking only',
-                       'modules':modules}
+                    'period':str(candidate.get('period') or '')[:7],
+                    'generatedAt':str(candidate.get('generatedAt') or '')[:32],
+                    'source':'Approved multi-source summary statistics',
+                    'warning':'Nguồn có phạm vi khác nhau; không cộng chéo hoặc suy ra tỷ lệ khi thiếu mẫu số.',
+                    'modules':modules}
     except (ValueError,RuntimeError,OSError,KeyError,TimeoutError):
         pass
     OUTPUT.parent.mkdir(parents=True,exist_ok=True)
