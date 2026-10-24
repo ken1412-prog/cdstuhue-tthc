@@ -153,8 +153,8 @@ function financeCards({compact=false}={}){
 }
 
 function statsRankingPair(unitRanking,source){
- if(!unitRanking||!Array.isArray(unitRanking.top)||!Array.isArray(unitRanking.bottom)||unitRanking.top.length!==10||unitRanking.bottom.length!==10){
-  return '<div class="stats-unit-unavailable">Chưa thể xếp hạng theo Đảng bộ cấp 2: nguồn này chưa có mã đơn vị để đối chiếu đầy đủ, tránh tính sai tỷ lệ.</div>';
+ if(!unitRanking||!Array.isArray(unitRanking.top)||!Array.isArray(unitRanking.bottom)||unitRanking.eligibleUnits!==46||unitRanking.top.length!==10||unitRanking.bottom.length!==10){
+  return '<div class="stats-unit-unavailable">Chưa có bảng xếp hạng cấp 2 từ phiên bản Apps Script đang chạy. Top 10 sẽ hiện sau khi đồng bộ đủ dữ liệu theo Đảng bộ.</div>';
  }
  const show=(items,tone,heading)=>'<div class="stats-leaderboard-col '+tone+'"><div class="stats-leaderboard-head"><strong>'+heading+'</strong><span>10 đơn vị</span></div>'+items.map((x,i)=>
   '<div class="stats-leaderboard-row"><span class="stats-leaderboard-rank">'+(i+1)+'</span><div class="stats-leaderboard-unit"><strong>'+E(x.name)+'</strong><div class="stats-meter"><i style="width:'+Math.max(0,Math.min(100,100*x.rate)).toFixed(1)+'%"></i></div><small>'+pretty.format(x.done)+' / '+pretty.format(x.total)+' '+source+'</small></div><b>'+((x.rate*100).toFixed(1).replace('.',','))+'%</b></div>').join('')+'</div>';
@@ -170,15 +170,16 @@ function statsDashboard(){
  if(m.banking)cards.push(['Tỷ lệ đã đăng ký tài khoản',percent(m.banking.registrationRate)]);
  const viewCards='<div class="stats-kpis">'+cards.map(([k,v])=>'<article class="stats-kpi"><small>'+E(k)+'</small><strong>'+E(v)+'</strong></article>').join('')+'</div>';
  let panels='';
+
  if(m.ranking?.records?.length){
-  const rec=m.ranking.records,mid=Math.ceil(rec.length/2);
-  const rankColumn=rows=>'<div class="stats-ranking-col">'+rows.map(x=>'<div class="stats-rank-row"><b>#'+E(x.rank)+'</b><div><strong>'+E(x.name)+'</strong><div class="stats-meter"><i style="width:'+Math.max(0,Math.min(100,100*(x.rate||0))).toFixed(1)+'%"></i></div></div><em>'+percent(x.rate)+'</em></div>').join('')+'</div>';
-  panels+='<section class="panel stats-panel stats-panel-wide"><div class="panel-head"><div><h2>Xếp hạng tỷ lệ thu nộp</h2><p>'+E(String(rec.length))+' Đảng bộ trực thuộc Thành ủy Huế</p></div><span class="stats-count-chip">'+E(String(rec.length))+' đơn vị</span></div><div class="stats-ranking-columns">'+rankColumn(rec.slice(0,mid))+rankColumn(rec.slice(mid))+'</div></section>';
+  const rec=m.ranking.records;
+  const rankRows=rec.map(x=>'<div class="stats-rank-row"><b>#'+E(x.rank)+'</b><div><strong>'+E(x.name)+'</strong><div class="stats-meter"><i style="width:'+Math.max(0,Math.min(100,100*(x.rate||0))).toFixed(1)+'%"></i></div></div><em>'+percent(x.rate)+'</em></div>').join('');
+  panels+='<section class="panel stats-panel stats-panel-wide stats-payment-panel"><div class="panel-head"><div><h2>Xếp hạng tỷ lệ thu nộp</h2></div><span class="stats-count-chip">'+E(String(rec.length))+'/46 Đảng bộ</span></div><div class="stats-ranking-scroll" role="region" tabindex="0" aria-label="Danh sách xếp hạng tỷ lệ thu nộp">'+rankRows+'</div>'+(rec.length!==46?'<p class="stats-sync-pending">Dữ liệu hiện có '+E(String(rec.length))+'/46 Đảng bộ. Cần cập nhật phiên bản Apps Script để đồng bộ đủ.</p>':'')+'</section>';
  }
  const statBreakdown=(data,total)=>'<div class="stats-breakdown">'+data.map(([name,count])=>'<div class="stats-breakdown-item"><span>'+E(name)+'</span><strong>'+amount(count)+'</strong><small>'+percent(count/(total||1))+'</small></div>').join('')+'</div>';
  if(m.banking){
   const v=m.banking;
-  panels+='<section class="panel stats-panel stats-panel-wide"><div class="panel-head"><div><h2>Tỷ lệ khai báo tài khoản ngân hàng</h2></div></div>'+statBreakdown([['Đã có tài khoản',v.registered],['Chưa có tài khoản',v.notRegistered]],v.rowCount)+statsRankingPair(v.unitRanking,'bản ghi')+(Number.isInteger(v.unmappedForRanking)&&v.unmappedForRanking>0?'<p class="stats-scope-note">'+E(String(v.unmappedForRanking))+' bản ghi chưa có đủ quan hệ đơn vị cấp 2, không tính vào Top 10.</p>':'')+'</section>';
+  panels+='<section class="panel stats-panel stats-panel-wide"><div class="panel-head"><div><h2>Xếp hạng tỷ lệ khai báo tài khoản ngân hàng</h2></div><span class="stats-count-chip">46 Đảng bộ cấp 2</span></div>'+statBreakdown([['Đã có tài khoản',v.registered],['Chưa có tài khoản',v.notRegistered]],v.rowCount)+statsRankingPair(v.unitRanking,'bản ghi')+(Number.isInteger(v.unmappedForRanking)&&v.unmappedForRanking>0?'<p class="stats-scope-note">'+E(String(v.unmappedForRanking))+' bản ghi chưa có đủ quan hệ đơn vị cấp 2, không tính vào Top 10.</p>':'')+'</section>';
  }
  if(m.missing?.rowsByParent?.length)panels+='<section class="panel stats-panel stats-panel-wide"><div class="panel-head"><div><h2>Số dòng chưa khai báo theo đơn vị</h2><p>Chỉ là tỷ trọng trong danh sách chưa khai báo, không phải tỷ lệ trên tổng đảng viên.</p></div></div><div class="stats-parents">'+m.missing.rowsByParent.slice(0,20).map(x=>'<div><span>'+E(x.name)+'</span><b>'+amount(x.rows)+' ('+percent(x.share ?? (x.rows/(m.missing.rowCount||1)))+')</b></div>').join('')+'</div></section>';
  return '<div class="section-heading"><div><h2>Trung tâm thống kê tháng '+E(stats.period||'')+'</h2><p>Dữ liệu tổng hợp được duyệt từ bốn bảng nguồn riêng tư</p></div><span class="badge">Bản công khai đã duyệt</span></div>'+viewCards+'<div class="stats-grid stats-dashboard-grid">'+panels+'</div><p class="stats-disclaimer">Nguồn: các bảng thống kê đã được duyệt. Phạm vi giữa các báo cáo khác nhau; không cộng số liệu khác nguồn. Thời điểm xuất: '+E(DATE(stats.generatedAt))+'</p>';

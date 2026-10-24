@@ -339,11 +339,11 @@ function statsRows_(id,tab,firstRow,colCount){
 function statsUnitRankings_(items){
   const list=items.filter(x=>x&&x.total>0&&x.done>=0&&x.done<=x.total)
     .map(x=>({name:String(x.name||'').slice(0,190),total:x.total,done:x.done,rate:x.done/x.total}));
-  if(list.length<20)return null;
+  if(list.length!==46)return null;
   const byName=(a,b)=>a.name.localeCompare(b.name,'vi');
   const top=list.slice().sort((a,b)=>b.rate-a.rate||b.total-a.total||byName(a,b)).slice(0,10);
   const bottom=list.slice().sort((a,b)=>a.rate-b.rate||b.total-a.total||byName(a,b)).slice(0,10);
-  return {top,bottom};
+  return {eligibleUnits:list.length,top,bottom};
 }
 function buildStatsFeed_(){
   const hubId=PropertiesService.getScriptProperties().getProperty('CDSTUHUE_STATS_HUB_ID');

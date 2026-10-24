@@ -146,9 +146,14 @@ def main():
                     return out
                 top=safe_side('top')
                 bottom=safe_side('bottom')
-                if top is None or bottom is None:
+                unit_count=bounded_int(value.get('eligibleUnits'),46)
+                if top is None or bottom is None or unit_count!=46:
                     return None
-                return {'top':top,'bottom':bottom}
+                if any(top[i]['rate']<top[i+1]['rate'] for i in range(9)):
+                    return None
+                if any(bottom[i]['rate']>bottom[i+1]['rate'] for i in range(9)):
+                    return None
+                return {'eligibleUnits':46,'top':top,'bottom':bottom}
             payment=raw.get('payment')
             if isinstance(payment,dict):
                 rate=bounded_rate(payment.get('completionRate'))
