@@ -8,6 +8,7 @@ from __future__ import annotations
 import datetime as dt
 import json
 import os
+import re
 from pathlib import Path
 from urllib.request import Request, urlopen
 from urllib.parse import urlparse
