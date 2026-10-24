@@ -82,3 +82,13 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
 /* Category settings load before links can be exposed, preventing a flash of disabled controls. */
 body.menu-loading [data-view],body.menu-loading .menu-group,body.menu-loading #openAssistant {visibility:hidden!important}
 [hidden]{display:none!important}
+
+/* Footer attribution: copyright left; trial developer credit at lower-right. */
+.footer{flex-direction:row;justify-content:space-between;align-items:flex-end;text-align:left;gap:18px}
+.footer-copyright{flex:0 0 auto;text-align:left}
+.footer-credit{display:flex;flex-direction:column;align-items:flex-end;gap:5px;margin-left:auto;text-align:right}
+.footer-credit span{display:block}
+@media(max-width:640px){
+ .footer{flex-direction:column;align-items:stretch;gap:10px}
+ .footer-credit{align-self:flex-end;margin-left:0;text-align:right;align-items:flex-end}
+}
