@@ -183,10 +183,10 @@ def main():
         print(f'Stats export unavailable ({type(exc).__name__}); publishing empty stats safely')
     print('Stats groups ready: ' + ', '.join(stats['modules']) if stats['modules'] else 'Stats groups ready: none')
     # Visibility defaults are safe even before the owner's Apps Script is redeployed.
-    defaults={'overview':True,'finance':True,'units':True,
+    defaults={'overview':True,'finance':True,'units':False,
               'chinh-thuc':False,'tam-thoi':False,'nhan-xet':False,'dang-phi':False,
               'qa-all':True,'qa-tthc':True,'qa-stdv':True,'qa-csdl':True,
-              'resources':True,'reports':True,'guide':True,'assistant':True}
+              'resources':False,'reports':False,'guide':False,'assistant':True}
     menu={'schema':1,'visible':defaults.copy()}
     try:
         raw=get_json(endpoint+sep+'kind=menu')
