@@ -122,6 +122,33 @@ def main():
             def bounded_rate(value):
                 return (round(float(value),8) if isinstance(value,(int,float))
                         and not isinstance(value,bool) and 0<=value<=2 else None)
+            def approved_unit_rankings(value):
+                if not isinstance(value,dict):
+                    return None
+                def safe_side(key):
+                    raw_rows=value.get(key)
+                    if not isinstance(raw_rows,list) or len(raw_rows)!=10:
+                        return None
+                    out=[]
+                    for item in raw_rows:
+                        if not isinstance(item,dict):
+                            return None
+                        name=item.get('name')
+                        done=bounded_int(item.get('done'),30000)
+                        total=bounded_int(item.get('total'),30000)
+                        rate=bounded_rate(item.get('rate'))
+                        if (not isinstance(name,str) or not 2<=len(name.strip())<=190
+                            or not name.strip().lower().startswith('đảng bộ')
+                            or total is None or total<=0 or done is None or done>total
+                            or rate is None or rate>1 or abs(rate-done/total)>0.000001):
+                            return None
+                        out.append({'name':name.strip(),'done':done,'total':total,'rate':round(rate,8)})
+                    return out
+                top=safe_side('top')
+                bottom=safe_side('bottom')
+                if top is None or bottom is None:
+                    return None
+                return {'top':top,'bottom':bottom}
             payment=raw.get('payment')
             if isinstance(payment,dict):
                 rate=bounded_rate(payment.get('completionRate'))
@@ -139,7 +166,7 @@ def main():
                         records.append({'rank':n,'name':label.strip(),'rate':pct})
                 if records:
                     modules['ranking']={'records':records,'eligibleUnits':len(records),
-                        'scope':'Đơn vị đủ điều kiện trong báo cáo thu nộp'}
+                        'scope':'Đảng bộ trực thuộc Thành ủy Huế'}
             missing=raw.get('missing')
             if isinstance(missing,dict):
                 count=bounded_int(missing.get('rowCount'),30000)
@@ -165,6 +192,9 @@ def main():
                     modules['allocation']={'rowCount':n,'confirmed':confirmed,'unconfirmed':pending,
                         'waitingRate':wait,'confirmedRate':round(confirmed/n,8),
                         'unconfirmedRate':round(pending/n,8),'waitingRateShare':round(wait/n,8)}
+                    verified=approved_unit_rankings(allocation.get('unitRanking'))
+                    if verified is not None:
+                        modules['allocation']['unitRanking']=verified
             bank=raw.get('banking')
             if isinstance(bank,dict):
                 n=bounded_int(bank.get('rowCount'),30000)
@@ -173,6 +203,12 @@ def main():
                 if n is not None and n>0 and registered is not None and absent is not None and registered+absent==n:
                     modules['banking']={'rowCount':n,'registered':registered,
                         'notRegistered':absent,'registrationRate':round(registered/n,8)}
+                    verified=approved_unit_rankings(bank.get('unitRanking'))
+                    if verified is not None:
+                        modules['banking']['unitRanking']=verified
+                    unmatched=bounded_int(bank.get('unmappedForRanking'),30000)
+                    if unmatched is not None:
+                        modules['banking']['unmappedForRanking']=unmatched
             if modules:
                 approved_date=str(candidate.get('approvedDate') or '').strip()
                 if not re.fullmatch(r'\d{4}-\d{2}-\d{2}',approved_date):

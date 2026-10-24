@@ -336,6 +336,15 @@ function statsRows_(id,tab,firstRow,colCount){
   if(size>25000)throw new Error('Source exceeds safety size limit');
   return sh.getRange(firstRow,1,size,colCount).getValues();
 }
+function statsUnitRankings_(items){
+  const list=items.filter(x=>x&&x.total>0&&x.done>=0&&x.done<=x.total)
+    .map(x=>({name:String(x.name||'').slice(0,190),total:x.total,done:x.done,rate:x.done/x.total}));
+  if(list.length<20)return null;
+  const byName=(a,b)=>a.name.localeCompare(b.name,'vi');
+  const top=list.slice().sort((a,b)=>b.rate-a.rate||b.total-a.total||byName(a,b)).slice(0,10);
+  const bottom=list.slice().sort((a,b)=>a.rate-b.rate||b.total-a.total||byName(a,b)).slice(0,10);
+  return {top,bottom};
+}
 function buildStatsFeed_(){
   const hubId=PropertiesService.getScriptProperties().getProperty('CDSTUHUE_STATS_HUB_ID');
   if(!hubId)return {schema:1,public:false,reviewed:false,modules:{},message:'Chưa cấu hình thống kê công khai.'};
@@ -390,11 +399,11 @@ function buildStatsFeed_(){
       sourceSnapshot:src.THU_NOP.snapshot
     };
     if(enabled.ranking){
-      const ranked=payments.filter(x=>x.required>0&&x.members>=100)
+      const ranked=payments.filter(x=>x.required>0)
         .sort((a,b)=>(b.rate||0)-(a.rate||0)||a.name.localeCompare(b.name,'vi'))
         .map((x,i)=>({rank:i+1,name:x.name,rate:x.rate}));
       modules.ranking={
-        scope:'Đơn vị có từ 100 đảng viên trong báo cáo',
+        scope:'46 Đảng bộ trực thuộc Thành ủy Huế trong báo cáo',
         eligibleUnits:ranked.length,
         sort:'Tỷ lệ thu nộp; đồng tỷ lệ xếp theo tên',
         records:ranked,sourceSnapshot:src.THU_NOP.snapshot};
@@ -423,18 +432,80 @@ function buildStatsFeed_(){
       unconfirmed:statuses.CHUA_XAC_NHAN,waitingRate:statuses.TY_LE_TD_CHO_XAC_NHAN,
       sourceSnapshot:src.PHAN_BO.snapshot};
   }
-  if(enabled.banking){
+  // Only public organization identifiers, parent links and status cells are read.
+  // Column F (bank account number) and individual confirmation columns are NEVER read.
+  let unitTree=null;
+  if(enabled.allocation||enabled.banking){
     const sh=SpreadsheetApp.openById(src.NGAN_HANG.id).getSheetByName(src.NGAN_HANG.tab);
-    if(!sh)throw new Error('Missing bank summary source');
+    if(!sh)throw new Error('Missing banking hierarchy source');
     const n=sh.getLastRow()-1;
     if(n>25000)throw new Error('Bank source exceeds safety size');
-    const stat=n>0?sh.getRange(2,8,n,1).getDisplayValues():[];
-    let registered=0,notRegistered=0;
-    stat.forEach(row=>{if(row[0]==='Đã có tài khoản ngân hàng')registered++;
-      else if(row[0]==='Chưa có tài khoản ngân hàng')notRegistered++;});
-    const all=registered+notRegistered;
-    modules.banking={rowCount:all,registered,notRegistered,
-      registrationRate:all?registered/all:null,sourceSnapshot:src.NGAN_HANG.snapshot};
+    const info=n>0?sh.getRange(2,2,n,4).getDisplayValues():[];
+    const status=n>0?sh.getRange(2,8,n,1).getDisplayValues():[];
+    const nodes={};
+    info.forEach(r=>{const code=String(r[0]||'').trim(),name=String(r[1]||'').trim(),parent=String(r[2]||'').trim();
+      if(code&&name&&!Object.prototype.hasOwnProperty.call(nodes,code))nodes[code]={name:name.slice(0,190),parent};});
+    const roots=Object.keys(nodes).filter(code=>nodes[code].parent==='A57');
+    if(roots.length!==46)throw new Error('Unexpected level-2 organization count');
+    const rootSet=new Set(roots);
+    function rootOf(code){
+      let key=String(code||'').trim(),seen=new Set();
+      for(let depth=0;depth<20&&key&&!seen.has(key);depth++){
+        if(rootSet.has(key))return key;
+        seen.add(key);key=nodes[key]?.parent||'';
+      }
+      return '';
+    }
+    unitTree={roots,nodes,rootOf,info,status};
+    if(enabled.banking){
+      let registered=0,notRegistered=0,unmapped=0;
+      const groups={};
+      roots.forEach(code=>{groups[code]={name:nodes[code].name,total:0,done:0};});
+      info.forEach((r,i)=>{
+        const state=String(status[i]?.[0]||'').trim();
+        if(state!=='Đã có tài khoản ngân hàng'&&state!=='Chưa có tài khoản ngân hàng')return;
+        if(state==='Đã có tài khoản ngân hàng')registered++;else notRegistered++;
+        const root=rootOf(r[0]);
+        if(!root){unmapped++;return;}
+        groups[root].total++;
+        if(state==='Đã có tài khoản ngân hàng')groups[root].done++;
+      });
+      const all=registered+notRegistered;
+      const ranked=statsUnitRankings_(Object.values(groups));
+      modules.banking={rowCount:all,registered,notRegistered,
+        registrationRate:all?registered/all:null,
+        unitRanking:ranked,unmappedForRanking:unmapped,
+        sourceSnapshot:src.NGAN_HANG.snapshot};
+    }
+  }
+  // Allocation sheet has only agency name and status; duplicated names such as
+  // "Chi bộ 1" across multiple branches cannot be assigned to a level-2 unit.
+  // Optional G column "Mã cơ quan" can enable fully verified per-unit rankings.
+  if(enabled.allocation&&unitTree){
+    const sh=SpreadsheetApp.openById(src.PHAN_BO.id).getSheetByName(src.PHAN_BO.tab);
+    if(!sh)throw new Error('Missing allocation sheet');
+    const hasCodes=String(sh.getRange(1,7).getDisplayValue()||'').trim()==='Mã cơ quan';
+    if(hasCodes){
+      const count=sh.getLastRow()-1;
+      if(count>25000)throw new Error('Allocation source exceeds safety size');
+      const rows=count>0?sh.getRange(2,3,count,1).getDisplayValues():[];
+      const codes=count>0?sh.getRange(2,7,count,1).getDisplayValues():[];
+      const groups={};unitTree.roots.forEach(c=>{groups[c]={name:unitTree.nodes[c].name,total:0,done:0};});
+      let valid=0,mapped=0;
+      rows.forEach((r,i)=>{
+        const status=String(r[0]||'').trim();
+        if(!['XAC_NHAN','CHUA_XAC_NHAN','TY_LE_TD_CHO_XAC_NHAN'].includes(status))return;
+        valid++;
+        const code=unitTree.rootOf(codes[i]?.[0]);
+        if(!code)return;
+        mapped++;groups[code].total++;
+        if(status==='XAC_NHAN')groups[code].done++;
+      });
+      // No partial denominators, no guessed matches and no unverified Top 10.
+      if(valid===modules.allocation.rowCount&&mapped===valid){
+        modules.allocation.unitRanking=statsUnitRankings_(Object.values(groups));
+      }
+    }
   }
   // IMPORTANT: Never expose source spreadsheet IDs, individual names,
   // personal identities, bank account numbers or raw row contents.
