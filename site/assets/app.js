@@ -72,6 +72,7 @@ function applyMenuVisibility(){
   const links=$('[data-view]',card);
   if(links.length&&links.every(link=>!viewAllowed(link.dataset.view)))card.hidden=true;
  });
+ document.body.classList.remove('menu-loading');
  const helper=$('#openAssistant'),panel=$('#assistantWrap');
  if(helper)helper.hidden=state.menu.assistant!==true;
  if(panel&&state.menu.assistant!==true)panel.classList.add('hidden');
