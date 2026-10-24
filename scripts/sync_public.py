@@ -16,6 +16,7 @@ ROOT = Path(__file__).resolve().parents[1]
 OUTPUT = ROOT / 'site' / 'data' / 'approved.json'
 FINANCE_OUTPUT = ROOT / 'site' / 'data' / 'finance.json'
 STATS_OUTPUT = ROOT / 'site' / 'data' / 'stats.json'
+MENU_OUTPUT = ROOT / 'site' / 'data' / 'menu.json'
 VALID_GROUPS = {'tthc', 'stdv', 'csdl'}
 
 
@@ -181,10 +182,22 @@ def main():
     except (ValueError,RuntimeError,OSError,KeyError,TimeoutError) as exc:
         print(f'Stats export unavailable ({type(exc).__name__}); publishing empty stats safely')
     print('Stats groups ready: ' + ', '.join(stats['modules']) if stats['modules'] else 'Stats groups ready: none')
+    # Navigation categories are hidden unless the owner's approved menu says HIỆN.
+    menu={'schema':1,'visible':{'chinh-thuc':False,'tam-thoi':False,
+         'nhan-xet':False,'dang-phi':False}}
+    try:
+        raw=get_json(endpoint+sep+'kind=menu')
+        flags=raw.get('visible') if isinstance(raw,dict) and raw.get('schema')==1 else None
+        if isinstance(flags,dict) and all(isinstance(flags.get(k),bool) for k in menu['visible']):
+            menu['visible']={key:flags[key] for key in menu['visible']}
+    except (ValueError,RuntimeError,OSError,KeyError,TimeoutError,TypeError) as exc:
+        print(f'Menu feed not ready ({type(exc).__name__}): keeping procedures hidden')
+    print('Visible procedure categories: '+', '.join(k for k,v in menu['visible'].items() if v))
     OUTPUT.parent.mkdir(parents=True,exist_ok=True)
     OUTPUT.write_text(json.dumps(qa,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
     FINANCE_OUTPUT.write_text(json.dumps(finance,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
     STATS_OUTPUT.write_text(json.dumps(stats,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+    MENU_OUTPUT.write_text(json.dumps(menu,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
     print(f'Prepared {len(qa["items"])} approved QA and finance publication: {finance["public"]}')
 
 
