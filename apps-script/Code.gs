@@ -85,7 +85,7 @@ function buildPublicFeed_() {
 function doGet(e){
   try {
     const kind=String((e&&e.parameter&&e.parameter.kind)||'qa');
-    const payload=kind==='finance'?buildFinanceFeed_():kind==='qa'?buildPublicFeed_():kind==='intake-status'?questionIntakeStatus_():{schema:1,error:'Unknown public feed type'};
+    const payload=kind==='finance'?buildFinanceFeed_():kind==='qa'?buildPublicFeed_():kind==='intake-status'?questionIntakeStatus_():kind==='stats'?buildStatsFeed_():{schema:1,error:'Unknown public feed type'};
     return ContentService.createTextOutput(JSON.stringify(payload)).setMimeType(ContentService.MimeType.JSON);
   } catch(err){return ContentService.createTextOutput(JSON.stringify({schema:1,error:'Public feed unavailable'})).setMimeType(ContentService.MimeType.JSON)}
 }
@@ -311,4 +311,128 @@ function acceptQuestion_(e){
     cache.put('Q_'+digest,'1',3600);
     return ticket;
   }finally{lock.releaseLock();}
+}
+
+
+/* REPORTING HUB — only owner-reviewed, aggregated statistics.
+ * NEVER publish person names, CCCD, phone numbers, account numbers, or raw rows.
+ * Script property: CDSTUHUE_STATS_HUB_ID
+ * Gated by DUYET_WEBSITE col B = ĐÃ DUYỆT AND valid approval date in col D.
+ * A source edit updates the next approved aggregate export; no direct VNeID access.
+ */
+function statsNumber_(v) {
+  if (typeof v === 'number') return Number.isFinite(v) ? v : 0;
+  const s=String(v||'').trim().replace(/\s/g,'');
+  if(!s) return 0;
+  const n=Number(s.replace(/,/g,''));
+  return Number.isFinite(n) ? n : 0;
+}
+function statsWhole_(n){return Math.max(0,Math.round(statsNumber_(n)));}
+function statsRows_(id,tab,firstRow,colCount){
+  const sh=SpreadsheetApp.openById(id).getSheetByName(tab);
+  if(!sh)throw new Error('Stats source not found');
+  const size=sh.getLastRow()-firstRow+1;
+  if(size<=0)return [];
+  if(size>25000)throw new Error('Source exceeds safety size limit');
+  return sh.getRange(firstRow,1,size,colCount).getValues();
+}
+function buildStatsFeed_(){
+  const hubId=PropertiesService.getScriptProperties().getProperty('CDSTUHUE_STATS_HUB_ID');
+  if(!hubId)return {schema:1,public:false,reviewed:false,modules:{},message:'Chưa cấu hình thống kê công khai.'};
+  const hub=SpreadsheetApp.openById(hubId);
+  const policy=hub.getSheetByName('DUYET_WEBSITE');
+  const sources=hub.getSheetByName('NGUON_4_FILE');
+  if(!policy||!sources)throw new Error('Missing reporting hub configuration');
+  const gates={};
+  policy.getRange(2,1,5,5).getDisplayValues().forEach(r=>{
+    gates[String(r[0]).trim()]=String(r[1]).trim()==='ĐÃ DUYỆT'&&
+      /^\d{4}-\d{2}-\d{2}$/.test(String(r[3]).trim());
+  });
+  const src={};
+  sources.getRange(2,1,4,8).getDisplayValues().forEach(r=>{
+    const key=String(r[0]).trim();
+    if(!['THU_NOP','CHUA_KHAI','PHAN_BO','NGAN_HANG'].includes(key))return;
+    const id=String(r[2]).trim(),tab=String(r[3]).trim();
+    if(!/^[A-Za-z0-9_-]{20,}$/.test(id)||!tab)throw new Error('Invalid private source configuration');
+    src[key]={id,tab,snapshot:String(r[5]||'')};
+  });
+  if(Object.keys(src).length!==4)throw new Error('Incomplete private source configuration');
+  const keys={payment:'TỔNG HỢP THU NỘP',ranking:'XẾP HẠNG 46 ĐƠN VỊ',
+     missing:'CHƯA KHAI BÁO THEO ĐƠN VỊ CHA',allocation:'XÁC NHẬN PHÂN BỔ',
+     banking:'TÀI KHOẢN NGÂN HÀNG'};
+  const enabled=Object.fromEntries(Object.entries(keys).map(([k,name])=>[k,!!gates[name]]));
+  const count=Object.values(enabled).filter(Boolean).length;
+  if(count===0)return {schema:1,public:false,reviewed:false,period:'2026-10',modules:{},note:'Chưa có phân hệ thống kê được duyệt công khai.'};
+  const modules={};let payments=null;
+  if(enabled.payment||enabled.ranking){
+    const list=statsRows_(src.THU_NOP.id,src.THU_NOP.tab,3,14)
+      .filter(r=>statsNumber_(r[0])>0&&String(r[1]||'').trim());
+    if(list.length!==46)throw new Error('Unexpected number of payment reporting units');
+    const total={members:0,declared:0,paid:0,notFiled:0,pendingReview:0,waitingPayment:0,paidRecords:0};
+    payments=[];
+    list.forEach(r=>{
+      const declared=statsWhole_(r[11]),paid=statsWhole_(r[12]),members=statsWhole_(r[2]);
+      const item={name:String(r[1]).trim().slice(0,190),members,declared,paid,
+        rate:declared>0?paid/declared:null,notFiled:statsWhole_(r[10]),
+        pendingReview:statsWhole_(r[7]),waitingPayment:statsWhole_(r[8]),paidRecords:statsWhole_(r[9])};
+      total.members+=members;total.declared+=declared;total.paid+=paid;
+      total.notFiled+=item.notFiled;total.pendingReview+=item.pendingReview;
+      total.waitingPayment+=item.waitingPayment;total.paidRecords+=item.paidRecords;
+      payments.push(item);
+    });
+    if(enabled.payment)modules.payment={scope:'46 đơn vị thuộc báo cáo thu nộp',
+       reportingUnits:list.length,...total,completionRate:total.declared?total.paid/total.declared:null,
+       sourceSnapshot:src.THU_NOP.snapshot};
+    if(enabled.ranking){
+      const ranked=payments.filter(x=>x.declared>0&&x.members>=100)
+        .sort((a,b)=>(b.rate||0)-(a.rate||0)||b.paid-a.paid||a.name.localeCompare(b.name,'vi'))
+        .map((x,i)=>({rank:i+1,name:x.name,members:x.members,
+          rate:x.rate,notFiled:x.notFiled,reportedPaid:x.paid,reportedDeclared:x.declared}));
+      modules.ranking={scope:'Chỉ các đơn vị trong báo cáo thu nộp, có từ 100 đảng viên',
+        eligibleUnits:ranked.length,sort:'Tỷ lệ số tiền đã nộp / số tiền đã khai báo',
+        records:ranked,sourceSnapshot:src.THU_NOP.snapshot};
+    }
+  }
+  if(enabled.missing){
+    const data=statsRows_(src.CHUA_KHAI.id,src.CHUA_KHAI.tab,2,5);
+    const counts={};let n=0;
+    data.forEach(r=>{const parent=String(r[3]||'').trim();if(!parent||!String(r[0]||'').trim())return;
+      counts[parent]=(counts[parent]||0)+1;n++;});
+    const byParent=Object.keys(counts).filter(k=>counts[k]>=20)
+      .map(name=>({name:name.slice(0,190),rows:counts[name]}))
+      .sort((a,b)=>b.rows-a.rows||a.name.localeCompare(b.name,'vi')).slice(0,30);
+    modules.missing={rowCount:n,distinctParents:Object.keys(counts).length,
+      rowsByParent:byParent,countType:'Số dòng trong danh sách, không xác nhận số người duy nhất',
+      noCrossSourceReconciliation:true,sourceSnapshot:src.CHUA_KHAI.snapshot};
+  }
+  if(enabled.allocation){
+    const statuses={XAC_NHAN:0,CHUA_XAC_NHAN:0,TY_LE_TD_CHO_XAC_NHAN:0};
+    let valid=0;
+    statsRows_(src.PHAN_BO.id,src.PHAN_BO.tab,2,3).forEach(r=>{
+      const key=String(r[2]||'').trim();
+      if(Object.prototype.hasOwnProperty.call(statuses,key)){statuses[key]++;valid++;}
+    });
+    modules.allocation={rowCount:valid,confirmed:statuses.XAC_NHAN,
+      unconfirmed:statuses.CHUA_XAC_NHAN,waitingRate:statuses.TY_LE_TD_CHO_XAC_NHAN,
+      sourceSnapshot:src.PHAN_BO.snapshot};
+  }
+  if(enabled.banking){
+    const sh=SpreadsheetApp.openById(src.NGAN_HANG.id).getSheetByName(src.NGAN_HANG.tab);
+    if(!sh)throw new Error('Missing bank summary source');
+    const n=sh.getLastRow()-1;
+    if(n>25000)throw new Error('Bank source exceeds safety size');
+    const stat=n>0?sh.getRange(2,8,n,1).getDisplayValues():[];
+    let registered=0,notRegistered=0;
+    stat.forEach(row=>{if(row[0]==='Đã có tài khoản ngân hàng')registered++;
+      else if(row[0]==='Chưa có tài khoản ngân hàng')notRegistered++;});
+    const all=registered+notRegistered;
+    modules.banking={rowCount:all,registered,notRegistered,
+      registrationRate:all?registered/all:null,sourceSnapshot:src.NGAN_HANG.snapshot};
+  }
+  // IMPORTANT: Never expose source spreadsheet IDs, individual names,
+  // personal identities, bank account numbers or raw row contents.
+  return {schema:1,public:true,reviewed:true,period:'2026-10',
+    generatedAt:new Date().toISOString(),source:'Four owner-managed Google Sheets, approved aggregates only',
+    warning:'Nguồn có phạm vi khác nhau. Không cộng dồn hoặc đồng nhất chỉ tiêu giữa các báo cáo.',
+    modules};
 }
