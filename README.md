@@ -1,0 +1,102 @@
+# CDSTUHUE PRO v3 — Website công khai, chỉnh sửa dễ dàng
+
+**Bản bàn giao 24/10/2026.** Website HTML/CSS/JavaScript nhiều chuyên mục; giao diện chuyên nghiệp lấy cảm hứng bố cục từ website Lào Cai, không sao chép dữ liệu địa phương. **Không tích hợp, không tìm cách vượt VNeID.** Website độc lập, không phải cổng dịch vụ công chính thức.
+
+## Có sẵn trong bản này
+
+- **Tổng quan:** trang chủ thống kê đảng phí, truy cập nhanh 04 thủ tục, kho hỏi đáp và bản tin.
+- **Đảng phí và tài khoản ngân hàng:** thẻ chỉ số, biểu đồ theo 5 nhóm đơn vị, kỳ báo cáo, thời điểm cập nhật, nguồn đối chiếu; dữ liệu thật **chỉ hiện sau khi phê duyệt**.
+- **03 TTHC khác:** chuyển sinh hoạt chính thức, chuyển sinh hoạt tạm thời, lấy ý kiến nhận xét nơi cư trú. Mỗi trang là **hướng dẫn/tra cứu câu hỏi đã duyệt**. Chưa có báo cáo tiến độ toàn thành phố; không dựng biểu đồ tiến độ giả.
+- **Hỏi đáp:** TTHC, Sổ tay Đảng viên, CSDL 4.0; tìm tiếng Việt không dấu, tìm mã QA, mở câu trả lời, sao chép liên kết.
+- **Tài liệu, báo cáo, xuất CSV/in, trợ lý tra cứu đơn giản trong kho đã duyệt**; giao diện máy tính và điện thoại.
+- **Trang theo dõi đơn vị** để mở rộng sau (mặc định chưa có số liệu).
+
+## Xem giao diện ngay
+
+Tải tệp `CDSTUHUE_PRO_V3_DEMO.html` đi kèm bàn giao rồi nhấp đúp mở bằng Edge. Demo dùng **hoàn toàn dữ liệu giả lập**, có nhãn rõ ràng. Không có dữ liệu VNeID hoặc nội dung QA nội bộ trong tệp demo.
+
+Để chạy mã nguồn thật trên máy:
+
+```bash
+cd site
+python -m http.server 8000
+```
+
+Mở `http://localhost:8000/` (bản công khai mặc định rỗng) hoặc `http://localhost:8000/?demo=1` (bản minh họa).
+
+## Cấu trúc gói
+
+```text
+site/
+  index.html, hoi-dap.html
+  assets/styles.css, assets/app.js
+  data/approved.json, data/finance.json, data/progress.json
+apps-script/Code.gs
+scripts/sync_public.py
+.github/workflows/deploy.yml
+tests/test_site.py
+README.md
+```
+
+## Kết nối Google Sheet (cần thực hiện một lần, có quyền chủ sở hữu)
+
+Google Sheet gốc **Hỗ trợ kỹ thuật CDSTUHUE**, ID chỉ nằm trong cấu hình Apps Script, không xuất ra web.
+
+- Ba tab `QA TTHC`, `QA STDV`, `QA CSDL 4.0` là nội dung nguồn.
+- `WEB_PUBLISH` gồm 223 mã QA chờ duyệt, D=`ĐÃ DUYỆT`/`CHỜ DUYỆT`/`TẠM ẨN`. QA không tự công khai chỉ bằng thay dropdown: phải kiểm tra nội dung và xác nhận duyệt trong menu **Xuất bản website**. Công cụ lưu dấu vân tay K; đổi nội dung sau duyệt sẽ chặn xuất bản đến lần xác nhận tiếp theo.
+- `WEB_FINANCE_PUBLIC` là tab **mới** lưu số liệu đảng phí *chỉ sau khi bạn kiểm tra và quyết định công khai*. Không chứa/sao chép dữ liệu chi tiết từ VNeID. Chỉ một bản snapshot (kỳ, ngày, nguồn) hợp lệ được xuất ra website mỗi lần cập nhật.
+
+### Cách nhập WEB_FINANCE_PUBLIC
+
+| Cột | Nội dung |
+|---|---|
+| A | Kỳ báo cáo dạng `YYYY-MM`, ví dụ `2026-10` |
+| B | Ngày đối chiếu dạng `YYYY-MM-DD`, ví dụ `2026-10-24` |
+| C | Tên nguồn **đã được phép công khai**, bắt buộc |
+| D | Số hồ sơ trong báo cáo (nếu có) |
+| E | Số chưa khai báo (nếu có) |
+| F | Số chờ phê duyệt (nếu có) |
+| G | Số chờ nộp (nếu có) |
+| H:L | Số tài khoản theo 5 nhóm: Đảng bộ trực thuộc Trung ương, Đảng bộ cơ sở, Đảng bộ trực thuộc cơ sở, Đảng bộ bộ phận, Chi bộ; để trống nếu chưa xác minh chỉ tiêu |
+| M | Ghi chú công khai, lưu ý phạm vi báo cáo hoặc định nghĩa chỉ tiêu |
+| N | Trạng thái `CHỜ DUYỆT`, `ĐÃ DUYỆT`, `TẠM ẨN` |
+| O:P | Ngày duyệt và mã xác nhận phiên bản **script tự điền, không sửa** |
+
+Lưu ý: **Không suy ra hoặc ghép các con số từ hai Dashboard có phạm vi/đơn vị khác nhau**. Không nhập số tài khoản ngân hàng, CCCD, số điện thoại, tên người hay mã hồ sơ vào bảng công khai. Có thể chỉ công bố một vài chỉ tiêu; các ô chưa có số liệu để trống và website hiện dấu `—`, không hiện `0` giả.
+
+#### Cài Apps Script
+
+1. Vào Sheet nguồn → `Tiện ích mở rộng → Apps Script`.
+2. Dán **toàn bộ** `apps-script/Code.gs`. Vào `Project Settings → Script Properties` đặt `CDSTUHUE_SHEET_ID` bằng ID Sheet nguồn; không đưa ID này vào repo/web nếu không cần.
+3. Lưu, cấp quyền theo cơ chế của Google rồi tải lại Sheet. Menu **Xuất bản website** xuất hiện.
+4. Để công khai một QA: rà soát, thay D thành `ĐÃ DUYỆT`, chọn dòng, chọn **Xác nhận duyệt những dòng đang chọn**.
+5. Để công khai tài chính: nhập A:M ở `WEB_FINANCE_PUBLIC`, điền N=`ĐÃ DUYỆT`, chọn dòng, chọn **Xác nhận duyệt thống kê đảng phí (dòng chọn)** và xác nhận. Script ghi O:P. Không có dòng đủ duyệt thì `finance.json` sẽ rỗng/không công khai.
+6. `Deploy → New deployment → Web app`: `Execute as Me`, `Who has access: Anyone` **chỉ sau khi tự kiểm tra mã nguồn** để biết endpoint sẽ công khai chính xác những gì. Lấy URL `/exec`. Endpoint có `?kind=qa` và `?kind=finance`; không có API bí mật của VNeID trong web app.
+
+#### GitHub Pages miễn phí
+
+1. Tạo repository GitHub mới, **Public**. Tải **toàn bộ nội dung gói nguồn** lên nhánh `main` (giữ `.github/workflows/deploy.yml` và thư mục `site/`). Không tải file Excel quản trị hay JSON nội bộ.
+2. `Settings → Pages → Build and deployment → Source: GitHub Actions`.
+3. `Settings → Secrets and variables → Actions → New repository secret`: `QA_PUBLIC_ENDPOINT` = URL Apps Script `/exec` đã triển khai.
+4. `Actions → Publish CDSTUHUE website → Run workflow` để triển khai. Workflow kiểm tra và cập nhật **QA lẫn finance** khoảng hai giờ/lần. Website chỉ thay đổi dữ liệu khi chạy workflow thành công; lịch có thể trễ. Bấm `Tải mới` trên website chỉ tải lại bản đã xuất bản, **không** tự gọi cổng quản trị hoặc Sheets nội bộ.
+5. Nếu chưa cài Apps Script/secret, website vẫn có giao diện công khai với các mục trống và chế độ minh họa `?demo=1`.
+
+Khi sửa mã Apps Script, cập nhật deployment của Google, không chỉ lưu code trong editor.
+
+## Quy tắc công khai và tính chính xác
+
+- **Không** truy vấn hoặc lưu cookie/OTP/Token VNeID, không nhúng tài khoản cấp tỉnh, không vượt phân quyền từng vai trò cấp dưới.
+- `WEB_FINANCE_PUBLIC` **không tự động kéo dữ liệu từ gqtthc.dcs.vn**. Phần lấy dữ liệu từ hệ thống đảng phí vẫn là bước cần thực hiện riêng về sau.
+- Dù dữ liệu có ở Google Sheet nội bộ, nếu chưa duyệt, website chỉ hiển thị chỗ trống hoặc bản demo rõ nhãn. Trong `site/data` mặc định không có số liệu thật và không có nội dung QA nội bộ.
+- Số liệu tài chính chỉ so sánh cùng chỉ tiêu, cùng phạm vi, cùng kỳ và cùng thời gian quan sát. Không cộng các chỉ tiêu chưa xác định và không giả định các con số khác nhau phải bằng nhau.
+- Đổi trạng thái sang `TẠM ẨN` thì nội dung ngừng xuất bản trong lần đồng bộ kế tiếp, nhưng **các bản cache hoặc lịch sử GitHub Actions/Git của người khác có thể vẫn giữ dữ liệu đã từng công khai**.
+- Mã nguồn gói không tự động lập GitHub repository hay deploy Apps Script. Việc xuất bản cần hành động trong tài khoản sở hữu GitHub/Google của bạn.
+
+## Kiểm thử
+
+```bash
+node --check site/assets/app.js
+python -m unittest discover -s tests -v
+```
+
+Trong Edge, kiểm tra trang Tổng quan, Thống kê đảng phí, ba chuyên mục hướng dẫn, Hỏi đáp, tìm kiếm không dấu và chế độ điện thoại. Đầu tiên hãy thử duyệt **một câu QA đã rà soát không nhạy cảm**, sau đó thử một bản tài chính tổng hợp đã xác minh và được phép công khai. Khi chưa có sự đồng ý xuất bản, không duyệt dữ liệu chỉ để lấp bảng trống.
