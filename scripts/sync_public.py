@@ -173,8 +173,18 @@ def main():
                     modules['banking']={'rowCount':n,'registered':registered,
                         'notRegistered':absent,'registrationRate':round(registered/n,8)}
             if modules:
+                approved_date=str(candidate.get('approvedDate') or '').strip()
+                if not re.fullmatch(r'\d{4}-\d{2}-\d{2}',approved_date):
+                    approved_date=''
+                else:
+                    from datetime import date
+                    try:
+                        date.fromisoformat(approved_date)
+                    except ValueError:
+                        approved_date=''
                 stats={'schema':1,'public':True,'reviewed':True,
                     'period':str(candidate.get('period') or '')[:7],
+                    'approvedDate':approved_date,
                     'generatedAt':str(candidate.get('generatedAt') or '')[:32],
                     'source':'Approved multi-source summary statistics',
                     'warning':'Nguồn có phạm vi khác nhau; không cộng chéo hoặc suy ra tỷ lệ khi thiếu mẫu số.',
