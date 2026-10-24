@@ -182,17 +182,23 @@ def main():
     except (ValueError,RuntimeError,OSError,KeyError,TimeoutError) as exc:
         print(f'Stats export unavailable ({type(exc).__name__}); publishing empty stats safely')
     print('Stats groups ready: ' + ', '.join(stats['modules']) if stats['modules'] else 'Stats groups ready: none')
-    # Navigation categories are hidden unless the owner's approved menu says HIỆN.
-    menu={'schema':1,'visible':{'chinh-thuc':False,'tam-thoi':False,
-         'nhan-xet':False,'dang-phi':False}}
+    # Visibility defaults are safe even before the owner's Apps Script is redeployed.
+    defaults={'overview':True,'finance':True,'units':False,
+              'chinh-thuc':False,'tam-thoi':False,'nhan-xet':False,'dang-phi':False,
+              'qa-all':True,'qa-tthc':True,'qa-stdv':True,'qa-csdl':True,
+              'resources':False,'reports':False,'guide':False}
+    menu={'schema':1,'visible':defaults.copy()}
     try:
         raw=get_json(endpoint+sep+'kind=menu')
         flags=raw.get('visible') if isinstance(raw,dict) and raw.get('schema')==1 else None
-        if isinstance(flags,dict) and all(isinstance(flags.get(k),bool) for k in menu['visible']):
-            menu['visible']={key:flags[key] for key in menu['visible']}
+        if isinstance(flags,dict):
+            for key in defaults:
+                if key != 'overview' and isinstance(flags.get(key),bool):
+                    menu['visible'][key]=flags[key]
     except (ValueError,RuntimeError,OSError,KeyError,TimeoutError,TypeError) as exc:
-        print(f'Menu feed not ready ({type(exc).__name__}): keeping procedures hidden')
-    print('Visible procedure categories: '+', '.join(k for k,v in menu['visible'].items() if v))
+        print(f'Menu feed not ready ({type(exc).__name__}): using configured safe defaults')
+    menu['visible']['overview']=True
+    print('Hidden navigation categories: '+', '.join(k for k,v in menu['visible'].items() if not v))
     OUTPUT.parent.mkdir(parents=True,exist_ok=True)
     OUTPUT.write_text(json.dumps(qa,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
     FINANCE_OUTPUT.write_text(json.dumps(finance,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
