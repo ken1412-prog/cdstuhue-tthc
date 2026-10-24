@@ -48,7 +48,20 @@ function procedureMenu(){
  menu.innerHTML=entries.map(([id,item])=>'<button type="button" class="nav-link" data-view="'+E(id)+'"><span class="nav-ico">'+E(item.icon)+'</span><span>'+E(item.title)+'</span></button>').join('');
  const hidden=entries.length===0;menu.hidden=hidden;header.hidden=hidden;
 }
-const published = ()=>state.demo?demoQA:state.qa;
+function applyMenuVisibility(){
+ for(const el of $('[data-view]')){
+  const on=viewAllowed(el.dataset.view);
+  el.hidden=!on;
+  if(on)el.removeAttribute('aria-hidden');else el.setAttribute('aria-hidden','true');
+ }
+ for(const ids of [['qaNav','qaMenuGroup'],['utilityNav','utilityMenuGroup']]){
+  const nav=$('#'+ids[0]),group=$('#'+ids[1]);
+  if(!nav||!group)continue;
+  const on=$('[data-view]',nav).some(el=>!el.hidden);
+  nav.hidden=!on;group.hidden=!on;
+ }
+}
+const published = ()=>(state.demo?demoQA:state.qa).filter(x=>state.menu['qa-'+x.group]===true);
 const progress = ()=>(state.demo?demoProgress:state.progress).filter(x=>state.menu[x.procedure]===true);
 const finance = ()=>state.demo?demoFinance:state.finance;
 const qgroup = item => ({'QA TTHC':'tthc','QA STDV':'stdv','QA CSDL 4.0':'csdl'}[item?.group]||item?.group||'');
@@ -193,7 +206,7 @@ function render(){
  $('#crumb').textContent=view.startsWith('qa-')?'Hỏi – đáp':title;
  $('#heroIndicator').textContent=view==='finance'||view==='dang-phi'?'₫':String(published().length).padStart(2,'0');
  $('#indicatorNote').textContent=view==='finance'||view==='dang-phi'?'THỐNG KÊ ĐÃ KIỂM DUYỆT':'Câu hỏi đã xuất bản';
- $$('.nav-link').forEach(el=>el.classList.toggle('active',el.dataset.view===view));bindPage();
+ $('.nav-link').forEach(el=>el.classList.toggle('active',el.dataset.view===view));bindPage();applyMenuVisibility();
 }
 function route(view,{replace=false}={}){
  if(!viewAllowed(view))view='overview';
