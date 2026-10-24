@@ -134,17 +134,12 @@ Phân hệ thu nộp có bảng xếp hạng chỉ xuất phần trăm, thứ h�
 **Phạm vi xuất bản thống kê:** Người quản trị được phép duyệt và công bố cả năm phân hệ (tỷ lệ thu nộp; xếp hạng đơn vị; số dòng chưa khai báo và tỷ trọng theo đơn vị cha; trạng thái/tỷ lệ xác nhận phân bổ; trạng thái/tỷ lệ đăng ký tài khoản ngân hàng). Không công bố bất kỳ số tiền, số tài khoản ngân hàng, tên cá nhân, mã định danh, dữ liệu hồ sơ từng người hoặc bảng nguồn thô nào. Tỷ trọng trong danh sách chưa khai báo không phải tỷ lệ trên tổng đảng viên vì khác mẫu số. Bộ lọc scripts/sync_public.py có danh sách trường được phép cho từng phân hệ.
 
 
-## Quản trị ẨN/HIỆN danh mục (24/10/2026)
+## Quản trị ẨN/HIỆN toàn bộ danh mục
 
-Trình quản trị hiện dùng **Google Sheets có xác thực tài khoản Google**, không đặt mật khẩu trong giao diện HTML/JavaScript công khai (vì mật khẩu đó có thể bị xem qua mã nguồn).
+Quản trị viên điều khiển **15 mục** trong tab `QUAN_TRI_DANH_MUC` của Google Sheet riêng tư `CDSTUHUE STATS HUB 2026`: Tổng quan, Thống kê, Tiến độ, 4 thủ tục, Tất cả QA, 3 nhóm QA, Tài liệu, Báo cáo, Hướng dẫn và Trợ lý tra cứu nhanh. Cột C chỉ nhận `HIỆN` hoặc `ẨN`; người có tài khoản Google chủ sở hữu mới được chỉnh sửa.
 
-- Mở Sheet riêng tư `CDSTUHUE STATS HUB 2026` → tab `QUAN_TRI_DANH_MUC`.
-- Chỉnh **chỉ cột C** cho 4 danh mục `chinh-thuc`, `tam-thoi`, `nhan-xet`, `dang-phi`. Chọn `HIỆN` hoặc `ẨN` trong danh sách thả xuống.
-- Mặc định hiện cả bốn đang đặt là `ẨN`. Mục `Thống kê đảng phí` độc lập ở phần Tổng hợp vẫn hiển thị, không phải cùng với `dang-phi` trong nhóm thủ tục.
-- `apps-script/Code.gs` cung cấp `/exec?kind=menu`: chỉ trả `{schema:1,visible:{...}}` với bốn cờ boolean, không cung cấp Sheet ID hoặc nội dung riêng.
-- `scripts/sync_public.py` xuất bản `site/data/menu.json` sau mỗi lịch đồng bộ. Nếu endpoint chưa cập nhật, không truy cập được hoặc cấu hình sai, toàn bộ bốn mục sẽ **ẨN mặc định**.
-- Menu bên, các thẻ ở Tổng quan, thống kê tiến độ liên quan và các đường dẫn `?view=...` đều tuân theo cờ. Người dùng nhập liên kết trực tiếp của danh mục ẩn sẽ được đưa về Tổng quan. **Ẩn không phải bảo mật nội dung**: một tài nguyên từng công khai có thể còn trong cache, lịch sử hoặc các bản lưu bên ngoài.
-- Để bật cơ chế tự đổi trạng thái: thay phiên bản mới nhất của `apps-script/Code.gs` trong dự án **CDSTUHUE_WEB_PUBLIC**, giữ `CDSTUHUE_STATS_HUB_ID` trỏ đến Sheet riêng tư, chọn **Deploy → Manage deployments → Edit → New version → Deploy**. Không đổi URL /exec. Kiểm tra `/exec?kind=menu`.
-- Sau khi chỉnh cột C, có thể đợi lịch GitHub Actions hai giờ/lần, hoặc chạy workflow **Publish CDSTUHUE website → Run workflow** rồi tải lại web. Không phải sửa mã HTML nữa.
+Không đặt mật khẩu trong HTML/JavaScript công khai. Các trạng thái được đọc bởi `apps-script/Code.gs` qua `/exec?kind=menu`, rồi `scripts/sync_public.py` chỉ xuất 15 cờ boolean vào `site/data/menu.json`. Website áp dụng cùng chính sách cho menu bên, các thẻ Tổng quan, liên kết nội bộ trên các trang khác, bộ lọc QA, Trợ lý và đường dẫn `?view=...` nhập trực tiếp. Mục bị ẩn sẽ không có đường dẫn mở trên giao diện; nếu nhập URL cũ, người xem bị chuyển sang danh mục đầu tiên còn hiển thị hoặc trang thông báo trống khi tất cả đều tắt.
 
-Không bao giờ đưa mật khẩu đăng nhập Google, mã xác thực hoặc thông tin cá nhân vào `menu.json`.
+**Cách bật tự động:** cập nhật bản mới nhất `apps-script/Code.gs` vào dự án `CDSTUHUE_WEB_PUBLIC`, giữ thuộc tính `CDSTUHUE_STATS_HUB_ID`, sau đó Deploy → Manage deployments → Edit → New version → Deploy. Kiểm tra `/exec?kind=menu` thấy đủ 15 cờ. Sau đó chỉ cần đổi trạng thái ở cột C và chờ lịch GitHub Actions hai giờ/lần hoặc chạy thủ công `Publish CDSTUHUE website → Run workflow` để áp dụng. Dữ liệu tổng hợp và nguồn gốc vẫn do các quy tắc duyệt công khai riêng điều khiển.
+
+**Giới hạn kỹ thuật:** GitHub Pages là website tĩnh; ẨN danh mục không phải phân quyền truy cập bí mật. Người có URL thẳng tới JSON hoặc đã lưu bản công khai từ trước vẫn có thể truy cập bản dữ liệu đó. Với dữ liệu mật, cần một hệ thống xác thực phía máy chủ và ngừng xuất dữ liệu bí mật ngay từ nguồn.
