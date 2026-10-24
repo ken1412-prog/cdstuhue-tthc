@@ -170,17 +170,30 @@ function statsDashboard(){
 }
 function financeView(){return financeCards()+statsDashboard()+`<div class="section-heading"><div><h2>Các khu vực liên quan</h2><p>Truy cập nhanh hỏi đáp và báo cáo tổng hợp</p></div></div><div class="category-grid"><button class="category-card" data-view="qa-tthc"><span class="c-icon">?</span><b>Hỏi đáp đảng phí &amp; TTHC</b><p>Tra cứu lỗi kê khai, trạng thái thanh toán và phân quyền</p><div class="c-count">Xem câu hỏi →</div></button><button class="category-card" data-view="units"><span class="c-icon">▣</span><b>Bảng theo dõi đơn vị</b><p>Vùng dữ liệu mở rộng khi có số liệu được duyệt</p><div class="c-count">Xem bảng →</div></button><button class="category-card" data-view="reports"><span class="c-icon">⇩</span><b>Báo cáo &amp; dữ liệu</b><p>Xem cách đưa bản thống kê đã duyệt vào website</p><div class="c-count">Mở báo cáo →</div></button></div>`}
 function overview(){
- const q=published(),f=finance(),cats=['tthc','stdv','csdl'];
- return `${financeCards({compact:true})}
- <div class="overview-quick"><button data-view="finance" class="overview-quick-link">Xem chuyên đề đảng phí &amp; tài khoản ngân hàng <span>↗</span></button><span>Chỉ hiện số liệu đã xét duyệt; không kết nối trực tiếp tài khoản VNeID.</span></div>
- <div class="stat-grid">${stat('Kho hỏi – đáp','Tổng số QA đã duyệt công khai',pretty.format(q.length),'?')}${stat('Nhóm hỗ trợ','TTHC · STDV · CSDL 4.0','03','▥')}${stat('Bảng thống kê','Phân tích và xếp hạng theo kỳ',state.stats?'Đã có':'Chờ duyệt','⇄')}${stat('Báo cáo đảng phí','Phiên bản thống kê công khai',(f||state.stats)?'Đã có':'Chờ duyệt','◈')}</div>
- ${Object.entries(PROCEDURES).some(([id])=>state.menu[id]===true)?`<div class="section-heading"><div><h2>Thủ tục và hướng dẫn</h2><p>Chỉ hiển thị các danh mục đang được quản trị cho phép.</p></div></div><div class="category-grid procedure-category-grid">`:''}
- ${Object.entries(PROCEDURES).filter(([id])=>state.menu[id]===true).map(([key,item])=>`<button type="button" class="category-card procedure-launch" data-view="${key}"><span class="c-icon">${item.icon}</span><b>${E(item.title)}</b><p>${E(item.help)}</p><span class="procedure-kind">${key==='dang-phi'?'◉ Thống kê & hỗ trợ':'◈ Hướng dẫn & tra cứu'}</span><div class="c-count">Mở chuyên mục →</div></button>`).join('')}${Object.entries(PROCEDURES).some(([id])=>state.menu[id]===true)?'</div>':''}
- <div class="section-heading"><div><h2>Kho tri thức – hỏi đáp kỹ thuật</h2><p>Chỉ hiển thị QA đã được duyệt xuất bản từ Google Sheets</p></div><button class="card-link" data-view="qa-all">Xem tất cả →</button></div>
- <div class="category-grid">${cats.map(k=>{let t=GROUPS[k],n=q.filter(x=>x.group===k).length;return `<button class="category-card" type="button" data-view="qa-${k}"><span class="c-icon">${t.icon}</span><b>${E(t.full)}</b><p>Tìm kiếm hướng dẫn, xử lý vướng mắc và nguồn tham khảo đã duyệt</p><div class="c-count">${n} <small>mục công khai ↗</small></div></button>`}).join('')}</div>
- <div class="section-heading"><div><h2>Câu hỏi mới công bố</h2><p>Mở nhanh từng câu hỏi và chia sẻ liên kết</p></div><button class="card-link" data-view="qa-all">Vào kho hỏi – đáp →</button></div>
- <section class="panel">${q.length?qaCards([...q].reverse().slice(0,4)):msgEmpty('Chưa có câu hỏi nào được duyệt công khai')}</section>
- <div class="overview-info-notice"><strong>Về dữ liệu tiến độ TTHC khác</strong><p>Phần tiến độ theo Đảng bộ/Chi bộ hiện cần quyền xem từng đơn vị, nên website chưa công bố xếp hạng hoặc tỷ lệ xử lý của ba thủ tục còn lại. Chuyên mục hướng dẫn vẫn hoạt động bình thường.</p><button class="btn" data-view="guide">Cách sử dụng dữ liệu công khai →</button></div>`;
+ const q=published(),cats=Object.keys(GROUPS).filter(k=>viewAllowed('qa-'+k));
+ const procs=Object.entries(PROCEDURES).filter(([id])=>viewAllowed(id));
+ const stats=[];
+ if(cats.length){
+  stats.push(stat('Kho hỏi – đáp','Nội dung đã duyệt trong các nhóm đang bật',pretty.format(q.length),'?'));
+  stats.push(stat('Nhóm hỗ trợ','Các nhóm đang công khai',pretty.format(cats.length),'▥'));
+ }
+ if(viewAllowed('finance')){
+  stats.push(stat('Bảng thống kê','Phân tích và xếp hạng theo kỳ',state.stats?'Đã có':'Chờ duyệt','⇄'));
+  stats.push(stat('Báo cáo đảng phí','Phiên bản thống kê công khai',(finance()||state.stats)?'Đã có':'Chờ duyệt','◈'));
+ }
+ if(viewAllowed('units'))stats.push(stat('Bảng tiến độ','Tiến độ theo đơn vị khi có dữ liệu',progress().length||'—','▤'));
+ const procedureCards=procs.length?'<div class="section-heading"><div><h2>Thủ tục và hướng dẫn</h2><p>Các mục hiện được quản trị cho phép.</p></div></div><div class="category-grid procedure-category-grid">'+
+  procs.map(([id,item])=>'<button type="button" class="category-card procedure-launch" data-view="'+E(id)+'"><span class="c-icon">'+E(item.icon)+'</span><b>'+E(item.title)+'</b><p>'+E(item.help)+'</p><div class="c-count">Mở chuyên mục →</div></button>').join('')+'</div>':'';
+ const qaCardsGroup=cats.length?'<div class="section-heading"><div><h2>Kho tri thức – hỏi đáp</h2><p>Chỉ các nhóm đang bật và đã được duyệt công khai.</p></div>'+
+  (viewAllowed('qa-all')?'<button class="card-link" data-view="qa-all">Xem tất cả →</button>':'')+'</div><div class="category-grid">'+
+  cats.map(k=>{const t=GROUPS[k],count=q.filter(x=>x.group===k).length;
+   return '<button class="category-card" type="button" data-view="qa-'+E(k)+'"><span class="c-icon">'+E(t.icon)+'</span><b>'+E(t.full)+'</b><p>Tìm kiếm hướng dẫn và câu trả lời được duyệt</p><div class="c-count">'+count+' mục công khai ↗</div></button>';
+  }).join('')+'</div>':'';
+ const latest=(viewAllowed('qa-all')&&q.length)?'<div class="section-heading"><div><h2>Câu hỏi mới công bố</h2><p>Chỉ những câu hỏi trong nhóm đang bật</p></div><button class="card-link" data-view="qa-all">Vào kho hỏi đáp →</button></div><section class="panel">'+qaCards([...q].reverse().slice(0,4))+'</section>':'';
+ return (viewAllowed('finance')?financeCards({compact:true})+'<div class="overview-quick"><button data-view="finance" class="overview-quick-link">Xem báo cáo tổng hợp <span>↗</span></button></div>':'')+
+  (stats.length?'<div class="stat-grid">'+stats.join('')+'</div>':'')+
+  procedureCards+qaCardsGroup+latest+
+  (viewAllowed('guide')&&procs.length?'<div class="overview-info-notice"><strong>Hướng dẫn sử dụng website</strong><p>Tra cứu hướng dẫn cho các danh mục đang bật.</p><button class="btn" data-view="guide">Mở hướng dẫn →</button></div>':'');
 }
 function unitRows(rows){const map=new Map();for(const row of rows){let arr=map.get(row.unit)||[];arr.push(row);map.set(row.unit,arr)}return [...map].map(([unit,data])=>({unit,avg:data.reduce((a,x)=>a+x.progress,0)/data.length,count:data.length,received:data.reduce((a,x)=>a+x.received,0),completed:data.reduce((a,x)=>a+x.completed,0)})).sort((a,b)=>b.avg-a.avg||a.unit.localeCompare(b.unit,'vi'))}
 function progressTable(rows,{limit=0}={}){if(!rows.length)return msgEmpty('Chưa có dữ liệu tiến độ theo đơn vị');const all=unitRows(rows),shown=limit?all.slice(0,limit):all;return `<div class="table-shell"><table><thead><tr><th>STT</th><th>Đơn vị</th><th>Thủ tục có dữ liệu</th><th>Tiếp nhận</th><th>Hoàn thành hồ sơ</th><th>Tiến độ bình quân</th><th>Trạng thái</th></tr></thead><tbody>${shown.map((x,i)=>`<tr><td>${i+1}</td><td class="td-bold">${E(x.unit)}</td><td>${x.count}/${Object.keys(PROCEDURES).filter(k=>state.menu[k]===true).length}</td><td>${pretty.format(x.received)}</td><td>${pretty.format(x.completed)}</td><td style="min-width:130px"><div class="bar-track"><div class="bar-fill" style="width:${x.avg.toFixed(1)}%"></div></div><small>${x.avg.toFixed(1)}%</small></td><td><span class="badge ${x.avg>=99.9?'good':'warn'}">${x.avg>=99.9?'Hoàn thành':x.avg>0?'Đang triển khai':'Chưa triển khai'}</span></td></tr>`).join('')}</tbody></table></div>${limit?`<div class="small-note">Đang hiển thị ${shown.length}/${all.length} đơn vị. Bấm “Xem bảng tổng” để xem đầy đủ.</div>`:''}`}
