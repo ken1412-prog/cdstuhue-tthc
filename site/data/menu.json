@@ -1,0 +1,9 @@
+{
+  "schema": 1,
+  "visible": {
+    "chinh-thuc": false,
+    "tam-thoi": false,
+    "nhan-xet": false,
+    "dang-phi": false
+  }
+}
