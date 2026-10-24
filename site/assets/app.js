@@ -38,28 +38,41 @@ const demoProgress=[
 {unit:'Đơn vị minh họa B',procedure:'dang-phi',progress:79,received:125,completed:99,updated:'2026-10-23',public:true,demo:true},
 {unit:'Đơn vị minh họa C',procedure:'dang-phi',progress:54,received:88,completed:47,updated:'2026-10-23',public:true,demo:true}
 ];
-const state={menu: {overview:true,finance:true,units:false,'chinh-thuc':false,'tam-thoi':false,'nhan-xet':false,'dang-phi':false,'qa-all':true,'qa-tthc':true,'qa-stdv':true,'qa-csdl':true,resources:false,reports:false,guide:false},menuReady:false,pendingView:null,qa:[],progress:[],finance:null,stats:null,view:'overview',filter:'',query:'',unitQuery:'',sort:'default',page:0,generatedAt:'',demo:false,local:false,loadError:null};
-const defaultViews=['overview','finance','units','resources','reports','guide','qa-all','qa-tthc','qa-stdv','qa-csdl'];
-function viewAllowed(v){return v==='overview'||(Object.prototype.hasOwnProperty.call(state.menu,v)&&state.menu[v]===true);}
+const MENU_DEFAULTS={'overview':true,'finance':true,'units':true,
+ 'chinh-thuc':false,'tam-thoi':false,'nhan-xet':false,'dang-phi':false,
+ 'qa-all':true,'qa-tthc':true,'qa-stdv':true,'qa-csdl':true,
+ 'resources':true,'reports':true,'guide':true,'assistant':true};
+const state={menu:{...MENU_DEFAULTS},menuReady:false,pendingView:null,qa:[],progress:[],finance:null,stats:null,view:'overview',filter:'',query:'',unitQuery:'',sort:'default',page:0,generatedAt:'',demo:false,local:false,loadError:null};
+const NAV_FALLBACK=['overview','finance','qa-all','qa-tthc','qa-stdv','qa-csdl',
+  'resources','reports','guide','units','chinh-thuc','tam-thoi','nhan-xet','dang-phi'];
+function viewAllowed(id){return id==='closed'||(id!=='assistant'&&
+ Object.prototype.hasOwnProperty.call(MENU_DEFAULTS,id)&&state.menu[id]===true);}
+function firstVisibleView(){return NAV_FALLBACK.find(id=>viewAllowed(id))||'closed';}
 function procedureMenu(){
- const entries=Object.entries(PROCEDURES).filter(([id])=>state.menu[id]===true);
- const menu=$('#procedureNav'),header=$('#procedureMenuGroup');
- if(!menu||!header)return;
- menu.innerHTML=entries.map(([id,item])=>'<button type="button" class="nav-link" data-view="'+E(id)+'"><span class="nav-ico">'+E(item.icon)+'</span><span>'+E(item.title)+'</span></button>').join('');
- const hidden=entries.length===0;menu.hidden=hidden;header.hidden=hidden;
+ const entries=Object.entries(PROCEDURES).filter(([id])=>viewAllowed(id));
+ const nav=$('#procedureNav'),group=$('#procedureMenuGroup');
+ if(!nav||!group)return;
+ nav.innerHTML=entries.map(([id,item])=>'<button type="button" class="nav-link" data-view="'+E(id)+'"><span class="nav-ico">'+E(item.icon)+'</span><span>'+E(item.title)+'</span></button>').join('');
+ nav.hidden=!entries.length;group.hidden=!entries.length;
 }
 function applyMenuVisibility(){
- for(const el of $('[data-view]')){
-  const on=viewAllowed(el.dataset.view);
-  el.hidden=!on;
-  if(on)el.removeAttribute('aria-hidden');else el.setAttribute('aria-hidden','true');
+ $$('[data-view]').forEach(el=>{
+  const allowed=viewAllowed(el.dataset.view);el.hidden=!allowed;
+  if(allowed)el.removeAttribute('aria-hidden');else el.setAttribute('aria-hidden','true');
+ });
+ for(const [navID,groupID] of [['mainNav','coreMenuGroup'],['qaNav','qaMenuGroup'],
+  ['utilityNav','utilityMenuGroup']]){
+  const nav=$('#'+navID),heading=$('#'+groupID);
+  if(!nav||!heading)continue;
+  const anyVisible=$$('[data-view]',nav).some(el=>!el.hidden);
+  nav.hidden=!anyVisible;heading.hidden=!anyVisible;
  }
- for(const ids of [['qaNav','qaMenuGroup'],['utilityNav','utilityMenuGroup']]){
-  const nav=$('#'+ids[0]),group=$('#'+ids[1]);
-  if(!nav||!group)continue;
-  const on=$('[data-view]',nav).some(el=>!el.hidden);
-  nav.hidden=!on;group.hidden=!on;
- }
+ const helper=$('#openAssistant'),panel=$('#assistantWrap');
+ if(helper)helper.hidden=state.menu.assistant!==true;
+ if(panel&&state.menu.assistant!==true)panel.classList.add('hidden');
+ if(state.menu.reports!==true)
+  $$('[data-action="export-qa"],[data-action="export-progress"],[data-action="export-finance"]').forEach(el=>el.hidden=true);
+ document.body.classList.remove('menu-loading');
 }
 const published = ()=>(state.demo?demoQA:state.qa).filter(x=>state.menu['qa-'+x.group]===true);
 const progress = ()=>(state.demo?demoProgress:state.progress).filter(x=>state.menu[x.procedure]===true);
@@ -171,7 +184,7 @@ function overview(){
  <div class="overview-info-notice"><strong>Về dữ liệu tiến độ TTHC khác</strong><p>Phần tiến độ theo Đảng bộ/Chi bộ hiện cần quyền xem từng đơn vị, nên website chưa công bố xếp hạng hoặc tỷ lệ xử lý của ba thủ tục còn lại. Chuyên mục hướng dẫn vẫn hoạt động bình thường.</p><button class="btn" data-view="guide">Cách sử dụng dữ liệu công khai →</button></div>`;
 }
 function unitRows(rows){const map=new Map();for(const row of rows){let arr=map.get(row.unit)||[];arr.push(row);map.set(row.unit,arr)}return [...map].map(([unit,data])=>({unit,avg:data.reduce((a,x)=>a+x.progress,0)/data.length,count:data.length,received:data.reduce((a,x)=>a+x.received,0),completed:data.reduce((a,x)=>a+x.completed,0)})).sort((a,b)=>b.avg-a.avg||a.unit.localeCompare(b.unit,'vi'))}
-function progressTable(rows,{limit=0}={}){if(!rows.length)return msgEmpty('Chưa có dữ liệu tiến độ theo đơn vị');const all=unitRows(rows),shown=limit?all.slice(0,limit):all;return `<div class="table-shell"><table><thead><tr><th>STT</th><th>Đơn vị</th><th>Thủ tục có dữ liệu</th><th>Tiếp nhận</th><th>Hoàn thành hồ sơ</th><th>Tiến độ bình quân</th><th>Trạng thái</th></tr></thead><tbody>${shown.map((x,i)=>`<tr><td>${i+1}</td><td class="td-bold">${E(x.unit)}</td><td>${x.count}/${Object.values(state.menu).filter(Boolean).length}</td><td>${pretty.format(x.received)}</td><td>${pretty.format(x.completed)}</td><td style="min-width:130px"><div class="bar-track"><div class="bar-fill" style="width:${x.avg.toFixed(1)}%"></div></div><small>${x.avg.toFixed(1)}%</small></td><td><span class="badge ${x.avg>=99.9?'good':'warn'}">${x.avg>=99.9?'Hoàn thành':x.avg>0?'Đang triển khai':'Chưa triển khai'}</span></td></tr>`).join('')}</tbody></table></div>${limit?`<div class="small-note">Đang hiển thị ${shown.length}/${all.length} đơn vị. Bấm “Xem bảng tổng” để xem đầy đủ.</div>`:''}`}
+function progressTable(rows,{limit=0}={}){if(!rows.length)return msgEmpty('Chưa có dữ liệu tiến độ theo đơn vị');const all=unitRows(rows),shown=limit?all.slice(0,limit):all;return `<div class="table-shell"><table><thead><tr><th>STT</th><th>Đơn vị</th><th>Thủ tục có dữ liệu</th><th>Tiếp nhận</th><th>Hoàn thành hồ sơ</th><th>Tiến độ bình quân</th><th>Trạng thái</th></tr></thead><tbody>${shown.map((x,i)=>`<tr><td>${i+1}</td><td class="td-bold">${E(x.unit)}</td><td>${x.count}/${Object.keys(PROCEDURES).filter(k=>state.menu[k]===true).length}</td><td>${pretty.format(x.received)}</td><td>${pretty.format(x.completed)}</td><td style="min-width:130px"><div class="bar-track"><div class="bar-fill" style="width:${x.avg.toFixed(1)}%"></div></div><small>${x.avg.toFixed(1)}%</small></td><td><span class="badge ${x.avg>=99.9?'good':'warn'}">${x.avg>=99.9?'Hoàn thành':x.avg>0?'Đang triển khai':'Chưa triển khai'}</span></td></tr>`).join('')}</tbody></table></div>${limit?`<div class="small-note">Đang hiển thị ${shown.length}/${all.length} đơn vị. Bấm “Xem bảng tổng” để xem đầy đủ.</div>`:''}`}
 const PROCEDURE_GUIDES={
  'chinh-thuc':{label:'Chuyển sinh hoạt Đảng chính thức',summary:'Tập hợp câu hỏi về hồ sơ chuyển sinh hoạt, trạng thái xử lý, dữ liệu tổ chức và những tình huống cần hỗ trợ.',tags:['chuyển sinh hoạt chính thức','hồ sơ chuyển sinh hoạt','chuyển đi chuyển đến'],hints:['Xem đúng hướng dẫn đang có hiệu lực do cơ quan quản lý ban hành','Đối chiếu thông tin tổ chức và trạng thái hồ sơ trên hệ thống được phân quyền','Nếu có lỗi, tra cứu câu hỏi liên quan hoặc báo đầu mối hỗ trợ theo quy định']},
  'tam-thoi':{label:'Chuyển sinh hoạt Đảng tạm thời',summary:'Tra cứu vướng mắc về hồ sơ chuyển tạm thời, thời gian và nơi sinh hoạt trong những trường hợp đã có hướng dẫn công khai.',tags:['chuyển sinh hoạt tạm thời','sinh hoạt tạm','chuyển tạm thời'],hints:['Xác định đúng loại thủ tục: tạm thời hay chính thức','Kiểm tra hướng dẫn hồ sơ theo thời điểm, thẩm quyền và đơn vị tiếp nhận','Tìm các tình huống tương tự trong kho QA đã duyệt trước khi gửi hỗ trợ']},
