@@ -24,6 +24,18 @@ ORIGIN_LINK = re.compile(
 
 
 class PublicSurfaceTests(unittest.TestCase):
+    def test_top3_and_statistical_bars_without_extra_search(self):
+        js=(SITE / "assets/app.js").read_text(encoding="utf-8")
+        css=(SITE / "assets/styles.css").read_text(encoding="utf-8")
+        self.assertIn("function paymentTop3Cards(records)",js)
+        self.assertIn("paymentTop3Cards(rec)",js)
+        self.assertIn("const top=(m.ranking?.records||[]).slice(0,3)",js)
+        self.assertIn("stats-ranking-scroll",js)
+        self.assertIn("const maxMissing=Math.max",js)
+        for marker in ("stats-payment-top3","stats-bank-panel","stats-missing-panel"):
+            self.assertIn(marker,css)
+        self.assertNotIn('id="rankingSearch"',js)
+
     def test_no_original_host_or_repo_links_in_ui_assets(self):
         for path in PUBLIC_ASSETS:
             with self.subTest(path=path.name):
