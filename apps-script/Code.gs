@@ -85,7 +85,7 @@ function buildPublicFeed_() {
 function doGet(e){
   try {
     const kind=String((e&&e.parameter&&e.parameter.kind)||'qa');
-    const payload=kind==='finance'?buildFinanceFeed_():kind==='qa'?buildPublicFeed_():{schema:1,error:'Unknown public feed type'};
+    const payload=kind==='finance'?buildFinanceFeed_():kind==='qa'?buildPublicFeed_():kind==='intake-status'?questionIntakeStatus_():{schema:1,error:'Unknown public feed type'};
     return ContentService.createTextOutput(JSON.stringify(payload)).setMimeType(ContentService.MimeType.JSON);
   } catch(err){return ContentService.createTextOutput(JSON.stringify({schema:1,error:'Public feed unavailable'})).setMimeType(ContentService.MimeType.JSON)}
 }
@@ -193,4 +193,122 @@ function confirmSelectedFinanceApprovals(){
   sh.getRange(start,15,n,1).setValues(stamped);
   sh.getRange(start,16,n,1).setValues(hashes);
   ui.alert('Đã xác nhận '+ok+' dòng thống kê; nội dung chỉnh sau duyệt sẽ tạm ngừng xuất bản đến khi duyệt lại.');
+}
+
+
+/* PRIVATE QUESTION INTAKE
+ * The input is posted by an ordinary browser HTML form; no spreadsheet write
+ * permissions are granted to visitors. Never return inbox rows in doGet.
+ *
+ * Script properties required before enabling:
+ *   CDSTUHUE_INBOX_ID            private spreadsheet ID
+ *   CDSTUHUE_QUESTIONS_ENABLED   true
+ *
+ * IMPORTANT: the inbox must be a SEPARATE, OWNER-ONLY Google Sheet.
+ * Do not point this to the public or link-shared Q&A spreadsheet.
+ */
+const INTAKE_TAB = 'INBOX_QUESTIONS';
+const INTAKE_GROUPS = {tthc:'TTHC',stdv:'STDV',csdl:'CSDL 4.0'};
+function questionIntakeStatus_(){
+  const p=PropertiesService.getScriptProperties();
+  const enabled=p.getProperty('CDSTUHUE_QUESTIONS_ENABLED')==='true'&&
+    !!p.getProperty('CDSTUHUE_INBOX_ID');
+  return {schema:1,acceptsQuestions:enabled,privacy:'private-inbox',maxQuestionLength:1200};
+}
+function intakeSafeText_(value){
+  return String(value||'').replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g,'').trim();
+}
+function intakeDigest_(text){
+  return Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256,text,Utilities.Charset.UTF_8)
+    .map(x=>('0'+(x<0?x+256:x).toString(16)).slice(-2)).join('');
+}
+function intakeAsLiteral_(text){
+  // Google Sheets treats strings beginning with "=" as formulas. Force text.
+  const val=intakeSafeText_(text);
+  return /^[=+\-@\t\r]/.test(val)?"'"+val:val;
+}
+function questionReceipt_(message,ok){
+  const safe=String(message||'').replace(/&/g,'&amp;').replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  const title=ok?'Đã tiếp nhận câu hỏi':'Không thể tiếp nhận';
+  const html='<!doctype html><html lang="vi"><head><meta charset="utf-8">'+
+    '<meta name="viewport" content="width=device-width,initial-scale=1"><title>'+title+'</title>'+
+    '<style>body{font:15px/1.7 system-ui,Arial;background:#f4f7fb;margin:0;padding:30px;color:#18324f}'+
+    '.box{max-width:510px;margin:auto;background:white;padding:27px;border-radius:15px;box-shadow:0 12px 36px #10204012}'+
+    'h1{font-size:23px;margin:0 0 12px}p{white-space:pre-wrap}small{color:#657187}</style>'+
+    '</head><body><main class="box"><h1>'+title+'</h1><p>'+safe+'</p>'+
+    '<small>CDSTUHUE • Không gửi dữ liệu cá nhân hoặc mã OTP.</small></main></body></html>';
+  return HtmlService.createHtmlOutput(html).setTitle(title);
+}
+function doPost(e){
+  try{
+    const ticket=acceptQuestion_(e);
+    return questionReceipt_('Đã lưu câu hỏi. Mã tiếp nhận: '+ticket+
+      '.\nBộ phận hỗ trợ sẽ rà soát khi có điều kiện. Không có cam kết thời gian phản hồi.',true);
+  }catch(err){
+    // Error messages below are fixed literals; never reveal IDs, code, stack,
+    // or any submitted question text to anonymous callers.
+    const msg=String(err&&err.message||'');
+    const allowed=['Chức năng nhận câu hỏi chưa bật.','Thiếu thông tin hoặc nội dung không hợp lệ.',
+      'Chỉ hỗ trợ câu hỏi liên quan TTHC, STDV, CSDL 4.0.',
+      'Vui lòng bỏ thông tin cá nhân, số điện thoại, email và mã định danh.',
+      'Hệ thống đang giới hạn lượng câu hỏi, vui lòng thử lại sau.',
+      'Câu hỏi này đã được tiếp nhận gần đây.',
+      'Hộp thư chưa sẵn sàng.'];
+    return questionReceipt_(allowed.includes(msg)?msg:'Không thể lưu câu hỏi ở thời điểm này.',false);
+  }
+}
+function acceptQuestion_(e){
+  const prop=PropertiesService.getScriptProperties();
+  if(prop.getProperty('CDSTUHUE_QUESTIONS_ENABLED')!=='true')throw Error('Chức năng nhận câu hỏi chưa bật.');
+  const inboxId=prop.getProperty('CDSTUHUE_INBOX_ID');
+  if(!inboxId)throw Error('Hộp thư chưa sẵn sàng.');
+  const params=e&&e.parameter||{};
+  const kind=intakeSafeText_(params.kind);
+  const group=intakeSafeText_(params.group).toLowerCase();
+  const question=intakeSafeText_(params.question).replace(/\s+/g,' ');
+  if(kind!=='question'||intakeSafeText_(params.website))throw Error('Thiếu thông tin hoặc nội dung không hợp lệ.');
+  if(!Object.prototype.hasOwnProperty.call(INTAKE_GROUPS,group))
+    throw Error('Chỉ hỗ trợ câu hỏi liên quan TTHC, STDV, CSDL 4.0.');
+  if(question.length<12||question.length>1200||intakeSafeText_(params.consent)!=='yes')
+    throw Error('Thiếu thông tin hoặc nội dung không hợp lệ.');
+  // Reject common forms of personal data. This is not a full DLP solution.
+  if(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i.test(question)||
+     /(?:\+84|0)[35789]\d{8}\b/.test(question)||
+     /\b\d{9,13}\b/.test(question)||
+     /(?:OTP|mã xác nhận)\s*[:=]\s*\d{4,8}/i.test(question))
+    throw Error('Vui lòng bỏ thông tin cá nhân, số điện thoại, email và mã định danh.');
+  const digest=intakeDigest_(group+'\n'+question.toLowerCase());
+  const cache=CacheService.getScriptCache();
+  const lock=LockService.getScriptLock();
+  if(!lock.tryLock(10000))throw Error('Hệ thống đang giới hạn lượng câu hỏi, vui lòng thử lại sau.');
+  try{
+    if(cache.get('Q_'+digest))throw Error('Câu hỏi này đã được tiếp nhận gần đây.');
+    const book=SpreadsheetApp.openById(inboxId);
+    const sh=book.getSheetByName(INTAKE_TAB);
+    if(!sh||sh.getRange('A1').getDisplayValue()!=='Mã yêu cầu')
+      throw Error('Hộp thư chưa sẵn sàng.');
+    const now=new Date();
+    const hour=Utilities.formatDate(now,'Asia/Ho_Chi_Minh','yyyy-MM-dd-HH');
+    const day=Utilities.formatDate(now,'Asia/Ho_Chi_Minh','yyyy-MM-dd');
+    let quota={};
+    try{quota=JSON.parse(prop.getProperty('CDSTUHUE_QUESTION_RATE')||'{}')}catch(x){quota={}}
+    const hCount=quota.hour===hour?Number(quota.hourCount||0):0;
+    const dCount=quota.day===day?Number(quota.dayCount||0):0;
+    if(hCount>=30||dCount>=150)throw Error('Hệ thống đang giới hạn lượng câu hỏi, vui lòng thử lại sau.');
+    const ticket='Q-'+Utilities.formatDate(now,'Asia/Ho_Chi_Minh','yyMMdd')+'-'+Utilities.getUuid().slice(0,8).toUpperCase();
+    const stamp=Utilities.formatDate(now,'Asia/Ho_Chi_Minh','yyyy-MM-dd HH:mm:ss');
+    const next=sh.getLastRow()+1;
+    if(next>sh.getMaxRows())sh.insertRowsAfter(sh.getMaxRows(),100);
+    // Format all input cells as text to avoid formula interpretation/injection.
+    sh.getRange(next,1,1,9).setNumberFormat('@');
+    sh.getRange(next,1,1,9).setValues([[
+      ticket,stamp,INTAKE_GROUPS[group],intakeAsLiteral_(question),
+      'MỚI','','',stamp,'Website CDSTUHUE'
+    ]]);
+    prop.setProperty('CDSTUHUE_QUESTION_RATE',
+      JSON.stringify({hour,hourCount:hCount+1,day,dayCount:dCount+1}));
+    cache.put('Q_'+digest,'1',3600);
+    return ticket;
+  }finally{lock.releaseLock();}
 }
