@@ -70,7 +70,21 @@ function stat(label,note,val,icon){return `<div class="stat-card"><div class="st
 function statusForProgress(rows){if(!rows.length)return null;let units=new Set(rows.map(x=>x.unit));const avg=rows.reduce((a,x)=>a+x.progress,0)/rows.length;const done=rows.filter(x=>x.progress>=99.9).length;const doing=rows.filter(x=>x.progress>0&&x.progress<99.9).length;return {units:units.size,avg,done,doing,records:rows.length}}
 function msgEmpty(what){return `<div class="notice"><div class="big-icon">▤</div><strong>${E(what||'Chưa có dữ liệu công khai')}</strong><p>Bản giao diện đã sẵn sàng. Chỉ những dữ liệu được duyệt và đồng bộ mới xuất hiện. Không sử dụng số liệu của tỉnh khác làm số liệu địa phương.</p><button type="button" class="btn" data-action="demo">◈ Xem dữ liệu minh họa</button><button type="button" class="btn" data-view="guide">ⓘ Cách kết nối</button></div>`}
 function progressBars(){const rows=progress();return `<div class="bars">${Object.entries(PROCEDURES).map(([key,p])=>{const n=rows.filter(x=>x.procedure===key),avg=n.length?n.reduce((a,x)=>a+x.progress,0)/n.length:null;return `<div class="bar-item"><span class="bar-name">${p.icon} ${E(p.short)}</span><div class="bar-track"><div class="bar-fill" style="width:${avg===null?0:avg.toFixed(1)}%"></div></div><span class="bar-value">${avg===null?'—':avg.toFixed(1)+'%'}</span></div>`}).join('')}</div>`}
+function statsFinanceHero({compact=false}={}){
+ const stats=state.stats, m=stats?.modules||{};
+ const pct=n=>typeof n==='number'?(n*100).toFixed(1).replace('.',',')+'%':'—';
+ const num=n=>typeof n==='number'?pretty.format(n):'—';
+ const metrics=[
+  m.payment&&['Thu nộp đảng phí',pct(m.payment.completionRate),'Tỷ lệ hoàn thành'],
+  m.allocation&&['Xác nhận phân bổ',pct(m.allocation.confirmedRate??m.allocation.confirmed/(m.allocation.rowCount||1)),'Đã xác nhận'],
+  m.banking&&['Đăng ký tài khoản',pct(m.banking.registrationRate),'Đã đăng ký'],
+  m.missing&&['Chưa khai báo',num(m.missing.rowCount),'Số dòng trong danh sách']
+ ].filter(Boolean);
+ const top=(m.ranking?.records||[]).slice(0,compact?3:5);
+ return '<section class="stats-hero-home"><div class="stats-hero-title"><div><span class="stats-eyebrow">CDSTUHUE · SỐ LIỆU ĐÃ DUYỆT</span><h2>Thống kê & xếp hạng theo đơn vị</h2><p>4 nguồn báo cáo · kỳ '+E(stats.period||'—')+' · Chỉ công bố số đếm và tỷ lệ tổng hợp, không công bố số tiền hoặc số tài khoản.</p></div><button type="button" data-view="finance" class="stats-hero-open">Xem chi tiết →</button></div><div class="stats-hero-metrics">'+metrics.map(x=>'<div class="stats-hero-metric"><small>'+E(x[0])+'</small><strong>'+E(x[1])+'</strong><span>'+E(x[2])+'</span></div>').join('')+'</div>'+(top.length?'<div class="stats-hero-ranking"><div class="stats-hero-rank-title"><b>Xếp hạng thu nộp</b><span>Top '+top.length+' / '+E(m.ranking.eligibleUnits||top.length)+' đơn vị</span></div>'+top.map(x=>'<div class="stats-hero-rank"><span>#'+E(x.rank)+'</span><b>'+E(x.name)+'</b><strong>'+pct(x.rate)+'</strong></div>').join('')+'</div>':'')+'<p class="stats-hero-note">Thứ hạng theo tỷ lệ thu nộp trong cùng phạm vi báo cáo. Tỷ trọng chưa khai báo được tính trên danh sách riêng; không phải tỷ lệ đảng viên chưa khai báo.</p></section>';
+}
 function financeCards({compact=false}={}){
+ if(!state.demo&&state.stats?.public===true&&Object.keys(state.stats.modules||{}).length)return statsFinanceHero({compact});
  const f=finance(); const flag=state.demo?'GIẢ LẬP · KHÔNG CÔNG BỐ':f?'ĐÃ DUYỆT CÔNG KHAI':'CHƯA KẾT NỐI';
  const p=v=>f&&v!=null?pretty.format(v):'—';
  return `<div class="fin-ribbon"><div class="fin-ribbon-copy"><div class="micro">PHÂN HỆ CHUYÊN ĐỀ <span class="micro-line"></span> THỐNG KÊ</div><h2>Thu &amp; nộp đảng phí</h2><p>Dữ liệu báo cáo theo kỳ và tình hình tài khoản ngân hàng tổ chức đảng, trình bày theo nguồn được duyệt.</p><div class="fin-ribbon-meta"><span class="fin-dot"></span>${E(flag)} <span class="sep">/</span> Kỳ: ${E(f?.period||'Chưa có')} ${state.demo?'<span class="sep">/</span> Không phải số liệu thật':''}</div></div><div class="fin-ribbon-graphic" aria-hidden="true"><div class="fin-orbit"><div class="fin-orbit-inner">₫</div></div><div class="fin-graph-bars"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></div></div>
@@ -108,7 +122,7 @@ function overview(){
  const q=published(),f=finance(),cats=['tthc','stdv','csdl'];
  return `${financeCards({compact:true})}
  <div class="overview-quick"><button data-view="finance" class="overview-quick-link">Xem chuyên đề đảng phí &amp; tài khoản ngân hàng <span>↗</span></button><span>Chỉ hiện số liệu đã xét duyệt; không kết nối trực tiếp tài khoản VNeID.</span></div>
- <div class="stat-grid">${stat('Kho hỏi – đáp','Tổng số QA đã duyệt công khai',pretty.format(q.length),'?')}${stat('Nhóm hỗ trợ','TTHC · STDV · CSDL 4.0','03','▥')}${stat('Chuyên đề hướng dẫn','Chuyển sinh hoạt & nhận xét','03','⇄')}${stat('Báo cáo đảng phí','Phiên bản thống kê công khai',f?'Đã có':'Chờ duyệt','◈')}</div>
+ <div class="stat-grid">${stat('Kho hỏi – đáp','Tổng số QA đã duyệt công khai',pretty.format(q.length),'?')}${stat('Nhóm hỗ trợ','TTHC · STDV · CSDL 4.0','03','▥')}${stat('Chuyên đề hướng dẫn','Chuyển sinh hoạt & nhận xét','03','⇄')}${stat('Báo cáo đảng phí','Phiên bản thống kê công khai',(f||state.stats)?'Đã có':'Chờ duyệt','◈')}</div>
  <div class="section-heading"><div><h2>04 thủ tục hành chính của Đảng</h2><p>Thu nộp đảng phí có trang thống kê; ba thủ tục còn lại ưu tiên hướng dẫn và hỏi – đáp</p></div></div>
  <div class="category-grid procedure-category-grid">${Object.entries(PROCEDURES).map(([key,item])=>`<button type="button" class="category-card procedure-launch" data-view="${key}"><span class="c-icon">${item.icon}</span><b>${E(item.title)}</b><p>${E(item.help)}</p><span class="procedure-kind">${key==='dang-phi'?'◉ Thống kê & hỗ trợ':'◈ Hướng dẫn & tra cứu'}</span><div class="c-count">Mở chuyên mục →</div></button>`).join('')}</div>
  <div class="section-heading"><div><h2>Kho tri thức – hỏi đáp kỹ thuật</h2><p>Chỉ hiển thị QA đã được duyệt xuất bản từ Google Sheets</p></div><button class="card-link" data-view="qa-all">Xem tất cả →</button></div>
