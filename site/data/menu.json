@@ -3,7 +3,7 @@
   "visible": {
     "overview": true,
     "finance": true,
-    "units": true,
+    "units": false,
     "chinh-thuc": false,
     "tam-thoi": false,
     "nhan-xet": false,
@@ -12,9 +12,9 @@
     "qa-tthc": true,
     "qa-stdv": true,
     "qa-csdl": true,
-    "resources": true,
-    "reports": true,
-    "guide": true,
+    "resources": false,
+    "reports": false,
+    "guide": false,
     "assistant": true
   }
 }
