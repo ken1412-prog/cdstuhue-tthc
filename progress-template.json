@@ -1,0 +1,16 @@
+{
+  "schema": 1,
+  "generatedAt": null,
+  "source": "Nguồn báo cáo tiến độ được phê duyệt",
+  "records": [
+    {
+      "unit": "Đơn vị minh họa (KHÔNG PHẢI SỐ LIỆU THẬT)",
+      "procedure": "chinh-thuc",
+      "progress": 0,
+      "received": 0,
+      "completed": 0,
+      "updated": "2026-10-23",
+      "public": true
+    }
+  ]
+}

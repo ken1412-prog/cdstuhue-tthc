@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#172a4a">
+<meta name="description" content="CDSTUHUE — Không gian theo dõi TTHC, thống kê đảng phí và kho hỗ trợ kỹ thuật TTHC, STDV, CSDL 4.0."><meta property="og:title" content="CDSTUHUE — Trung tâm thông tin & hỗ trợ kỹ thuật"><meta property="og:description" content="Dashboard tổng hợp, thống kê đảng phí và kho tri thức được xét duyệt.">
+<title>CDSTUHUE — Trung tâm thông tin & hỗ trợ kỹ thuật</title>
+<link rel="stylesheet" href="assets/styles.css">
+<script src="assets/app.js" defer></script>
+</head>
+<body>
+<div class="app">
+  <div class="shade" id="shade"></div>
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <div class="crest" aria-hidden="true"><span>H</span><em>CDS</em></div>
+      <div><b>CDSTUHUE<span class="brand-gold">.</span></b><small>Digital Service Center · Huế</small></div>
+      <button class="sidebar-close" id="closeMenu" aria-label="Đóng menu">×</button>
+    </div>
+    <div class="sidebar-scroll">
+      <div class="menu-group">TỔNG HỢP</div>
+      <nav class="nav" id="mainNav" aria-label="Điều hướng chính">
+        <button type="button" class="nav-link active" data-view="overview"><span class="nav-ico">▦</span><span>Tổng quan điều hành</span></button>
+        <button type="button" class="nav-link" data-view="finance"><span class="nav-ico">◫</span><span>Thống kê đảng phí</span><span class="menu-new">MỚI</span></button>
+        <button type="button" class="nav-link" data-view="units"><span class="nav-ico">▤</span><span>Bảng tiến độ (khi có)</span></button>
+      </nav>
+      <div class="menu-group">04 THỦ TỤC · HƯỚNG DẪN & THỐNG KÊ</div>
+      <nav class="nav" aria-label="Theo dõi thủ tục">
+        <button type="button" class="nav-link" data-view="chinh-thuc"><span class="nav-ico">⇄</span><span>Chuyển sinh hoạt chính thức</span></button>
+        <button type="button" class="nav-link" data-view="tam-thoi"><span class="nav-ico">◷</span><span>Chuyển sinh hoạt tạm thời</span></button>
+        <button type="button" class="nav-link" data-view="nhan-xet"><span class="nav-ico">☷</span><span>Nhận xét nơi cư trú</span></button>
+        <button type="button" class="nav-link" data-view="dang-phi"><span class="nav-ico">▣</span><span>Thu, nộp đảng phí</span></button>
+      </nav>
+      <div class="menu-group">KHO HỎI – ĐÁP</div>
+      <nav class="nav" aria-label="Kho tri thức">
+        <button type="button" class="nav-link" data-view="qa-all"><span class="nav-ico">◈</span><span>Tất cả câu hỏi</span><span class="nav-count" id="qaTotalSide">0</span></button>
+        <button type="button" class="nav-link" data-view="qa-tthc"><span class="nav-ico">?</span><span>Hỏi – đáp TTHC</span><span class="nav-count" id="qaTthcSide">0</span></button>
+        <button type="button" class="nav-link" data-view="qa-stdv"><span class="nav-ico">?</span><span>Hỏi – đáp Sổ tay ĐV</span><span class="nav-count" id="qaStdvSide">0</span></button>
+        <button type="button" class="nav-link" data-view="qa-csdl"><span class="nav-ico">?</span><span>Hỏi – đáp CSDL 4.0</span><span class="nav-count" id="qaCsdlSide">0</span></button>
+      </nav>
+      <div class="menu-group">TIỆN ÍCH</div>
+      <nav class="nav" aria-label="Công cụ">
+        <button type="button" class="nav-link" data-view="resources"><span class="nav-ico">▧</span><span>Tài liệu, liên kết</span></button>
+        <button type="button" class="nav-link" data-view="reports"><span class="nav-ico">▥</span><span>Báo cáo & xuất dữ liệu</span></button>
+        <button type="button" class="nav-link" data-view="guide"><span class="nav-ico">ⓘ</span><span>Hướng dẫn sử dụng</span></button>
+      </nav>
+    </div>
+    <div class="sidebar-bottom">
+      <div class="sidebar-source"><span class="online-indicator"></span> Nguồn dữ liệu: Google Sheets <small id="sidebarSync">Chưa có bản công khai</small></div>
+      <button type="button" class="side-assist" id="openAssistant"><span>✧</span> Trợ lý tra cứu nhanh <small>Không dùng AI bên ngoài</small></button>
+      <p>CDSTUHUE • Độc lập, không phải cổng dịch vụ công chính thức</p>
+    </div>
+  </aside>
+  <div class="main">
+    <header class="topbar">
+      <div class="topbar-left"><button type="button" class="hamburger" id="openMenu" aria-label="Mở menu">☰</button><span class="breadcrumb">Hệ thống <span>/</span> <b id="crumb">Tổng quan</b></span></div>
+      <div class="announcement" aria-label="Thông báo"><span class="announcement-label">BẢN TIN</span><span class="announcement-text">Giao diện mới: Thống kê đảng phí · Tra cứu TTHC · Hỏi đáp STDV và CSDL 4.0 · Chỉ xuất bản dữ liệu được duyệt</span></div>
+      <div class="header-actions"><span class="today" id="clock"></span><button class="btn subtle" id="refreshBtn" title="Tải dữ liệu mới">↻ <span>Tải mới</span></button><button class="btn dark" id="printBtn">▤ <span>In báo cáo</span></button></div>
+    </header>
+    <div class="content">
+      <div class="demo-banner hidden" id="demoBanner"><strong>ĐANG XEM DỮ LIỆU MINH HỌA</strong><span>Không phải số liệu hoặc câu trả lời thực tế.</span><button type="button" id="endDemo">Tắt minh họa ×</button></div>
+      <section class="hero">
+        <div class="hero-copy"><div class="eyebrow"><span class="red-dot"></span> CDSTUHUE / HUẾ DIGITAL SERVICE CENTER</div><h1 id="pageTitle">Tổng quan thủ tục hành chính</h1><p id="pageSubtitle">Thống kê đảng phí và tra cứu hướng dẫn TTHC, Sổ tay Đảng viên, CSDL 4.0.</p><div class="hero-tags"><span class="tag">◉ Nền tảng thông tin & tra cứu</span><span class="tag" id="updatedTag">Cập nhật: chưa đồng bộ</span></div><div class="hero-cta"><button class="btn hero-primary" data-view="finance">Khám phá thống kê <span>↗</span></button><button class="btn hero-outline" data-view="qa-all">Tra cứu hỏi – đáp <span>→</span></button></div></div>
+        <div class="hero-art" aria-hidden="true"><div class="hero-art-grid"></div><div class="mini-plot"><div><span>TRUNG TÂM DỮ LIỆU</span><strong id="heroIndicator">04</strong></div><svg viewBox="0 0 220 80" preserveAspectRatio="none"><defs><linearGradient id="lineglow" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#db7d65"/><stop offset="1" stop-color="#f3c461"/></linearGradient></defs><path d="M2 55 C30 55 32 22 64 38 S104 74 138 35 S182 42 218 13" fill="none" stroke="url(#lineglow)" stroke-width="4" stroke-linecap="round"/></svg><small id="indicatorNote">04 nhóm thủ tục hành chính</small></div></div>
+      </section>
+      <div id="page"></div>
+      <footer class="footer"><span>© 2026 CDSTUHUE · Không gian hỗ trợ kỹ thuật và tra cứu</span><span>Google Sheets CDSTUHUE · Nội dung công khai đã kiểm duyệt · Không phải cổng nghiệp vụ chính thức</span></footer>
+    </div>
+  </div>
+</div>
+<div class="dialog-backdrop hidden" id="qaModal" role="presentation"><section class="qa-dialog" role="dialog" aria-modal="true" aria-labelledby="modalTitle"><div class="dialog-top"><div><span class="eyebrow" id="modalGroup"></span><h2 id="modalTitle"></h2></div><button type="button" class="close-dialog" id="closeModal" aria-label="Đóng">×</button></div><div id="modalBody" class="dialog-body"></div><div class="dialog-foot"><span id="modalId"></span><button type="button" class="btn dark" id="copyLinkBtn">⇧ Sao chép liên kết</button></div></section></div>
+<div class="assistant-wrap hidden" id="assistantWrap"><section class="assistant-box" role="dialog" aria-label="Trợ lý tra cứu"><div class="assistant-head"><div><strong>✧ Trợ lý tra cứu nhanh</strong><small>Tìm trong QA đã được duyệt, không gửi nội dung ra ngoài</small></div><button type="button" id="closeAssistant" aria-label="Đóng trợ lý">×</button></div><div class="assistant-intro">Nhập câu hỏi hoặc lỗi bạn gặp. Hệ thống sẽ gợi ý các mục phù hợp trong kho công khai.</div><div class="assistant-results" id="assistantResults"></div><form class="assistant-compose" id="assistantForm"><input id="assistantInput" type="search" placeholder="Ví dụ: không thấy nút phê duyệt..." autocomplete="off" required><button type="submit">Tìm →</button></form></section></div>
+<div class="toast hidden" id="toast" role="status" aria-live="polite"></div>
+</body>
+</html>
