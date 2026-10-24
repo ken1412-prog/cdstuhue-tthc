@@ -445,10 +445,10 @@ function buildStatsFeed_(){
 function buildMenuFeed_(){
   // Only explicit values from the owner's private Sheet control what is public.
   const defaults={
-    'overview':true,'finance':true,'units':true,
+    'overview':true,'finance':true,'units':false,
     'chinh-thuc':false,'tam-thoi':false,'nhan-xet':false,'dang-phi':false,
     'qa-all':true,'qa-tthc':true,'qa-stdv':true,'qa-csdl':true,
-    'resources':true,'reports':true,'guide':true,'assistant':true
+    'resources':false,'reports':false,'guide':false,'assistant':true
   };
   const visible=Object.assign({},defaults);
   const hubId=PropertiesService.getScriptProperties().getProperty('CDSTUHUE_STATS_HUB_ID');
