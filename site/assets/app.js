@@ -67,6 +67,11 @@ function applyMenuVisibility(){
   const anyVisible=$$('[data-view]',nav).some(el=>!el.hidden);
   nav.hidden=!anyVisible;heading.hidden=!anyVisible;
  }
+ // An information card whose only destination is disabled must disappear too.
+ $('#page .category-grid > .panel').forEach(card=>{
+  const links=$('[data-view]',card);
+  if(links.length&&links.every(link=>!viewAllowed(link.dataset.view)))card.hidden=true;
+ });
  const helper=$('#openAssistant'),panel=$('#assistantWrap');
  if(helper)helper.hidden=state.menu.assistant!==true;
  if(panel&&state.menu.assistant!==true)panel.classList.add('hidden');
