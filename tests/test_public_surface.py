@@ -65,7 +65,8 @@ class PublicSurfaceTests(unittest.TestCase):
     def test_non_ai_assistant_remains_available_on_mobile(self):
         js=(SITE / "assets/app.js").read_text(encoding="utf-8")
         css=(SITE / "assets/styles.css").read_text(encoding="utf-8")
-        self.assertIn("$('#navAssistant').onclick=toggleAssistant",js)
+        self.assertIn("$('#openAssistant').onclick=toggleAssistant",js)
+        self.assertNotIn("$('#navAssistant').onclick=toggleAssistant",js)
         self.assertIn("$('#assistantMobileFab').onclick=toggleAssistant",js)
         self.assertIn(".assistant-mobile-fab:not([hidden])",css)
         self.assertNotIn("api.openai.com",js)
@@ -75,7 +76,10 @@ class PublicSurfaceTests(unittest.TestCase):
             html=(SITE / page).read_text(encoding="utf-8")
             self.assertIn('<div class="footer-byline">',html)
             self.assertIn('<span class="footer-copyright">© 2026 CDSTUHUE</span><span class="footer-author">NKien',html)
-            self.assertIn('assets/styles.css?v=20261025-bright-monthly',html)
+            self.assertIn('assets/styles.css?v=20261025-hue-contrast-v2',html)
+            self.assertNotIn('id="navAssistant"',html)
+            self.assertIn('id="openAssistant"',html)
+            self.assertIn('id="assistantMobileFab"',html)
             self.assertNotIn("Nkien —",html)
         css=(SITE / "assets/styles.css").read_text(encoding="utf-8")
         js=(SITE / "assets/app.js").read_text(encoding="utf-8")
@@ -119,7 +123,7 @@ class PublicSurfaceTests(unittest.TestCase):
                        "paymentStatusFilter", "paymentSort", "paymentSearch"):
             self.assertIn(marker,js)
         for marker in ("payment-period-toolbar", "payment-period-badge", "payment-table-tools",
-                       "hue-city-day.webp", "#c92438"):
+                       "hue-city-day.webp", "hue-bridge-night.webp", "#172c4a", "#c51620"):
             self.assertIn(marker,css)
         self.assertIn("data?.closed!==true",js)
         self.assertIn("data.modules.ranking.records.length!==46",js)
