@@ -42,7 +42,7 @@ const MENU_DEFAULTS={'overview':true,'finance':true,'units':false,
  'chinh-thuc':false,'tam-thoi':false,'nhan-xet':false,'dang-phi':false,
  'qa-all':true,'qa-tthc':true,'qa-stdv':true,'qa-csdl':true,
  'resources':false,'reports':false,'guide':false,'assistant':true};
-const state={menu:{...MENU_DEFAULTS},menuReady:false,pendingView:null,qa:[],progress:[],finance:null,stats:null,view:'overview',filter:'',query:'',unitQuery:'',sort:'default',page:0,generatedAt:'',demo:false,local:false,loadError:null};
+const state={menu:{...MENU_DEFAULTS},menuReady:false,pendingView:null,qa:[],progress:[],finance:null,stats:null,paymentArchive:null,paymentHistory:[],paymentQuery:'',paymentStatus:'all',paymentSort:'rank',view:'overview'filter:'',query:'',unitQuery:'',sort:'default',page:0,generatedAt:'',demo:false,local:false,loadError:null};
 const NAV_FALLBACK=['overview','finance','qa-all','qa-tthc','qa-stdv','qa-csdl',
   'resources','reports','guide','units','chinh-thuc','tam-thoi','nhan-xet','dang-phi'];
 function viewAllowed(id){return id==='closed'||(id!=='assistant'&&
@@ -114,6 +114,14 @@ async function loadData(){
  try{const r=await fetch('data/finance.json',{cache:'no-store'});if(!r.ok)throw Error('HTTP '+r.status);const f=await r.json();if(f?.schema!==1)throw Error('Invalid finance schema');if(f.public===true&&f.reviewed===true&&Array.isArray(f.bankGroups)&&f.bankGroups.every(v=>typeof v.name==='string'&&Number.isInteger(v.accounts)&&v.accounts>=0)&&[f.reportRecords,f.notDeclared,f.waitingApproval,f.waitingPayment].every(v=>v==null||(Number.isInteger(v)&&v>=0))&&[f.reportRecords,f.notDeclared,f.waitingApproval,f.waitingPayment,...f.bankGroups.map(g=>g.accounts)].some(v=>v!=null)){fn=f;}}
  catch(e){issues.push('Không đọc được bản thống kê đảng phí: '+e.message);}
  try{const r=await fetch('data/stats.json',{cache:'no-store'});if(!r.ok)throw Error('HTTP '+r.status);const stats=await r.json();state.stats=stats?.schema===1&&stats?.public===true&&stats?.reviewed===true&&stats?.modules&&typeof stats.modules==='object'?stats:null;}catch(e){state.stats=null;}
+ // Archive index lists only approved, closed public months.
+ state.paymentArchive=null;
+ try{
+  const r=await fetch('data/payment-history.json',{cache:'no-store'});
+  const idx=r.ok?await r.json():null;
+  state.paymentHistory=idx?.schema===1&&Array.isArray(idx.months)?
+   idx.months.filter(x=>x&&/^20\d{2}-(0[1-9]|1[0-2])$/.test(x.period)&&x.closed===true):[];
+ }catch(e){state.paymentHistory=[];}
  state.finance=fn;
  state.qa=qa?qa.items.filter(x=>x&&x.public===true).map(normQA).filter(x=>x.id&&x.question&&x.answer&&GROUPS[x.group]):[];
  // Fail-closed if accidental duplicates/invalid IDs appear in a publication feed.
@@ -143,6 +151,69 @@ function paymentPeriod(stats=state.stats){
  const s=String(stats?.period||'').trim(),m=s.match(/^(\d{4})-(\d{1,2})$/);
  return m?'Tháng '+Number(m[2])+'/'+m[1]:(s||'Kỳ chưa cập nhật');
 }
+function selectedFinanceStats(){return state.paymentArchive||state.stats;}
+function paymentMonths(){
+ const active=state.stats?.period,months=[];
+ if(typeof active==='string'&&/^20\d{2}-(0[1-9]|1[0-2])$/.test(active))
+  months.push({period:active,closed:false});
+ state.paymentHistory.forEach(x=>{if(!months.some(y=>y.period===x.period))months.push(x);});
+ return months.sort((a,b)=>b.period.localeCompare(a.period));
+}
+function paymentMonthControls(){
+ if(state.demo)return '';
+ const months=paymentMonths(),current=state.paymentArchive?.period||state.stats?.period;
+ if(!months.length)return '';
+ return '<section class="payment-period-toolbar"><div class="payment-period-select">'+
+ '<span class="payment-period-symbol" aria-hidden="true">▣</span>'+
+ '<label for="paymentMonthSelect"><b>THỐNG KÊ ĐẢNG PHÍ THEO THÁNG</b><small>Chỉ báo cáo đã duyệt</small></label>'+
+ '<select id="paymentMonthSelect" aria-label="Chọn tháng thu nộp">'+
+ months.map(x=>'<option value="'+E(x.period)+'"'+(x.period===current?' selected':'')+'>'+E(paymentPeriod({period:x.period}))+(x.closed?' · Đã chốt':' · Mới nhất')+'</option>').join('')+
+ '</select></div><span class="payment-period-badge '+(state.paymentArchive?'is-frozen':'is-latest')+'">'+
+ (state.paymentArchive?'✓ Kỳ đã chốt · Chỉ đọc':'● Kỳ mới nhất đã duyệt')+'</span>'+
+ '<p class="payment-period-hint">'+(state.paymentArchive?
+ 'Bản thu nộp và xếp hạng đã khóa; không trộn chỉ tiêu ngân hàng hoặc hồ sơ ngoài kỳ.':
+ 'Bản đã duyệt được đồng bộ; sau khi hết tháng sẽ lưu riêng, không bị ghi đè.')+'</p></section>';
+}
+async function selectPaymentMonth(month){
+ if(month===state.stats?.period){
+  state.paymentArchive=null;state.paymentQuery='';state.paymentStatus='all';state.paymentSort='rank';render();return;
+ }
+ if(!/^20\d{2}-(0[1-9]|1[0-2])$/.test(month)||!state.paymentHistory.some(x=>x.period===month)){
+  toast('Tháng chưa có bản lưu đã duyệt');render();return;
+ }
+ try{
+  const r=await fetch('data/payment-history/'+month+'.json',{cache:'no-store'});if(!r.ok)throw Error('HTTP');
+  const data=await r.json();
+  if(data?.schema!==1||data?.public!==true||data?.reviewed!==true||data?.closed!==true||
+   data.period!==month||!data.modules?.payment||!Array.isArray(data.modules?.ranking?.records)||
+   data.modules.ranking.records.length!==46)throw Error('Invalid');
+  state.paymentArchive=data;state.paymentQuery='';state.paymentStatus='all';state.paymentSort='rank';render();
+ }catch(e){toast('Không đọc được bản tháng đã chốt');render();}
+}
+function paymentFilteredRecords(records){
+ const q=fold(state.paymentQuery.trim());
+ const rows=records.map((x,i)=>({x,i})).filter(({x})=>
+  (!q||fold(x.name).includes(q))&&
+  (state.paymentStatus==='all'||(state.paymentStatus==='complete'?paymentCompleted(x):!paymentCompleted(x))));
+ if(state.paymentSort==='low')rows.sort((a,b)=>(paymentRate(a.x)??0)-(paymentRate(b.x)??0)||a.i-b.i);
+ if(state.paymentSort==='name')rows.sort((a,b)=>a.x.name.localeCompare(b.x.name,'vi'));
+ return rows;
+}
+function exportPaymentMonth(){
+ const data=selectedFinanceStats(),rows=data?.modules?.ranking?.records;
+ if(state.demo||data?.public!==true||data?.reviewed!==true||!Array.isArray(rows)){
+  toast('Không có dữ liệu được duyệt để xuất');return;
+ }
+ const items=paymentFilteredRecords(rows).map(({x})=>[x.rank,x.name,paymentPercent(x),
+  paymentCompleted(x)?'Hoàn thành':'Đang triển khai',
+  Number.isInteger(x.bankDone)&&Number.isInteger(x.bankTotal)?x.bankDone+' / '+x.bankTotal:'—',
+  typeof x.filedRate==='number'?(x.filedRate*100).toFixed(1).replace('.',',')+'%':'—']);
+ exportCsv('dang-phi-'+data.period+(data.closed?'-da-chot':'')+'.csv',[
+  ['Kỳ báo cáo',paymentPeriod(data),data.closed?'Đã chốt':'Đã duyệt'],
+  ['Hạng','Đảng bộ','Thu trong kỳ (%)','Trạng thái','TK NH','HS khai báo (%)'],...items
+ ]);
+ toast('Đã xuất dữ liệu công khai '+paymentPeriod(data));
+}
 function paymentRate(record){
  const n=Number(record?.rate);
  return record&&record.rate!==null&&record.rate!==undefined&&Number.isFinite(n)&&n>=0&&n<=1?n:null;
@@ -158,18 +229,19 @@ function paymentProgressWidth(record){
  return n===null?'0':(n*100).toFixed(1);
 }
 function openPaymentDetail(index){
- if(state.demo||state.stats?.public!==true||state.stats?.reviewed!==true)return;
- const records=state.stats?.modules?.ranking?.records;
+ if(state.demo||selectedFinanceStats()?.public!==true||selectedFinanceStats()?.reviewed!==true)return;
+ const stats=selectedFinanceStats();
+ const records=stats?.modules?.ranking?.records;
  const row=Array.isArray(records)&&records[index];
  if(!row||paymentRate(row)===null)return;
  const done=paymentCompleted(row),pct=paymentPercent(row);
  const modal=$('#paymentModal'),body=$('#paymentDetailBody');
  $('#paymentDetailTitle').textContent=row.name;
- $('#paymentDetailPeriod').textContent=paymentPeriod();
+ $('#paymentDetailPeriod').textContent=paymentPeriod(stats);
  body.innerHTML='<div class="payment-detail-head"><span class="payment-detail-rank">Hạng '+E(row.rank)+' / '+E(String(records.length))+'</span>'+
   '<span class="payment-state '+(done?'is-complete':'is-active')+'">'+(done?'Hoàn thành':'Đang triển khai')+'</span></div>'+
   '<div class="payment-detail-rate">'+E(pct)+'</div>'+
-  '<div class="payment-detail-caption">Tỷ lệ thu nộp đảng phí · '+E(paymentPeriod())+'</div>'+
+  '<div class="payment-detail-caption">Tỷ lệ thu nộp đảng phí · '+E(paymentPeriod(stats))+'</div>'+
   '<div class="payment-detail-track" role="progressbar" aria-label="Tỷ lệ thu nộp" aria-valuenow="'+(paymentRate(row)*100).toFixed(1)+'" aria-valuemin="0" aria-valuemax="100"><i style="width:'+paymentProgressWidth(row)+'%"></i></div>'+
   '<div class="payment-detail-extra"><div><small>TK NH đã khai báo</small><strong>'+(Number.isInteger(row.bankDone)&&Number.isInteger(row.bankTotal)&&row.bankDone<=row.bankTotal?pretty.format(row.bankDone)+' / '+pretty.format(row.bankTotal):'—')+'</strong></div><div><small>Hồ sơ đã khai báo</small><strong>'+(typeof row.filedRate==='number'&&row.filedRate>=0&&row.filedRate<=1?(row.filedRate*100).toFixed(1).replace('.',',')+'%':'—')+'</strong></div></div>'+
   '<div class="payment-detail-note">Chỉ tiêu chưa được duyệt công khai hiển thị —. Không công bố số tiền, số tài khoản hay dữ liệu cá nhân.</div>';
@@ -184,7 +256,7 @@ function closePaymentDetail(){
  document.body.style.overflow='';
 }
 function statsFinanceHero({compact=false}={}){
- const stats=state.stats, m=stats?.modules||{};
+ const stats=compact?state.stats:selectedFinanceStats(), m=stats?.modules||{};
  const num=n=>typeof n==='number'?pretty.format(n):'—';
  const metrics=[
   m.payment&&['Thu nộp đảng phí',typeof m.payment.completionRate==='number'?(m.payment.completionRate*100).toFixed(1).replace('.',',')+'%':'—'],
@@ -202,7 +274,7 @@ function statsFinanceHero({compact=false}={}){
   '</section>';
 }
 function financeCards({compact=false}={}){
- if(!state.demo&&state.stats?.public===true&&Object.keys(state.stats.modules||{}).length)return statsFinanceHero({compact});
+ if(!state.demo&&selectedFinanceStats()?.public===true&&Object.keys(selectedFinanceStats().modules||{}).length)return statsFinanceHero({compact});
  const f=finance(); const flag=state.demo?'GIẢ LẬP · KHÔNG CÔNG BỐ':f?'ĐÃ DUYỆT CÔNG KHAI':'CHƯA KẾT NỐI';
  const p=v=>f&&v!=null?pretty.format(v):'—';
  return `<div class="fin-ribbon"><div class="fin-ribbon-copy"><div class="micro">PHÂN HỆ CHUYÊN ĐỀ <span class="micro-line"></span> THỐNG KÊ</div><h2>Thu &amp; nộp đảng phí</h2><p>Dữ liệu báo cáo theo kỳ và tình hình tài khoản ngân hàng tổ chức đảng, trình bày theo nguồn được duyệt.</p><div class="fin-ribbon-meta"><span class="fin-dot"></span>${E(flag)} <span class="sep">/</span> Kỳ: ${E(f?.period||'Chưa có')} ${state.demo?'<span class="sep">/</span> Không phải số liệu thật':''}</div></div><div class="fin-ribbon-graphic" aria-hidden="true"><div class="fin-orbit"><div class="fin-orbit-inner">₫</div></div><div class="fin-graph-bars"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></div></div>
@@ -231,7 +303,7 @@ function statsRankingPair(unitRanking,source){
  return '<div class="stats-leaderboards">'+show(unitRanking.top,'is-good','Top 10 tốt nhất')+show(unitRanking.bottom,'is-weak','Top 10 thấp nhất')+'</div>';
 }
 function statsDashboard(){
- const stats=state.demo?null:state.stats;
+ const stats=state.demo?null:selectedFinanceStats();
  if(!stats||!Object.keys(stats.modules||{}).length)return '<div class="panel stats-notice"><h2>Thống kê theo 4 báo cáo</h2><p>Dữ liệu sẽ xuất hiện sau khi người quản trị duyệt và đồng bộ.</p></div>';
  const m=stats.modules,amount=n=>typeof n==='number'?pretty.format(n):'—',percent=n=>typeof n==='number'?(n*100).toFixed(1).replace('.',',')+'%':'—';
  let panels='';
@@ -287,7 +359,7 @@ function statsDashboard(){
  }
  return '<div class="section-heading"><div><h2>Trung tâm thống kê tháng '+E(stats.period||'')+'</h2><p>Dữ liệu tổng hợp được duyệt từ bốn bảng nguồn riêng tư</p></div><span class="badge">Bản công khai đã duyệt</span></div><div class="stats-grid stats-dashboard-grid">'+panels+'</div><p class="stats-disclaimer">Nguồn: các bảng thống kê đã được duyệt. Phạm vi giữa các báo cáo khác nhau; không cộng số liệu khác nguồn. Thời điểm xuất: '+E(DATE(stats.generatedAt))+'</p>';
 }
-function financeView(){return financeCards()+statsDashboard()}
+function financeView(){return paymentMonthControls()+financeCards()+statsDashboard()}
 function overview(){
  const q=published(),cats=Object.keys(GROUPS).filter(k=>viewAllowed('qa-'+k));
  const procs=Object.entries(PROCEDURES).filter(([id])=>viewAllowed(id));
@@ -405,7 +477,7 @@ function discourageSourceHotkeys(e){
  if(k==='f12'||sourceShortcut||devtoolsShortcut)e.preventDefault();
 }
 function boot(){document.addEventListener('keydown',discourageSourceHotkeys,true);if(new URL(location.href).searchParams.get('demo')==='1')state.demo=true;syncFromUrl();const clock=()=>$('#clock').textContent=new Intl.DateTimeFormat('vi-VN',{year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',timeZone:'Asia/Ho_Chi_Minh'}).format(new Date());clock();setInterval(clock,60000);
- document.addEventListener('click',async e=>{const node=e.target.closest('[data-view],[data-action],[data-qa],[data-payment-index]');if(!node)return;if(node.hasAttribute('data-payment-index')){openPaymentDetail(Number(node.dataset.paymentIndex));return}if(node.dataset.view){route(node.dataset.view);return}if(node.dataset.qa){openQA(node.dataset.qa);return}const a=node.dataset.action;if(a==='demo')toggleDemo(true);if(a==='prev'){state.page=Math.max(0,state.page-1);render();}if(a==='next'){state.page++;render()}if(a==='upload-progress')$('#progressFile')?.click();if(a==='export-progress')exportProgress();if(a==='export-qa')exportQA();if(a==='export-finance')exportFinance();if(a==='print')window.print()});
+ document.addEventListener('click',async e=>{const node=e.target.closest('[data-view],[data-action],[data-qa],[data-payment-index]');if(!node)return;if(node.hasAttribute('data-payment-index')){openPaymentDetail(Number(node.dataset.paymentIndex));return}if(node.dataset.view){route(node.dataset.view);return}if(node.dataset.qa){openQA(node.dataset.qa);return}const a=node.dataset.action;if(a==='demo')toggleDemo(true);if(a==='prev'){state.page=Math.max(0,state.page-1);render();}if(a==='next'){state.page++;render()}if(a==='upload-progress')$('#progressFile')?.click();if(a==='export-progress')exportProgress();if(a==='export-qa')exportQA();if(a==='export-finance')exportFinance();if(a==='export-payment-month')exportPaymentMonth();if(a==='print')window.print()});
  $('#endDemo').onclick=()=>{if(state.local){loadData();toast('Đã xóa dữ liệu xem thử cục bộ')}else toggleDemo(false)};$('#refreshBtn').onclick=()=>loadData().then(()=>toast('Đã tải lại dữ liệu xuất bản'));$('#openMenu').onclick=()=>{$('#sidebar').classList.add('mobile-open');$('#shade').classList.add('mobile-open')};$('#closeMenu').onclick=closeMobile;$('#shade').onclick=closeMobile;
  $('#closeModal').onclick=closeQA;$('#qaModal').onclick=e=>{if(e.target===$('#qaModal'))closeQA()};$('#closePaymentDetail').onclick=closePaymentDetail;$('#paymentModal').onclick=e=>{if(e.target===$('#paymentModal'))closePaymentDetail()};
  const assistant=$('#assistantWrap');
