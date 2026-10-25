@@ -122,6 +122,30 @@ def main():
             def bounded_rate(value):
                 return (round(float(value),8) if isinstance(value,(int,float))
                         and not isinstance(value,bool) and 0<=value<=2 else None)
+            def approved_subordinate_units(value):
+                # Organization names only; reject whole list on invalid/duplicate rows.
+                # A missing list is distinct from an approved empty list.
+                if not isinstance(value,list) or len(value)>3000:
+                    return None
+                out=[]
+                seen=set()
+                for item in value:
+                    if not isinstance(item,dict):
+                        return None
+                    name=item.get('name')
+                    parent=item.get('parentName')
+                    if (not isinstance(name,str) or not 2<=len(name.strip())<=190
+                        or not isinstance(parent,str) or len(parent)>190
+                        or any(ord(ch)<32 for ch in name+parent)
+                        or any(ch in name+parent for ch in '<>')):
+                        return None
+                    key=(name.strip().casefold(),parent.strip().casefold())
+                    if key in seen:
+                        return None
+                    seen.add(key)
+                    out.append({'name':name.strip(),'parentName':parent.strip()})
+                return out
+
             def approved_unit_rankings(value):
                 if not isinstance(value,dict):
                     return None
@@ -204,6 +228,8 @@ def main():
                 filing_ok=isinstance(extra,dict) and extra.get('filedRate') is True
                 filing_xy_ok=isinstance(extra,dict) and extra.get('filedXY') is True
                 bank_ok=isinstance(extra,dict) and extra.get('bankXY') is True
+                bank_units_ok=isinstance(extra,dict) and extra.get('bankPendingUnits') is True
+                unfiled_units_ok=isinstance(extra,dict) and extra.get('unfiledUnits') is True
                 for item in rank['records']:
                     if not isinstance(item,dict): continue
                     n=bounded_int(item.get('rank'),100)
@@ -231,6 +257,14 @@ def main():
                             total=bounded_int(item.get('bankTotal'),30000)
                             if done is not None and total is not None and total>0 and done<=total:
                                 row.update(bankDone=done,bankTotal=total)
+                        if bank_units_ok:
+                            names=approved_subordinate_units(item.get('bankPendingUnits'))
+                            if names is not None:
+                                row['bankPendingUnits']=names
+                        if unfiled_units_ok:
+                            names=approved_subordinate_units(item.get('unfiledUnits'))
+                            if names is not None:
+                                row['unfiledUnits']=names
                         records.append(row)
                 if records:
                     modules['ranking']={'records':records,'eligibleUnits':len(records),
