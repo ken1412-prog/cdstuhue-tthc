@@ -178,12 +178,12 @@ body.menu-loading [data-view],body.menu-loading .menu-group,body.menu-loading #o
 html,body,button,input,select,textarea{font-family:'Be Vietnam Pro',system-ui,-apple-system,'Segoe UI',sans-serif}
 body{
  background:linear-gradient(180deg,rgba(246,249,253,.72),rgba(247,249,252,.80)),
-  url('./img/hue-city-day.webp') center top/cover fixed no-repeat;
+  url('./img/hue-downtown-2560.jpg') center top/cover fixed no-repeat;
  color:#21334b;
 }
 .hero{
  background:linear-gradient(90deg,rgba(7,21,40,.94) 0%,rgba(10,28,47,.79) 43%,rgba(10,30,49,.31) 100%),
-  url('./img/hue-bridge-night.webp') center 53%/cover no-repeat;
+  url('./img/nguyen-hoang-bridge-3840.jpg') center 53%/cover no-repeat;
  border:1px solid rgba(255,255,255,.27);
  box-shadow:0 18px 42px rgba(12,34,55,.27);
 }
@@ -198,7 +198,7 @@ body{
 .hero-outline{background:rgba(11,32,54,.55);color:#fff;border-color:rgba(255,255,255,.5)}
 .stats-hero-home{
  background:linear-gradient(102deg,rgba(10,32,54,.95),rgba(16,62,87,.80) 63%,rgba(10,41,70,.65)),
-  url('./img/hue-bridge-night.webp') center 55%/cover no-repeat;
+  url('./img/nguyen-hoang-bridge-3840.jpg') center 55%/cover no-repeat;
  border:1px solid #45647a;
  box-shadow:0 14px 30px rgba(10,34,57,.18);
 }
@@ -208,11 +208,11 @@ body{
 .section-heading h2,.panel h2,.stats-kpi strong{color:var(--hue-ink)}
 .panel,.stats-kpi,.stat-card,.category-card{background:#fff;box-shadow:0 9px 27px rgba(18,41,62,.09)}
 @media(max-width:760px){
- body{background:linear-gradient(180deg,rgba(246,249,253,.76),rgba(247,249,252,.84)),url('./img/hue-city-day.webp') center top/cover no-repeat}
- .hero{background:linear-gradient(90deg,rgba(6,20,38,.95),rgba(9,27,46,.72)),url('./img/hue-bridge-night.webp') 51% center/cover no-repeat}
+ body{background:linear-gradient(180deg,rgba(246,249,253,.76),rgba(247,249,252,.84)),url('./img/hue-downtown-2560.jpg') center top/cover no-repeat}
+ .hero{background:linear-gradient(90deg,rgba(6,20,38,.95),rgba(9,27,46,.72)),url('./img/nguyen-hoang-bridge-3840.jpg') 51% center/cover no-repeat}
  .hero h1{font-size:clamp(23px,5.2vw,29px)}
  .hero p{font-size:12px}
- .stats-hero-home{background:linear-gradient(95deg,rgba(10,32,54,.94),rgba(16,62,87,.8)),url('./img/hue-bridge-night.webp') center/cover}
+ .stats-hero-home{background:linear-gradient(95deg,rgba(10,32,54,.94),rgba(16,62,87,.8)),url('./img/nguyen-hoang-bridge-3840.jpg') center/cover}
 }
 @media print{
  body{background:white!important}
@@ -456,7 +456,7 @@ html{background:#fffaf6}
 body{
  color:var(--ink);
  background:linear-gradient(180deg,rgba(255,251,247,.97) 0%,rgba(255,251,247,.87) 67%,rgba(255,250,246,.78) 100%),
- url('./img/hue-city-day.webp') center bottom /cover fixed no-repeat;
+ url('./img/hue-downtown-2560.jpg') center bottom /cover fixed no-repeat;
  font-family:'Be Vietnam Pro','Segoe UI',Arial,sans-serif;
 }
 .sidebar{
@@ -497,7 +497,7 @@ body{
 .topbar .updated-tag{color:#fff}
 .hero{
  background:linear-gradient(100deg,rgba(163,28,49,.94),rgba(215,66,71,.88),rgba(236,138,96,.77)),
- url('./img/hue-city-day.webp') center 59% /cover no-repeat;
+ url('./img/hue-downtown-2560.jpg') center 59% /cover no-repeat;
  border:1px solid #e79f91;box-shadow:0 13px 33px rgba(170,54,58,.15);
 }
 .hero h1,.hero .eyebrow{color:#fff!important;text-shadow:0 1px 4px #852b3a5e!important}
@@ -507,7 +507,7 @@ body{
 .hero .hero-primary{background:linear-gradient(120deg,#ffe6aa,#f6c64a);color:#752c34}
 .stats-hero-home{
  background:linear-gradient(104deg,rgba(255,254,250,.98),rgba(255,246,235,.94) 60%,rgba(254,236,213,.82)),
- url('./img/hue-city-day.webp') center /cover no-repeat!important;
+ url('./img/hue-downtown-2560.jpg') center /cover no-repeat!important;
  border:1px solid #efcfb8;box-shadow:0 11px 26px rgba(168,76,60,.09);
 }
 .stats-hero-title h2{color:#8a2538!important;text-shadow:none!important}
@@ -584,11 +584,11 @@ body{
 .payment-empty{text-align:center;color:#8b6f77;padding:25px!important}
 @media(max-width:760px){
  body{background:linear-gradient(180deg,rgba(255,251,246,.92),rgba(255,246,237,.82)),
-  url('./img/hue-city-day.webp') center bottom /cover fixed no-repeat}
+  url('./img/hue-downtown-2560.jpg') center bottom /cover fixed no-repeat}
  .hero{background:linear-gradient(100deg,rgba(165,30,47,.94),rgba(215,68,65,.83)),
-  url('./img/hue-city-day.webp') center 56% /cover no-repeat}
+  url('./img/hue-downtown-2560.jpg') center 56% /cover no-repeat}
  .stats-hero-home{background:linear-gradient(110deg,rgba(255,254,251,.97),rgba(255,241,225,.91)),
-  url('./img/hue-city-day.webp') center /cover no-repeat!important}
+  url('./img/hue-downtown-2560.jpg') center /cover no-repeat!important}
  .payment-period-toolbar{padding:12px;gap:10px}
  .payment-period-select{flex:1 1 100%}
  .payment-period-select select{flex:1 1 100%;width:100%}
@@ -624,7 +624,7 @@ html{background:#edf2f8}
 body{
   color:#172c4a;
   background:linear-gradient(180deg,rgba(246,249,253,.28),rgba(239,245,251,.23)),
-    url('./img/hue-city-day.webp') center 55% /cover fixed no-repeat;
+    url('./img/hue-downtown-2560.jpg') center 55% /cover fixed no-repeat;
   font-family:'Be Vietnam Pro','Segoe UI',Arial,sans-serif;
 }
 a,.card-link{color:#a80e18}
@@ -678,7 +678,7 @@ a:hover,.card-link:hover{color:#8f0b12}
 .hero{
   background:linear-gradient(96deg,rgba(8,23,46,.94) 0%,
     rgba(12,32,55,.88) 37%,rgba(8,29,53,.46) 73%,rgba(8,31,53,.13) 100%),
-    url('./img/hue-bridge-night.webp') center 52% /cover no-repeat!important;
+    url('./img/nguyen-hoang-bridge-3840.jpg') center 52% /cover no-repeat!important;
   border:1px solid #4a6380;box-shadow:0 16px 31px rgba(15,34,59,.22);
 }
 .hero:after{border-color:rgba(255,255,255,.24)}
@@ -704,7 +704,7 @@ a:hover,.card-link:hover{color:#8f0b12}
 .stats-hero-home{
   background:linear-gradient(105deg,rgba(250,252,255,.75) 0%,
     rgba(249,251,255,.55) 43%,rgba(248,250,254,.19) 76%,rgba(248,250,254,.07) 100%),
-    url('./img/hue-city-day.webp') center 53% /cover no-repeat!important;
+    url('./img/hue-downtown-2560.jpg') center 53% /cover no-repeat!important;
   border:1px solid #aebed0;
   box-shadow:0 13px 31px rgba(23,44,74,.16);
 }
@@ -824,15 +824,15 @@ a:hover,.card-link:hover{color:#8f0b12}
 @media(max-width:760px){
  body{
   background:linear-gradient(180deg,rgba(248,250,254,.33),rgba(241,246,252,.29)),
-    url('./img/hue-city-day.webp') center 55% /cover no-repeat;
+    url('./img/hue-downtown-2560.jpg') center 55% /cover no-repeat;
  }
  .hero{
   background:linear-gradient(100deg,rgba(9,25,46,.94),rgba(11,36,58,.69)),
-    url('./img/hue-bridge-night.webp') center 53% /cover no-repeat!important;
+    url('./img/nguyen-hoang-bridge-3840.jpg') center 53% /cover no-repeat!important;
  }
  .stats-hero-home{
   background:linear-gradient(115deg,rgba(250,252,255,.76),rgba(249,251,255,.25)),
-    url('./img/hue-city-day.webp') center 53% /cover no-repeat!important;
+    url('./img/hue-downtown-2560.jpg') center 53% /cover no-repeat!important;
  }
 }
 @media print{
@@ -840,3 +840,7 @@ a:hover,.card-link:hover{color:#8f0b12}
  .hero,.stats-hero-home{background:#fff!important}
  .hero h1,.hero p,.hero .eyebrow{color:#172c4a!important;text-shadow:none!important}
 }
+
+/* Attribution for the licensed Huế photos used by the site. */
+.photo-attribution{display:block;font-size:10px;line-height:1.45;margin-top:4px;color:#243a56;font-weight:600}
+.photo-attribution a{color:#164a7c;text-decoration:underline;text-underline-offset:2px}
