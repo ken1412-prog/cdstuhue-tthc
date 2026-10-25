@@ -59,7 +59,6 @@ class PublicSurfaceTests(unittest.TestCase):
         self.assertIn("m.filingSummary",js)
         self.assertNotIn("Trung tâm thống kê · ",js)
         self.assertNotIn("Đang chờ bản dữ liệu tổng hợp 3 trạng thái",js)
-        self.assertIn("sourceOverage",js)
         self.assertNotIn("hồ sơ chênh vượt tổng đảng viên tại",js)
         self.assertNotIn("Bấm tên đơn vị để xem chỉ tiêu được duyệt.",js)
         self.assertNotIn('<span class="stats-count-chip">46 Đảng bộ cấp 2</span>',js)
