@@ -946,3 +946,25 @@ body{
 @media print{
   .hero::before{display:none!important}
 }
+
+/* Statistics panorama: subtle navy tint, original Thuận An image and framing preserved. */
+@media screen {
+  .stats-hero-home{
+    background:
+      linear-gradient(90deg,rgba(12,35,60,.48) 0%,rgba(12,39,66,.34) 42%,rgba(12,39,66,.16) 75%,rgba(12,39,66,.08) 100%),
+      url('https://nqs.1cdn.vn/2026/01/03/7676_day-vang-2-1767428052961279118961.jpg') center 53% /cover no-repeat,
+      url('./img/nguyen-hoang-bridge-3840.jpg') center 48% /cover no-repeat!important;
+  }
+  .stats-hero-title h2,.stats-hero-title p,.stats-eyebrow,.stats-hero-note{
+    color:#fff!important;
+    text-shadow:0 1px 5px rgba(6,22,43,.65)!important;
+  }
+}
+@media screen and (max-width:760px){
+  .stats-hero-home{
+    background:
+      linear-gradient(100deg,rgba(12,35,60,.43),rgba(12,39,66,.17)),
+      url('https://nqs.1cdn.vn/2026/01/03/7676_day-vang-2-1767428052961279118961.jpg') center 53% /cover no-repeat,
+      url('./img/nguyen-hoang-bridge-3840.jpg') center 46% /cover no-repeat!important;
+  }
+}
