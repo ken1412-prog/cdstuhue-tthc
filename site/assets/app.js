@@ -132,7 +132,7 @@ async function loadData(){
  state.loadError=issues.length?issues.join('; '):null;
  updateGlobal();render();
 }
-function updateGlobal(){const q=published(),by=g=>q.filter(x=>x.group===g).length;$('#qaTotalSide').textContent=q.length;$('#qaTthcSide').textContent=by('tthc');$('#qaStdvSide').textContent=by('stdv');$('#qaCsdlSide').textContent=by('csdl');$('#updatedTag').textContent=state.demo?'Đang xem dữ liệu minh họa':(state.generatedAt?'Bản xuất '+DATE(state.generatedAt):'Chưa có bản xuất công khai');const approvedDate=state.stats&&state.stats.approvedDate;
+function updateGlobal(){const q=published(),by=g=>q.filter(x=>x.group===g).length;$('#qaTotalSide').textContent=q.length;$('#qaTthcSide').textContent=by('tthc');$('#qaStdvSide').textContent=by('stdv');$('#qaCsdlSide').textContent=by('csdl');const approvedDate=state.stats&&state.stats.approvedDate;
  const approvedMatch=typeof approvedDate==='string'?approvedDate.match(/^(\d{4})-(\d{2})-(\d{2})$/):null;
  if(approvedMatch){const el=$('#lastApprovedDate');if(el)el.textContent=approvedMatch[3]+'/'+approvedMatch[2]+'/'+approvedMatch[1];}$('#demoBanner').classList.toggle('hidden',!(state.demo||state.local));$('#demoBanner strong').textContent=state.demo?'ĐANG XEM DỮ LIỆU MINH HỌA':'DỮ LIỆU NHẬP CỤC BỘ';$('#demoBanner span').textContent=state.demo?'Không phải số liệu hoặc câu trả lời thực tế.':'Bản ghi từ máy của bạn, chưa xuất bản hoặc lưu vào hệ thống.';$('#endDemo').textContent=state.demo?'Tắt minh họa ×':'Xóa dữ liệu cục bộ ×';const feeBadge=$('#financeNavRate'),feeRate=state.demo?null:state.stats?.modules?.payment?.completionRate;if(feeBadge){feeBadge.hidden=!viewAllowed('finance')||typeof feeRate!=='number';if(typeof feeRate==='number')feeBadge.textContent=(feeRate*100).toFixed(1).replace('.',',')+'%';}}
 function stat(label,note,val,icon){return `<div class="stat-card"><div class="stat-top"><span>${E(label)}</span><span class="stat-icon">${icon}</span></div><div class="stat-number">${E(val)}</div></div>`}
@@ -181,8 +181,7 @@ function paymentMonthControls(){
  '<label for="paymentMonthSelect"><b>THỐNG KÊ ĐẢNG PHÍ THEO THÁNG</b></label>'+
  '<select id="paymentMonthSelect" aria-label="Chọn tháng thu nộp">'+
  months.map(x=>'<option value="'+E(x.period)+'"'+(x.period===current?' selected':'')+'>'+E(paymentPeriod({period:x.period}))+(x.closed?' · Đã chốt':' · Mới nhất')+'</option>').join('')+
- '</select></div><span class="payment-period-badge '+(state.paymentArchive?'is-frozen':'is-latest')+'">'+
- (state.paymentArchive?'✓ Kỳ đã chốt · Chỉ đọc':'● Kỳ mới nhất đã duyệt')+'</span>'+
+ '</select></div>'+
  '</section>';
 }
 async function selectPaymentMonth(month){
@@ -286,7 +285,7 @@ function statsFinanceHero({compact=false}={}){
  ].filter(Boolean);
  const rec=m.ranking?.records||[];
  const top=rec.slice(0,3);
- return '<section class="stats-hero-home"><div class="stats-hero-title"><div><span class="stats-eyebrow">CDSTUHUE · SỐ LIỆU ĐÃ DUYỆT · '+E(paymentPeriod(stats))+'</span>'+
+ return '<section class="stats-hero-home"><div class="stats-hero-title"><div>'+
   '<h2>'+(compact?'Tổng quan thu nộp đảng phí':'Thống kê & xếp hạng theo đơn vị')+'</h2>'+
   '<p>Số liệu được duyệt theo kỳ. Chỉ công bố số đếm và tỷ lệ tổng hợp.</p></div>'+
   '<button type="button" data-view="finance" class="stats-hero-open">Xem bảng 46 Đảng bộ →</button></div>'+
@@ -390,7 +389,7 @@ function statsDashboard(){
   }
   panels+='<section class="panel stats-panel stats-panel-wide stats-missing-panel"><div class="panel-head"><div><h2>Đơn vị chưa khai báo hồ sơ đảng phí</h2></div><span class="stats-count-chip">46 Đảng bộ cấp 2</span></div>'+rankingContent+'</section>';
  }
- return '<div class="section-heading"><div><h2>Trung tâm thống kê · '+E(paymentPeriod(stats))+'</h2><p>Dữ liệu tổng hợp được duyệt từ bốn bảng nguồn riêng tư</p></div><span class="badge">Bản công khai đã duyệt</span></div><div class="stats-grid stats-dashboard-grid">'+panels+'</div>';
+ return '<div class="section-heading"><div><h2>Trung tâm thống kê · '+E(paymentPeriod(stats))+'</h2><p>Dữ liệu tổng hợp được duyệt từ bốn bảng nguồn riêng tư</p></div></div><div class="stats-grid stats-dashboard-grid">'+panels+'</div>';
 }
 function financeView(){return paymentMonthControls()+financeCards()+statsDashboard()}
 function overview(){
