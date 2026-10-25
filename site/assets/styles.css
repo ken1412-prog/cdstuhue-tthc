@@ -919,23 +919,15 @@ body{
   .hero{background:#fff!important}
 }
 
-/* Blend the existing Nguyễn Hoàng photo into navy without a hard vertical image edge.
-   Desktop only; mobile framing, hero content and button styles stay unchanged. */
+/* Hero seamless full-width bridge photo: navy over the text, clear bridge to the right.
+   Full-bleed existing image avoids vertical seams. Never revive the legacy oval ::before. */
 @media screen and (min-width:761px){
   .hero{
-    background:linear-gradient(110deg,#102a49,#153c62)!important;
-  }
-  .hero::before{
-    content:"";
-    display:block;
-    position:absolute;
-    inset:0;
-    z-index:0;
-    pointer-events:none;
     background:
-      url('./img/nguyen-hoang-user-banner.avif') right center /auto 100% no-repeat,
-      url('./img/nguyen-hoang-bridge-3840.jpg') right center /auto 100% no-repeat;
-    -webkit-mask-image:linear-gradient(90deg,transparent 0%,transparent 33%,rgba(0,0,0,.10) 46%,rgba(0,0,0,.70) 76%,#000 100%);
-    mask-image:linear-gradient(90deg,transparent 0%,transparent 33%,rgba(0,0,0,.10) 46%,rgba(0,0,0,.70) 76%,#000 100%);
+      linear-gradient(90deg,rgba(7,24,44,.97) 0%,rgba(8,27,49,.91) 25%,rgba(10,35,60,.66) 46%,rgba(10,35,60,.29) 68%,rgba(10,35,60,.04) 100%),
+      url('./img/nguyen-hoang-user-banner.avif') center 52% / cover no-repeat,
+      url('./img/nguyen-hoang-bridge-3840.jpg') center 52% / cover no-repeat,
+      #102a49!important;
   }
+  .hero::before{display:none!important}
 }
