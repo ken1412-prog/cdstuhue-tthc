@@ -281,7 +281,7 @@ function statsFinanceHero({compact=false}={}){
  const metrics=[
   m.payment&&['Thu nộp đảng phí',typeof m.payment.completionRate==='number'?(m.payment.completionRate*100).toFixed(1).replace('.',',')+'%':'—'],
   m.banking&&['Đăng ký tài khoản',typeof m.banking.registrationRate==='number'?(m.banking.registrationRate*100).toFixed(1).replace('.',',')+'%':'—'],
-  m.missing&&['Số HS chưa khai báo',num(m.missing.rowCount)]
+  m.missing&&['Số HS chưa khai báo',num(Number.isInteger(m.missing.sourceRowCount)&&m.missing.sourceRowCount>=m.missing.rowCount?m.missing.sourceRowCount:m.missing.rowCount)]
  ].filter(Boolean);
  const rec=m.ranking?.records||[];
  const top=rec.slice(0,3);
