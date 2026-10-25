@@ -193,3 +193,15 @@ Phải có **quyết định phê duyệt công khai riêng** trước khi hiệ
 - Hàng **XẾP HẠNG 46 ĐƠN VỊ**: thêm `HS_FILED_XY_BY_LEVEL2` để cho phép số hồ sơ đã khai báo / tổng ĐV theo 46 Đảng bộ; nếu muốn duyệt riêng tỷ lệ mà chưa duyệt x/y, dùng `HS_DECLARED_RATE`.
 
 Không tự sửa cột E/phạm vi duyệt chỉ vì đã đọc được nguồn. Sau khi phạm vi được chủ sở hữu duyệt, triển khai phiên bản `apps-script/Code.gs` đã cập nhật vào web app thực tế, rồi chạy workflow xuất dữ liệu được duyệt. `scripts/sync_public.py` kiểm tra thêm cờ `approvedExtraFields` và điều kiện tử/mẫu để không xuất quá quyền. Trên website, dấu `—` nghĩa là chưa được duyệt công khai hoặc chưa đối chiếu đầy đủ, **không phải 0**.
+
+
+## Phạm vi thống kê 46 Đảng bộ: trừ 108 đơn vị CA/QS (25/10/2026)
+
+Theo chỉ đạo chủ sở hữu, **không tính 108 đơn vị thuộc nhánh Quân sự/Biên phòng (107) và Công an (1)** bị đứt chuỗi cấp 2; **không tính dòng Đảng bộ Thành phố Huế A57 vì đây là cấp gốc**. Cả 109 dòng đều không phải “thiếu thông tin” để cộng đoán vào 46 Đảng bộ. Không xóa hay sửa dữ liệu Google Sheets nguồn.
+
+- Mã nhánh loại: `A57.12.*`, `A57.13.*` (Quân sự/Biên phòng) và **chính xác** `A57.121.39.*` (Công an phường Thủy Xuân). Regex dùng dấu chấm/điểm kết thúc có ranh giới: **không loại** các mã khác thuộc `A57.121` hay `A57.120`.
+- Mẫu số **TK NH** chỉ chứa tổ chức có trạng thái hợp lệ thuộc 46 Đảng bộ sau khi bỏ 108 CA/QS và A57 cấp gốc. Theo kiểm tra nguồn tại thời điểm này, x/y = **1.996/2.767** (771 chưa có); 108 CA/QS đều ở trạng thái “chưa có”, còn A57 gốc “đã có”. Nếu dữ liệu Sheets thay đổi, tỷ lệ tính lại trên dữ liệu mới.
+- **Danh sách chưa khai báo hồ sơ**: chỉ đọc **cột B (tên đơn vị) và D (tên cấp cha)**, tuyệt đối không đọc cột C (tên người). Loại các dòng có cặp tên đơn vị/cấp cha khớp duy nhất với nhánh CA/QS, hoặc cha khớp một tổ chức trong nhánh CA/QS và **không** trùng tên tổ chức ở nhánh được tính. Không loại một “Chi bộ 1”, “Chi bộ Văn phòng” chỉ vì tên giống nhau. Kiểm tra 25/10 phát hiện **928 dòng** loại chắc chắn, số dòng giữ để thống kê là **14.973** so với 15.901 dòng nguồn. Xếp hạng 46 Đảng bộ được tính lại trên số dòng **sau loại**, không tự gán các bản ghi còn chưa đối chiếu.
+- Công khai chỉ các số đếm/tỷ lệ thống kê đã được duyệt. Không xuất danh tính đảng viên, mã định danh cá nhân, chủ tài khoản hoặc số tài khoản.
+- Nếu phiên bản **Apps Script Web App** đang chạy chưa được cập nhật từ `apps-script/Code.gs`, GitHub Actions **không thể tự điều chỉnh dữ liệu gốc trên endpoint**: cần Deploy → Manage deployments → Edit → New version → Deploy của chủ sở hữu trước khi số liệu cập nhật ở website. Không tự chỉnh trạng thái/phạm vi `DUYET_WEBSITE`.
+

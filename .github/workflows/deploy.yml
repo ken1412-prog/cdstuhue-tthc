@@ -35,6 +35,7 @@ jobs:
           python -m json.tool site/data/stats.json > /dev/null
           python -m json.tool site/data/menu.json > /dev/null
           node --check site/assets/app.js
+          node tests/test_ca_qs_stats.js
           python -m unittest discover -s tests -p 'test_public_surface.py' -v
           python -m unittest discover -s tests -p 'test_payment_month.py' -v
           test -s site/index.html

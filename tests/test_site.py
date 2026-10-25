@@ -151,7 +151,7 @@ class SiteTests(unittest.TestCase):
         self.assertIn("includes('BANK_XY_BY_LEVEL2')",gs)
         self.assertIn("includes('HS_DECLARED_RATE')",gs)
         self.assertIn("approvedExtraFields",gs)
-        self.assertIn("mappedTotal!==all-unmapped",gs)
+        self.assertIn("mappedTotal!==all||mappedDone!==registered",gs)
         self.assertIn("filing_ok=isinstance(extra,dict)",sync)
         self.assertIn("bank_ok=isinstance(extra,dict)",sync)
         self.assertIn("if bank_ok:",sync)

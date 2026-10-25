@@ -144,7 +144,7 @@ function missingCardNote(stats){
  if(!missing)return '';
  const excluded=missing.excludedCaQsRows,other=missing.level2Ranking?.unmatchedRows;
  const notes=[];
- if(Number.isInteger(excluded)&&excluded>0)notes.push('Đã trừ '+pretty.format(excluded)+' dòng thuộc 108 đơn vị CA/QS');
+ if(Number.isInteger(excluded)&&excluded>0)notes.push('Đã trừ '+pretty.format(excluded)+' dòng thuộc nhóm đơn vị CA/QS đã loại khỏi phạm vi');
  if(Number.isInteger(other)&&other>0)notes.push(pretty.format(other)+' dòng còn chưa ghép cấp 2');
  return notes.join(' · ');
 }
@@ -384,7 +384,7 @@ function statsDashboard(){
    rankingContent='<div class="stats-leaderboards stats-missing-leaders">'+rowBlock(rank.top,'is-weak','Top 10 nhiều nhất')+rowBlock(rank.bottom,'is-good','Top 10 ít nhất')+'</div>';
    rankingContent+='<p class="stats-scope-note">Thống kê theo số dòng chưa khai báo (không phải tỷ lệ đảng viên). Đã xác định cấp 2: '+amount(rank.matchedRows)+' / '+amount(v.rowCount)+' dòng. '+amount(rank.unmatchedRows)+' dòng còn chưa đủ thông tin ghép cấp 2.</p>'+
     (Number.isInteger(v.excludedCaQsRows)&&v.excludedCaQsRows>0?
-    '<p class="stats-scope-note">Đã trừ '+amount(v.excludedCaQsRows)+' dòng danh sách thuộc 108 đơn vị Công an/Quân sự theo đối chiếu tên đơn vị và cấp cha. Không xóa dữ liệu nguồn.</p>':'');
+    '<p class="stats-scope-note">Đã trừ '+amount(v.excludedCaQsRows)+' dòng danh sách thuộc các đơn vị CA/QS đã loại khỏi phạm vi theo tên đơn vị và cấp cha. Không xóa dữ liệu nguồn.</p>':'');
   }else{
    rankingContent='<div class="stats-unit-unavailable">Top 10 cấp 2 sẽ hiển thị sau khi cập nhật Apps Script và đồng bộ danh mục tổ chức. Không xếp hạng các đơn vị cấp 3 riêng lẻ.</div>';
   }
