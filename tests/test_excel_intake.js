@@ -73,6 +73,18 @@ assert.equal(validate('THU_NOP_CITY',city).notFiled,15238);
 assert.equal(standardize('THU_NOP_CITY',city),'CDSTUHUE_CHUAN');
 assert.equal(city.getWritten()[2][1],'Đảng bộ Thành phố Huế');
 
+// The city control report does not need any filing-status columns.
+const cityMinimal=fake([
+ ['Tổng tiền đã nộp','Tên đơn vị','Tổng đảng viên',
+  'Tổng tiền phải nộp','Chưa có hồ sơ'],
+ [2674296551,'Đảng bộ Thành phố Huế',56558,3095344951,15238]
+]);
+assert.equal(identify(cityMinimal),'THU_NOP_CITY');
+assert.equal(validate('THU_NOP_CITY',cityMinimal).members,56558);
+standardize('THU_NOP_CITY',cityMinimal);
+assert.equal(cityMinimal.getWritten()[2][7],'');
+assert.equal(cityMinimal.getWritten()[2][10],15238);
+
 // Missing-source report can omit private individual names, STT, IDs and period.
 const missing=fake([
   ['ĐƠN VỊ CHA','TÊN TỔ CHỨC'],
@@ -124,5 +136,7 @@ const unknown=fake([['Mã','Tên gì đó'],['A','B']]);
 assert.equal(identify(unknown),'');
 assert(source.includes('function cdstuhueStageExcel4()'));
 assert(source.includes('function cdstuhueInstallIntakeWatch()'));
+assert(source.includes('function cdstuhueApproveStagedBatch()'));
+assert(source.includes('DUYET '));
 assert(!source.includes("'PHAN_BO'"));
 console.log('Flexible Excel header mapping, optional drops, shuffle, canonicalization and privacy PASS');
