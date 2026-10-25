@@ -250,6 +250,9 @@ def main():
                     modules['missing']={'rowCount':count,'distinctParents':parents,
                         'rowsByParent':rows,
                         'countType':'Số dòng chưa khai báo theo danh sách riêng, không phải tỷ lệ chưa khai báo trên tổng đảng viên'}
+                    excluded=bounded_int(missing.get('excludedCaQsRows'),30000)
+                    if excluded is not None and excluded+count<=30000:
+                        modules['missing']['excludedCaQsRows']=excluded
                     verified=approved_missing_level2(missing.get('level2Ranking'),count)
                     if verified is not None:
                         modules['missing']['level2Ranking']=verified
@@ -280,6 +283,10 @@ def main():
                     unmatched=bounded_int(bank.get('unmappedForRanking'),30000)
                     if unmatched is not None:
                         modules['banking']['unmappedForRanking']=unmatched
+                    excluded=bounded_int(bank.get('excludedCaQsUnits'),30000)
+                    city=bounded_int(bank.get('excludedCityRoot'),2)
+                    if excluded is not None and city is not None:
+                        modules['banking'].update(excludedCaQsUnits=excluded,excludedCityRoot=city)
             if modules:
                 approved_date=str(candidate.get('approvedDate') or '').strip()
                 if not re.fullmatch(r'\d{4}-\d{2}-\d{2}',approved_date):
