@@ -53,7 +53,8 @@ const missing = [
  {unit:'Chi bộ 1',parent:'Đảng bộ khác'},       // preserve: ambiguous name
  {unit:'Chi bộ phòng kế toán',parent:'Đảng bộ đơn vị 2'}, // preserve
  {unit:'Chi bộ không có dòng cha',parent:'Đảng bộ Đồn Biên phòng Phong Hải'}, // exclude
- {unit:'Đảng bộ đơn vị 2',parent:'Đảng bộ Thành phố Huế'} // match level 2
+ {unit:'Đảng bộ đơn vị 2',parent:'Đảng bộ Thành phố Huế'}, // match level 2
+ {unit:'Chi bộ không rõ',parent:'Chi bộ 1'} // ambiguous parent across branches
 ];
 function wrapRows(data,firstRow=2){
  return {
@@ -110,11 +111,15 @@ assert.equal(bankResult.registered,46);
 assert.equal(bankResult.notRegistered,1);
 assert.equal(bankResult.registrationRate,46/47);
 const missingResult=feed.modules.missing;
-assert.equal(missingResult.excludedCaQsRows,4);
-assert.equal(missingResult.rowCount,4);
+assert.equal(missingResult.sourceRowCount,9);
+assert.equal(missingResult.excludedCaQsRows,3);
+assert.equal(missingResult.excludedNoParentRows,2);
+assert.equal(missingResult.excludedAmbiguousRows,1);
+assert.equal(missingResult.excludedIncompleteRows,0);
+assert.equal(missingResult.rowCount,3);
 assert.equal(missingResult.level2Ranking.eligibleUnits,46);
 assert.equal(missingResult.level2Ranking.matchedRows,3);
-assert.equal(missingResult.level2Ranking.unmatchedRows,1);
+assert.equal(missingResult.level2Ranking.unmatchedRows,0);
 const mappedTotal=feed.modules.ranking.records.reduce((sum,r)=>sum+(r.bankTotal||0),0);
 assert.equal(mappedTotal,47);
 console.log('CA/QS exclusions passed: 108 organizations, 1 city root, member records safely filtered.');
