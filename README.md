@@ -262,3 +262,22 @@ Dán **apps-script/CDSTUHUE_DEPLOY_SINGLE.gs** vào Code.gs của dự án Web A
 ## Trang quản trị riêng tư có mật khẩu (25/10/2026)
 
 Nút ⚙ Quản trị ở chân trang mở Web App quản trị Google riêng chỉ dành cho chủ sở hữu. Mật khẩu xác minh tại máy chủ (không nằm trên GitHub Pages), có quản lý ẩn/hiện danh mục, duyệt/tạm ẩn thống kê và đánh dấu duyệt dữ liệu nháp. **Không cài chung với Web App công khai**. Xem [hướng dẫn](apps-script/admin-portal/README.md).
+
+
+## Danh sách cấp con cần xử lý trong Chi tiết bảng 46 Đảng bộ (25/10/2026)
+
+Trong **Thống kê đảng phí → Bảng xếp hạng theo 46 Đảng bộ**, bấm **tên Đảng bộ** (hoặc nút **Xem** ở cột cuối) để mở cửa sổ chi tiết trên điện thoại/máy tính. Ngoài số tổng hợp trước đây, cửa sổ có hai danh sách tổ chức cấp dưới:
+
+- **Chưa có tài khoản ngân hàng**: chỉ các tổ chức cấp dưới có trạng thái chính xác **Chưa có tài khoản ngân hàng** ở nguồn `NGAN_HANG`; gán về đúng Đảng bộ qua cây mã đơn vị. Không gồm chính Đảng bộ cấp 2, 108 tổ chức CA/QS bị loại hoặc A57 cấp thành phố.
+- **Còn hồ sơ chưa khai báo**: tên tổ chức cấp dưới có ít nhất một dòng trong nguồn `CHUA_KHAI` được ghép duy nhất về Đảng bộ cấp 2 qua **tên đơn vị + tên đơn vị cha**. Chỉ công bố tên đơn vị và tên cấp cha, không số dòng theo người. Đây **không phải** danh sách đầy đủ mọi đơn vị có hồ sơ dưới 100% nếu còn hồ sơ đang chờ duyệt ở nguồn khác. Danh sách trống không đồng nghĩa chắc chắn hoàn thành 100%.
+
+**Chỉ chủ sở hữu mới duyệt công khai tên đơn vị.** Trong Google Sheet riêng tư `CDSTUHUE STATS HUB 2026`, tab `DUYET_WEBSITE`, sau khi kiểm tra danh sách và thẩm quyền công bố:
+
+1. Hàng **TÀI KHOẢN NGÂN HÀNG**, cột E (phạm vi), thêm token `BANK_PENDING_UNITS_BY_LEVEL2` bên cạnh các phạm vi đã có, không xóa token cũ.
+2. Hàng **CHƯA KHAI BÁO THEO ĐƠN VỊ CHA**, cột E, thêm token `HS_UNFILED_UNITS_BY_LEVEL2` bên cạnh các phạm vi đã có.
+3. Hai hàng trên và hàng **XẾP HẠNG 46 ĐƠN VỊ** vẫn phải ở trạng thái **ĐÃ DUYỆT** với ngày duyệt hợp lệ. Nếu thiếu phạm vi duyệt, website chỉ hiện ghi chú chưa có danh sách duyệt, **không** lén xuất tên đơn vị.
+4. Cập nhật **toàn bộ** mã `apps-script/Code.gs` trong Apps Script chủ sở hữu, **Deploy → Manage deployments → Edit → New version → Deploy** đối với Web App `/exec` đang dùng. Lưu file trên GitHub không thay đổi phiên bản Apps Script đã triển khai.
+5. Kiểm tra `/exec?kind=stats`: trên mỗi `modules.ranking.records[]` có `bankPendingUnits` / `unfiledUnits` là các mảng chỉ chứa `name`, `parentName`. Sau đó chạy workflow **Publish CDSTUHUE website** để xuất `site/data/stats.json`, hoặc chờ kỳ đồng bộ kế tiếp.
+
+**Quyền riêng tư:** GitHub Pages là trang công khai. Sau khi phê duyệt và xuất, mọi khách truy cập có thể đọc các tên đơn vị này kể cả từ JSON hoặc bản lưu trang; không coi việc ẩn danh sách trong giao diện là phân quyền truy cập. Không đưa dữ liệu hồ sơ cá nhân, số tài khoản hay mã nội bộ vào danh sách. Khi xem một **tháng đã chốt**, cửa sổ không ghép danh sách tháng hiện tại vào kỳ cũ.
+
