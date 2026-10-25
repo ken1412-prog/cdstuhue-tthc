@@ -6,7 +6,7 @@ on:
   schedule:
     - cron: '17 */2 * * *'   # every two hours (UTC)
 permissions:
-  contents: read
+  contents: write
   pages: write
   id-token: write
 concurrency:
@@ -18,6 +18,41 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/configure-pages@v5
+      - name: Fetch licensed high-resolution Huế photographs
+        run: |
+          set -euo pipefail
+          mkdir -p site/assets/img
+          fetch_photo() {
+            local destination="$1" thumbnail="$2" original="$3"
+            if [ ! -s "$destination" ]; then
+              curl --fail --location --silent --show-error --retry 3 --retry-delay 2 \
+                --connect-timeout 20 --max-time 90 \
+                --user-agent 'CDSTUHUE/1.0 (https://github.com/ken1412-prog/cdstuhue-tthc)' \
+                --output "$destination" "$thumbnail" || {
+                  rm -f "$destination"
+                  curl --fail --location --silent --show-error --retry 3 --retry-delay 2 \
+                    --connect-timeout 20 --max-time 120 \
+                    --user-agent 'CDSTUHUE/1.0 (https://github.com/ken1412-prog/cdstuhue-tthc)' \
+                    --output "$destination" "$original"
+                }
+            fi
+            test -s "$destination"
+            test "$(file --brief --mime-type "$destination")" = 'image/jpeg'
+            echo "Verified $(basename "$destination") ($(wc -c < "$destination") bytes)"
+          }
+          fetch_photo site/assets/img/hue-downtown-2560.jpg \
+            'https://upload.wikimedia.org/wikipedia/commons/thumb/9/93/View_of_Downtown_Hue_%28I%29.jpg/2560px-View_of_Downtown_Hue_%28I%29.jpg' \
+            'https://upload.wikimedia.org/wikipedia/commons/9/93/View_of_Downtown_Hue_%28I%29.jpg'
+          fetch_photo site/assets/img/nguyen-hoang-bridge-3840.jpg \
+            'https://upload.wikimedia.org/wikipedia/commons/thumb/1/15/C%E1%BA%A7u_Nguy%E1%BB%85n_Ho%C3%A0ng_2025-04-27.jpg/3840px-C%E1%BA%A7u_Nguy%E1%BB%85n_Ho%C3%A0ng_2025-04-27.jpg' \
+            'https://upload.wikimedia.org/wikipedia/commons/1/15/C%E1%BA%A7u_Nguy%E1%BB%85n_Ho%C3%A0ng_2025-04-27.jpg'
+          git add site/assets/img/hue-downtown-2560.jpg site/assets/img/nguyen-hoang-bridge-3840.jpg
+          if ! git diff --cached --quiet; then
+            git config user.name 'github-actions[bot]'
+            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+            git commit -m 'Add licensed high-resolution Huế landscape photographs'
+            git push origin HEAD:main
+          fi
       - name: Export reviewed public Q&A from Google Sheets
         env:
           QA_PUBLIC_ENDPOINT: ${{ secrets.QA_PUBLIC_ENDPOINT }}
