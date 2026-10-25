@@ -142,9 +142,17 @@ function progressBars(){const rows=progress();return `<div class="bars">${Object
 function missingCardNote(stats){
  const missing=stats?.modules?.missing;
  if(!missing)return '';
- const current=missing.level2Ranking?.unmatchedRows;
- const count=Number.isInteger(current)&&current>=0&&current<=missing.rowCount?current:(missing.rowCount===15901?1090:null);
- return count===null?'':'('+pretty.format(count)+' HS không thể xác minh, không thuộc diện đóng)';
+ const excluded=missing.excludedCaQsRows,other=missing.level2Ranking?.unmatchedRows;
+ const notes=[];
+ if(Number.isInteger(excluded)&&excluded>0)notes.push('Đã trừ '+pretty.format(excluded)+' dòng thuộc 108 đơn vị CA/QS');
+ if(Number.isInteger(other)&&other>0)notes.push(pretty.format(other)+' dòng còn chưa ghép cấp 2');
+ return notes.join(' · ');
+}
+function bankExclusionNote(bank){
+ const count=bank?.excludedCaQsUnits,city=bank?.excludedCityRoot;
+ if(!Number.isInteger(count)||count<=0)return '';
+ return 'Đã trừ '+pretty.format(count)+' đơn vị CA, QS khỏi thống kê'+
+  (Number.isInteger(city)&&city>0?'; '+pretty.format(city)+' cơ quan gốc cấp Thành phố không tính':'')+'.';
 }
 // Only the approved monthly aggregate and public rank/name/rate are eligible for this view.
 function paymentPeriod(stats=state.stats){
@@ -281,7 +289,9 @@ function statsFinanceHero({compact=false}={}){
   '<button type="button" data-view="finance" class="stats-hero-open">Xem bảng 46 Đảng bộ →</button></div>'+
   '<div class="stats-hero-metrics">'+metrics.map(x=>'<div class="stats-hero-metric"><small>'+E(x[0])+(x[0]==='Số HS chưa khai báo'&&missingCardNote(stats)?'<span class="stats-context-line">'+E(missingCardNote(stats))+'</span>':'')+
   (x[0]==='Đăng ký tài khoản'&&Number.isInteger(m.banking?.registered)&&Number.isInteger(m.banking?.rowCount)?
-  '<span class="stats-context-line">'+pretty.format(m.banking.registered)+' / '+pretty.format(m.banking.rowCount)+' tổ chức có trạng thái hợp lệ</span>':'')+'</small><strong>'+E(x[1])+'</strong></div>').join('')+'</div>'+
+  '<span class="stats-context-line">'+pretty.format(m.banking.registered)+' / '+pretty.format(m.banking.rowCount)+' tổ chức thuộc 46 Đảng bộ</span>':'')+
+  (x[0]==='Đăng ký tài khoản'&&bankExclusionNote(m.banking)?
+  '<span class="stats-context-line">'+E(bankExclusionNote(m.banking))+'</span>':'')+'</small><strong>'+E(x[1])+'</strong></div>').join('')+'</div>'+
   (compact&&top.length?'<div class="stats-hero-ranking"><div class="stats-hero-rank-title"><b>🏆 Top 03 thu nộp · '+E(paymentPeriod(stats))+'</b><span>Bấm Đảng bộ để xem chi tiết</span></div>'+paymentTop3Cards(rec)+'</div>':'')+
   '</section>';
 }
@@ -359,7 +369,10 @@ function statsDashboard(){
  const statBreakdown=(data,total)=>'<div class="stats-breakdown">'+data.map(([name,count])=>'<div class="stats-breakdown-item"><span>'+E(name)+'</span><strong>'+amount(count)+'</strong><small>'+percent(count/(total||1))+'</small></div>').join('')+'</div>';
  if(m.banking){
   const v=m.banking;
-  panels+='<section class="panel stats-panel stats-panel-wide stats-bank-panel"><div class="panel-head"><div><h2>Xếp hạng tỷ lệ khai báo tài khoản ngân hàng</h2></div><span class="stats-count-chip">46 Đảng bộ cấp 2</span></div>'+statBreakdown([['Đã có tài khoản',v.registered],['Chưa có tài khoản',v.notRegistered]],v.rowCount)+statsRankingPair(v.unitRanking,'bản ghi')+(Number.isInteger(v.unmappedForRanking)&&v.unmappedForRanking>0?'<p class="stats-scope-note">'+E(String(v.unmappedForRanking))+' bản ghi chưa có đủ quan hệ đơn vị cấp 2, không tính vào Top 10.</p>':'')+'</section>';
+  panels+='<section class="panel stats-panel stats-panel-wide stats-bank-panel"><div class="panel-head"><div><h2>Xếp hạng tỷ lệ khai báo tài khoản ngân hàng</h2></div><span class="stats-count-chip">46 Đảng bộ cấp 2</span></div>'+statBreakdown([['Đã có tài khoản',v.registered],['Chưa có tài khoản',v.notRegistered]],v.rowCount)+statsRankingPair(v.unitRanking,'bản ghi')+
+    (bankExclusionNote(v)?'<p class="stats-scope-note">'+E(bankExclusionNote(v))+'</p>':'')+
+    (Number.isInteger(v.unmappedForRanking)&&v.unmappedForRanking>0?
+    '<p class="stats-scope-note">'+E(String(v.unmappedForRanking))+' bản ghi khác chưa ghép được vào 46 Đảng bộ, không tính vào chỉ tiêu.</p>':'')+'</section>';
  }
  if(m.missing){
   const v=m.missing,rank=v.level2Ranking;
@@ -369,7 +382,9 @@ function statsDashboard(){
    const rowBlock=(items,tone,title)=>'<div class="stats-leaderboard-col '+tone+'"><div class="stats-leaderboard-head"><strong>'+title+'</strong><span>10 Đảng bộ</span></div>'+
     items.map((x,i)=>'<div class="stats-leaderboard-row"><span class="stats-leaderboard-rank">'+(i+1)+'</span><div class="stats-leaderboard-unit"><strong>'+E(x.name)+'</strong><div class="stats-meter" aria-hidden="true"><i style="width:'+Math.max(0,Math.min(100,100*x.count/maxMissing)).toFixed(1)+'%"></i></div><small>Dòng chưa khai báo đã đối chiếu</small></div><b>'+amount(x.count)+'</b></div>').join('')+'</div>';
    rankingContent='<div class="stats-leaderboards stats-missing-leaders">'+rowBlock(rank.top,'is-weak','Top 10 nhiều nhất')+rowBlock(rank.bottom,'is-good','Top 10 ít nhất')+'</div>';
-   rankingContent+='<p class="stats-scope-note">Thống kê theo số dòng chưa khai báo (không phải tỷ lệ đảng viên). Đã xác định cấp 2: '+amount(rank.matchedRows)+' / '+amount(v.rowCount)+' dòng. '+amount(rank.unmatchedRows)+' dòng chưa đủ thông tin ghép cấp 2 hoặc nằm ngoài 46 Đảng bộ, không cộng tùy đoán vào bảng.</p>';
+   rankingContent+='<p class="stats-scope-note">Thống kê theo số dòng chưa khai báo (không phải tỷ lệ đảng viên). Đã xác định cấp 2: '+amount(rank.matchedRows)+' / '+amount(v.rowCount)+' dòng. '+amount(rank.unmatchedRows)+' dòng còn chưa đủ thông tin ghép cấp 2.</p>'+
+    (Number.isInteger(v.excludedCaQsRows)&&v.excludedCaQsRows>0?
+    '<p class="stats-scope-note">Đã trừ '+amount(v.excludedCaQsRows)+' dòng danh sách thuộc 108 đơn vị Công an/Quân sự theo đối chiếu tên đơn vị và cấp cha. Không xóa dữ liệu nguồn.</p>':'');
   }else{
    rankingContent='<div class="stats-unit-unavailable">Top 10 cấp 2 sẽ hiển thị sau khi cập nhật Apps Script và đồng bộ danh mục tổ chức. Không xếp hạng các đơn vị cấp 3 riêng lẻ.</div>';
   }
