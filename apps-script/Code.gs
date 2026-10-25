@@ -581,6 +581,33 @@ function buildStatsFeed_(){
     const groups={};
     unitTree.roots.forEach(code=>{groups[code]={name:unitTree.nodes[code].name,count:0};});
     const sourceRowCount=missingOrgRows.length;
+    // Reproduce the published 46-Đảng-bộ unresolved cohort without reading personal names.
+    // Distinct organizations use (unit name, parent name), not unit name alone.
+    const publishRootsByName={};
+    unitTree.info.forEach(r=>{
+      const key=orgKey(r[1]),root=unitTree.rootOf(r[0]);
+      if(!key||!root)return;
+      if(!publishRootsByName[key])publishRootsByName[key]=new Set();
+      publishRootsByName[key].add(root);
+    });
+    const unlinkedPairs=new Set(),unlinkedNames=new Set(),unlinkedParents=new Set();
+    let unlinkedSourceRows=0;
+    missingOrgRows.forEach(r=>{
+      const pk=orgKey(r.parent),uk=orgKey(r.unit);
+      const pr=publishRootsByName[pk],cr=publishRootsByName[uk];
+      let resolved='';
+      if(pr&&pr.size===1)resolved=[...pr][0];
+      else if(pr&&pr.size>1&&cr&&cr.size===1){
+        const candidate=[...cr][0];
+        if(pr.has(candidate))resolved=candidate;
+      }
+      if(resolved)return;
+      unlinkedSourceRows++;
+      unlinkedPairs.add(uk+'|'+pk);
+      if(uk)unlinkedNames.add(uk);
+      if(pk)unlinkedParents.add(pk);
+    });
+
     let matched=0,excludedCaQsRows=0,excludedNoParentRows=0;
     let excludedAmbiguousRows=0,excludedIncompleteRows=0;
     const matchedOrgRows=[];
@@ -633,12 +660,33 @@ function buildStatsFeed_(){
     modules.missing.excludedNoParentRows=excludedNoParentRows;
     modules.missing.excludedAmbiguousRows=excludedAmbiguousRows;
     modules.missing.excludedIncompleteRows=excludedIncompleteRows;
+    modules.missing.unlinkedSourceRows=unlinkedSourceRows;
+    modules.missing.unlinkedUnitPairs=unlinkedPairs.size;
+    modules.missing.unlinkedDistinctNames=unlinkedNames.size;
+    modules.missing.unlinkedParentNames=unlinkedParents.size;
     const records=Object.values(groups);
     const byUnitName=(a,b)=>a.name.localeCompare(b.name,'vi');
     const top=records.slice().sort((a,b)=>b.count-a.count||byUnitName(a,b)).slice(0,10);
     const bottom=records.slice().sort((a,b)=>a.count-b.count||byUnitName(a,b)).slice(0,10);
     modules.missing.level2Ranking={
       eligibleUnits:46,matchedRows:matched,unmatchedRows:0,top,bottom};
+    // Write only aggregate counters to the PRIVATE reporting hub.
+    // The two TONG_QUAN formulas follow these cells without manual copy/paste.
+    try{
+      const audit=hub.getSheetByName('DOI_CHIEU_HO_SO');
+      if(audit){
+        const next=[[unlinkedSourceRows],[unlinkedPairs.size],
+          [unlinkedNames.size],[unlinkedParents.size]];
+        const prev=audit.getRange(2,2,4,1).getValues();
+        if(JSON.stringify(prev)!==JSON.stringify(next))
+          audit.getRange(2,2,4,1).setValues(next);
+        const stamp=String(src.CHUA_KHAI.snapshot||'').trim();
+        if(stamp&&audit.getRange('B7').getDisplayValue()!==stamp)
+          audit.getRange('B7').setValue(stamp);
+      }
+    }catch(auditError){
+      console.warn('Private unmatched audit sync skipped: '+String(auditError));
+    }
   }
   // Allocation sheet has only agency name and status; duplicated names such as
   // "Chi bộ 1" across multiple branches cannot be assigned to a level-2 unit.
