@@ -409,7 +409,7 @@ function statsDashboard(){
        ['Chưa khai báo hồ sơ',filing.notFiled]],filing.totalMembers)+
        (filing.unclassified>0?'<p class="stats-scope-note">Còn '+amount(filing.unclassified)+
         ' đảng viên chưa khớp trạng thái với tổng nguồn 46 Đảng bộ; không cộng vào ba nhóm.</p>':'')
-     :'<p class="stats-sync-pending">Đang chờ bản dữ liệu tổng hợp 3 trạng thái đã duyệt từ Google Sheets.</p>');
+     :'<p class="stats-sync-pending">Đang chờ bản dữ liệu tổng hợp 3 trạng thái đã duyệt từ Google Sheets.</p>';
   panels+='<section class="panel stats-panel stats-panel-wide stats-missing-panel"><div class="panel-head"><div><h2>Xếp hạng tỷ lệ khai báo hồ sơ</h2></div><span class="stats-count-chip">46 Đảng bộ cấp 2</span></div>'+
     filingCounts+statsRankingPair(filingRank,'hồ sơ','Tỷ lệ khai báo hồ sơ')+'</section>';
  }
