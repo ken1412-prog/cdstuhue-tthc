@@ -258,3 +258,7 @@ không tự cài phiên bản Apps Script đang chạy.
 ## Mã triển khai Apps Script một-file (25/10/2026)
 
 Dán **apps-script/CDSTUHUE_DEPLOY_SINGLE.gs** vào Code.gs của dự án Web App hiện hành, không giữ module cũ trùng tên; xem [hướng dẫn triển khai](apps-script/DEPLOY_GOOGLE_APPS_SCRIPT.md). Giữ Script Properties riêng tư, bật Advanced Drive API v3, lưu, **Deploy New version**. Bộ nhập sẽ tự phân loại/chuẩn hóa theo tên cột, tạo nháp và chỉ chuyển nguồn khi chủ sở hữu duyệt. Không dùng AI tính số liệu.
+
+## Trang quản trị riêng tư có mật khẩu (25/10/2026)
+
+Nút ⚙ Quản trị ở chân trang mở Web App quản trị Google riêng chỉ dành cho chủ sở hữu. Mật khẩu xác minh tại máy chủ (không nằm trên GitHub Pages), có quản lý ẩn/hiện danh mục, duyệt/tạm ẩn thống kê và đánh dấu duyệt dữ liệu nháp. **Không cài chung với Web App công khai**. Xem [hướng dẫn](apps-script/admin-portal/README.md).
