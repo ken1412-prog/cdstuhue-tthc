@@ -42,7 +42,7 @@ const MENU_DEFAULTS={'overview':true,'finance':true,'units':false,
  'chinh-thuc':false,'tam-thoi':false,'nhan-xet':false,'dang-phi':false,
  'qa-all':true,'qa-tthc':true,'qa-stdv':true,'qa-csdl':true,
  'resources':false,'reports':false,'guide':false,'assistant':true};
-const state={menu:{...MENU_DEFAULTS},menuReady:false,pendingView:null,qa:[],progress:[],finance:null,stats:null,paymentArchive:null,paymentHistory:[],paymentQuery:'',paymentStatus:'all',paymentSort:'rank',view:'overview'filter:'',query:'',unitQuery:'',sort:'default',page:0,generatedAt:'',demo:false,local:false,loadError:null};
+const state={menu:{...MENU_DEFAULTS},menuReady:false,pendingView:null,qa:[],progress:[],finance:null,stats:null,paymentArchive:null,paymentHistory:[],paymentQuery:'',paymentStatus:'all',paymentSort:'rank',view:'overview',filter:'',query:'',unitQuery:'',sort:'default',page:0,generatedAt:'',demo:false,local:false,loadError:null};
 const NAV_FALLBACK=['overview','finance','qa-all','qa-tthc','qa-stdv','qa-csdl',
   'resources','reports','guide','units','chinh-thuc','tam-thoi','nhan-xet','dang-phi'];
 function viewAllowed(id){return id==='closed'||(id!=='assistant'&&
