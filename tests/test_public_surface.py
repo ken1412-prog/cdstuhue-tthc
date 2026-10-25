@@ -24,6 +24,21 @@ ORIGIN_LINK = re.compile(
 
 
 class PublicSurfaceTests(unittest.TestCase):
+    def test_no_duplicate_finance_page_highlights(self):
+        js=(SITE / "assets/app.js").read_text(encoding="utf-8")
+        # Preserve homepage Top 3, but omit it from detailed finance hero.
+        self.assertIn("financeCards({compact:true})",js)
+        self.assertIn("(compact&&top.length?'<div class=\\"stats-hero-ranking\\">",js)
+        self.assertIn("function financeView(){return financeCards()+statsDashboard()}",js)
+        # The repeated three KPI cards in the detail view are removed.
+        self.assertNotIn("const viewCards=",js)
+        self.assertNotIn("'+viewCards+'",js)
+        # Keep the full ranked payment, bank and missing-filing sections.
+        self.assertIn("paymentTop3Cards(rec)",js)
+        self.assertIn("Xếp hạng tỷ lệ thu nộp",js)
+        self.assertIn("statsRankingPair(v.unitRanking,'bản ghi')",js)
+        self.assertIn("stats-missing-panel",js)
+
     def test_top3_and_statistical_bars_without_extra_search(self):
         js=(SITE / "assets/app.js").read_text(encoding="utf-8")
         css=(SITE / "assets/styles.css").read_text(encoding="utf-8")
