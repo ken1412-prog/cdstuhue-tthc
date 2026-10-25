@@ -47,7 +47,7 @@ class PublicSurfaceTests(unittest.TestCase):
             html=(SITE / page).read_text(encoding="utf-8")
             self.assertIn('>Thống kê đảng phí <span>↗</span>',html)
             self.assertNotIn("Khám phá thống kê",html)
-            self.assertIn("assets/app.js?v=20261025-filing-audit-v11",html)
+            self.assertIn("assets/app.js?v=20261025-label-cleanup-v12",html)
         # The repeated three KPI cards in the detail view are removed.
         self.assertNotIn("const viewCards=",js)
         self.assertNotIn("'+viewCards+'",js)
@@ -60,6 +60,12 @@ class PublicSurfaceTests(unittest.TestCase):
         self.assertNotIn("Trung tâm thống kê · ",js)
         self.assertNotIn("Đang chờ bản dữ liệu tổng hợp 3 trạng thái",js)
         self.assertIn("sourceOverage",js)
+        self.assertNotIn("hồ sơ chênh vượt tổng đảng viên tại",js)
+        self.assertNotIn("Bấm tên đơn vị để xem chỉ tiêu được duyệt.",js)
+        self.assertNotIn('<span class="stats-count-chip">46 Đảng bộ cấp 2</span>',js)
+        for page in ("index.html","hoi-dap.html"):
+            html=(SITE / page).read_text(encoding="utf-8")
+            self.assertIn("© NKIEN TEST ©",html)
         self.assertIn("Đã khai báo HS nhưng chưa duyệt",js)
         self.assertIn("Chưa khai báo hồ sơ",js)
         # Hero card must display the entire undeclared source list (15,238

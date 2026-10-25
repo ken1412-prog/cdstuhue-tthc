@@ -374,7 +374,7 @@ function statsDashboard(){
   }).join('');
   panels+='<section class="panel stats-panel stats-panel-wide stats-payment-panel payment-tracker-panel">'+
    '<div class="payment-tracker-heading"><div><span class="payment-kicker">THEO DÕI THU NỘP ĐẢNG PHÍ · '+E(period)+'</span>'+
-   '<h2>Bảng xếp hạng theo 46 Đảng bộ</h2><p>Bấm tên đơn vị để xem chỉ tiêu được duyệt. Dấu — ở cột x/y nghĩa là chưa được phép công bố hoặc chưa đối chiếu đủ; không phải bằng 0.</p></div>'+
+   '<h2>Bảng xếp hạng theo 46 Đảng bộ</h2></div>'+
    '<div class="payment-tracker-totals"><div><b>'+pretty.format(rec.length)+'</b><small>Đảng bộ</small></div>'+
    '<div><b>'+pretty.format(complete)+'</b><small>Hoàn thành 100%</small></div>'+
    '<div><b>'+pretty.format(rec.length-complete)+'</b><small>Đang triển khai</small></div></div></div>'+
@@ -391,7 +391,7 @@ function statsDashboard(){
  const statBreakdown=(data,total)=>'<div class="stats-breakdown">'+data.map(([name,count])=>'<div class="stats-breakdown-item"><span>'+E(name)+'</span><strong>'+amount(count)+'</strong><small>'+percent(count/(total||1))+'</small></div>').join('')+'</div>';
  if(m.banking){
   const v=m.banking;
-  panels+='<section class="panel stats-panel stats-panel-wide stats-bank-panel"><div class="panel-head"><div><h2>Xếp hạng tỷ lệ khai báo tài khoản ngân hàng</h2></div><span class="stats-count-chip">46 Đảng bộ cấp 2</span></div>'+statBreakdown([['Đã có tài khoản',v.registered],['Chưa có tài khoản',v.notRegistered]],v.rowCount)+statsRankingPair(v.unitRanking,'bản ghi')+
+  panels+='<section class="panel stats-panel stats-panel-wide stats-bank-panel"><div class="panel-head"><div><h2>Xếp hạng tỷ lệ khai báo tài khoản ngân hàng</h2></div></div>'+statBreakdown([['Đã có tài khoản',v.registered],['Chưa có tài khoản',v.notRegistered]],v.rowCount)+statsRankingPair(v.unitRanking,'bản ghi')+
     (bankExclusionNote(v)?'<p class="stats-scope-note">'+E(bankExclusionNote(v))+'</p>':'')+
     (Number.isInteger(v.unmappedForRanking)&&v.unmappedForRanking>0?
     '<p class="stats-scope-note">'+E(String(v.unmappedForRanking))+' bản ghi khác chưa ghép được vào 46 Đảng bộ, không tính vào chỉ tiêu.</p>':'')+'</section>';
@@ -409,11 +409,9 @@ function statsDashboard(){
        ['Chưa khai báo hồ sơ',filing.notFiled]],filing.totalMembers)+
        (filing.unclassified>0?'<p class="stats-scope-note">Chênh lệch tổng hợp '+amount(filing.unclassified)+
         ' đảng viên chưa phân loại vào ba trạng thái; không tự gán vào nhóm nào.</p>':'')+
-       (filing.sourceOverage>0?'<p class="stats-scope-note">Có '+amount(filing.sourceOverage)+
-        ' hồ sơ chênh vượt tổng đảng viên tại '+amount(filing.sourceDiscrepancyUnits||1)+
-        ' Đảng bộ trong Sheet nguồn; cần rà soát, chưa tự sửa dữ liệu.</p>':'')
+       ''
      :'';
-  panels+='<section class="panel stats-panel stats-panel-wide stats-missing-panel"><div class="panel-head"><div><h2>Xếp hạng tỷ lệ khai báo hồ sơ</h2></div><span class="stats-count-chip">46 Đảng bộ cấp 2</span></div>'+
+  panels+='<section class="panel stats-panel stats-panel-wide stats-missing-panel"><div class="panel-head"><div><h2>Xếp hạng tỷ lệ khai báo hồ sơ</h2></div></div>'+
     filingCounts+statsRankingPair(filingRank,'hồ sơ','Tỷ lệ khai báo hồ sơ')+'</section>';
  }
  return '<div class="stats-grid stats-dashboard-grid">'+panels+'</div>';
