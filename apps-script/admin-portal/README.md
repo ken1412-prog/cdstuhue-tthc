@@ -8,6 +8,7 @@ Website CDSTUHUE trên GitHub Pages là trang tĩnh, vì vậy mật khẩu khô
 2. Sao chép **AdminPortal.gs** (cùng thư mục với file hướng dẫn này) vào **Code.gs** của dự án quản trị mới.
 3. Chọn nút **+ → HTML**, tạo file tên **Admin**; dán toàn bộ nội dung **Admin.html**. Không dán AdminPortal.gs vào dự án Web App công khai.
 4. Tại **Project settings → Script properties**, thêm `CDSTUHUE_STATS_HUB_ID` với ID bảng **CDSTUHUE STATS HUB 2026**; và `CDSTUHUE_ADMIN_INITIAL_PASSWORD` với mật khẩu riêng **12–128 ký tự**, khác mật khẩu Google, không gửi mật khẩu trong chat.
+   - *Tùy chọn:* `CDSTUHUE_QA_SHEET_ID` = ID bảng **Hỗ trợ kỹ thuật CDSTUHUE** để mở liên kết đến bảng duyệt QA sau khi đăng nhập (không gửi ID này qua trang chủ).
 5. Nhấn **Save**. Chọn hàm `cdsAdminBootstrap` → **Run**, cấp quyền cần thiết. Chương trình tự tạo salt/hash SHA-256, xóa thuộc tính mật khẩu khởi tạo. Kiểm tra Script Properties còn `CDSTUHUE_ADMIN_PASSWORD_HASH` và `CDSTUHUE_ADMIN_PASSWORD_SALT`, không còn `CDSTUHUE_ADMIN_INITIAL_PASSWORD`.
 6. **Deploy → New deployment → Web app**; chọn **Execute as Me** và **Who has access: Only myself**. *Không* dùng **Anyone** hoặc **Anyone with Google account**. Nếu nền tảng/tổ chức không cung cấp Only myself, dừng để điều chỉnh phương án bảo mật.
 7. Sao chép URL Web App quản trị dạng `https://script.google.com/macros/s/.../exec`.
