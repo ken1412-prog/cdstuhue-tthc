@@ -293,7 +293,8 @@ function statsFinanceHero({compact=false}={}){
   (x[0]==='Đăng ký tài khoản'&&Number.isInteger(m.banking?.registered)&&Number.isInteger(m.banking?.rowCount)?
   '<span class="stats-context-line">'+pretty.format(m.banking.registered)+' / '+pretty.format(m.banking.rowCount)+' tổ chức thuộc 46 Đảng bộ</span>':'')+
   (x[0]==='Đăng ký tài khoản'&&bankExclusionNote(m.banking)?
-  '<span class="stats-context-line">'+E(bankExclusionNote(m.banking))+'</span>':'')+'</small><strong>'+E(x[1])+'</strong></div>').join('')+'</div>'+
+  '<span class="stats-context-line">'+E(bankExclusionNote(m.banking))+'</span>':'')+'</small><strong>'+E(x[1])+'</strong></div>').join('')+
+  '<div class="stats-hero-metric stats-hero-guide"><small>Tài liệu hướng dẫn</small><strong>Đang cập nhật</strong></div></div>'+
   (compact&&top.length?'<div class="stats-hero-ranking"><div class="stats-hero-rank-title"><b>🏆 Top 03 thu nộp · '+E(paymentPeriod(stats))+'</b><span>Bấm Đảng bộ để xem chi tiết</span></div>'+paymentTop3Cards(rec)+'</div>':'')+
   '</section>';
 }

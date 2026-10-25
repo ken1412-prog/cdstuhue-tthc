@@ -47,7 +47,7 @@ class PublicSurfaceTests(unittest.TestCase):
             html=(SITE / page).read_text(encoding="utf-8")
             self.assertIn('>Thống kê đảng phí <span>↗</span>',html)
             self.assertNotIn("Khám phá thống kê",html)
-            self.assertIn("assets/app.js?v=20261025-label-cleanup-v12",html)
+            self.assertIn("assets/app.js?v=20261025-guide-tile-v13",html)
         # The repeated three KPI cards in the detail view are removed.
         self.assertNotIn("const viewCards=",js)
         self.assertNotIn("'+viewCards+'",js)
@@ -56,6 +56,10 @@ class PublicSurfaceTests(unittest.TestCase):
         self.assertIn("Bảng xếp hạng theo 46 Đảng bộ",js)
         self.assertIn("statsRankingPair(v.unitRanking,'bản ghi')",js)
         self.assertIn("stats-missing-panel",js)
+        # The fourth overview-only card is inert and responsive.
+        self.assertIn('class="stats-hero-metric stats-hero-guide"',js)
+        self.assertIn('<small>Tài liệu hướng dẫn</small><strong>Đang cập nhật</strong>',js)
+        self.assertIn(".stats-hero-home .stats-hero-guide", (SITE / "assets/styles.css").read_text(encoding="utf-8"))
         self.assertIn("m.filingSummary",js)
         self.assertNotIn("Trung tâm thống kê · ",js)
         self.assertNotIn("Đang chờ bản dữ liệu tổng hợp 3 trạng thái",js)
@@ -100,7 +104,7 @@ class PublicSurfaceTests(unittest.TestCase):
             html=(SITE / page).read_text(encoding="utf-8")
             self.assertIn('<div class="footer-byline">',html)
             self.assertIn('<span class="footer-copyright">© 2026 CDSTUHUE</span><span class="footer-author">NKien',html)
-            self.assertIn('assets/styles.css?v=20261025-signature-v16',html)
+            self.assertIn('assets/styles.css?v=20261025-guide-tile-v17',html)
             self.assertNotIn('id="navAssistant"',html)
             self.assertIn('id="openAssistant"',html)
             self.assertIn('id="assistantMobileFab"',html)
