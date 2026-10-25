@@ -129,6 +129,24 @@ class PublicSurfaceTests(unittest.TestCase):
         self.assertIn("data.modules.ranking.records.length!==46",js)
         self.assertNotIn("api.openai.com",js)
 
+    def test_no_redundant_dashboard_explanations(self):
+        js=(SITE / "assets/app.js").read_text(encoding="utf-8")
+        for removed in (
+            "Dòng chưa khai báo đã đối chiếu",
+            "Chỉ báo cáo đã duyệt",
+            "Bản đã duyệt được cập nhật trong kỳ.",
+            "Bản thu nộp và xếp hạng đã khóa;",
+            "Không phải tỷ lệ đảng viên. ",
+            "Nguồn: các bảng thống kê đã được duyệt.",
+            "Tổng hợp thống kê đảng phí, tiến độ thủ tục và tri thức hỗ trợ kỹ thuật của Thành phố Huế.",
+            "Báo cáo tổng hợp theo kỳ, dựa trên dữ liệu được phép công khai hoặc minh họa có gắn nhãn.",
+        ):
+            self.assertNotIn(removed,js)
+        self.assertIn("subtitleEl.hidden=!sub",js)
+        self.assertIn("const maxMissing=Math.max",js)
+        self.assertIn("rowBlock(rank.top",js)
+        self.assertIn("rowBlock(rank.bottom",js)
+
     def test_no_original_host_or_repo_links_in_ui_assets(self):
         for path in PUBLIC_ASSETS:
             with self.subTest(path=path.name):
