@@ -47,7 +47,7 @@ class PublicSurfaceTests(unittest.TestCase):
             html=(SITE / page).read_text(encoding="utf-8")
             self.assertIn('>Thống kê đảng phí <span>↗</span>',html)
             self.assertNotIn("Khám phá thống kê",html)
-            self.assertIn("assets/app.js?v=20261025-single-finance-hero-v10",html)
+            self.assertIn("assets/app.js?v=20261025-filing-audit-v11",html)
         # The repeated three KPI cards in the detail view are removed.
         self.assertNotIn("const viewCards=",js)
         self.assertNotIn("'+viewCards+'",js)
@@ -57,6 +57,9 @@ class PublicSurfaceTests(unittest.TestCase):
         self.assertIn("statsRankingPair(v.unitRanking,'bản ghi')",js)
         self.assertIn("stats-missing-panel",js)
         self.assertIn("m.filingSummary",js)
+        self.assertNotIn("Trung tâm thống kê · ",js)
+        self.assertNotIn("Đang chờ bản dữ liệu tổng hợp 3 trạng thái",js)
+        self.assertIn("sourceOverage",js)
         self.assertIn("Đã khai báo HS nhưng chưa duyệt",js)
         self.assertIn("Chưa khai báo hồ sơ",js)
         # Hero card must display the entire undeclared source list (15,238

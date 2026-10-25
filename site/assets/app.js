@@ -407,13 +407,16 @@ function statsDashboard(){
      ?statBreakdown([['Đã hoàn thành',filing.completed],
        ['Đã khai báo HS nhưng chưa duyệt',filing.pendingApproval],
        ['Chưa khai báo hồ sơ',filing.notFiled]],filing.totalMembers)+
-       (filing.unclassified>0?'<p class="stats-scope-note">Còn '+amount(filing.unclassified)+
-        ' đảng viên chưa khớp trạng thái với tổng nguồn 46 Đảng bộ; không cộng vào ba nhóm.</p>':'')
-     :'<p class="stats-sync-pending">Đang chờ bản dữ liệu tổng hợp 3 trạng thái đã duyệt từ Google Sheets.</p>';
+       (filing.unclassified>0?'<p class="stats-scope-note">Chênh lệch tổng hợp '+amount(filing.unclassified)+
+        ' đảng viên chưa phân loại vào ba trạng thái; không tự gán vào nhóm nào.</p>':'')+
+       (filing.sourceOverage>0?'<p class="stats-scope-note">Có '+amount(filing.sourceOverage)+
+        ' hồ sơ chênh vượt tổng đảng viên tại '+amount(filing.sourceDiscrepancyUnits||1)+
+        ' Đảng bộ trong Sheet nguồn; cần rà soát, chưa tự sửa dữ liệu.</p>':'')
+     :'';
   panels+='<section class="panel stats-panel stats-panel-wide stats-missing-panel"><div class="panel-head"><div><h2>Xếp hạng tỷ lệ khai báo hồ sơ</h2></div><span class="stats-count-chip">46 Đảng bộ cấp 2</span></div>'+
     filingCounts+statsRankingPair(filingRank,'hồ sơ','Tỷ lệ khai báo hồ sơ')+'</section>';
  }
- return '<div class="section-heading"><div><h2>Trung tâm thống kê · '+E(paymentPeriod(stats))+'</h2><p>Dữ liệu tổng hợp được duyệt từ bốn bảng nguồn riêng tư</p></div></div><div class="stats-grid stats-dashboard-grid">'+panels+'</div>';
+ return '<div class="stats-grid stats-dashboard-grid">'+panels+'</div>';
 }
 function financeView(){return paymentMonthControls()+statsDashboard()}
 function overview(){

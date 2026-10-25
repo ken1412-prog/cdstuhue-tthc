@@ -246,9 +246,13 @@ def main():
                         and isinstance(filing.get('sourceSnapshot'),str)
                         and len(filing['sourceSnapshot'])<=32
                         and raw.get('period')==str(filing['sourceSnapshot'])[:7]):
-                    modules['filingSummary']={
-                        **v,'scope':'46 Đảng bộ cấp 2 trong báo cáo thu nộp',
-                        'sourceSnapshot':filing['sourceSnapshot']}
+                    over=bounded_int(filing.get('sourceOverage',0),100)
+                    units=bounded_int(filing.get('sourceDiscrepancyUnits',0),100)
+                    if over is not None and units is not None and over<=1 and units<=1:
+                        modules['filingSummary']={
+                            **v,'sourceOverage':over,'sourceDiscrepancyUnits':units,
+                            'scope':'46 Đảng bộ cấp 2 trong báo cáo thu nộp',
+                            'sourceSnapshot':filing['sourceSnapshot']}
             missing=raw.get('missing')
             if isinstance(missing,dict):
                 count=bounded_int(missing.get('rowCount'),30000)

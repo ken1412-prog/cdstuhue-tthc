@@ -436,18 +436,23 @@ function buildStatsFeed_(){
       // H = filed but awaiting review; I+J = reviewed (fee unpaid or paid);
       // K = not filed. Use the same 46 organization rows as the ranking.
       let members=0,completed=0,pendingApproval=0,notFiled=0;
-      let valid=true;
+      let valid=true,sourceOverage=0,sourceDiscrepancyUnits=0;
       list.forEach(r=>{
         const total=statsWhole_(r[2]),h=statsWhole_(r[7]),
           i=statsWhole_(r[8]),j=statsWhole_(r[9]),k=statsWhole_(r[10]);
-        if(total<=0||h+i+j+k>total)valid=false;
+        if(total<=0)valid=false;
+        const extra=Math.max(0,h+i+j+k-total);
+        if(extra>0){sourceOverage+=extra;sourceDiscrepancyUnits++;}
         members+=total;
         pendingApproval+=h;completed+=i+j;notFiled+=k;
       });
-      if(valid&&members>0){
+      const unclassified=members-completed-pendingApproval-notFiled;
+      // Only a single 1-record source overage can be reported without changing
+      // actual input values. Larger inconsistencies still block publishing.
+      if(valid&&members>0&&unclassified>=0&&sourceOverage<=1&&sourceDiscrepancyUnits<=1){
         modules.filingSummary={
-          totalMembers:members,completed,pendingApproval,notFiled,
-          unclassified:members-completed-pendingApproval-notFiled,
+          totalMembers:members,completed,pendingApproval,notFiled,unclassified,
+          sourceOverage,sourceDiscrepancyUnits,
           interpretation:'Completed means reviewed filing; payment may still be pending.',
           scope:'46 Đảng bộ cấp 2 trong báo cáo thu nộp',
           sourceSnapshot:src.THU_NOP.snapshot

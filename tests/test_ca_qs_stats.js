@@ -102,6 +102,18 @@ vm.runInNewContext(fs.readFileSync('apps-script/Code.gs','utf8'),context,{timeou
 const feed=context.buildStatsFeed_();
 assert.equal(feed.public,true);
 assert.equal(feed.modules.ranking.records.length,46);
+assert.equal(feed.modules.filingSummary.sourceOverage,0);
+assert.equal(feed.modules.filingSummary.sourceDiscrepancyUnits,0);
+payments[0][10]+=1; // One unit has one more status than its member total.
+payments[1][10]-=2; // Another unit has two fewer; overall remains reconcilable.
+const oneCaseExtra=context.buildStatsFeed_().modules.filingSummary;
+assert.equal(oneCaseExtra.sourceOverage,1);
+assert.equal(oneCaseExtra.sourceDiscrepancyUnits,1);
+assert.equal(oneCaseExtra.unclassified,1);
+payments[0][10]+=2; // More than one extra must block publication.
+assert.equal(context.buildStatsFeed_().modules.filingSummary,undefined);
+payments[0][10]-=3;
+payments[1][10]+=2;
 assert.deepEqual(JSON.parse(JSON.stringify(feed.modules.filingSummary&&[
  feed.modules.filingSummary.totalMembers,feed.modules.filingSummary.completed,
  feed.modules.filingSummary.pendingApproval,feed.modules.filingSummary.notFiled,
