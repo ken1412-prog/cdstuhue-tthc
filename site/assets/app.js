@@ -142,16 +142,16 @@ function progressBars(){const rows=progress();return `<div class="bars">${Object
 function missingCardNote(stats){
  const missing=stats?.modules?.missing;
  if(!missing)return '';
- const notes=[];
- const ca=missing.excludedCaQsRows,unknown=missing.excludedNoParentRows,
-   ambiguous=missing.excludedAmbiguousRows,incomplete=missing.excludedIncompleteRows;
- if(Number.isInteger(ca)&&ca>0)notes.push(pretty.format(ca)+' hồ sơ CA/QS');
- if(Number.isInteger(unknown)&&unknown>0)notes.push(pretty.format(unknown)+' không tìm thấy đơn vị cha');
- if(Number.isInteger(ambiguous)&&ambiguous>0)notes.push(pretty.format(ambiguous)+' trùng tên, chưa xác định cấp 2');
- if(Number.isInteger(incomplete)&&incomplete>0)notes.push(pretty.format(incomplete)+' thiếu thông tin tổ chức');
- if(!notes.length&&Number.isInteger(missing.level2Ranking?.unmatchedRows)&&missing.level2Ranking.unmatchedRows>0)
-  notes.push(pretty.format(missing.level2Ranking.unmatchedRows)+' hồ sơ chưa xác định Đảng bộ cấp 2 (cần rà soát CA/QS, đơn vị lỗi hoặc thiếu thông tin)');
- return notes.length?'Không tính: '+notes.join(' · ')+'.':'';
+ const reported=missing.unlinkedSourceRows;
+ const oldReported=missing.level2Ranking?.unmatchedRows;
+ const rows=Number.isInteger(reported)?reported:oldReported;
+ // Snapshot fallback is valid ONLY for the checked 25/10 source;
+ // future builds receive the recalculated distinct count from Apps Script.
+ const snapshot=(rows===1075&&missing.rowCount===15238);
+ const unitCount=Number.isInteger(missing.unlinkedUnitPairs)?missing.unlinkedUnitPairs:(snapshot?114:null);
+ if(!Number.isInteger(rows)||rows<=0||!Number.isInteger(unitCount)||unitCount<=0)return '';
+ return 'Bao gồm: '+pretty.format(rows)+' hồ sơ thuộc '+pretty.format(unitCount)+
+  ' đơn vị không thuộc/cấu hình sai đơn vị cha.';
 }
 function bankExclusionNote(bank){
  const count=bank?.excludedCaQsUnits,city=bank?.excludedCityRoot;
