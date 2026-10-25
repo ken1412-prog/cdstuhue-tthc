@@ -60,6 +60,15 @@ a{color:#21538a}.foot{margin-top:24px;text-align:center;font-size:12px;color:#6b
   <p class="muted">Chỉ các phân hệ đã có phạm vi công khai hợp lệ; không có phân bổ và không công bố dữ liệu cá nhân.</p>
   <div id="moduleItems" class="items"></div>
  </section>
+ <section><h2>Nhập và kiểm tra 4 Excel</h2>
+  <p class="muted">Cho 4 tệp Excel vào thư mục Drive đã cấu hình. Hệ thống tự tìm cột theo tiêu đề, kiểm tra số liệu và tạo 4 bản nháp riêng tư. Chưa tự đăng lên website.</p>
+  <div id="excelConfig" class="muted"></div>
+  <div class="actions">
+    <button type="button" id="checkExcel" class="btn-light">1. Kiểm tra 4 Excel</button>
+    <button type="button" id="stageExcel">2. Tạo bản nháp sau kiểm tra</button>
+  </div>
+  <p id="excelFeedback" class="muted" aria-live="polite"></p>
+ </section>
  <section><h2>Kiểm tra và duyệt nguồn Excel nháp</h2>
   <p class="muted">Đánh dấu xét duyệt cho bốn nguồn nháp. <strong>Bước này chưa chuyển nguồn chính thức</strong>; thao tác chuyển nguồn vẫn theo quy trình kiểm tra cuối trong Apps Script nhập Excel.</p>
   <div id="stagedItems" class="items"></div>
@@ -101,6 +110,11 @@ async function load(){
   $('hubLink').href=payload.links?.hub||'#';
   $('qaLink').href=payload.links?.qa||'#';
   $('qaLink').hidden=!payload.links?.qa;
+  $('excelConfig').textContent=payload.excelInputConfigured?
+    'Đã cấu hình thư mục Excel riêng tư.' :
+    'Chưa có CDSTUHUE_EXCEL_INBOX_FOLDER_ID trong Script Properties của Apps Script quản trị.';
+  $('checkExcel').disabled=!payload.excelInputConfigured;
+  $('stageExcel').disabled=!payload.excelInputConfigured;
  }catch(e){say('notice',e.message,'error');if(/Phiên.*hạn/.test(e.message))logout();}
  finally{setBusy(false)}
 }
@@ -112,6 +126,7 @@ function line(title,sub,active,onClick,disabled){
  info.append(t,s);
  const btn=document.createElement('button');btn.className=active?'switch btn-red':'switch';btn.textContent=active?'Tạm ẩn':'Hiện lên';
  btn.disabled=!!disabled;btn.addEventListener('click',onClick);
+ if(disabled&&active)btn.textContent='Luôn hiện';
  div.append(info,btn);return div;
 }
 async function perform(method,args,confirmText){
@@ -175,6 +190,25 @@ async function logout(){
  if(token)try{await invoke('cdsAdminLogout',[token]);}catch(e){}
 }
 $('logout').addEventListener('click',logout);
+async function doExcel(method,question){
+ if(busy||!window.confirm(question))return;
+ setBusy(true);
+ const feedback=$('excelFeedback');feedback.textContent='Đang kiểm tra dữ liệu tại Google Drive...';
+ try{
+   const r=await invoke(method,[session]);
+   feedback.textContent=r.info||'Hoàn tất.';
+   feedback.className='alert success';
+   say('notice',r.info||'Đã xử lý dữ liệu nháp; chưa thay nguồn website.','success');
+ }catch(e){
+   feedback.textContent=e.message;feedback.className='alert error';
+   say('notice',e.message,'error');
+ }finally{setBusy(false);await load();}
+}
+$('checkExcel').addEventListener('click',()=>doExcel('cdsAdminCheckExcel',
+ 'Kiểm tra đủ 4 file Excel trên Drive? Thao tác chỉ đọc dữ liệu, không thay nguồn website.'));
+$('stageExcel').addEventListener('click',()=>doExcel('cdsAdminStageExcel',
+ 'Tạo bản Google Sheets nháp mới từ 4 Excel? File cá nhân được giữ riêng tư, nguồn đang xuất bản không đổi.'));
+
 $('refresh').addEventListener('click',load);
 </script>
 </body>
