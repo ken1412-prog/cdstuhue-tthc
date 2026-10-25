@@ -135,7 +135,7 @@ class PublicSurfaceTests(unittest.TestCase):
             self.assertTrue(image.is_file())
             self.assertGreater(image.stat().st_size,100000)
             self.assertLess(image.stat().st_size,3000000)
-            self.assertEqual(image.read_bytes()[:2],b'\\xff\\xd8')
+            self.assertEqual(image.read_bytes()[:2],bytes([0xff,0xd8]))
 
     def test_hue_daytime_photo_is_visible(self):
         css=(SITE / "assets/styles.css").read_text(encoding="utf-8")
