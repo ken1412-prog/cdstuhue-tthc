@@ -353,6 +353,7 @@ function buildStatsFeed_(){
   const sources=hub.getSheetByName('NGUON_4_FILE');
   if(!policy||!sources)throw new Error('Missing reporting hub configuration');
   const gates={};
+  const approvedScopes={};
   let lastApprovedDate='';
   policy.getRange(2,1,5,5).getDisplayValues().forEach(r=>{
     const rawDate=String(r[3]||'').trim();
@@ -361,7 +362,9 @@ function buildStatsFeed_(){
     const dateValid=/^\d{4}-\d{2}-\d{2}$/.test(iso)&&
       !Number.isNaN(Date.parse(iso))&&new Date(iso).toISOString().slice(0,10)===iso;
     const approved=String(r[1]).trim()==='ĐÃ DUYỆT'&&dateValid;
-    gates[String(r[0]).trim()]=approved;
+    const key=String(r[0]).trim();
+    gates[key]=approved;
+    approvedScopes[key]=approved?String(r[4]||''):'';
     if(approved&&iso>lastApprovedDate)lastApprovedDate=iso;
   });
   const src={};
@@ -380,6 +383,12 @@ function buildStatsFeed_(){
   const count=Object.values(enabled).filter(Boolean).length;
   if(count===0)return {schema:1,public:false,reviewed:false,period:'2026-10',modules:{},note:'Chưa có phân hệ thống kê được duyệt công khai.'};
   const modules={};let payments=null;
+  // Existing approval permits only names/rates; extra per-unit aggregates need
+  // their own explicit DUYET_WEBSITE scope tokens before public export.
+  const bankXYApproved=enabled.banking&&approvedScopes['TÀI KHOẢN NGÂN HÀNG'].includes('BANK_XY_BY_LEVEL2');
+  const filedRateApproved=enabled.ranking&&approvedScopes['XẾP HẠNG 46 ĐƠN VỊ'].includes('HS_DECLARED_RATE');
+  const orgKey=v=>String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+    .replace(/đ/g,'d').replace(/Đ/g,'D').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();
   if(enabled.payment||enabled.ranking){
     const list=statsRows_(src.THU_NOP.id,src.THU_NOP.tab,3,14)
       .filter(r=>statsNumber_(r[0])>0&&String(r[1]||'').trim());
@@ -388,9 +397,16 @@ function buildStatsFeed_(){
     payments=list.map(r=>{
       const required=statsWhole_(r[11]),received=statsWhole_(r[12]);
       sumRequired+=required;sumReceived+=received;
+      // H:I:J:K = 3 groups with files and 1 group without files.
+      // Deliberately use status total, not required-to-pay population: source
+      // has rows where the two independently reported totals do not agree.
+      const fileCounts=[7,8,9,10].map(i=>statsWhole_(r[i]));
+      const fileTotal=fileCounts.reduce((a,b)=>a+b,0);
+      const filed=fileCounts[0]+fileCounts[1]+fileCounts[2];
       return {name:String(r[1]).trim().slice(0,190),
         members:statsWhole_(r[2]),required,
-        rate:required>0?received/required:null};
+        rate:required>0?received/required:null,
+        filedRate:fileTotal>0?filed/fileTotal:null};
     });
     if(enabled.payment)modules.payment={
       scope:'46 đơn vị trong báo cáo',
@@ -401,12 +417,14 @@ function buildStatsFeed_(){
     if(enabled.ranking){
       const ranked=payments.filter(x=>x.required>0)
         .sort((a,b)=>(b.rate||0)-(a.rate||0)||a.name.localeCompare(b.name,'vi'))
-        .map((x,i)=>({rank:i+1,name:x.name,rate:x.rate}));
+        .map((x,i)=>({rank:i+1,name:x.name,rate:x.rate,
+          ...(filedRateApproved&&x.filedRate!==null?{filedRate:x.filedRate}:{})}));
       modules.ranking={
         scope:'46 Đảng bộ trực thuộc Thành ủy Huế trong báo cáo',
         eligibleUnits:ranked.length,
         sort:'Tỷ lệ thu nộp; đồng tỷ lệ xếp theo tên',
-        records:ranked,sourceSnapshot:src.THU_NOP.snapshot};
+        records:ranked,sourceSnapshot:src.THU_NOP.snapshot,
+        approvedExtraFields:{filedRate:filedRateApproved,bankXY:bankXYApproved}};
     }
   }
   let missingOrgRows=null;
@@ -488,6 +506,22 @@ function buildStatsFeed_(){
         registrationRate:all?registered/all:null,
         unitRanking:ranked,unmappedForRanking:unmapped,
         sourceSnapshot:src.NGAN_HANG.snapshot};
+      if(bankXYApproved&&modules.ranking?.records?.length===46){
+        const byName=new Map(),rows=modules.ranking.records;
+        Object.values(groups).forEach(g=>{
+          const key=orgKey(g.name);
+          if(byName.has(key))throw new Error('Ambiguous level-2 bank organization name');
+          byName.set(key,g);
+        });
+        if(byName.size!==46||rows.some(r=>!byName.has(orgKey(r.name))))
+          throw new Error('Bank/payment names do not fully reconcile');
+        const mapped=rows.map(r=>byName.get(orgKey(r.name)));
+        const mappedTotal=mapped.reduce((n,g)=>n+g.total,0);
+        const mappedDone=mapped.reduce((n,g)=>n+g.done,0);
+        if(mappedTotal!==all-unmapped||mappedDone>registered)
+          throw new Error('Bank aggregate count mismatch');
+        rows.forEach((r,i)=>{r.bankDone=mapped[i].done;r.bankTotal=mapped[i].total;});
+      }
     }
   }
 

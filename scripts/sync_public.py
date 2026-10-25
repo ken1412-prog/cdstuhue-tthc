@@ -200,13 +200,26 @@ def main():
             rank=raw.get('ranking')
             if isinstance(rank,dict) and isinstance(rank.get('records'),list) and len(rank['records'])<=100:
                 records=[]
+                extra=rank.get('approvedExtraFields')
+                filing_ok=isinstance(extra,dict) and extra.get('filedRate') is True
+                bank_ok=isinstance(extra,dict) and extra.get('bankXY') is True
                 for item in rank['records']:
                     if not isinstance(item,dict): continue
                     n=bounded_int(item.get('rank'),100)
                     label=item.get('name')
                     pct=bounded_rate(item.get('rate'))
                     if n is not None and n>=1 and isinstance(label,str) and 2<=len(label.strip())<=190 and pct is not None:
-                        records.append({'rank':n,'name':label.strip(),'rate':pct})
+                        row={'rank':n,'name':label.strip(),'rate':pct}
+                        if filing_ok:
+                            value=bounded_rate(item.get('filedRate'))
+                            if value is not None and value<=1:
+                                row['filedRate']=value
+                        if bank_ok:
+                            done=bounded_int(item.get('bankDone'),30000)
+                            total=bounded_int(item.get('bankTotal'),30000)
+                            if done is not None and total is not None and total>0 and done<=total:
+                                row.update(bankDone=done,bankTotal=total)
+                        records.append(row)
                 if records:
                     modules['ranking']={'records':records,'eligibleUnits':len(records),
                         'scope':'Đảng bộ trực thuộc Thành ủy Huế'}
