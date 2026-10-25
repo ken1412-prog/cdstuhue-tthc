@@ -605,3 +605,174 @@ body{
  .sidebar,.topbar,.assistant-mobile-fab{display:none!important}
  body{background:#fff!important}
 }
+
+
+/* --------------------------------------------------------------------------
+   CDSTUHUE | Blue & Perfume River theme — 25 October 2026
+   Visual only: preserve statistics, approvals, month lifecycle and privacy.
+   Both Huế photographs are local, avoiding brittle external image hotlinks.
+   -------------------------------------------------------------------------- */
+:root{
+  --ink:#15354c;--muted:#405b6e;--line:#d8e5e9;--paper:#fff;
+  --canvas:#f4f8f8;--nav:#f5fbfc;--nav-deep:#e8f4f7;
+  --red:#126984;--gold:#f0c360;--green:#087a69;
+  --shadow:0 10px 28px rgba(14,56,79,.095);
+  --hue-ink:#13384f;--hue-gold:#ffe09a;
+}
+html{background:#f3f9fa}
+body{
+  color:var(--ink);
+  background:linear-gradient(180deg,
+    rgba(248,252,252,.89) 0%,rgba(243,250,251,.78) 54%,rgba(245,250,251,.66) 100%),
+    url('./img/hue-city-day.webp') center center /cover fixed no-repeat;
+}
+a,.card-link{color:#075f83}
+.sidebar{
+  background:linear-gradient(160deg,rgba(255,255,255,.98),rgba(237,248,249,.97));
+  color:#173b50;border-right:1px solid #c9dfe5;
+  box-shadow:5px 0 23px rgba(11,56,80,.09);
+}
+.sidebar .brand{border-bottom-color:#d8e8ed}
+.sidebar .brand b,.footer-byline{color:#124768}
+.sidebar .brand small,.sidebar .sidebar-bottom>p{color:#405e70}
+.sidebar .menu-group{color:#276a80}
+.sidebar .nav-link{color:#234b61}
+.sidebar .nav-link:hover{background:#e6f3f7;color:#0b5b78}
+.sidebar .nav-link.active{
+  background:linear-gradient(90deg,#d8eef3,#f3fafc);
+  box-shadow:inset 4px 0 #0c7896;
+  color:#0a5673;font-weight:800;
+}
+.sidebar .nav-ico,.sidebar .nav-link.active .nav-ico{color:#15728a}
+.sidebar .nav-count{background:#dbedf3;color:#114e66}
+.sidebar .sidebar-bottom{background:linear-gradient(180deg,#f7fbfc,#eaf5f7);border-top:1px solid #d5e7eb}
+.sidebar .nav-assist-link{background:#e9f6f5;border-color:#abd2d6}
+.sidebar .nav-assist-link small{color:#3d6475}
+.sidebar .sidebar-close,.crest{background:linear-gradient(135deg,#0b5879,#1495a2);color:#fff;border-color:#7fb7c3}
+.sidebar .side-assist,.side-assist{background:linear-gradient(115deg,#095879,#138d9b);color:#fff}
+.side-assist small,.side-assist span{color:#ebfafa}
+.topbar{
+  background:linear-gradient(102deg,#074766 0%,#0c6986 58%,#128b9b 100%)!important;
+  border-bottom:3px solid #8dc6cd;color:#fff;
+  box-shadow:0 4px 18px rgba(7,68,95,.16);
+}
+.topbar .breadcrumb,.topbar .breadcrumb b,.topbar .breadcrumb span,
+.topbar .today,.topbar .announcement-text{color:#fff!important}
+.topbar .announcement{background:rgba(255,255,255,.13);border-color:rgba(255,255,255,.43)}
+.topbar .announcement-label{color:#fff1ba}
+.topbar .btn,.topbar .hamburger{background:#f6fbfc;color:#0a5874;border-color:#dceff1}
+.btn.dark,.payment-export-btn{background:linear-gradient(110deg,#0b6485,#138c9b);color:#fff;border-color:#0b6c85}
+.eyebrow,.payment-kicker{color:#126984}
+.red-dot{background:#f1c460;box-shadow:0 0 0 3px rgba(241,196,96,.20)}
+.hero{
+  background:linear-gradient(95deg,
+    rgba(4,31,50,.94) 0%,rgba(5,42,62,.85) 38%,
+    rgba(4,45,66,.50) 67%,rgba(4,39,58,.12) 100%),
+    url('./img/hue-bridge-night.webp') center 52% /cover no-repeat!important;
+  border-color:#407e97;
+  box-shadow:0 13px 32px rgba(11,60,85,.19);
+}
+.hero:after{border-color:rgba(255,255,255,.13)}
+.hero h1,.hero .eyebrow{color:#fff!important;text-shadow:0 2px 10px rgba(2,19,31,.70)!important}
+.hero p{color:#f0f8fa!important;text-shadow:0 1px 6px rgba(0,15,28,.72)!important}
+.hero .tag{background:rgba(2,39,57,.68);border-color:rgba(220,247,250,.55);color:#fff}
+.hero .hero-primary{background:linear-gradient(110deg,#ffe4a0,#f4c75e);color:#193b50;border-color:#ffeba8}
+.hero .hero-outline{background:rgba(247,253,254,.96);color:#0d5370;border-color:#fff}
+.hero .mini-plot{background:rgba(244,251,253,.93);border-color:#9bc8d7}
+.hero .mini-plot span,.hero .mini-plot strong{color:#115d7c}
+.hero .mini-plot small{color:#355b72}
+.stats-hero-home{
+  background:linear-gradient(105deg,
+    rgba(248,252,251,.95) 0%,rgba(247,251,251,.85) 45%,
+    rgba(243,249,249,.66) 73%,rgba(244,249,249,.46) 100%),
+    url('./img/hue-city-day.webp') center 53% /cover no-repeat!important;
+  border:1px solid #bcd8e0;box-shadow:0 11px 29px rgba(11,64,82,.13);
+}
+.stats-hero-title h2{color:#114d6e!important;text-shadow:none!important}
+.stats-hero-title p{color:#31576a!important;text-shadow:none!important}
+.stats-eyebrow{color:#0e6a86}
+.stats-hero-open{background:linear-gradient(110deg,#0d7292,#1695a0);color:#fff}
+.stats-hero-open:hover{background:#075b7d;color:#fff}
+.stats-hero-metric{border:1px solid #cadfe5;background:#fff;box-shadow:0 5px 18px rgba(7,58,86,.07)}
+.stats-hero-metric small{color:#31586c!important;font-weight:650}
+.stats-hero-metric strong{color:#0b6381!important}
+.stats-hero-metric .stats-context-line,
+.stats-hero-metric small .stats-context-line,
+.stats-kpi small .stats-context-line{
+  display:block;color:#345c70!important;opacity:1!important;
+  font-weight:650;line-height:1.55;margin-top:4px;
+}
+.stats-hero-ranking{background:rgba(255,255,255,.97);border:1px solid #cfe1e6}
+.stats-hero-rank-title{color:#1d526e}
+.stats-hero-rank-title span,.stats-hero-rank small,
+.stats-payment-leader .payment-leader-status{color:#385d70}
+.stats-hero-home .stats-payment-leader{background:#fff;border-color:#d5e5e9}
+.stats-hero-note{color:#32576d}
+.panel,.stats-kpi,.stat-card,.category-card{
+  background:#fff;border-color:#dce9ec;box-shadow:0 7px 22px rgba(18,70,88,.075);
+}
+.section-heading h2,.panel h2,.payment-tracker-heading h2{color:#124b69}
+.payment-tracker-panel,.stats-dashboard-grid>.stats-panel-wide{background:#fff;border-color:#d5e6e9}
+.payment-period-toolbar{
+  background:linear-gradient(110deg,#f5fbfc,#e7f4f7);
+  border:1px solid #c7e0e6;border-top:4px solid #14839c;
+  box-shadow:0 7px 18px rgba(13,81,106,.09);
+}
+.payment-period-symbol{background:linear-gradient(130deg,#126887,#20a4aa)}
+.payment-period-select label b{color:#0f5774}
+.payment-period-select label small,.payment-period-hint{color:#37596b}
+.payment-period-select select{border-color:#b6d4de;color:#183f59}
+.payment-search-label{border-color:#c5dce4;color:#116984}
+.payment-search-label input{color:#183f55}
+.payment-table-tools select{border-color:#c4dce2;color:#20465d}
+.payment-result-count,.payment-empty{color:#425e6f}
+.payment-table thead th{
+  background:linear-gradient(105deg,#0c5277,#117795 65%,#1792a0)!important;
+  color:#fff;border-color:#136a8b;
+}
+.payment-table tbody tr:nth-child(even){background:#f5fafb}
+.payment-table tbody tr:hover{background:#eaf5f8}
+.payment-table td{border-color:#e0ebf0;color:#304e62}
+.payment-rate-cell,.payment-detail-rank{color:#0f6983}
+.payment-table-meter i{background:linear-gradient(90deg,#3aaac0,#127995)}
+.payment-detail-titlebar{background:linear-gradient(115deg,#0b4b6c,#147c94,#249baa)}
+.payment-detail-eyebrow{color:#ffe6a8}
+.payment-detail-note,.payment-detail-extra>div{background:#f0f7fa;border-color:#d8e8ee}
+.payment-tracker-totals>div{background:#f3f9fb;border-color:#d4e7ed}
+.payment-tracker-totals b{color:#155374}
+.payment-table-viewport{border-color:#d4e5eb}
+.small-note,.mini-card,.overview-info-notice{color:#34576e;background:#f5fafb;border-color:#dce9ee}
+.stat-caption,.stats-kpi span,.stats-footnote,.stats-disclaimer,
+.stats-scope-note,.payment-tracker-heading p,.section-heading p,
+.panel-head p,.stat-top,.mini-card small,.payment-detail-note,
+.stats-hero-rank-title span,.stats-leaderboard-unit small,
+.footer,.footer-disclaimer,.payment-result-count{
+  color:#415d70!important;opacity:1;
+}
+.stats-scope-note,.stat-caption,.stats-kpi span{font-size:11px;line-height:1.55}
+.payment-detail-caption,.payment-detail-extra small{color:#3e6072}
+.payment-account-cell,.payment-filing-cell{color:#0e5e80}
+.stats-leaderboard-col.is-weak{border-color:#cfdfe5}
+.is-weak .stats-leaderboard-head{background:#e7f2f5;color:#145a78}
+.is-weak .stats-leaderboard-row>b{color:#126f90}
+.stats-missing-leaders .is-weak .stats-meter i{background:linear-gradient(90deg,#64b0c8,#177c9a)}
+.payment-unit-button:hover{color:#116b8c}
+@media(max-width:760px){
+ body{
+  background:linear-gradient(180deg,rgba(247,252,252,.89),rgba(239,248,250,.76)),
+    url('./img/hue-city-day.webp') center center /cover no-repeat;
+ }
+ .hero{
+  background:linear-gradient(102deg,rgba(4,33,51,.93),rgba(5,50,71,.68)),
+    url('./img/hue-bridge-night.webp') center 53% /cover no-repeat!important;
+ }
+ .stats-hero-home{
+  background:linear-gradient(105deg,rgba(248,252,252,.94),rgba(244,250,250,.77)),
+    url('./img/hue-city-day.webp') center 55% /cover no-repeat!important;
+ }
+}
+@media print{
+ body{background:#fff!important}
+ .hero,.stats-hero-home{background:#fff!important}
+ .hero h1,.hero p,.hero .eyebrow{color:#15354c!important;text-shadow:none!important}
+}
