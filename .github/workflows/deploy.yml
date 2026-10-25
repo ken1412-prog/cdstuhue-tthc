@@ -46,6 +46,28 @@ jobs:
           fetch_photo site/assets/img/nguyen-hoang-bridge-3840.jpg \
             'https://upload.wikimedia.org/wikipedia/commons/thumb/1/15/C%E1%BA%A7u_Nguy%E1%BB%85n_Ho%C3%A0ng_2025-04-27.jpg/3840px-C%E1%BA%A7u_Nguy%E1%BB%85n_Ho%C3%A0ng_2025-04-27.jpg' \
             'https://upload.wikimedia.org/wikipedia/commons/1/15/C%E1%BA%A7u_Nguy%E1%BB%85n_Ho%C3%A0ng_2025-04-27.jpg'
+          # Downloaded Commons originals can exceed 10 MB. Keep the real photos,
+          # but create web-sized JPEGs and commit only when optimization is needed.
+          if [ "$(wc -c < site/assets/img/hue-downtown-2560.jpg)" -gt 2000000 ] || \
+             [ "$(wc -c < site/assets/img/nguyen-hoang-bridge-3840.jpg)" -gt 2000000 ]; then
+            python -m pip install --quiet --disable-pip-version-check Pillow
+            python - <<'PY'
+          from pathlib import Path
+          from PIL import Image
+          for name, max_width in (
+              ('hue-downtown-2560.jpg',2560),
+              ('nguyen-hoang-bridge-3840.jpg',3840)):
+              path=Path('site/assets/img')/name
+              if path.stat().st_size<=2000000: continue
+              with Image.open(path) as source:
+                  picture=source.convert('RGB')
+                  if picture.width>max_width:
+                      new_height=round(picture.height*max_width/picture.width)
+                      picture=picture.resize((max_width,new_height),Image.Resampling.LANCZOS)
+                  picture.save(path,'JPEG',quality=86,optimize=True,progressive=True)
+              print('Optimized',path,round(path.stat().st_size/1024),'KiB')
+          PY
+          fi
           git add site/assets/img/hue-downtown-2560.jpg site/assets/img/nguyen-hoang-bridge-3840.jpg
           if ! git diff --cached --quiet; then
             git config user.name 'github-actions[bot]'
