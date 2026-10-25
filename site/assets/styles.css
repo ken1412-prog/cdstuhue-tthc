@@ -997,3 +997,23 @@ body{
 .stats-hero-home .stats-hero-guide strong{font-size:18px;line-height:1.35;font-weight:800;color:#52647b!important;overflow-wrap:anywhere}
 @media(max-width:1020px){.stats-hero-home .stats-hero-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:600px){.stats-hero-home .stats-hero-metrics{grid-template-columns:minmax(0,1fr)}}
+
+
+/* Per-Đảng-bộ action lists: public, approved organization names only. */
+.payment-unit-more{color:#b21a30;font-weight:900;padding-left:3px}
+.payment-unit-findings{margin-top:22px;border-top:1px solid #e9e3dd;padding-top:17px;display:grid;gap:13px}
+.payment-unit-findings>h3{font-size:16px;color:#1b3856;margin:0 0 1px}
+.payment-incomplete-section{border:1px solid #e3e7ed;border-radius:12px;background:#fffdfa;padding:13px 14px;min-width:0}
+.payment-incomplete-section>h3{font-size:13px;line-height:1.45;font-weight:800;color:#213c5e;margin:0}
+.payment-incomplete-count{display:block;color:#a61c35;font-size:11px;font-weight:700;margin:5px 0 8px}
+.payment-incomplete-list{list-style:none;padding:0;margin:9px 0 0;max-height:230px;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin}
+.payment-incomplete-list li{padding:9px 3px;border-top:1px solid #ece8e2;display:flex;flex-direction:column;gap:4px;overflow-wrap:anywhere}
+.payment-incomplete-list li strong{font-size:12px;font-weight:720;color:#223c58;line-height:1.45}
+.payment-incomplete-list li small{font-size:10px;color:#687a8c;line-height:1.4}
+.payment-incomplete-note{font-size:11px;line-height:1.55;color:#5e7084;margin:9px 0 0}
+.payment-detail-titlebar{position:sticky;top:0;z-index:3}
+@media(max-width:760px){
+  .payment-incomplete-section{padding:11px}
+  .payment-unit-findings{margin-top:16px;gap:10px}
+  .payment-incomplete-list{max-height:190px}
+}
