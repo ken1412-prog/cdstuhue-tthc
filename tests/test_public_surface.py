@@ -76,7 +76,7 @@ class PublicSurfaceTests(unittest.TestCase):
             html=(SITE / page).read_text(encoding="utf-8")
             self.assertIn('<div class="footer-byline">',html)
             self.assertIn('<span class="footer-copyright">© 2026 CDSTUHUE</span><span class="footer-author">NKien',html)
-            self.assertIn('assets/styles.css?v=20261025-hue-photo-clear-v3',html)
+            self.assertIn('assets/styles.css?v=20261025-hue-real-photos-v4',html)
             self.assertNotIn('id="navAssistant"',html)
             self.assertIn('id="openAssistant"',html)
             self.assertIn('id="assistantMobileFab"',html)
@@ -123,18 +123,26 @@ class PublicSurfaceTests(unittest.TestCase):
                        "paymentStatusFilter", "paymentSort", "paymentSearch"):
             self.assertIn(marker,js)
         for marker in ("payment-period-toolbar", "payment-period-badge", "payment-table-tools",
-                       "hue-city-day.webp", "hue-bridge-night.webp", "#172c4a", "#c51620"):
+                       "hue-downtown-2560.jpg", "nguyen-hoang-bridge-3840.jpg", "#172c4a", "#c51620"):
             self.assertIn(marker,css)
         self.assertIn("data?.closed!==true",js)
         self.assertIn("data.modules.ranking.records.length!==46",js)
         self.assertNotIn("api.openai.com",js)
 
+    def test_high_resolution_hue_photos_are_local(self):
+        for name in ("hue-downtown-2560.jpg", "nguyen-hoang-bridge-3840.jpg"):
+            image=SITE / "assets" / "img" / name
+            self.assertTrue(image.is_file())
+            self.assertGreater(image.stat().st_size,100000)
+            self.assertLess(image.stat().st_size,3000000)
+            self.assertEqual(image.read_bytes()[:2],b'\\xff\\xd8')
+
     def test_hue_daytime_photo_is_visible(self):
         css=(SITE / "assets/styles.css").read_text(encoding="utf-8")
         self.assertIn("rgba(246,249,253,.28)",css)
         self.assertIn("rgba(249,251,255,.55)",css)
-        self.assertIn("hue-city-day.webp",css)
-        self.assertIn("hue-bridge-night.webp",css)
+        self.assertIn("hue-downtown-2560.jpg",css)
+        self.assertIn("nguyen-hoang-bridge-3840.jpg",css)
 
     def test_no_redundant_dashboard_explanations(self):
         js=(SITE / "assets/app.js").read_text(encoding="utf-8")
