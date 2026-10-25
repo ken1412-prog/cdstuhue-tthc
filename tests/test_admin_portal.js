@@ -61,7 +61,7 @@ function sheet(r){
 const hub={
  getUrl:()=> 'https://docs.google.com/spreadsheets/d/private_hub_id/edit',
  getSheetByName:name=>{
-  if(name==='NHAT_KY_QUAN_TRI'&&sheets[name])return sheets[name];
+  if(name==='NHAT_KY_QUAN_TRI'&&sheets[name])return sheet(sheets[name]);
   return sheets[name]?sheet(sheets[name]):null;
  },
  insertSheet:name=>{sheets[name]={rows:[]};return sheet(sheets[name])}
