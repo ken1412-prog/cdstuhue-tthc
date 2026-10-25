@@ -202,6 +202,7 @@ def main():
                 records=[]
                 extra=rank.get('approvedExtraFields')
                 filing_ok=isinstance(extra,dict) and extra.get('filedRate') is True
+                filing_xy_ok=isinstance(extra,dict) and extra.get('filedXY') is True
                 bank_ok=isinstance(extra,dict) and extra.get('bankXY') is True
                 for item in rank['records']:
                     if not isinstance(item,dict): continue
@@ -214,6 +215,17 @@ def main():
                             value=bounded_rate(item.get('filedRate'))
                             if value is not None and value<=1:
                                 row['filedRate']=value
+                        if filing_xy_ok:
+                            done=bounded_int(item.get('filedDone'),30000)
+                            total=bounded_int(item.get('filedTotal'),30000)
+                            if done is not None and total is not None and total>0 and done<=total:
+                                row.update(filedDone=done,filedTotal=total)
+                                # Counts and ratios must be derived from exactly
+                                # the same aggregate numerator/denominator.
+                                if filing_ok and 'filedRate' in row and abs(row['filedRate']-done/total)>0.000001:
+                                    row.pop('filedRate',None)
+                                    row.pop('filedDone',None)
+                                    row.pop('filedTotal',None)
                         if bank_ok:
                             done=bounded_int(item.get('bankDone'),30000)
                             total=bounded_int(item.get('bankTotal'),30000)
