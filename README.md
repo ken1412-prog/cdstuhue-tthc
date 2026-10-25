@@ -212,3 +212,12 @@ Theo chỉ đạo chủ sở hữu, **không tính 108 đơn vị thuộc nhánh
 - **Tháng 10/2026 vẫn đang mở**, không tạo snapshot chốt kỳ hoặc chuyển tháng. Giữ nguyên cổng phê duyệt dữ liệu và quy tắc loại thông tin cá nhân khỏi JSON công khai.
 - Thay đổi định dạng Excel được chuẩn hóa về các cột mà Apps Script hiện tại đọc: danh sách chưa khai báo giữ tên đơn vị ở B và đơn vị cha ở D; trạng thái tài khoản ngân hàng ở H. Mã đơn vị nguồn mới được giữ ở F, chỉ trong Sheet riêng tư.
 - Trang web đồng bộ lại dữ liệu tổng hợp thông qua workflow GitHub Pages; nếu Apps Script Web App production chưa được triển khai theo mã mới nhất, cần kiểm tra endpoint trước khi xác nhận số liệu công khai.
+
+
+## Tiếp nhận 4 Excel tự động — Bước 1 (DRY RUN, chưa cập nhật số)
+
+Đã chuẩn bị bộ kiểm tra 4 file tại apps-script/ExcelIntake.gs. Khi được cài trong Apps Script quản trị riêng, chương trình nhận diện file qua tiêu đề cột; không dựa vào tên file, không dùng AI.
+
+**Cách sử dụng:** tải đúng 4 file Excel (.xlsx hoặc .xls) cùng một lượt vào thư mục Google Drive riêng tư CDSTUHUE - NHAP 4 FILE EXCEL. Trong dự án Apps Script của chủ sở hữu, thêm file GS theo nội dung ExcelIntake.gs, bật Services / Drive API v3; thêm Script Property CDSTUHUE_EXCEL_INBOX_FOLDER_ID là ID thư mục Google Drive này. Chạy cdstuhuePreflightExcel4 thủ công. Nếu kết quả mode=DRY_RUN_ONLY, valid=true và đủ THU_NOP, CHUA_KHAI, PHAN_BO, NGAN_HANG thì cấu trúc đầu vào đạt kiểm tra ban đầu.
+
+Quan trọng: bước 1 KHÔNG tự ghi/đổi Google Sheets nguồn, không thay TONG_QUAN, DUYET_WEBSITE hoặc website. Chương trình tạm chuyển đổi Excel thành Sheet riêng tư để đối chiếu, sau đó đưa bản tạm vào Thùng rác; không công bố dữ liệu cá nhân. Chỉ sang bước 2 (nạp dữ liệu có sao lưu và đối chiếu) sau khi thử thành công với 4 file.
