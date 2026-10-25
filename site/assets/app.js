@@ -172,7 +172,7 @@ function paymentMonthControls(){
  (state.paymentArchive?'✓ Kỳ đã chốt · Chỉ đọc':'● Kỳ mới nhất đã duyệt')+'</span>'+
  '<p class="payment-period-hint">'+(state.paymentArchive?
  'Bản thu nộp và xếp hạng đã khóa; không trộn chỉ tiêu ngân hàng hoặc hồ sơ ngoài kỳ.':
- 'Bản đã duyệt được đồng bộ; sau khi hết tháng sẽ lưu riêng, không bị ghi đè.')+'</p></section>';
+ 'Bản đã duyệt được cập nhật trong kỳ. Chỉ lưu tháng thành bản tĩnh khi bạn yêu cầu chốt; không tự chuyển theo ngày.')+'</p></section>';
 }
 async function selectPaymentMonth(month){
  if(month===state.stats?.period){
@@ -279,7 +279,9 @@ function statsFinanceHero({compact=false}={}){
   '<h2>'+(compact?'Tổng quan thu nộp đảng phí':'Thống kê & xếp hạng theo đơn vị')+'</h2>'+
   '<p>Số liệu được duyệt theo kỳ. Chỉ công bố số đếm và tỷ lệ tổng hợp.</p></div>'+
   '<button type="button" data-view="finance" class="stats-hero-open">Xem bảng 46 Đảng bộ →</button></div>'+
-  '<div class="stats-hero-metrics">'+metrics.map(x=>'<div class="stats-hero-metric"><small>'+E(x[0])+(x[0]==='Số HS chưa khai báo'&&missingCardNote(stats)?'<span class="stats-context-line">'+E(missingCardNote(stats))+'</span>':'')+'</small><strong>'+E(x[1])+'</strong></div>').join('')+'</div>'+
+  '<div class="stats-hero-metrics">'+metrics.map(x=>'<div class="stats-hero-metric"><small>'+E(x[0])+(x[0]==='Số HS chưa khai báo'&&missingCardNote(stats)?'<span class="stats-context-line">'+E(missingCardNote(stats))+'</span>':'')+
+  (x[0]==='Đăng ký tài khoản'&&Number.isInteger(m.banking?.registered)&&Number.isInteger(m.banking?.rowCount)?
+  '<span class="stats-context-line">'+pretty.format(m.banking.registered)+' / '+pretty.format(m.banking.rowCount)+' tổ chức có trạng thái hợp lệ</span>':'')+'</small><strong>'+E(x[1])+'</strong></div>').join('')+'</div>'+
   (compact&&top.length?'<div class="stats-hero-ranking"><div class="stats-hero-rank-title"><b>🏆 Top 03 thu nộp · '+E(paymentPeriod(stats))+'</b><span>Bấm Đảng bộ để xem chi tiết</span></div>'+paymentTop3Cards(rec)+'</div>':'')+
   '</section>';
 }
