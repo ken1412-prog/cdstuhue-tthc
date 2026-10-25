@@ -74,7 +74,7 @@ function applyMenuVisibility(){
  });
  document.body.classList.remove('menu-loading');
  const helper=$('#openAssistant'),panel=$('#assistantWrap');
- for(const launcher of [helper,$('#navAssistant'),$('#assistantMobileFab')]){
+ for(const launcher of [helper,$('#assistantMobileFab')]){
   if(launcher)launcher.hidden=state.menu.assistant!==true;
  }
  if(panel&&state.menu.assistant!==true)panel.classList.add('hidden');
@@ -531,7 +531,6 @@ function boot(){document.addEventListener('keydown',discourageSourceHotkeys,true
   if(opening){closeMobile();$('#assistantInput').focus();}
  };
  $('#openAssistant').onclick=toggleAssistant;
- $('#navAssistant').onclick=toggleAssistant;
  $('#assistantMobileFab').onclick=toggleAssistant;$('#closeAssistant').onclick=()=>assistant.classList.add('hidden');$('#assistantForm').onsubmit=e=>{e.preventDefault();assistantResults($('#assistantInput').value)};$('#askToggle').onclick=()=>{const panel=$('#askPanel');panel.classList.toggle('hidden');$('#askToggle').setAttribute('aria-expanded',String(!panel.classList.contains('hidden')));if(!panel.classList.contains('hidden'))$('#questionText').focus()};$('#questionForm').onsubmit=e=>{if($('#questionSubmit').disabled){e.preventDefault();toast('Chưa kích hoạt nhận câu hỏi mới');return}const text=$('#questionText').value.trim();if(text.length<12||text.length>1200||/([a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}|\b(?:0[35789]\d{8}|\d{12})\b)/i.test(text)){e.preventDefault();toast('Vui lòng không gửi thông tin cá nhân; câu hỏi dài 12–1200 ký tự');return}setTimeout(()=>{$('#questionText').value=''},200)};loadQuestionFormConfig();
  document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeQA();closePaymentDetail();assistant.classList.add('hidden');closeMobile()}});window.addEventListener('popstate',syncFromUrl);loadData();}
 window.CDSTUHUE_TEST={fold,scoreQA,normQA,validProgress};
