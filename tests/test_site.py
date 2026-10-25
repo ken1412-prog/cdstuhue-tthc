@@ -135,11 +135,27 @@ class SiteTests(unittest.TestCase):
         self.assertIn("function openPaymentDetail(index)",js)
         self.assertIn("paymentTop3Cards(rec)",js)
         self.assertIn("class=\"payment-table\"",js)
+        self.assertIn("TK NH (x/y)",js)
+        self.assertIn("HS khai báo (%)",js)
+        self.assertIn("Thu trong kỳ (%)",js)
+        self.assertIn("payment-account-cell",js)
         self.assertIn("Hoàn thành 100%",js)
         self.assertIn("'Hoàn thành':'Đang triển khai'",js)
         self.assertIn("paymentPeriod(stats)",js)
         self.assertIn("statsRankingPair(v.unitRanking,'bản ghi')",js)
         self.assertIn(".payment-detail-dialog{",css)
+
+    def test_extra_unit_metrics_require_explicit_review(self):
+        gs=(ROOT/'apps-script/Code.gs').read_text(encoding='utf-8')
+        sync=(ROOT/'scripts/sync_public.py').read_text(encoding='utf-8')
+        self.assertIn("includes('BANK_XY_BY_LEVEL2')",gs)
+        self.assertIn("includes('HS_DECLARED_RATE')",gs)
+        self.assertIn("approvedExtraFields",gs)
+        self.assertIn("mappedTotal!==all-unmapped",gs)
+        self.assertIn("filing_ok=isinstance(extra,dict)",sync)
+        self.assertIn("bank_ok=isinstance(extra,dict)",sync)
+        self.assertIn("if bank_ok:",sync)
+        self.assertIn("if filing_ok:",sync)
 
     def test_js_syntax(self):
         p=subprocess.run(['node','--check',str(ROOT/'site/assets/app.js')],capture_output=True,text=True)

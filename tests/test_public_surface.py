@@ -83,6 +83,17 @@ class PublicSurfaceTests(unittest.TestCase):
         self.assertIn(".qa-item-top .badge{min-width:0;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}",css)
         self.assertIn(".footer-byline{display:flex;align-items:baseline;",css)
 
+    def test_compact_payment_columns_and_no_sensitive_details(self):
+        js=(SITE / "assets/app.js").read_text(encoding="utf-8")
+        css=(SITE / "assets/styles.css").read_text(encoding="utf-8")
+        self.assertIn("TK NH (x/y)",js)
+        self.assertIn("HS khai báo (%)",js)
+        self.assertIn("Thu trong kỳ (%)",js)
+        self.assertIn("payment-rate-inline",js)
+        self.assertIn("payment-rate-inline",css)
+        self.assertNotIn("Tên chủ tài khoản",js)
+        self.assertNotIn("Số tài khoản ngân hàng",js)
+
     def test_no_original_host_or_repo_links_in_ui_assets(self):
         for path in PUBLIC_ASSETS:
             with self.subTest(path=path.name):
