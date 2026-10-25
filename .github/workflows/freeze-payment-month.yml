@@ -1,0 +1,32 @@
+name: Freeze approved payment month
+on:
+  workflow_dispatch:
+  schedule:
+    # 00:15 Vietnam time on days 1-7 of each month.
+    # Safe retries: once a month is frozen, it is never overwritten.
+    - cron: '15 17 1-7 * *'
+permissions:
+  contents: write
+concurrency:
+  group: payment-month-freeze
+  cancel-in-progress: false
+jobs:
+  close-month:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Freeze only the approved public previous month
+        run: python scripts/freeze_payment_month.py
+      - name: Commit the immutable monthly archive if present
+        run: |
+          if [ -n "$(git status --porcelain -- site/data/payment-history.json site/data/payment-history/)" ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add site/data/payment-history.json site/data/payment-history/
+            git commit -m "Freeze approved public payment month"
+            git push origin HEAD:main
+          else
+            echo "No new approved month to freeze."
+          fi

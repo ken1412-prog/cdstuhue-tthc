@@ -376,12 +376,30 @@ function buildStatsFeed_(){
     src[key]={id,tab,snapshot:String(r[5]||'')};
   });
   if(Object.keys(src).length!==4)throw new Error('Incomplete private source configuration');
+  // Period is owner-controlled in the private STATS HUB. Never infer a new month
+  // from today's date, because the underlying upload may still be from last month.
+  // For backward compatibility the missing KY_BAO_CAO tab means October 2026.
+  const monthSheet=hub.getSheetByName('KY_BAO_CAO');
+  const period=monthSheet?String(monthSheet.getRange('B2').getDisplayValue()||'').trim():'2026-10';
+  if(!/^20\\d{2}-(0[1-9]|1[0-2])$/.test(period))
+    throw new Error('Invalid private KY_BAO_CAO!B2. Expected YYYY-MM.');
+  const periodSource=String(src.THU_NOP.snapshot||'').trim();
+  const dateIso=periodSource.match(/^(20\\d{2})-(0[1-9]|1[0-2])(?:-\\d{2})?$/);
+  const dateVi=periodSource.match(/^\\d{2}\\/(0[1-9]|1[0-2])\\/(20\\d{2})$/);
+  const sourcePeriod=dateIso?(dateIso[1]+'-'+dateIso[2]):dateVi?(dateVi[2]+'-'+dateVi[1]):'';
+  if(sourcePeriod&&sourcePeriod!==period)
+    return {schema:1,public:false,reviewed:false,period,modules:{},
+      note:'Kỳ báo cáo không trùng mốc nguồn THU_NOP, chờ đối chiếu và duyệt lại.'};
+  // A new month must be explicitly reapproved after that month starts.
+  if(period!=='2026-10'&&(!lastApprovedDate||lastApprovedDate.slice(0,7)<period))
+    return {schema:1,public:false,reviewed:false,period,modules:{},
+      note:'Chưa có xác nhận duyệt của kỳ báo cáo mới.'};
   const keys={payment:'TỔNG HỢP THU NỘP',ranking:'XẾP HẠNG 46 ĐƠN VỊ',
      missing:'CHƯA KHAI BÁO THEO ĐƠN VỊ CHA',allocation:'XÁC NHẬN PHÂN BỔ',
      banking:'TÀI KHOẢN NGÂN HÀNG'};
   const enabled=Object.fromEntries(Object.entries(keys).map(([k,name])=>[k,!!gates[name]]));
   const count=Object.values(enabled).filter(Boolean).length;
-  if(count===0)return {schema:1,public:false,reviewed:false,period:'2026-10',modules:{},note:'Chưa có phân hệ thống kê được duyệt công khai.'};
+  if(count===0)return {schema:1,public:false,reviewed:false,period,modules:{},note:'Chưa có phân hệ thống kê được duyệt công khai.'};
   const modules={};let payments=null;
   // Existing approval permits only names/rates; extra per-unit aggregates need
   // their own explicit DUYET_WEBSITE scope tokens before public export.
@@ -591,7 +609,7 @@ function buildStatsFeed_(){
   }
   // IMPORTANT: Never expose source spreadsheet IDs, individual names,
   // personal identities, bank account numbers or raw row contents.
-  return {schema:1,public:true,reviewed:true,period:'2026-10',
+  return {schema:1,public:true,reviewed:true,period,
     approvedDate:lastApprovedDate,
     generatedAt:new Date().toISOString(),source:'Four owner-managed Google Sheets, approved aggregates only',
     warning:'Nguồn có phạm vi khác nhau. Không cộng dồn hoặc đồng nhất chỉ tiêu giữa các báo cáo.',
