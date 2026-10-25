@@ -465,8 +465,7 @@ function buildStatsFeed_(){
     missingOrgRows=[];
     for(let i=0;i<size;i++){
       const unit=String(unitNames[i]?.[0]||'').trim(),parent=String(parentNames[i]?.[0]||'').trim();
-      if(!unit||!parent)continue;
-      counts[parent]=(counts[parent]||0)+1;n++;
+      if(unit&&parent){counts[parent]=(counts[parent]||0)+1;n++;}
       missingOrgRows.push({unit,parent});
     }
     const byParent=Object.keys(counts).filter(k=>counts[k]>=20)
@@ -474,7 +473,7 @@ function buildStatsFeed_(){
       .sort((a,b)=>b.rows-a.rows||a.name.localeCompare(b.name,'vi')).slice(0,30);
     modules.missing={rowCount:n,distinctParents:Object.keys(counts).length,
       rowsByParent:byParent,countType:'Số dòng trong danh sách, không xác nhận số người duy nhất',
-      noCrossSourceReconciliation:true,sourceSnapshot:src.CHUA_KHAI.snapshot};
+      noCrossSourceReconciliation:false,sourceSnapshot:src.CHUA_KHAI.snapshot};
   }
   if(enabled.allocation){
     const statuses={XAC_NHAN:0,CHUA_XAC_NHAN:0,TY_LE_TD_CHO_XAC_NHAN:0};
@@ -564,87 +563,82 @@ function buildStatsFeed_(){
     }
   }
 
-  // Remove the reporting rows belonging to the explicitly excluded
-  // 108 CA/QS organizations, before totals, parent rankings or leaderboards.
-  // Only organization-name columns B/D are used; personal-name column C
-  // remains unread. Never match generic names such as "Chi bộ 1" alone.
+  // Exclude out-of-scope or unassignable missing-filed member records.
+  // Read only organization names and parent links; never person/account fields.
   if(enabled.missing&&unitTree&&missingOrgRows){
-    const pair=(unit,parent)=>orgKey(unit)+'|'+orgKey(parent);
-    const excludedPairs=new Set(),includedPairs=new Set();
-    const excludedNames=new Set(),includedNames=new Set(),excludedParentLabels=new Set();
+    const byName={},roots=new Set(unitTree.roots);
     unitTree.info.forEach(r=>{
-      const code=String(r[0]||'').trim();
-      const name=String(r[1]||'').trim(),parent=String(r[3]||'').trim();
-      if(!name)return;
-      if(unitTree.isExcludedCaQs(code)){
-        excludedPairs.add(pair(name,parent));
-        excludedNames.add(orgKey(name));
-        if(orgKey(parent))excludedParentLabels.add(orgKey(parent));
-      }else{
-        includedPairs.add(pair(name,parent));
-        includedNames.add(orgKey(name));
+      const code=String(r[0]||'').trim(),name=String(r[1]||'').trim();
+      if(!code||!name)return;
+      const key=orgKey(name);
+      if(!byName[key])byName[key]=[];
+      byName[key].push({code,
+        parentCode:String(r[2]||'').trim(),
+        parentName:String(r[3]||'').trim(),
+        root:unitTree.isExcludedCaQs(code)?'EXCLUDED':unitTree.rootOf(code)});
+    });
+    const distinctRoots=items=>[...new Set(items.map(x=>x.root).filter(Boolean))];
+    const groups={};
+    unitTree.roots.forEach(code=>{groups[code]={name:unitTree.nodes[code].name,count:0};});
+    const sourceRowCount=missingOrgRows.length;
+    let matched=0,excludedCaQsRows=0,excludedNoParentRows=0;
+    let excludedAmbiguousRows=0,excludedIncompleteRows=0;
+    const matchedOrgRows=[];
+    missingOrgRows.forEach(r=>{
+      const parentKey=orgKey(r.parent),unitKey=orgKey(r.unit);
+      if(!parentKey||!unitKey){excludedIncompleteRows++;return;}
+      const parents=byName[parentKey]||[],children=byName[unitKey]||[];
+      // The (child, parent) pair disambiguates repeated Chi bộ names.
+      // A bank parent code link is accepted only for a named parent candidate.
+      const paired=children.filter(child=>
+        orgKey(child.parentName)===parentKey||
+        parents.some(parent=>parent.code===child.parentCode));
+      const pairedRoots=distinctRoots(paired),parentRoots=distinctRoots(parents);
+      let candidates=[];
+      if(pairedRoots.length===1)candidates=pairedRoots;
+      else if(parentRoots.length===1)candidates=parentRoots;
+      else if(pairedRoots.length>1)candidates=pairedRoots;
+      else if(parentRoots.length>1)candidates=parentRoots;
+      else if(parentKey===orgKey('Đảng bộ Thành phố Huế')){
+        // A57 is level 1. Its exactly named level-2 child can be mapped.
+        const childRoots=distinctRoots(children);
+        if(childRoots.length===1&&roots.has(childRoots[0])&&
+           orgKey(unitTree.nodes[childRoots[0]].name)===unitKey)
+          candidates=childRoots;
       }
+      if(candidates.length===1&&candidates[0]==='EXCLUDED'){
+        excludedCaQsRows++;return;
+      }
+      if(candidates.length===1&&roots.has(candidates[0])){
+        groups[candidates[0]].count++;matched++;matchedOrgRows.push(r);return;
+      }
+      if(candidates.length>1)excludedAmbiguousRows++;
+      else if(!parents.length)excludedNoParentRows++;
+      else excludedAmbiguousRows++;
     });
-    // Some excluded parents exist only as names in the child rows when the
-    // parent node is missing from the source. Their distinct labels remain
-    // excluded, unless the same organization name exists in the included tree.
-    const safeExcludedParentNames=new Set([...excludedNames,...excludedParentLabels]
-      .filter(x=>x&&!includedNames.has(x)));
-    const before=missingOrgRows.length;
-    missingOrgRows=missingOrgRows.filter(r=>{
-      const key=pair(r.unit,r.parent),parentKey=orgKey(r.parent);
-      const direct=excludedPairs.has(key)&&!includedPairs.has(key);
-      const byVerifiedParent=safeExcludedParentNames.has(parentKey);
-      return !(direct||byVerifiedParent);
-    });
+    if(matched+excludedCaQsRows+excludedNoParentRows+
+       excludedAmbiguousRows+excludedIncompleteRows!==sourceRowCount)
+      throw new Error('Missing-filed scope reconciliation mismatch');
+    missingOrgRows=matchedOrgRows;
     const counts={};
     missingOrgRows.forEach(r=>{counts[r.parent]=(counts[r.parent]||0)+1;});
     const byParent=Object.keys(counts).filter(k=>counts[k]>=20)
       .map(name=>({name:name.slice(0,190),rows:counts[name]}))
       .sort((a,b)=>b.rows-a.rows||a.name.localeCompare(b.name,'vi')).slice(0,30);
-    modules.missing.rowCount=missingOrgRows.length;
+    modules.missing.rowCount=matched;
+    modules.missing.sourceRowCount=sourceRowCount;
     modules.missing.distinctParents=Object.keys(counts).length;
     modules.missing.rowsByParent=byParent;
-    modules.missing.excludedCaQsRows=before-missingOrgRows.length;
-  }
-  // Public missing-record ranking: only counts from organization names unambiguously
-  // linked to exactly one of the 46 level-2 organizations. No person-level data.
-  if(enabled.missing&&unitTree&&missingOrgRows){
-    const nameRoots={};
-    unitTree.info.forEach(r=>{
-      const root=unitTree.rootOf(r[0]),key=orgKey(r[1]);
-      if(!root||!key)return;
-      if(!nameRoots[key])nameRoots[key]=new Set();
-      nameRoots[key].add(root);
-    });
-    const groups={};
-    unitTree.roots.forEach(code=>{groups[code]={name:unitTree.nodes[code].name,count:0};});
-    let matched=0,unmatched=0;
-    missingOrgRows.forEach(r=>{
-      const candidates=nameRoots[orgKey(r.parent)];
-      const child=nameRoots[orgKey(r.unit)];
-      let code='';
-      if(candidates&&candidates.size===1)code=[...candidates][0];
-      else if(candidates&&candidates.size>1&&child&&child.size===1){
-        const possible=[...child][0];
-        if(candidates.has(possible))code=possible;
-      }else if(orgKey(r.parent)===orgKey('Đảng bộ Thành phố Huế')&&child&&child.size===1){
-        // A57 is a level-1 aggregate, never counted itself. A named direct
-        // level-2 unit under A57 can still be matched by its unique exact name.
-        const possible=[...child][0];
-        if(unitTree.roots.includes(possible)&&
-           orgKey(unitTree.nodes[possible].name)===orgKey(r.unit))code=possible;
-      }
-      // Never assign by the child name alone if its parent is not identifiable.
-      if(code){groups[code].count++;matched++;}else unmatched++;
-    });
-    if(matched+unmatched===modules.missing.rowCount&&unitTree.roots.length===46){
-      const records=Object.values(groups);
-      const byName=(a,b)=>a.name.localeCompare(b.name,'vi');
-      const top=records.slice().sort((a,b)=>b.count-a.count||byName(a,b)).slice(0,10);
-      const bottom=records.slice().sort((a,b)=>a.count-b.count||byName(a,b)).slice(0,10);
-      modules.missing.level2Ranking={eligibleUnits:46,matchedRows:matched,unmatchedRows:unmatched,top,bottom};
-    }
+    modules.missing.excludedCaQsRows=excludedCaQsRows;
+    modules.missing.excludedNoParentRows=excludedNoParentRows;
+    modules.missing.excludedAmbiguousRows=excludedAmbiguousRows;
+    modules.missing.excludedIncompleteRows=excludedIncompleteRows;
+    const records=Object.values(groups);
+    const byUnitName=(a,b)=>a.name.localeCompare(b.name,'vi');
+    const top=records.slice().sort((a,b)=>b.count-a.count||byUnitName(a,b)).slice(0,10);
+    const bottom=records.slice().sort((a,b)=>a.count-b.count||byUnitName(a,b)).slice(0,10);
+    modules.missing.level2Ranking={
+      eligibleUnits:46,matchedRows:matched,unmatchedRows:0,top,bottom};
   }
   // Allocation sheet has only agency name and status; duplicated names such as
   // "Chi bộ 1" across multiple branches cannot be assigned to a level-2 unit.
