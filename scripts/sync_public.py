@@ -271,6 +271,14 @@ def main():
                     verified=approved_missing_level2(missing.get('level2Ranking'),count)
                     if verified is not None and 'missing' in modules:
                         modules['missing']['level2Ranking']=verified
+                    # Public only: total unresolved case count and distinct unit-parent pairs.
+                    unlinked=bounded_int(missing.get('unlinkedSourceRows'),30000)
+                    unit_pairs=bounded_int(missing.get('unlinkedUnitPairs'),30000)
+                    if ('missing' in modules and unlinked is not None and unit_pairs is not None
+                            and 0<=unit_pairs<=unlinked<=(
+                                modules['missing'].get('sourceRowCount') or count)):
+                        modules['missing']['unlinkedSourceRows']=unlinked
+                        modules['missing']['unlinkedUnitPairs']=unit_pairs
             allocation=raw.get('allocation')
             if isinstance(allocation,dict):
                 n=bounded_int(allocation.get('rowCount'),30000)
