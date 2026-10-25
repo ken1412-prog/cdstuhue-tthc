@@ -57,7 +57,8 @@ class PublicSurfaceTests(unittest.TestCase):
         self.assertIn("paymentTop3Cards(rec)",js)
         self.assertIn("const top=rec.slice(0,3)",js)
         self.assertIn("payment-table-viewport",js)
-        self.assertIn("const maxMissing=Math.max",js)
+        self.assertIn("function filingRankingFromApprovedUnits(records)",js)
+        self.assertIn("statsRankingPair(filingRank,'hồ sơ','Tỷ lệ khai báo hồ sơ')",js)
         for marker in ("stats-payment-top3","stats-bank-panel","stats-missing-panel"):
             self.assertIn(marker,css)
         self.assertNotIn('id="rankingSearch"',js)
