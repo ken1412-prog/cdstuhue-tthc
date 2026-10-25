@@ -6,7 +6,8 @@ import re
 import unittest
 from pathlib import Path
 
-SITE = Path(__file__).resolve().parents[1] / "site"
+ROOT = Path(__file__).resolve().parents[1]
+SITE = ROOT / "site"
 PUBLIC_ASSETS = [
     SITE / "index.html",
     SITE / "hoi-dap.html",
