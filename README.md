@@ -143,3 +143,38 @@ Không đặt mật khẩu trong HTML/JavaScript công khai. Các trạng thái 
 **Cách bật tự động:** cập nhật bản mới nhất `apps-script/Code.gs` vào dự án `CDSTUHUE_WEB_PUBLIC`, giữ thuộc tính `CDSTUHUE_STATS_HUB_ID`, sau đó Deploy → Manage deployments → Edit → New version → Deploy. Kiểm tra `/exec?kind=menu` thấy đủ 15 cờ. Sau đó chỉ cần đổi trạng thái ở cột C và chờ lịch GitHub Actions hai giờ/lần hoặc chạy thủ công `Publish CDSTUHUE website → Run workflow` để áp dụng. Dữ liệu tổng hợp và nguồn gốc vẫn do các quy tắc duyệt công khai riêng điều khiển.
 
 **Giới hạn kỹ thuật:** GitHub Pages là website tĩnh; ẨN danh mục không phải phân quyền truy cập bí mật. Người có URL thẳng tới JSON hoặc đã lưu bản công khai từ trước vẫn có thể truy cập bản dữ liệu đó. Với dữ liệu mật, cần một hệ thống xác thực phía máy chủ và ngừng xuất dữ liệu bí mật ngay từ nguồn.
+
+
+## Thu nộp đảng phí theo tháng — bản sáng Huế, tháng 10/2026 trở đi
+
+### 1. Những gì hiển thị trên CDSTUHUE
+
+- **Tổng quan điều hành**: giữ Top 03 Đảng bộ dẫn đầu của kỳ công khai mới nhất và 3 chỉ số tổng hợp. Không thêm lại bảng Top 3 trùng lặp vào trang chi tiết.
+- **Thống kê đảng phí**: có bộ **Chọn tháng** (ví dụ Tháng 10/2026, Tháng 11/2026), nhãn **Mới nhất** hoặc **Đã chốt**, bảng 46 Đảng bộ được duyệt, tỷ lệ thu trong kỳ, tình trạng hoàn thành, số tài khoản ngân hàng/hồ sơ **chỉ khi các trường tổng hợp ấy được duyệt riêng**, cửa sổ chi tiết từng đơn vị.
+- Có tìm kiếm tên Đảng bộ không dấu, lọc **tất cả / hoàn thành 100% / đang triển khai**, sắp xếp thứ hạng, tỷ lệ thấp trước hoặc theo tên; tải CSV từ các hàng đang lọc. Trường hợp không có mẫu số/không duyệt, hiện dấu **—**, không tự tạo tỷ lệ.
+- Giao diện dùng tông **trắng kem–đỏ–vàng** như bảng điều hành nội bộ, sử dụng ảnh Huế đã nằm sẵn trong site. Không kết nối nguồn hình ảnh bên ngoài.
+
+### 2. Khóa tháng 10 chỉ sau 31/10/2026
+
+GitHub Actions `Freeze approved payment month` chạy từ **00:15 sáng giờ Việt Nam, ngày 01–07 mỗi tháng** để tự thử đóng kỳ trước. Khi nhận được `stats.json` **đã công khai, đã duyệt, có đúng kỳ tháng trước và đủ 46 Đảng bộ**, mã `scripts/freeze_payment_month.py` sẽ lưu lần đầu thành:
+- `site/data/payment-history/2026-10.json` (hoặc kỳ tương ứng);
+- `site/data/payment-history.json` (chỉ mục các tháng đã chốt).
+
+Bản đã chốt **bất biến**: chương trình không ghi đè dù Google Sheets kỳ sau thay đổi. Chỉ sao lưu các trường **tỷ lệ tổng hợp, tên và hạng tổ chức, TK NH x/y và tỷ lệ hồ sơ nếu từng trường đã duyệt**, không lấy bảng nguồn, tiền, tài khoản cá nhân, căn cước, tên đảng viên. Nếu nguồn chưa có 46 đơn vị, sai tháng hoặc chưa duyệt, **không lưu bản giả**. Chủ sở hữu có thể mở GitHub → Actions → `Freeze approved payment month` → `Run workflow` để thử đóng lại trong 7 ngày đầu tháng. Không đổi dữ liệu sang tháng 11 **trước khi tháng 10 đã chốt**.
+
+Ngày **25/10/2026 vẫn là tháng 10 đang chạy**; không công bố bản lịch sử tháng 10 trước khi tháng kết thúc. Nếu lịch chạy bị lỗi/cấu hình token repo ngăn commit, phải kiểm tra Actions và chạy lại; không mặc định tuyên bố đã chốt.
+
+### 3. Cập nhật Google Sheets cho tháng 11
+
+Mẫu dữ liệu nguồn thực tế là **46 Đảng bộ** trong Sheet riêng tư của nhóm `THU_NOP` (14 cột), không lấy tỷ lệ từ Lào Cai. Để chuyển sang kỳ mới:
+
+1. **Sau khi đã khóa tháng 10**, sao chép tab dữ liệu nguồn thu nộp đã duyệt thành tab mới, ví dụ `Thang11`, **xóa dữ liệu tháng 10 và nhập báo cáo thực tế tháng 11**. Không xóa tab cũ, không tải lên website dữ liệu nhạy cảm.
+2. Trong Google Sheet riêng tư **CDSTUHUE STATS HUB 2026**, tại tab `NGUON_4_FILE`, đổi trường *tên tab* hàng `THU_NOP` (cột D) sang tab tháng 11, đồng thời cập nhật *ngày snapshot* ở cột F sang ngày tháng 11. Các Sheet còn lại không được coi mặc nhiên là số liệu tháng 11.
+3. Tạo tab `KY_BAO_CAO` trong STATS HUB; ô **B2** nhập chính xác `2026-11` (ô A2 có thể ghi `Kỳ thu nộp`). Tháng 10 dùng `2026-10`. Nếu tab này chưa có, phiên bản Apps Script mới vẫn tạm giữ mặc định `2026-10` để không làm thay đổi bản hiện tại.
+4. Đối chiếu tổng thu, 46 tên đơn vị và tỷ lệ; tại tab `DUYET_WEBSITE`, duyệt lại phạm vi `TỔNG HỢP THU NỘP` và `XẾP HẠNG 46 ĐƠN VỊ`, ngày duyệt thuộc **tháng 11 hoặc muộn hơn**, trước khi cho phép xuất bản. Tính năng xuất công khai sẽ **từ chối tháng 11** nếu chưa có ngày duyệt hợp lệ hoặc ngày snapshot THU_NOP không thuộc kỳ đã chọn.
+5. **Cài/cập nhật một lần** bản `apps-script/Code.gs` mới vào dự án Web App đang vận hành, giữ nguyên các Script Properties và Web App URL, chọn **Deploy → Manage deployments → Edit → New version → Deploy**. Đây là bước cần thực hiện phía chủ sở hữu; sửa mã trên GitHub **không tự cập nhật bản Apps Script đã triển khai**.
+6. Kiểm tra endpoint đã triển khai `/exec?kind=stats` trả `period:"2026-11"`, `public:true`, `reviewed:true`, đúng 46 bản xếp hạng; tiếp đó chạy `Publish CDSTUHUE website` để cập nhật dữ liệu công khai. Tháng 10 sẽ nằm trong bộ chọn dưới nhãn **Đã chốt**, tháng 11 có nhãn **Kỳ mới nhất**.
+
+**Không có lũy kế tỷ lệ tự cộng** vì tỷ lệ các tháng không thể cộng trực tiếp, và website không có số tiền/số hồ sơ gốc được phép công bố. Nếu cần chỉ tiêu lũy kế, phải có bảng lũy kế tổng hợp và phê duyệt riêng; không giả lập kết quả.
+
+**Lưu ý về dữ liệu nhiều nguồn:** các mô-đun ngân hàng, chưa khai báo và phân bổ không mặc định cùng kỳ với thu đảng phí. Khi xem **tháng đã chốt**, website chỉ hiển thị phần thu nộp và xếp hạng tương ứng; không ghép chỉ tiêu từ các kỳ khác. Không truy cập Google Sheets trực tiếp từ trình duyệt người xem.

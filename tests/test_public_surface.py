@@ -39,7 +39,7 @@ class PublicSurfaceTests(unittest.TestCase):
         # Preserve homepage Top 3, but omit it from detailed finance hero.
         self.assertIn("financeCards({compact:true})",js)
         self.assertIn("compact&&top.length",js)
-        self.assertIn("function financeView(){return financeCards()+statsDashboard()}",js)
+        self.assertIn("function financeView(){return paymentMonthControls()+financeCards()+statsDashboard()}",js)
         # The repeated three KPI cards in the detail view are removed.
         self.assertNotIn("const viewCards=",js)
         self.assertNotIn("'+viewCards+'",js)
@@ -74,7 +74,7 @@ class PublicSurfaceTests(unittest.TestCase):
             html=(SITE / page).read_text(encoding="utf-8")
             self.assertIn('<div class="footer-byline">',html)
             self.assertIn('<span class="footer-copyright">© 2026 CDSTUHUE</span><span class="footer-author">NKien',html)
-            self.assertIn('assets/styles.css?v=20261025-payment-tracker',html)
+            self.assertIn('assets/styles.css?v=20261025-bright-monthly',html)
             self.assertNotIn("Nkien —",html)
         css=(SITE / "assets/styles.css").read_text(encoding="utf-8")
         js=(SITE / "assets/app.js").read_text(encoding="utf-8")
@@ -93,6 +93,20 @@ class PublicSurfaceTests(unittest.TestCase):
         self.assertIn("payment-rate-inline",css)
         self.assertNotIn("Tên chủ tài khoản",js)
         self.assertNotIn("Số tài khoản ngân hàng",js)
+
+    def test_bright_approved_monthly_finance(self):
+        js=(SITE / "assets/app.js").read_text(encoding="utf-8")
+        css=(SITE / "assets/styles.css").read_text(encoding="utf-8")
+        for marker in ("paymentMonthControls()", "selectPaymentMonth(", "paymentFilteredRecords(",
+                       "exportPaymentMonth()", "data/payment-history.json", "paymentMonthSelect",
+                       "paymentStatusFilter", "paymentSort", "paymentSearch"):
+            self.assertIn(marker,js)
+        for marker in ("payment-period-toolbar", "payment-period-badge", "payment-table-tools",
+                       "hue-city-day.webp", "#c92438"):
+            self.assertIn(marker,css)
+        self.assertIn("data.closed!==true",js)
+        self.assertIn("data.modules.ranking.records.length!==46",js)
+        self.assertNotIn("api.openai.com",js)
 
     def test_no_original_host_or_repo_links_in_ui_assets(self):
         for path in PUBLIC_ASSETS:
