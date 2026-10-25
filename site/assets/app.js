@@ -206,13 +206,23 @@ function exportPaymentMonth(){
  }
  const items=paymentFilteredRecords(rows).map(({x})=>[x.rank,x.name,paymentPercent(x),
   paymentCompleted(x)?'Hoàn thành':'Đang triển khai',
-  Number.isInteger(x.bankDone)&&Number.isInteger(x.bankTotal)?x.bankDone+' / '+x.bankTotal:'—',
-  typeof x.filedRate==='number'?(x.filedRate*100).toFixed(1).replace('.',',')+'%':'—']);
+  paymentCountPair(x.bankDone,x.bankTotal),
+  paymentFiledText(x)]);
  exportCsv('dang-phi-'+data.period+(data.closed?'-da-chot':'')+'.csv',[
   ['Kỳ báo cáo',paymentPeriod(data),data.closed?'Đã chốt':'Đã duyệt'],
-  ['Hạng','Đảng bộ','Thu trong kỳ (%)','Trạng thái','TK NH','HS khai báo (%)'],...items
+  ['Hạng','Đảng bộ','Thu trong kỳ (%)','Trạng thái','TK NH đã có / Tổng tổ chức','HS khai báo / Tổng ĐV'],...items
  ]);
  toast('Đã xuất dữ liệu công khai '+paymentPeriod(data));
+}
+function paymentCountPair(done,total){
+ return Number.isInteger(done)&&Number.isInteger(total)&&total>0&&done>=0&&done<=total?
+  pretty.format(done)+' / '+pretty.format(total):'—';
+}
+function paymentFiledText(row){
+ const pair=paymentCountPair(row.filedDone,row.filedTotal);
+ if(pair!=='—')return pair;
+ return typeof row.filedRate==='number'&&row.filedRate>=0&&row.filedRate<=1?
+  (row.filedRate*100).toFixed(1).replace('.',',')+'% (chỉ tỷ lệ)':'—';
 }
 function paymentRate(record){
  const n=Number(record?.rate);
@@ -243,7 +253,7 @@ function openPaymentDetail(index){
   '<div class="payment-detail-rate">'+E(pct)+'</div>'+
   '<div class="payment-detail-caption">Tỷ lệ thu nộp đảng phí · '+E(paymentPeriod(stats))+'</div>'+
   '<div class="payment-detail-track" role="progressbar" aria-label="Tỷ lệ thu nộp" aria-valuenow="'+(paymentRate(row)*100).toFixed(1)+'" aria-valuemin="0" aria-valuemax="100"><i style="width:'+paymentProgressWidth(row)+'%"></i></div>'+
-  '<div class="payment-detail-extra"><div><small>TK NH đã khai báo</small><strong>'+(Number.isInteger(row.bankDone)&&Number.isInteger(row.bankTotal)&&row.bankDone<=row.bankTotal?pretty.format(row.bankDone)+' / '+pretty.format(row.bankTotal):'—')+'</strong></div><div><small>Hồ sơ đã khai báo</small><strong>'+(typeof row.filedRate==='number'&&row.filedRate>=0&&row.filedRate<=1?(row.filedRate*100).toFixed(1).replace('.',',')+'%':'—')+'</strong></div></div>'+
+  '<div class="payment-detail-extra"><div><small>Đơn vị đã có TK NH / tổng đơn vị</small><strong>'+E(paymentCountPair(row.bankDone,row.bankTotal))+'</strong></div><div><small>Hồ sơ đã khai báo / tổng ĐV</small><strong>'+E(paymentFiledText(row))+'</strong></div></div>'+
   '<div class="payment-detail-note">Chỉ tiêu chưa được duyệt công khai hiển thị —. Không công bố số tiền, số tài khoản hay dữ liệu cá nhân.</div>';
  modal.classList.remove('hidden');
  document.body.style.overflow='hidden';
@@ -317,13 +327,12 @@ function statsDashboard(){
    const done=paymentCompleted(x);
    const bankX=Number.isInteger(x.bankDone)&&x.bankDone>=0?x.bankDone:null;
    const bankY=Number.isInteger(x.bankTotal)&&x.bankTotal>0?x.bankTotal:null;
-   const bankLabel=bankX!==null&&bankY!==null&&bankX<=bankY?pretty.format(bankX)+' / '+pretty.format(bankY):'—';
-   const filed=typeof x.filedRate==='number'&&x.filedRate>=0&&x.filedRate<=1?
-    (x.filedRate*100).toFixed(1).replace('.',',')+'%':'—';
+   const bankLabel=bankX!==null&&bankY!==null?paymentCountPair(bankX,bankY):'—';
+   const filed=paymentFiledText(x);
    return '<tr class="'+(done?'is-complete':'is-active')+'">'+
     '<td><span class="payment-rank-badge '+(i<3?'top-'+(i+1):'')+'">'+E(x.rank)+'</span></td>'+
     '<td><button type="button" class="payment-unit-button" data-payment-index="'+i+'">'+E(x.name)+'</button></td>'+
-    '<td class="payment-account-cell" title="Đã có TK NH / Tổng bản ghi hợp lệ">'+E(bankLabel)+'</td>'+
+    '<td class="payment-account-cell" title="Đã có TK NH / Tổng tổ chức có trạng thái hợp lệ">'+E(bankLabel)+'</td>'+
     '<td class="payment-filing-cell">'+E(filed)+'</td>'+
     '<td class="payment-rate-cell"><div class="payment-rate-inline"><div class="payment-table-meter" role="progressbar" aria-label="Thu đảng phí '+E(x.name)+'" aria-valuenow="'+(paymentRate(x)===null?0:(paymentRate(x)*100).toFixed(1))+'" aria-valuemin="0" aria-valuemax="100"><i style="width:'+paymentProgressWidth(x)+'%"></i></div><b>'+E(paymentPercent(x))+'</b></div></td>'+
     '<td><span class="payment-state '+(done?'is-complete':'is-active')+'">'+(done?'Hoàn thành':'Đang triển khai')+'</span></td>'+
@@ -331,7 +340,7 @@ function statsDashboard(){
   }).join('');
   panels+='<section class="panel stats-panel stats-panel-wide stats-payment-panel payment-tracker-panel">'+
    '<div class="payment-tracker-heading"><div><span class="payment-kicker">THEO DÕI THU NỘP ĐẢNG PHÍ · '+E(period)+'</span>'+
-   '<h2>Bảng xếp hạng theo 46 Đảng bộ</h2><p>Bấm tên đơn vị để xem tỷ lệ và trạng thái đã được duyệt.</p></div>'+
+   '<h2>Bảng xếp hạng theo 46 Đảng bộ</h2><p>Bấm tên đơn vị để xem chỉ tiêu được duyệt. Dấu — ở cột x/y nghĩa là chưa được phép công bố hoặc chưa đối chiếu đủ; không phải bằng 0.</p></div>'+
    '<div class="payment-tracker-totals"><div><b>'+pretty.format(rec.length)+'</b><small>Đảng bộ</small></div>'+
    '<div><b>'+pretty.format(complete)+'</b><small>Hoàn thành 100%</small></div>'+
    '<div><b>'+pretty.format(rec.length-complete)+'</b><small>Đang triển khai</small></div></div></div>'+
@@ -342,7 +351,7 @@ function statsDashboard(){
  '<button type="button" class="payment-export-btn" data-action="export-payment-month">↓ Xuất CSV</button>'+
  '<small class="payment-result-count">'+filtered.length+' / '+rec.length+' đơn vị</small></div>'+
  '<div class="payment-table-viewport" role="region" tabindex="0" aria-label="Xếp hạng thu nộp đảng phí của 46 Đảng bộ">'+
-   '<table class="payment-table"><thead><tr><th>Hạng</th><th>Đảng bộ</th><th title="Đã có TK NH / Tổng bản ghi hợp lệ của Đảng bộ">TK NH (x/y)</th><th title="(Hồ sơ chưa duyệt + đã duyệt chưa nộp + đã nộp) / Tổng bốn trạng thái hồ sơ">HS khai báo (%)</th><th>Thu trong kỳ (%)</th><th>Trạng thái</th><th>Chi tiết</th></tr></thead><tbody>'+(rows||'<tr><td colspan="7" class="payment-empty">Không có Đảng bộ phù hợp bộ lọc.</td></tr>')+'</tbody></table></div>'+
+   '<table class="payment-table"><thead><tr><th>Hạng</th><th>Đảng bộ</th><th title="Đơn vị đã có TK NH / tổng đơn vị được đối chiếu">TK NH đã có / Tổng đơn vị</th><th title="Hồ sơ chưa duyệt + đã duyệt chưa nộp + đã duyệt đã nộp / Tổng số đảng viên ở cột C báo cáo">HS khai báo / Tổng ĐV</th><th>Thu trong kỳ (%)</th><th>Trạng thái</th><th>Chi tiết</th></tr></thead><tbody>'+(rows||'<tr><td colspan="7" class="payment-empty">Không có Đảng bộ phù hợp bộ lọc.</td></tr>')+'</tbody></table></div>'+
    (rec.length!==46?'<p class="stats-sync-pending">Đang có '+E(String(rec.length))+'/46 Đảng bộ được duyệt trong bản xuất.</p>':'')+'</section>';
  }
  const statBreakdown=(data,total)=>'<div class="stats-breakdown">'+data.map(([name,count])=>'<div class="stats-breakdown-item"><span>'+E(name)+'</span><strong>'+amount(count)+'</strong><small>'+percent(count/(total||1))+'</small></div>').join('')+'</div>';
