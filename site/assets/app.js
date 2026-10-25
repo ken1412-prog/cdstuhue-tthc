@@ -318,13 +318,33 @@ function paymentTop3Cards(records){
    '<div class="stats-meter"><i style="width:'+paymentProgressWidth(x)+'%"></i></div>'+
    '<span class="payment-leader-status">'+(paymentCompleted(x)?'Hoàn thành':'Đang triển khai')+' · Xem chi tiết ›</span></button>').join('')+'</div>';
 }
-function statsRankingPair(unitRanking,source){
+function statsRankingPair(unitRanking,source,metricLabel='Tỷ lệ khai báo tài khoản ngân hàng'){
  if(!unitRanking||!Array.isArray(unitRanking.top)||!Array.isArray(unitRanking.bottom)||unitRanking.eligibleUnits!==46||unitRanking.top.length!==10||unitRanking.bottom.length!==10){
   return '<div class="stats-unit-unavailable">Chưa có bảng xếp hạng cấp 2 từ phiên bản Apps Script đang chạy. Top 10 sẽ hiện sau khi đồng bộ đủ dữ liệu theo Đảng bộ.</div>';
  }
  const show=(items,tone,heading)=>'<div class="stats-leaderboard-col '+tone+'"><div class="stats-leaderboard-head"><strong>'+heading+'</strong><span>10 đơn vị</span></div>'+items.map((x,i)=>
-  '<div class="stats-leaderboard-row"><span class="stats-leaderboard-rank">'+(i+1)+'</span><div class="stats-leaderboard-unit"><strong>'+E(x.name)+'</strong><div class="stats-meter" role="meter" aria-label="Tỷ lệ khai báo tài khoản" aria-valuemin="0" aria-valuemax="100" aria-valuenow="'+Math.max(0,Math.min(100,100*x.rate)).toFixed(1)+'"><i style="width:'+Math.max(0,Math.min(100,100*x.rate)).toFixed(1)+'%"></i></div><small>'+pretty.format(x.done)+' / '+pretty.format(x.total)+' '+source+'</small></div><b>'+((x.rate*100).toFixed(1).replace('.',','))+'%</b></div>').join('')+'</div>';
+  '<div class="stats-leaderboard-row"><span class="stats-leaderboard-rank">'+(i+1)+'</span><div class="stats-leaderboard-unit"><strong>'+E(x.name)+'</strong><div class="stats-meter" role="meter" aria-label="'+E(metricLabel)+'" aria-valuemin="0" aria-valuemax="100" aria-valuenow="'+Math.max(0,Math.min(100,100*x.rate)).toFixed(1)+'"><i style="width:'+Math.max(0,Math.min(100,100*x.rate)).toFixed(1)+'%"></i></div><small>'+pretty.format(x.done)+' / '+pretty.format(x.total)+' '+source+'</small></div><b>'+((x.rate*100).toFixed(1).replace('.',','))+'%</b></div>').join('')+'</div>';
  return '<div class="stats-leaderboards">'+show(unitRanking.top,'is-good','Top 10 tốt nhất')+show(unitRanking.bottom,'is-weak','Top 10 thấp nhất')+'</div>';
+}
+function filingRankingFromApprovedUnits(records){
+ // The published ranking module is regenerated from the private October
+ // payment report for every approved export; never rank the missing-file rows.
+ if(!Array.isArray(records)||records.length!==46)return null;
+ const items=[];
+ const names=new Set();
+ for(const x of records){
+  if(!x||typeof x.name!=='string'||!x.name.trim()||names.has(x.name))return null;
+  if(!Number.isInteger(x.filedDone)||!Number.isInteger(x.filedTotal)||
+     x.filedTotal<=0||x.filedDone<0||x.filedDone>x.filedTotal)return null;
+  const rate=x.filedDone/x.filedTotal;
+  if(typeof x.filedRate==='number'&&Math.abs(rate-x.filedRate)>0.000001)return null;
+  names.add(x.name);
+  items.push({name:x.name,done:x.filedDone,total:x.filedTotal,rate});
+ }
+ const byName=(x,y)=>x.name.localeCompare(y.name,'vi');
+ const top=items.slice().sort((x,y)=>y.rate-x.rate||y.total-x.total||byName(x,y)).slice(0,10);
+ const bottom=items.slice().sort((x,y)=>x.rate-y.rate||y.total-x.total||byName(x,y)).slice(0,10);
+ return {eligibleUnits:items.length,top,bottom};
 }
 function statsDashboard(){
  const stats=state.demo?null:selectedFinanceStats();
@@ -377,17 +397,11 @@ function statsDashboard(){
     '<p class="stats-scope-note">'+E(String(v.unmappedForRanking))+' bản ghi khác chưa ghép được vào 46 Đảng bộ, không tính vào chỉ tiêu.</p>':'')+'</section>';
  }
  if(m.missing){
-  const v=m.missing,rank=v.level2Ranking;
-  let rankingContent='';
-  if(rank&&rank.eligibleUnits===46&&rank.top?.length===10&&rank.bottom?.length===10){
-   const maxMissing=Math.max(1,...rank.top.map(x=>x.count),...rank.bottom.map(x=>x.count));
-   const rowBlock=(items,tone,title)=>'<div class="stats-leaderboard-col '+tone+'"><div class="stats-leaderboard-head"><strong>'+title+'</strong><span>10 Đảng bộ</span></div>'+
-    items.map((x,i)=>'<div class="stats-leaderboard-row"><span class="stats-leaderboard-rank">'+(i+1)+'</span><div class="stats-leaderboard-unit"><strong>'+E(x.name)+'</strong><div class="stats-meter" aria-hidden="true"><i style="width:'+Math.max(0,Math.min(100,100*x.count/maxMissing)).toFixed(1)+'%"></i></div></div><b>'+amount(x.count)+'</b></div>').join('')+'</div>';
-   rankingContent='<div class="stats-leaderboards stats-missing-leaders">'+rowBlock(rank.top,'is-weak','Top 10 nhiều nhất')+rowBlock(rank.bottom,'is-good','Top 10 ít nhất')+'</div>';
-  }else{
-   rankingContent='<div class="stats-unit-unavailable">Top 10 cấp 2 sẽ hiển thị sau khi cập nhật Apps Script và đồng bộ danh mục tổ chức. Không xếp hạng các đơn vị cấp 3 riêng lẻ.</div>';
-  }
-  panels+='<section class="panel stats-panel stats-panel-wide stats-missing-panel"><div class="panel-head"><div><h2>Đơn vị chưa khai báo hồ sơ đảng phí</h2></div><span class="stats-count-chip">46 Đảng bộ cấp 2</span></div>'+rankingContent+'</section>';
+  // Same two-column leaderboard as the bank registration module: highest and
+  // lowest ratios, with an explicit approved numerator/denominator under each.
+  const filingRank=filingRankingFromApprovedUnits(m.ranking?.records);
+  panels+='<section class="panel stats-panel stats-panel-wide stats-missing-panel"><div class="panel-head"><div><h2>Xếp hạng tỷ lệ khai báo hồ sơ</h2></div><span class="stats-count-chip">46 Đảng bộ cấp 2</span></div>'+
+    statsRankingPair(filingRank,'hồ sơ','Tỷ lệ khai báo hồ sơ')+'</section>';
  }
  return '<div class="section-heading"><div><h2>Trung tâm thống kê · '+E(paymentPeriod(stats))+'</h2><p>Dữ liệu tổng hợp được duyệt từ bốn bảng nguồn riêng tư</p></div></div><div class="stats-grid stats-dashboard-grid">'+panels+'</div>';
 }
