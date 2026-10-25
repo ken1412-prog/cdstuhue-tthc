@@ -236,7 +236,7 @@ function overview(){
   cats.map(k=>{const t=GROUPS[k],count=q.filter(x=>x.group===k).length;
    return '<button class="category-card" type="button" data-view="qa-'+E(k)+'"><span class="c-icon">'+E(t.icon)+'</span><b>'+E(t.full)+'</b><p>Tìm kiếm hướng dẫn và câu trả lời được duyệt</p><div class="c-count">'+count+' mục công khai ↗</div></button>';
   }).join('')+'</div>':'';
- const latest=(viewAllowed('qa-all')&&q.length)?'<div class="section-heading"><div><h2>Câu hỏi mới công bố</h2><p>Chỉ những câu hỏi trong nhóm đang bật</p></div><button class="card-link" data-view="qa-all">Vào kho hỏi đáp →</button></div><section class="panel">'+qaCards([...q].reverse().slice(0,4))+'</section>':'';
+ const latest=(viewAllowed('qa-all')&&q.length)?'<div class="section-heading"><div><h2>Câu hỏi mới công bố</h2><p>Chỉ những câu hỏi trong nhóm đang bật</p></div><button class="card-link" data-view="qa-all">Vào kho hỏi đáp →</button></div><section class="panel qa-latest-panel">'+qaCards([...q].reverse().slice(0,4))+'</section>':'';
  return (viewAllowed('finance')?financeCards({compact:true})+'<div class="overview-quick"><button data-view="finance" class="overview-quick-link">Xem báo cáo tổng hợp <span>↗</span></button></div>':'')+
   (stats.length?'<div class="stat-grid">'+stats.join('')+'</div>':'')+
   procedureCards+qaCardsGroup+latest+

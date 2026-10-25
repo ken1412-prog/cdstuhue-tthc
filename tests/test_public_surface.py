@@ -44,6 +44,20 @@ class PublicSurfaceTests(unittest.TestCase):
         self.assertIn(".assistant-mobile-fab:not([hidden])",css)
         self.assertNotIn("api.openai.com",js)
 
+    def test_footer_byline_and_mobile_qa_width(self):
+        for page in ("index.html", "hoi-dap.html"):
+            html=(SITE / page).read_text(encoding="utf-8")
+            self.assertIn('<div class="footer-byline">',html)
+            self.assertIn('<span class="footer-copyright">© 2026 CDSTUHUE</span><span class="footer-author">NKien',html)
+            self.assertIn('assets/styles.css?v=20261025-footer-qa-fit',html)
+            self.assertNotIn("Nkien —",html)
+        css=(SITE / "assets/styles.css").read_text(encoding="utf-8")
+        js=(SITE / "assets/app.js").read_text(encoding="utf-8")
+        self.assertIn("qa-latest-panel",js)
+        self.assertIn(".qa-list{min-width:0;max-width:100%;grid-template-columns:minmax(0,1fr)}",css)
+        self.assertIn(".qa-item-top .badge{min-width:0;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}",css)
+        self.assertIn(".footer-byline{display:flex;align-items:baseline;",css)
+
     def test_no_original_host_or_repo_links_in_ui_assets(self):
         for path in PUBLIC_ASSETS:
             with self.subTest(path=path.name):

@@ -295,3 +295,32 @@ body{
  .assistant-box{max-height:calc(100dvh - 100px);overflow:auto;overscroll-behavior:contain}
 }
 @media print{.assistant-mobile-fab{display:none!important}}
+
+
+/* Mobile QA layout: long topic labels must never determine card/grid width. */
+.qa-latest-panel{min-width:0;max-width:100%;overflow:hidden}
+.qa-list{min-width:0;max-width:100%;grid-template-columns:minmax(0,1fr)}
+.qa-list .qa-item{box-sizing:border-box;min-width:0;max-width:100%;overflow:hidden}
+.qa-item-top{min-width:0;max-width:100%;overflow:hidden}
+.qa-item-top .badge{min-width:0;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.qa-item h3,.qa-item p{min-width:0;max-width:100%;overflow-wrap:anywhere}
+@media(max-width:760px){
+ .qa-latest-panel{width:100%;padding:14px}
+ .qa-item-top{gap:6px}
+ .qa-item-top .qa-id,.qa-item-top .qa-category{flex:0 0 auto}
+ .qa-item-top .badge{flex:0 1 auto}
+}
+
+/* Copyright and author share the same line; legal note stays on next line. */
+.footer{display:flex;flex-direction:column;justify-content:flex-start;align-items:flex-end;gap:5px;text-align:right;min-width:0}
+.footer-byline{display:flex;align-items:baseline;justify-content:flex-end;gap:12px;max-width:100%;min-width:0}
+.footer-copyright{flex:0 0 auto;white-space:nowrap;text-align:right}
+.footer-author{min-width:0;overflow-wrap:anywhere}
+.footer-disclaimer{display:block;max-width:100%;overflow-wrap:anywhere}
+@media(max-width:640px){
+ .footer{flex-direction:column;align-items:flex-end;text-align:right;gap:7px}
+ .footer-byline{align-self:flex-end;display:flex;flex-direction:row;align-items:baseline;flex-wrap:nowrap;gap:7px}
+ .footer-copyright{font-size:9px;letter-spacing:-.12px}
+ .footer-author{font-size:9px;letter-spacing:-.12px}
+ .footer-disclaimer{font-size:9px}
+}
