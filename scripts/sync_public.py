@@ -237,14 +237,6 @@ def main():
                         'scope':'Đảng bộ trực thuộc Thành ủy Huế'}
             # Owner-approved 46-unit aggregate only; reject incoherent status totals.
             filing=raw.get('filingSummary')
-            # Log only presence/validation status. Never log private rows,
-            # script endpoint URLs, spreadsheet IDs or individual records.
-            if filing is None:
-                print('Filing summary diagnostic: absent from Apps Script stats modules')
-            elif not isinstance(filing,dict):
-                print('Filing summary diagnostic: unexpected source type')
-            else:
-                print('Filing summary diagnostic: present, validating aggregates')
 
             if isinstance(filing,dict):
                 keys=('totalMembers','completed','pendingApproval','notFiled','unclassified')
@@ -254,7 +246,7 @@ def main():
                         sum(v[k] for k in keys if k!='totalMembers')==v['totalMembers']
                         and isinstance(filing.get('sourceSnapshot'),str)
                         and len(filing['sourceSnapshot'])<=32
-                        and raw.get('period')==str(filing['sourceSnapshot'])[:7]):
+                        and candidate.get('period')==str(filing['sourceSnapshot'])[:7]):
                     over=bounded_int(filing.get('sourceOverage',0),100)
                     units=bounded_int(filing.get('sourceDiscrepancyUnits',0),100)
                     if over is not None and units is not None and over<=1 and units<=1:

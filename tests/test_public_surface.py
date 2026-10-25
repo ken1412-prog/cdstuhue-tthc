@@ -188,6 +188,12 @@ class PublicSurfaceTests(unittest.TestCase):
         self.assertIn("transform:none",active)
         self.assertIn("mask-image:linear-gradient",active)
 
+    def test_filing_summary_month_validated_against_feed(self):
+        # candidate is the complete Apps Script feed; raw is just its modules.
+        sync=(ROOT / "scripts" / "sync_public.py").read_text(encoding="utf-8")
+        self.assertIn("candidate.get('period')==str(filing['sourceSnapshot'])[:7]",sync)
+        self.assertNotIn("raw.get('period')==str(filing['sourceSnapshot'])[:7]",sync)
+
     def test_no_redundant_dashboard_explanations(self):
         js=(SITE / "assets/app.js").read_text(encoding="utf-8")
         for removed in (
