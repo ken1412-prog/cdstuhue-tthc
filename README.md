@@ -205,3 +205,10 @@ Theo chỉ đạo chủ sở hữu, **không tính 108 đơn vị thuộc nhánh
 - Công khai chỉ các số đếm/tỷ lệ thống kê đã được duyệt. Không xuất danh tính đảng viên, mã định danh cá nhân, chủ tài khoản hoặc số tài khoản.
 - Nếu phiên bản **Apps Script Web App** đang chạy chưa được cập nhật từ `apps-script/Code.gs`, GitHub Actions **không thể tự điều chỉnh dữ liệu gốc trên endpoint**: cần Deploy → Manage deployments → Edit → New version → Deploy của chủ sở hữu trước khi số liệu cập nhật ở website. Không tự chỉnh trạng thái/phạm vi `DUYET_WEBSITE`.
 
+
+### Cập nhật nguồn dữ liệu tháng 10 — 25/10/2026
+
+- Đã cập nhật **các Google Sheets nguồn riêng tư tại cùng ID**: thu nộp 46 đơn vị, danh sách chưa khai báo và trạng thái đăng ký tài khoản ngân hàng. Bảng xác nhận phân bổ không đổi vì chưa có nguồn mới.
+- **Tháng 10/2026 vẫn đang mở**, không tạo snapshot chốt kỳ hoặc chuyển tháng. Giữ nguyên cổng phê duyệt dữ liệu và quy tắc loại thông tin cá nhân khỏi JSON công khai.
+- Thay đổi định dạng Excel được chuẩn hóa về các cột mà Apps Script hiện tại đọc: danh sách chưa khai báo giữ tên đơn vị ở B và đơn vị cha ở D; trạng thái tài khoản ngân hàng ở H. Mã đơn vị nguồn mới được giữ ở F, chỉ trong Sheet riêng tư.
+- Trang web đồng bộ lại dữ liệu tổng hợp thông qua workflow GitHub Pages; nếu Apps Script Web App production chưa được triển khai theo mã mới nhất, cần kiểm tra endpoint trước khi xác nhận số liệu công khai.
