@@ -35,3 +35,17 @@ Vào website CDSTUHUE, bấm **⚙ Quản trị** ở chân trang. Lần đầu 
 - Muốn thay mật khẩu, thao tác trong Apps Script dự án quản trị do chủ sở hữu kiểm soát. Không gửi mật khẩu cho AI.
 
 **Các file:** AdminPortal.gs, Admin.html, README.md; nút website ở `site/assets/admin-launcher.js`.
+## Nâng cấp giao diện hiện có — nhập Excel từ chính trang Quản trị
+
+**Nếu bạn đã cài và đăng nhập được trang Quản trị:** không tạo dự án hoặc triển khai URL mới. Chỉ cập nhật đúng dự án `CDSTUHUE_ADMIN_PRIVATE` đang hoạt động:
+
+1. Mở dự án Apps Script quản trị hiện tại. Thay toàn bộ mã trong **Mã.gs / Code.gs** bằng bản mới tại `AdminPortal.gs`; thay toàn bộ nội dung HTML trong **Admin.html** bằng bản mới tại `Admin.html`. Sao lưu cũ trước khi sửa. **Không dán file `ExcelIntake.gs` riêng**, vì mã nhập Excel đã được tích hợp trong `AdminPortal.gs` mới và các hàm nhập có hậu tố `_` để không cho gọi trực tiếp từ giao diện.
+2. Vào **Project settings → Script properties** thêm `CDSTUHUE_EXCEL_INBOX_FOLDER_ID` bằng ID thư mục Drive riêng tư nhận bốn Excel. **Giữ nguyên các thuộc tính/mật khẩu băm đang có. Không chạy lại `cdsAdminBootstrap`.**
+3. Chọn **Services (+) → Drive API → Add (v3)** để hỗ trợ chuyển Excel sang Google Sheets nháp, rồi Save.
+4. Chọn **Deploy → Manage deployments → WEBAPP → Edit (bút chì) → New version → Deploy**. URL `/exec` hiện có không đổi. Tải lại trang, đăng nhập bằng mật khẩu đã thiết lập trước đây.
+5. Cuộn xuống mục **Nhập và kiểm tra 4 Excel**: bấm **1. Kiểm tra 4 Excel**, đọc kết quả rồi bấm **2. Tạo bản nháp sau kiểm tra**. Chờ thông báo thành công. Dữ liệu đã chuẩn hóa nằm trên Google Drive riêng tư, các mã nguồn và số liệu tổng hợp ghi trong `DU_LIEU_CHO_DUYET` của STATS HUB.
+6. Kiểm tra ngày nguồn ở cột F và đánh dấu duyệt từng nguồn trong panel. **Không tự chuyển `NGUON_4_FILE` hoặc cập nhật website** ở bước này; việc chuyển nguồn cần triển khai phiên bản dữ liệu công khai tương thích và xác nhận cuối.
+
+**Bảo mật:** toàn bộ RPC bấm nút có kiểm tra phiên mật khẩu phía máy chủ; các hàm nhập cốt lõi kết thúc bằng `_`, không mở trực tiếp cho `google.script.run`. Tệp cá nhân không xuất lên GitHub. Nếu chưa cấu hình thư mục Excel, hai nút nhập sẽ bị vô hiệu hóa.
+
+**Ghi chú vận hành:** chỉ giữ đúng 4 file Excel của một lượt trong thư mục nhận; chuyển 4 file lượt cũ sang thư mục lưu trữ bên ngoài trước khi đưa lượt mới. Giữ kỳ báo cáo chính xác, không để chương trình tự suy ra kỳ từ ngày hệ thống.
