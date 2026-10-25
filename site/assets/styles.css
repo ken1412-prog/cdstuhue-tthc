@@ -975,3 +975,18 @@ body{
 .stats-missing-panel .stats-breakdown-item:nth-child(2){border-left:3px solid #d79b26}
 .stats-missing-panel .stats-breakdown-item:nth-child(3){border-left:3px solid #b73e4b}
 @media(max-width:700px){.stats-missing-panel .stats-breakdown{grid-template-columns:1fr}}
+
+/* Centered, bold owner signature with subtle luminous blur. */
+.brand-signature{
+  display:block;
+  margin:12px auto 0;
+  width:100%;
+  text-align:center;
+  font-family:'Be Vietnam Pro',sans-serif;
+  font-weight:900;
+  font-size:13px;
+  letter-spacing:.075em;
+  line-height:1.45;
+  color:#f7fbff;
+  text-shadow:0 1px 1px rgba(4,17,35,.7),0 0 7px rgba(255,255,255,.24),0 0 15px rgba(114,193,255,.20);
+}

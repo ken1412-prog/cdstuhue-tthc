@@ -65,6 +65,7 @@ class PublicSurfaceTests(unittest.TestCase):
         for page in ("index.html","hoi-dap.html"):
             html=(SITE / page).read_text(encoding="utf-8")
             self.assertIn("© NKIEN TEST ©",html)
+            self.assertIn('class="brand-signature"',html)
         self.assertIn("Đã khai báo HS nhưng chưa duyệt",js)
         self.assertIn("Chưa khai báo hồ sơ",js)
         # Hero card must display the entire undeclared source list (15,238
@@ -99,7 +100,7 @@ class PublicSurfaceTests(unittest.TestCase):
             html=(SITE / page).read_text(encoding="utf-8")
             self.assertIn('<div class="footer-byline">',html)
             self.assertIn('<span class="footer-copyright">© 2026 CDSTUHUE</span><span class="footer-author">NKien',html)
-            self.assertIn('assets/styles.css?v=20261025-filing-status-v15',html)
+            self.assertIn('assets/styles.css?v=20261025-signature-v16',html)
             self.assertNotIn('id="navAssistant"',html)
             self.assertIn('id="openAssistant"',html)
             self.assertIn('id="assistantMobileFab"',html)
