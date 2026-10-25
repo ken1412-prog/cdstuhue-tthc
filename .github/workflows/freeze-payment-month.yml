@@ -22,7 +22,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           persist-credentials: true
-      - name: Freeze only the approved public previous month
+      - name: Freeze only the explicitly confirmed approved month
         env:
           CLOSE_PERIOD: ${{ inputs.period }}
           CLOSE_CONFIRMATION: ${{ inputs.confirmation }}

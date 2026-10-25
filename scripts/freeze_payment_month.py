@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """Close an approved public payment period into an immutable static JSON snapshot.
 
-Runs only after the month has ended. Source is the ALREADY PUBLISHED public
+Runs only after explicit manual confirmation of a past month. No automatic closing.
+Source is the ALREADY PUBLISHED public
 stats.json (not private Google Sheets). Keeps only explicitly approved
 aggregate payment/ranking fields; never publishes bank account numbers,
 money, names of individuals or raw worksheet records.
@@ -86,8 +87,11 @@ def select_payment_snapshot(raw, month, closed_on):
     }
 
 
-def freeze(source, today, folder):
-    month = previous_month(today)
+def freeze(source, today, folder, month):
+    if not MONTH.fullmatch(month):
+        raise ValueError('Invalid month')
+    if month >= today.strftime('%Y-%m'):
+        raise ValueError('Cannot close current or future month')
     folder = Path(folder)
     target = folder / (month + ".json")
     if target.exists():
@@ -119,12 +123,17 @@ def main():
     parser.add_argument("--input", help="Local public JSON, for offline testing")
     parser.add_argument("--today", help="Vietnam local date YYYY-MM-DD, for tests")
     parser.add_argument("--output-dir", default="site/data/payment-history")
+    parser.add_argument("--close-period", required=True)
+    parser.add_argument("--confirm", required=True)
     args = parser.parse_args()
     today = (dt.date.fromisoformat(args.today) if args.today else
              dt.datetime.now(ZoneInfo("Asia/Ho_Chi_Minh")).date())
-    if today.day > 7:
-        print("Month closure window is days 1-7; no archive yet")
-        return
+    if not MONTH.fullmatch(args.close_period):
+        parser.error("Closing period must be YYYY-MM")
+    if args.confirm != "CHOT " + args.close_period:
+        parser.error("Requires explicit matching confirmation")
+    if args.close_period >= today.strftime("%Y-%m"):
+        parser.error("Cannot close current or future month")
     if args.input:
         raw = json.loads(Path(args.input).read_text(encoding="utf-8"))
     else:
@@ -135,7 +144,7 @@ def main():
                 raise RuntimeError("Published snapshot unavailable")
             raw = json.loads(response.read(2_000_000))
     try:
-        freeze(raw, today, Path(args.output_dir))
+        freeze(raw, today, Path(args.output_dir), args.close_period)
     except ValueError as exc:
         # Fail closed: do not create a fake static month if no approved public feed exists.
         print("No eligible approved snapshot: " + str(exc))

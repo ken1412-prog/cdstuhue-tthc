@@ -50,7 +50,7 @@ class FreezePaymentMonthTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as td:
             folder = Path(td) / "payment-history"
             now = dt.date(2026, 11, 1)
-            self.assertTrue(freeze_module.freeze(approved(), now, folder))
+            self.assertTrue(freeze_module.freeze(approved(), now, folder, '2026-10'))
             output = folder / "2026-10.json"
             first = output.read_text(encoding="utf-8")
             doc = json.loads(first)
@@ -61,10 +61,22 @@ class FreezePaymentMonthTest(unittest.TestCase):
                 self.assertNotIn(token, first)
             changed = approved()
             changed["modules"]["payment"]["completionRate"] = 0.001
-            self.assertFalse(freeze_module.freeze(changed, now, folder))
+            self.assertFalse(freeze_module.freeze(changed, now, folder, '2026-10'))
             self.assertEqual(output.read_text(encoding="utf-8"), first)
             index = json.loads((folder.parent / "payment-history.json").read_text())
             self.assertEqual(index["months"], [{"period": "2026-10", "closed": True}])
+
+    def test_no_auto_close_or_early_freeze(self):
+        with tempfile.TemporaryDirectory() as td:
+            with self.assertRaisesRegex(ValueError, "current or future"):
+                freeze_module.freeze(approved(), dt.date(2026, 10, 25), Path(td), "2026-10")
+        workflow = (ROOT / ".github/workflows/freeze-payment-month.yml").read_text(encoding="utf-8")
+        self.assertIn("workflow_dispatch:", workflow)
+        self.assertNotIn("cron:", workflow)
+        self.assertIn("CLOSE_CONFIRMATION", workflow)
+        script = (ROOT / "scripts/freeze_payment_month.py").read_text(encoding="utf-8")
+        self.assertIn("--close-period", script)
+        self.assertIn('args.confirm != "CHOT " + args.close_period', script)
 
     def test_incomplete_bad_rates_and_dates_rejected(self):
         base = approved()
