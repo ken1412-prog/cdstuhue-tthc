@@ -45,7 +45,7 @@ class PublicSurfaceTests(unittest.TestCase):
         self.assertNotIn("'+viewCards+'",js)
         # Keep the full ranked payment, bank and missing-filing sections.
         self.assertIn("paymentTop3Cards(rec)",js)
-        self.assertIn("Xếp hạng tỷ lệ thu nộp",js)
+        self.assertIn("Bảng xếp hạng theo 46 Đảng bộ",js)
         self.assertIn("statsRankingPair(v.unitRanking,'bản ghi')",js)
         self.assertIn("stats-missing-panel",js)
 
