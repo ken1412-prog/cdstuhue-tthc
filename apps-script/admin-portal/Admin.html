@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<base target="_top">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+:root{font-family:system-ui,-apple-system,"Segoe UI",Arial,sans-serif;color:#142b45;background:#eef3f8}
+*{box-sizing:border-box}body{margin:0;padding:25px 16px 65px;min-height:100vh}
+main{max-width:900px;margin:auto}.top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:20px}
+h1{font-size:clamp(23px,4vw,32px);margin:4px 0 8px}h2{font-size:19px;margin:0 0 12px}
+.muted{color:#617189;font-size:13px;line-height:1.6}.brand{font-weight:800;color:#961d24;letter-spacing:.08em;font-size:12px}
+section{background:white;border:1px solid #dbe3ed;border-radius:16px;padding:20px;margin:14px 0;box-shadow:0 4px 18px #102d4d0b}
+.login{max-width:480px;margin:50px auto}.login h1{margin-bottom:8px}
+button,input{font:inherit}input{width:100%;padding:12px 13px;border-radius:9px;border:1px solid #bbc9d7;outline-offset:3px}
+button{border:0;border-radius:9px;background:#173d68;color:white;font-weight:650;padding:10px 15px;cursor:pointer}
+button:hover{filter:brightness(1.08)}button:disabled{opacity:.6;cursor:wait}
+.btn-light{background:#e7edf4;color:#183858}.btn-red{background:#912f3a}
+[hidden]{display:none!important}.alert{padding:12px;border-radius:9px;background:#fff3e7;color:#73461a;font-size:14px}
+.error{background:#ffe8eb;color:#8c1e30}.success{background:#e5f5ed;color:#19553a}
+.actions{display:flex;gap:9px;align-items:center;flex-wrap:wrap}
+.items{display:grid;gap:10px}
+.item{padding:12px 0;border-bottom:1px solid #e8edf1;display:flex;justify-content:space-between;align-items:center;gap:12px}
+.item:last-child{border-bottom:0}.item-info{flex:1;min-width:0}.item-title{font-size:15px;font-weight:680}
+small{display:block;font-size:12px;color:#718096;margin-top:4px;line-height:1.5}
+.switch{min-width:88px}.tag{font-size:12px;border-radius:40px;padding:4px 9px;background:#f1f4f8}
+.tag.on{background:#e0f2e8;color:#1b6445}.meta{font-size:13px;color:#607087}
+.staging{display:grid;grid-template-columns:1fr auto auto;gap:10px;align-items:center}
+.staging input{width:140px;font-size:13px}
+.staging .actions{justify-content:flex-end}
+@media(max-width:620px){.staging{grid-template-columns:1fr}.staging input{width:100%}.staging .actions{justify-content:flex-start}
+.item{align-items:flex-start;flex-direction:column}.switch{width:100%}}
+a{color:#21538a}.foot{margin-top:24px;text-align:center;font-size:12px;color:#6b788a}
+</style>
+</head>
+<body>
+<main>
+<div class="top">
+  <div><div class="brand">CDSTUHUE · QUẢN TRỊ NỘI BỘ</div><h1>Bảng điều khiển</h1>
+    <div class="muted">Chỉ chủ sở hữu tài khoản Google được truy cập · Có thêm mật khẩu quản trị</div></div>
+  <button id="logout" class="btn-light" hidden>Đăng xuất</button>
+</div>
+<section id="loginPanel" class="login">
+ <h2>Đăng nhập quản trị</h2>
+ <p class="muted">Đã vào trang này bằng tài khoản Google có quyền. Nhập mật khẩu riêng được đặt trong Apps Script để mở quyền quản lý.</p>
+ <form id="loginForm">
+  <label for="password">Mật khẩu quản trị</label>
+  <input id="password" type="password" autocomplete="current-password" minlength="12" required placeholder="Nhập mật khẩu riêng">
+  <p><button type="submit" id="loginButton">Đăng nhập</button></p>
+ </form>
+ <div id="loginFeedback" aria-live="polite"></div>
+</section>
+<div id="dashboard" hidden>
+ <div class="alert" id="notice" aria-live="polite">Chỉ dữ liệu đã duyệt mới được đồng bộ lên website. Các thay đổi cần một lượt GitHub Actions để hiển thị.</div>
+ <section><h2>Ẩn / hiện chuyên mục website</h2>
+  <p class="muted">Bật hoặc tắt các mục trong menu website. Trang Tổng quan luôn phải hiển thị.</p>
+  <div id="menuItems" class="items"></div>
+ </section>
+ <section><h2>Duyệt / tạm ẩn thống kê</h2>
+  <p class="muted">Chỉ các phân hệ đã có phạm vi công khai hợp lệ; không có phân bổ và không công bố dữ liệu cá nhân.</p>
+  <div id="moduleItems" class="items"></div>
+ </section>
+ <section><h2>Kiểm tra và duyệt nguồn Excel nháp</h2>
+  <p class="muted">Đánh dấu xét duyệt cho bốn nguồn nháp. <strong>Bước này chưa chuyển nguồn chính thức</strong>; thao tác chuyển nguồn vẫn theo quy trình kiểm tra cuối trong Apps Script nhập Excel.</p>
+  <div id="stagedItems" class="items"></div>
+  <p class="muted">Không có tên đảng viên, số tài khoản hoặc mã nguồn nhạy cảm trong bảng điều khiển này.</p>
+ </section>
+ <section><h2>Công cụ quản trị khác</h2>
+  <div class="actions">
+   <button type="button" class="btn-light" id="refresh">Tải lại trạng thái</button>
+   <a id="hubLink" href="https://docs.google.com/spreadsheets/d/1PBwfYm0wds9GaNMigr_aiUnuI7YIM6i6PKUYKkcUV60/edit" target="_blank" rel="noopener noreferrer">Mở STATS HUB</a>
+   <a href="https://docs.google.com/spreadsheets/d/1OZgFV1Urhy0u3fTl98psR8P3M_htv4F8PB94eDMej3w/edit" target="_blank" rel="noopener noreferrer">Mở bảng duyệt hỏi đáp</a>
+  </div>
+  <p class="muted">Nhật ký thao tác ghi tại tab NHAT_KY_QUAN_TRI của STATS HUB. Trạng thái xuất bản mới có hiệu lực sau lần website đồng bộ tiếp theo.</p>
+ </section>
+ <div class="meta" id="updated"></div>
+</div>
+<div class="foot">Khi không dùng, hãy đăng xuất. Không chia sẻ liên kết/quyền truy cập quản trị.</div>
+</main>
+<script>
+'use strict';
+let session='',busy=false;
+const $=id=>document.getElementById(id);
+const say=(target,message,type)=>{
+ const el=$(target);el.textContent=message||'';el.className=message?'alert '+(type||''):'';
+};
+function invoke(method,args){
+ return new Promise((resolve,reject)=>{
+   const rpc=google.script.run.withSuccessHandler(resolve).withFailureHandler(error=>reject(new Error(error?.message||'Lỗi kết nối máy chủ')));
+   rpc[method](...(args||[]));
+ });
+}
+function setBusy(on){busy=on;document.querySelectorAll('button').forEach(b=>{if(b.id!=='logout')b.disabled=on;});}
+async function load(){
+ if(!session)return;
+ setBusy(true);
+ try{
+  const payload=await invoke('cdsAdminGetSnapshot',[session]);render(payload);
+  $('loginPanel').hidden=true;$('dashboard').hidden=false;$('logout').hidden=false;
+  $('updated').textContent='Máy chủ cập nhật: '+new Date(payload.serverTime).toLocaleString('vi-VN');
+ }catch(e){say('notice',e.message,'error');if(/Phiên.*hạn/.test(e.message))logout();}
+ finally{setBusy(false)}
+}
+function line(title,sub,active,onClick,disabled){
+ const div=document.createElement('div');div.className='item';
+ const info=document.createElement('div');info.className='item-info';
+ const t=document.createElement('div');t.className='item-title';t.textContent=title;
+ const s=document.createElement('small');s.textContent=sub||'';
+ info.append(t,s);
+ const btn=document.createElement('button');btn.className=active?'switch btn-red':'switch';btn.textContent=active?'Tạm ẩn':'Hiện lên';
+ btn.disabled=!!disabled;btn.addEventListener('click',onClick);
+ div.append(info,btn);return div;
+}
+async function perform(method,args,confirmText){
+ if(busy||!window.confirm(confirmText))return;
+ setBusy(true);
+ try{await invoke(method,[session,...args]);say('notice','Thao tác đã lưu vào STATS HUB. Website sẽ cập nhật sau lần đồng bộ tiếp theo.','success');}
+ catch(e){say('notice',e.message,'error');}
+ finally{setBusy(false);await load();}
+}
+function render(data){
+ const menu=$('menuItems');menu.replaceChildren();
+ for(const item of data.nav){
+  const b=line(item.name,item.group+(item.id==='overview'?' · Luôn hiển thị':''),
+    item.visible,()=>perform('cdsAdminSetMenu',[item.id,!item.visible],
+      (item.visible?'Ẩn':'Hiện')+' chuyên mục "'+item.name+'"?'),
+    item.id==='overview');
+  menu.append(b);
+ }
+ const modules=$('moduleItems');modules.replaceChildren();
+ for(const item of data.modules){
+  modules.append(line(item.name,'Duyệt gần nhất: '+(item.approvedOn||'Chưa có')+' · Phạm vi: '+item.scope,
+    item.approved,()=>perform('cdsAdminSetModule',[item.name,!item.approved],
+      (item.approved?'Tạm ẩn':'PHÊ DUYỆT CÔNG KHAI')+' phân hệ "'+item.name+'"? Kiểm tra phạm vi dữ liệu trước khi xác nhận.'),false));
+ }
+ const staged=$('stagedItems');staged.replaceChildren();
+ if(!data.staged.length){
+  const p=document.createElement('p');p.className='muted';p.textContent='Chưa có nguồn nháp; cần chạy chức năng nhập Excel trước.';staged.append(p);
+ }
+ for(const x of data.staged){
+  const wrap=document.createElement('div');wrap.className='staging item';
+  const info=document.createElement('div');info.className='item-info';
+  const t=document.createElement('div');t.className='item-title';t.textContent=x.name+' ('+x.code+')';
+  const meta=document.createElement('small');meta.textContent=x.rows+' dòng · '+x.status;
+  info.append(t,meta);
+  const date=document.createElement('input');date.type='text';date.placeholder='YYYY-MM-DD';
+  date.setAttribute('aria-label','Kỳ/ngày nguồn '+x.code);date.value=x.snapshot||'';
+  const group=document.createElement('div');group.className='actions';
+  const isApproved=x.status==='ĐÃ DUYỆT';
+  const button=document.createElement('button');button.textContent=isApproved?'Thu hồi duyệt':'Duyệt nháp';
+  button.className=isApproved?'btn-light':'';
+  button.addEventListener('click',()=>{
+    perform('cdsAdminSetStagedReview',[x.code,!isApproved,date.value.trim()],
+     (isApproved?'Thu hồi':'Đánh dấu duyệt')+' nguồn '+x.code+'? Đây CHƯA PHẢI thao tác chuyển nguồn chính thức.');
+  });
+  group.append(button);wrap.append(info,date,group);staged.append(wrap);
+ }
+}
+$('loginForm').addEventListener('submit',async ev=>{
+ ev.preventDefault();if(busy)return;setBusy(true);
+ try{
+  const result=await invoke('cdsAdminLogin',[$('password').value]);
+  session=result.token;$('password').value='';say('loginFeedback','');
+ }catch(e){say('loginFeedback',e.message,'error');}
+ finally{setBusy(false)}
+ if(session)await load();
+});
+async function logout(){
+ const token=session;session='';
+ $('dashboard').hidden=true;$('logout').hidden=true;$('loginPanel').hidden=false;
+ $('password').value='';
+ if(token)try{await invoke('cdsAdminLogout',[token]);}catch(e){}
+}
+$('logout').addEventListener('click',logout);
+$('refresh').addEventListener('click',load);
+</script>
+</body>
+</html>
