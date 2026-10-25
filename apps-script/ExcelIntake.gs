@@ -5,7 +5,7 @@
  */
 function cdstuhueExcelNormalize_(value) {
   return String(value == null ? '' : value).normalize('NFD')
-    .replace(/[\u0300-\u036f]/g,'').replace(/đ/g,'d').toLowerCase()
+    .replace(/[\u0300-\u036f]/g,'').replace(/[đĐ]/g,'d').toLowerCase()
     .replace(/[^a-z0-9]+/g,' ').trim();
 }
 function cdstuhueExcelInt_(v,where) {
@@ -14,7 +14,7 @@ function cdstuhueExcelInt_(v,where) {
   return n;
 }
 function cdstuhueExcelIdentify_(sh) {
-  if(sh.getLastRow()<2||sh.getMaxColumns()<8)return '';
+  if(sh.getLastRow()<2||sh.getMaxColumns()<6)return '';
   const rows=sh.getRange(1,1,2,Math.min(14,sh.getMaxColumns())).getDisplayValues();
   const h=(r,c)=>cdstuhueExcelNormalize_(rows[r][c]);
   if(h(0,1)==='ten don vi'&&h(1,2).includes('tong sl dang vien')&&h(1,11).includes('tong tien theo ho so'))return 'THU_NOP';
