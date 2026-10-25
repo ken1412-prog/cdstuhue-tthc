@@ -55,7 +55,7 @@ class PublicSurfaceTests(unittest.TestCase):
         self.assertIn("function paymentTop3Cards(records)",js)
         self.assertIn("paymentTop3Cards(rec)",js)
         self.assertIn("const top=rec.slice(0,3)",js)
-        self.assertIn("stats-ranking-scroll",js)
+        self.assertIn("payment-table-viewport",js)
         self.assertIn("const maxMissing=Math.max",js)
         for marker in ("stats-payment-top3","stats-bank-panel","stats-missing-panel"):
             self.assertIn(marker,css)
@@ -74,7 +74,7 @@ class PublicSurfaceTests(unittest.TestCase):
             html=(SITE / page).read_text(encoding="utf-8")
             self.assertIn('<div class="footer-byline">',html)
             self.assertIn('<span class="footer-copyright">© 2026 CDSTUHUE</span><span class="footer-author">NKien',html)
-            self.assertIn('assets/styles.css?v=20261025-footer-qa-fit',html)
+            self.assertIn('assets/styles.css?v=20261025-payment-tracker',html)
             self.assertNotIn("Nkien —",html)
         css=(SITE / "assets/styles.css").read_text(encoding="utf-8")
         js=(SITE / "assets/app.js").read_text(encoding="utf-8")
