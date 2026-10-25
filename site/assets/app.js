@@ -150,7 +150,7 @@ function missingCardNote(stats){
  if(Number.isInteger(ambiguous)&&ambiguous>0)notes.push(pretty.format(ambiguous)+' trùng tên, chưa xác định cấp 2');
  if(Number.isInteger(incomplete)&&incomplete>0)notes.push(pretty.format(incomplete)+' thiếu thông tin tổ chức');
  if(!notes.length&&Number.isInteger(missing.level2Ranking?.unmatchedRows)&&missing.level2Ranking.unmatchedRows>0)
-  notes.push(pretty.format(missing.level2Ranking.unmatchedRows)+' chưa ghép cấp 2');
+  notes.push(pretty.format(missing.level2Ranking.unmatchedRows)+' hồ sơ: CA/QS hoặc đơn vị lỗi, chưa xác định được Đảng bộ cấp 2');
  return notes.length?'Không tính: '+notes.join(' · ')+'.':'';
 }
 function bankExclusionNote(bank){
