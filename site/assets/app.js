@@ -415,7 +415,7 @@ function statsDashboard(){
  }
  return '<div class="section-heading"><div><h2>Trung tâm thống kê · '+E(paymentPeriod(stats))+'</h2><p>Dữ liệu tổng hợp được duyệt từ bốn bảng nguồn riêng tư</p></div></div><div class="stats-grid stats-dashboard-grid">'+panels+'</div>';
 }
-function financeView(){return paymentMonthControls()+financeCards()+statsDashboard()}
+function financeView(){return paymentMonthControls()+statsDashboard()}
 function overview(){
  const q=published(),cats=Object.keys(GROUPS).filter(k=>viewAllowed('qa-'+k));
  const procs=Object.entries(PROCEDURES).filter(([id])=>viewAllowed(id));

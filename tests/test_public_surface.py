@@ -40,7 +40,14 @@ class PublicSurfaceTests(unittest.TestCase):
         # Preserve homepage Top 3, but omit it from detailed finance hero.
         self.assertIn("financeCards({compact:true})",js)
         self.assertIn("compact&&top.length",js)
-        self.assertIn("function financeView(){return paymentMonthControls()+financeCards()+statsDashboard()}",js)
+        self.assertIn("function financeView(){return paymentMonthControls()+statsDashboard()}",js)
+        self.assertNotIn("function financeView(){return paymentMonthControls()+financeCards()+statsDashboard()}",js)
+        # The home hero remains, but the finance category must not repeat it.
+        for page in ("index.html","hoi-dap.html"):
+            html=(SITE / page).read_text(encoding="utf-8")
+            self.assertIn('>Thống kê đảng phí <span>↗</span>',html)
+            self.assertNotIn("Khám phá thống kê",html)
+            self.assertIn("assets/app.js?v=20261025-single-finance-hero-v10",html)
         # The repeated three KPI cards in the detail view are removed.
         self.assertNotIn("const viewCards=",js)
         self.assertNotIn("'+viewCards+'",js)
