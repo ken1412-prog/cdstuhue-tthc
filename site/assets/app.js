@@ -248,6 +248,22 @@ function paymentProgressWidth(record){
  const n=paymentRate(record);
  return n===null?'0':(n*100).toFixed(1);
 }
+function paymentIncompleteUnits(title,units){
+ const head='<h3>'+E(title)+'</h3>';
+ if(!Array.isArray(units)){
+  return '<section class="payment-incomplete-section">'+head+
+   '<p class="payment-incomplete-note">Chưa có danh sách cấp con được duyệt để hiển thị.</p></section>';
+ }
+ if(!units.length){
+  return '<section class="payment-incomplete-section">'+head+
+   '<p class="payment-incomplete-note">Không ghi nhận đơn vị cấp con thuộc nhóm này trong nguồn đã đối chiếu.</p></section>';
+ }
+ return '<section class="payment-incomplete-section">'+head+
+  '<span class="payment-incomplete-count">'+pretty.format(units.length)+' đơn vị cấp con</span>'+
+  '<ul class="payment-incomplete-list">'+units.map(u=>'<li><strong>'+E(u.name)+
+    '</strong>'+(u.parentName?'<small>Trực thuộc: '+E(u.parentName)+'</small>':'')+'</li>').join('')+
+  '</ul></section>';
+}
 function openPaymentDetail(index){
  if(state.demo||selectedFinanceStats()?.public!==true||selectedFinanceStats()?.reviewed!==true)return;
  const stats=selectedFinanceStats();
@@ -264,7 +280,14 @@ function openPaymentDetail(index){
   '<div class="payment-detail-caption">Tỷ lệ thu nộp đảng phí · '+E(paymentPeriod(stats))+'</div>'+
   '<div class="payment-detail-track" role="progressbar" aria-label="Tỷ lệ thu nộp" aria-valuenow="'+(paymentRate(row)*100).toFixed(1)+'" aria-valuemin="0" aria-valuemax="100"><i style="width:'+paymentProgressWidth(row)+'%"></i></div>'+
   '<div class="payment-detail-extra"><div><small>Đơn vị đã có TK NH / tổng đơn vị</small><strong>'+E(paymentCountPair(row.bankDone,row.bankTotal))+'</strong></div><div><small>Hồ sơ đã khai báo / tổng ĐV</small><strong>'+E(paymentFiledText(row))+'</strong></div></div>'+
-  '<div class="payment-detail-note">Chỉ tiêu chưa được duyệt công khai hiển thị —. Không công bố số tiền, số tài khoản hay dữ liệu cá nhân.</div>';
+  '<div class="payment-unit-findings"><h3>Đơn vị cấp con cần xử lý</h3>'+
+  (state.paymentArchive?
+   '<p class="payment-incomplete-note">Bản tháng đã chốt không lưu danh sách cấp con; không ghép dữ liệu mới vào tháng cũ.</p>':
+   paymentIncompleteUnits('Chưa có tài khoản ngân hàng',row.bankPendingUnits)+
+   paymentIncompleteUnits('Còn hồ sơ chưa khai báo',row.unfiledUnits))+
+  (!state.paymentArchive?'<p class="payment-detail-note">Danh sách hồ sơ chỉ xác định cấp con còn dòng chưa khai báo, không bao gồm hồ sơ đã khai báo đang chờ duyệt. Hai nguồn có thể khác thời điểm; danh sách trống không tự khẳng định hoàn thành 100%.</p>':'')+
+  '</div>'+
+  '<div class="payment-detail-note">Chỉ công bố tên đơn vị được duyệt. Không công bố thông tin cá nhân, số tài khoản hoặc hồ sơ từng người.</div>';
  modal.classList.remove('hidden');
  document.body.style.overflow='hidden';
  $('#closePaymentDetail').focus();
@@ -366,7 +389,7 @@ function statsDashboard(){
    const filed=paymentFiledText(x);
    return '<tr class="'+(done?'is-complete':'is-active')+'">'+
     '<td><span class="payment-rank-badge '+(i<3?'top-'+(i+1):'')+'">'+E(x.rank)+'</span></td>'+
-    '<td><button type="button" class="payment-unit-button" data-payment-index="'+i+'">'+E(x.name)+'</button></td>'+
+    '<td><button type="button" class="payment-unit-button" data-payment-index="'+i+'" aria-label="Xem đơn vị cấp con cần xử lý của '+E(x.name)+'">'+E(x.name)+' <span class="payment-unit-more" aria-hidden="true">›</span></button></td>'+
     '<td class="payment-account-cell" title="Đã có TK NH / Tổng tổ chức có trạng thái hợp lệ">'+E(bankLabel)+'</td>'+
     '<td class="payment-filing-cell">'+E(filed)+'</td>'+
     '<td class="payment-rate-cell"><div class="payment-rate-inline"><div class="payment-table-meter" role="progressbar" aria-label="Thu đảng phí '+E(x.name)+'" aria-valuenow="'+(paymentRate(x)===null?0:(paymentRate(x)*100).toFixed(1))+'" aria-valuemin="0" aria-valuemax="100"><i style="width:'+paymentProgressWidth(x)+'%"></i></div><b>'+E(paymentPercent(x))+'</b></div></td>'+
