@@ -104,7 +104,7 @@ class PublicSurfaceTests(unittest.TestCase):
         for marker in ("payment-period-toolbar", "payment-period-badge", "payment-table-tools",
                        "hue-city-day.webp", "#c92438"):
             self.assertIn(marker,css)
-        self.assertIn("data.closed!==true",js)
+        self.assertIn("data?.closed!==true",js)
         self.assertIn("data.modules.ranking.records.length!==46",js)
         self.assertNotIn("api.openai.com",js)
 
