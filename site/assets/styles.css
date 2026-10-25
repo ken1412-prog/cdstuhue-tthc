@@ -623,7 +623,7 @@ body{
 html{background:#edf2f8}
 body{
   color:#172c4a;
-  background:linear-gradient(180deg,rgba(246,249,253,.82),rgba(239,245,251,.79)),
+  background:linear-gradient(180deg,rgba(246,249,253,.28),rgba(239,245,251,.23)),
     url('./img/hue-city-day.webp') center 55% /cover fixed no-repeat;
   font-family:'Be Vietnam Pro','Segoe UI',Arial,sans-serif;
 }
@@ -702,8 +702,8 @@ a:hover,.card-link:hover{color:#8f0b12}
 .eyebrow,.payment-kicker{color:#b3111b}
 .red-dot{background:#f2ca63;box-shadow:0 0 0 3px #f2ca632f}
 .stats-hero-home{
-  background:linear-gradient(105deg,rgba(250,252,255,.89) 0%,
-    rgba(249,251,255,.83) 45%,rgba(248,250,254,.62) 77%,rgba(248,250,254,.35) 100%),
+  background:linear-gradient(105deg,rgba(250,252,255,.75) 0%,
+    rgba(249,251,255,.55) 43%,rgba(248,250,254,.19) 76%,rgba(248,250,254,.07) 100%),
     url('./img/hue-city-day.webp') center 53% /cover no-repeat!important;
   border:1px solid #aebed0;
   box-shadow:0 13px 31px rgba(23,44,74,.16);
@@ -812,9 +812,18 @@ a:hover,.card-link:hover{color:#8f0b12}
 .footer-byline{color:#172c4a}
 .category-card .c-count{color:#a90e17}
 .category-card .c-icon{color:#bd1420;background:#ffedef}
+
+/* Keep captions legible over the now-visible Perfume River photograph. */
+.footer,.footer-byline,.footer-disclaimer{
+ color:#122943!important;
+ text-shadow:0 1px 3px rgba(255,255,255,.96),0 0 10px rgba(255,255,255,.8);
+}
+.stats-hero-title h2,.stats-eyebrow{
+ text-shadow:0 1px 4px rgba(255,255,255,.94)!important;
+}
 @media(max-width:760px){
  body{
-  background:linear-gradient(180deg,rgba(248,250,254,.88),rgba(241,246,252,.8)),
+  background:linear-gradient(180deg,rgba(248,250,254,.33),rgba(241,246,252,.29)),
     url('./img/hue-city-day.webp') center 55% /cover no-repeat;
  }
  .hero{
@@ -822,7 +831,7 @@ a:hover,.card-link:hover{color:#8f0b12}
     url('./img/hue-bridge-night.webp') center 53% /cover no-repeat!important;
  }
  .stats-hero-home{
-  background:linear-gradient(115deg,rgba(250,252,255,.91),rgba(249,251,255,.73)),
+  background:linear-gradient(115deg,rgba(250,252,255,.76),rgba(249,251,255,.25)),
     url('./img/hue-city-day.webp') center 53% /cover no-repeat!important;
  }
 }
