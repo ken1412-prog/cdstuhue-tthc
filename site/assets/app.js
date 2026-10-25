@@ -74,7 +74,9 @@ function applyMenuVisibility(){
  });
  document.body.classList.remove('menu-loading');
  const helper=$('#openAssistant'),panel=$('#assistantWrap');
- if(helper)helper.hidden=state.menu.assistant!==true;
+ for(const launcher of [helper,$('#navAssistant'),$('#assistantMobileFab')]){
+  if(launcher)launcher.hidden=state.menu.assistant!==true;
+ }
  if(panel&&state.menu.assistant!==true)panel.classList.add('hidden');
  if(state.menu.reports!==true)
   $$('[data-action="export-qa"],[data-action="export-progress"],[data-action="export-finance"]').forEach(el=>el.hidden=true);
@@ -334,7 +336,16 @@ function boot(){document.addEventListener('keydown',discourageSourceHotkeys,true
  document.addEventListener('click',async e=>{const node=e.target.closest('[data-view],[data-action],[data-qa]');if(!node)return;if(node.dataset.view){route(node.dataset.view);return}if(node.dataset.qa){openQA(node.dataset.qa);return}const a=node.dataset.action;if(a==='demo')toggleDemo(true);if(a==='prev'){state.page=Math.max(0,state.page-1);render();}if(a==='next'){state.page++;render()}if(a==='upload-progress')$('#progressFile')?.click();if(a==='export-progress')exportProgress();if(a==='export-qa')exportQA();if(a==='export-finance')exportFinance();if(a==='print')window.print()});
  $('#endDemo').onclick=()=>{if(state.local){loadData();toast('Đã xóa dữ liệu xem thử cục bộ')}else toggleDemo(false)};$('#refreshBtn').onclick=()=>loadData().then(()=>toast('Đã tải lại dữ liệu xuất bản'));$('#openMenu').onclick=()=>{$('#sidebar').classList.add('mobile-open');$('#shade').classList.add('mobile-open')};$('#closeMenu').onclick=closeMobile;$('#shade').onclick=closeMobile;
  $('#closeModal').onclick=closeQA;$('#qaModal').onclick=e=>{if(e.target===$('#qaModal'))closeQA()};
- const assistant=$('#assistantWrap');$('#openAssistant').onclick=()=>{assistant.classList.toggle('hidden');if(!assistant.classList.contains('hidden'))$('#assistantInput').focus()};$('#closeAssistant').onclick=()=>assistant.classList.add('hidden');$('#assistantForm').onsubmit=e=>{e.preventDefault();assistantResults($('#assistantInput').value)};$('#askToggle').onclick=()=>{const panel=$('#askPanel');panel.classList.toggle('hidden');$('#askToggle').setAttribute('aria-expanded',String(!panel.classList.contains('hidden')));if(!panel.classList.contains('hidden'))$('#questionText').focus()};$('#questionForm').onsubmit=e=>{if($('#questionSubmit').disabled){e.preventDefault();toast('Chưa kích hoạt nhận câu hỏi mới');return}const text=$('#questionText').value.trim();if(text.length<12||text.length>1200||/([a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}|\b(?:0[35789]\d{8}|\d{12})\b)/i.test(text)){e.preventDefault();toast('Vui lòng không gửi thông tin cá nhân; câu hỏi dài 12–1200 ký tự');return}setTimeout(()=>{$('#questionText').value=''},200)};loadQuestionFormConfig();
+ const assistant=$('#assistantWrap');
+ const toggleAssistant=()=>{
+  if(state.menu.assistant!==true)return;
+  const opening=assistant.classList.contains('hidden');
+  assistant.classList.toggle('hidden');
+  if(opening){closeMobile();$('#assistantInput').focus();}
+ };
+ $('#openAssistant').onclick=toggleAssistant;
+ $('#navAssistant').onclick=toggleAssistant;
+ $('#assistantMobileFab').onclick=toggleAssistant;$('#closeAssistant').onclick=()=>assistant.classList.add('hidden');$('#assistantForm').onsubmit=e=>{e.preventDefault();assistantResults($('#assistantInput').value)};$('#askToggle').onclick=()=>{const panel=$('#askPanel');panel.classList.toggle('hidden');$('#askToggle').setAttribute('aria-expanded',String(!panel.classList.contains('hidden')));if(!panel.classList.contains('hidden'))$('#questionText').focus()};$('#questionForm').onsubmit=e=>{if($('#questionSubmit').disabled){e.preventDefault();toast('Chưa kích hoạt nhận câu hỏi mới');return}const text=$('#questionText').value.trim();if(text.length<12||text.length>1200||/([a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}|\b(?:0[35789]\d{8}|\d{12})\b)/i.test(text)){e.preventDefault();toast('Vui lòng không gửi thông tin cá nhân; câu hỏi dài 12–1200 ký tự');return}setTimeout(()=>{$('#questionText').value=''},200)};loadQuestionFormConfig();
  document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeQA();assistant.classList.add('hidden');closeMobile()}});window.addEventListener('popstate',syncFromUrl);loadData();}
 window.CDSTUHUE_TEST={fold,scoreQA,normQA,validProgress};
 boot();

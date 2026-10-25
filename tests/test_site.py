@@ -102,6 +102,26 @@ class SiteTests(unittest.TestCase):
         self.assertIn("rgba(246,249,253,.76),rgba(247,249,252,.84)",css)
         self.assertIn("url('./img/hue-bridge-night.webp')",css)
 
+    def test_mobile_non_ai_qa_helper_launchers(self):
+        js=(ROOT/'site/assets/app.js').read_text(encoding='utf-8')
+        css=(ROOT/'site/assets/styles.css').read_text(encoding='utf-8')
+        for name in ('index.html','hoi-dap.html'):
+            html=(ROOT/'site'/name).read_text(encoding='utf-8')
+            self.assertIn('id="navAssistant"',html)
+            self.assertIn('id="assistantMobileFab"',html)
+            self.assertIn('id="openAssistant"',html)
+            self.assertIn('id="assistantWrap"',html)
+            self.assertIn('Không dùng AI bên ngoài',html)
+            self.assertIn('assets/app.js?v=20261025-assistantfab',html)
+            self.assertIn('assets/styles.css?v=20261025-assistantfab',html)
+        self.assertIn("launcher.hidden=state.menu.assistant!==true",js)
+        self.assertIn("$('#navAssistant').onclick=toggleAssistant",js)
+        self.assertIn("$('#assistantMobileFab').onclick=toggleAssistant",js)
+        self.assertIn("if(state.menu.assistant!==true)return",js)
+        self.assertIn("assistantResults($('#assistantInput').value)",js)
+        self.assertIn(".assistant-mobile-fab:not([hidden])",css)
+        self.assertIn("height:100dvh",css)
+
     def test_js_syntax(self):
         p=subprocess.run(['node','--check',str(ROOT/'site/assets/app.js')],capture_output=True,text=True)
         self.assertEqual(p.returncode,0,p.stderr)

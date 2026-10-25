@@ -36,6 +36,14 @@ class PublicSurfaceTests(unittest.TestCase):
             self.assertIn(marker,css)
         self.assertNotIn('id="rankingSearch"',js)
 
+    def test_non_ai_assistant_remains_available_on_mobile(self):
+        js=(SITE / "assets/app.js").read_text(encoding="utf-8")
+        css=(SITE / "assets/styles.css").read_text(encoding="utf-8")
+        self.assertIn("$('#navAssistant').onclick=toggleAssistant",js)
+        self.assertIn("$('#assistantMobileFab').onclick=toggleAssistant",js)
+        self.assertIn(".assistant-mobile-fab:not([hidden])",css)
+        self.assertNotIn("api.openai.com",js)
+
     def test_no_original_host_or_repo_links_in_ui_assets(self):
         for path in PUBLIC_ASSETS:
             with self.subTest(path=path.name):
