@@ -76,7 +76,7 @@ class PublicSurfaceTests(unittest.TestCase):
             html=(SITE / page).read_text(encoding="utf-8")
             self.assertIn('<div class="footer-byline">',html)
             self.assertIn('<span class="footer-copyright">© 2026 CDSTUHUE</span><span class="footer-author">NKien',html)
-            self.assertIn('assets/styles.css?v=20261025-hue-contrast-v2',html)
+            self.assertIn('assets/styles.css?v=20261025-hue-photo-clear-v3',html)
             self.assertNotIn('id="navAssistant"',html)
             self.assertIn('id="openAssistant"',html)
             self.assertIn('id="assistantMobileFab"',html)
@@ -128,6 +128,13 @@ class PublicSurfaceTests(unittest.TestCase):
         self.assertIn("data?.closed!==true",js)
         self.assertIn("data.modules.ranking.records.length!==46",js)
         self.assertNotIn("api.openai.com",js)
+
+    def test_hue_daytime_photo_is_visible(self):
+        css=(SITE / "assets/styles.css").read_text(encoding="utf-8")
+        self.assertIn("rgba(246,249,253,.28)",css)
+        self.assertIn("rgba(249,251,255,.55)",css)
+        self.assertIn("hue-city-day.webp",css)
+        self.assertIn("hue-bridge-night.webp",css)
 
     def test_no_redundant_dashboard_explanations(self):
         js=(SITE / "assets/app.js").read_text(encoding="utf-8")
