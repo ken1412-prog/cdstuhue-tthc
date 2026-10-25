@@ -139,4 +139,11 @@ assert(source.includes('function cdstuhueInstallIntakeWatch()'));
 assert(source.includes('function cdstuhueApproveStagedBatch()'));
 assert(source.includes('DUYET '));
 assert(!source.includes("'PHAN_BO'"));
+const combined=fs.readFileSync(path.join(__dirname,'../apps-script/CDSTUHUE_DEPLOY_SINGLE.gs'),'utf8');
+const sourceQa=fs.readFileSync(path.join(__dirname,'../apps-script/Code.gs'),'utf8');
+assert(combined.includes(sourceQa),'Deploy single-file bundle is missing current QA/public API module');
+assert(combined.includes(source),'Deploy single-file bundle is missing current Excel intake module');
+assert(combined.includes('function doGet('),'Public website feed must remain available');
+assert(combined.includes('function cdstuhueApproveStagedBatch()'),'Private approval action missing');
+
 console.log('Flexible Excel header mapping, optional drops, shuffle, canonicalization and privacy PASS');
