@@ -440,3 +440,168 @@ body{
 .payment-detail-extra small{font-size:10px;color:#6c7d90}
 .payment-detail-extra strong{font-size:20px;color:#1e5478}
 @media(max-width:760px){.payment-tracker-panel{padding:12px 8px!important}.payment-table{min-width:665px}.payment-detail-extra strong{font-size:16px}}
+
+/* ===========================================================
+   Huế civic light 2026 – inspired by the city's white briefing
+   screens, vermilion header, gold details and local daylight photo.
+   No new external images, fonts or tracking requests.
+   =========================================================== */
+:root{
+ --canvas:#fff9f5;--paper:#fff;--nav:#fffaf2;--nav-deep:#fff4e9;
+ --ink:#35283e;--muted:#7c7183;--line:#f0e2e0;
+ --red:#c92438;--gold:#e8b648;--green:#0d8b70;
+ --shadow:0 12px 30px rgba(123,43,49,.075)
+}
+html{background:#fffaf6}
+body{
+ color:var(--ink);
+ background:linear-gradient(180deg,rgba(255,251,247,.97) 0%,rgba(255,251,247,.87) 67%,rgba(255,250,246,.78) 100%),
+ url('./img/hue-city-day.webp') center bottom /cover fixed no-repeat;
+ font-family:'Be Vietnam Pro','Segoe UI',Arial,sans-serif;
+}
+.sidebar{
+ background:linear-gradient(160deg,rgba(255,255,255,.98),rgba(255,244,231,.98));
+ color:#422e39;border-right:1px solid #efd5ca;
+ box-shadow:5px 0 20px rgba(99,36,42,.07)
+}
+.sidebar .brand{border-bottom:1px solid #f0d9d4}
+.sidebar .brand b{color:#872635}
+.sidebar .brand-gold{color:#dca236}
+.sidebar .brand small{color:#836d70}
+.sidebar .menu-group{color:#ae5b58}
+.sidebar .nav-link{color:#553b49}
+.sidebar .nav-link:hover{background:#fff0e1;color:#a92335}
+.sidebar .nav-link.active{
+ background:linear-gradient(90deg,#ffe6ce,#fff7ed);
+ box-shadow:inset 4px 0 #c51c31;
+ color:#9b1b31;font-weight:800
+}
+.sidebar .nav-ico,.sidebar .nav-link.active .nav-ico{color:#bb4b46}
+.sidebar .nav-count{background:#fbe2d3;color:#842b3b}
+.sidebar .finance-nav-rate{background:#e5f7ee;color:#076c52;border:1px solid #c6ead9}
+.sidebar .menu-new{background:#fff0d4;border:1px solid #edcf87;color:#9c5826}
+.sidebar .sidebar-bottom{background:linear-gradient(180deg,#fff9ee,#fff0e0);border-top:1px solid #f0d6cc}
+.sidebar .sidebar-bottom>p{color:#8c7975}
+.sidebar .nav-assist-link{border-color:#ebbe84;background:#fff1dd}
+.sidebar .nav-assist-link small{color:#916a69}
+.sidebar .sidebar-close{background:#b42035;color:#fff}
+.sidebar .side-assist{background:linear-gradient(120deg,#c92b40,#e15a48);color:#fff}
+.topbar{background:linear-gradient(105deg,#a82036,#d9454d 55%,#e67864)!important;
+ border-bottom:3px solid #f0bf68;color:#fff;box-shadow:0 4px 18px rgba(165,54,59,.12)}
+.topbar .breadcrumb,.topbar .breadcrumb b,.topbar .breadcrumb span{color:#fff!important}
+.topbar .today,.topbar .announcement-text{color:#fff}
+.topbar .announcement{background:#ffffff1c;border-color:#ffffff4d;color:#fff}
+.topbar .announcement-label{color:#ffdf99}
+.topbar .btn,.topbar .hamburger{background:#ffffffef;color:#9d2336;border-color:#ffffffa8}
+.topbar .header-actions .btn.dark{background:#fff8e9;border-color:#fff3d0;color:#9d2336}
+.topbar .updated-tag{color:#fff}
+.hero{
+ background:linear-gradient(100deg,rgba(163,28,49,.94),rgba(215,66,71,.88),rgba(236,138,96,.77)),
+ url('./img/hue-city-day.webp') center 59% /cover no-repeat;
+ border:1px solid #e79f91;box-shadow:0 13px 33px rgba(170,54,58,.15);
+}
+.hero h1,.hero .eyebrow{color:#fff!important;text-shadow:0 1px 4px #852b3a5e!important}
+.hero p{color:#fff8f5!important;text-shadow:none!important}
+.hero .tag{background:#ffffff21;border-color:#ffffff5b;color:#fff}
+.hero .hero-outline{background:#ffffffeb;color:#9c2438;border-color:#fff}
+.hero .hero-primary{background:linear-gradient(120deg,#ffe6aa,#f6c64a);color:#752c34}
+.stats-hero-home{
+ background:linear-gradient(104deg,rgba(255,254,250,.98),rgba(255,246,235,.94) 60%,rgba(254,236,213,.82)),
+ url('./img/hue-city-day.webp') center /cover no-repeat!important;
+ border:1px solid #efcfb8;box-shadow:0 11px 26px rgba(168,76,60,.09);
+}
+.stats-hero-title h2{color:#8a2538!important;text-shadow:none!important}
+.stats-hero-title p{color:#635c65}
+.stats-eyebrow{color:#ad3c46}
+.stats-hero-open{background:linear-gradient(100deg,#bd2639,#df554c);color:#fff}
+.stats-hero-open:hover{background:#a51e32;color:#fff}
+.stats-hero-metric{border:1px solid #f0dbcd;background:#fffdfb;box-shadow:0 5px 17px rgba(130,60,50,.055)}
+.stats-hero-metric small{color:#846469!important}
+.stats-hero-metric strong{color:#9a263c!important}
+.stats-hero-metric .stats-context-line{color:#846469}
+.stats-hero-ranking{background:#fffdfa;border:1px solid #f0d9c9}
+.stats-hero-rank-title{color:#973148}
+.stats-hero-home .stats-payment-leader{background:#fff;border-color:#efdccd}
+.panel,.stats-kpi,.stat-card,.category-card{background:#fffefa;border-color:#f0e3dc;
+ box-shadow:0 7px 22px rgba(114,46,54,.065)}
+.section-heading h2,.panel h2{color:#852b3c}
+.payment-tracker-panel{background:#fffefa}
+.payment-tracker-heading h2{color:#8b2138}
+.payment-kicker{color:#bd3043}
+.payment-tracker-totals>div{background:#fff6ea;border-color:#f5dfc7}
+.payment-table-viewport{border-color:#edd8d0;background:#fff}
+.payment-table thead th{
+ background:linear-gradient(105deg,#a82036,#c93342 55%,#d85543)!important;
+ color:#fff;border-color:#bd4a4f
+}
+.payment-table tbody tr:nth-child(even){background:#fffbf7}
+.payment-table tbody tr:hover{background:#fff2e6}
+.payment-table td{border-color:#f2e4de}
+.payment-table tr.is-complete .payment-rate-cell{color:#0c8c6f}
+.payment-table-meter i{background:linear-gradient(90deg,#efab3a,#e05c3c)}
+.payment-table tr.is-complete .payment-table-meter i{background:linear-gradient(90deg,#46bea4,#15987b)}
+.payment-detail-titlebar{background:linear-gradient(120deg,#a32038,#d4484c,#e08c6c)}
+.payment-detail-eyebrow{color:#ffdfa0}
+.payment-detail-note,.payment-detail-extra>div{background:#fff8f1;border-color:#f1e0d3}
+.footer{color:#75666d}
+.footer-byline{color:#873047}
+.footer-disclaimer{color:#846f72}
+/* Distinct, accessible monthly archive controls */
+.payment-period-toolbar{
+ display:flex;align-items:center;justify-content:space-between;gap:12px 18px;
+ flex-wrap:wrap;background:linear-gradient(100deg,#fffdf9,#fff1df);
+ border:1px solid #f0d9c0;border-top:4px solid #c7253d;
+ border-radius:15px;padding:15px 19px;margin:0 0 16px;
+ box-shadow:0 7px 21px #9f36421a;min-width:0
+}
+.payment-period-select{display:flex;align-items:center;gap:13px;min-width:0;flex:1 1 300px;flex-wrap:wrap}
+.payment-period-symbol{display:grid;place-items:center;flex:0 0 41px;height:41px;
+ border-radius:12px;background:linear-gradient(130deg,#cc2e42,#e77e55);color:#fff;font-size:24px}
+.payment-period-select label{display:flex;flex-direction:column;gap:3px;min-width:140px;flex:1}
+.payment-period-select label b{font-size:12px;color:#902a40;letter-spacing:.03em}
+.payment-period-select label small{font-size:10px;color:#786c73}
+.payment-period-select select{
+ appearance:auto;max-width:100%;min-width:155px;min-height:40px;border:1px solid #e6c9c1;
+ border-radius:9px;background:#fff;color:#732439;padding:8px 10px;font:700 12px inherit;
+}
+.payment-period-badge{font-size:11px;font-weight:800;padding:8px 12px;border-radius:25px;white-space:nowrap}
+.payment-period-badge.is-latest{background:#e3f5ec;color:#0a795d}
+.payment-period-badge.is-frozen{background:#ffecd1;color:#9c5b17}
+.payment-period-hint{flex:1 0 100%;font-size:11px;color:#746b74;line-height:1.55;margin:0}
+.payment-table-tools{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:4px 0 12px}
+.payment-search-label{display:flex;align-items:center;gap:8px;flex:1 1 225px;min-width:155px;
+ border:1px solid #e8d6d1;border-radius:10px;background:#fff;padding:0 12px;color:#a12c42}
+.payment-search-label>span{font-size:18px}
+.payment-search-label input{width:100%;min-width:0;border:0;outline:none;background:transparent;padding:10px 0;
+ font:500 12px 'Be Vietnam Pro','Segoe UI',sans-serif;color:#4d3541}
+.payment-table-tools select{min-height:40px;border:1px solid #e8d6d1;border-radius:10px;background:#fff;
+ color:#6c3547;padding:8px 9px;font:650 11px 'Be Vietnam Pro','Segoe UI',sans-serif}
+.payment-export-btn{background:linear-gradient(100deg,#ce3d42,#d66c43);
+ border:0;color:#fff;border-radius:9px;padding:10px 12px;min-height:40px;
+ font:800 11px 'Be Vietnam Pro','Segoe UI',sans-serif;cursor:pointer}
+.payment-export-btn:hover{filter:brightness(.95)}
+.payment-result-count{color:#886a73;font-size:11px;white-space:nowrap}
+.payment-empty{text-align:center;color:#8b6f77;padding:25px!important}
+@media(max-width:760px){
+ body{background:linear-gradient(180deg,rgba(255,251,246,.92),rgba(255,246,237,.82)),
+  url('./img/hue-city-day.webp') center bottom /cover fixed no-repeat}
+ .hero{background:linear-gradient(100deg,rgba(165,30,47,.94),rgba(215,68,65,.83)),
+  url('./img/hue-city-day.webp') center 56% /cover no-repeat}
+ .stats-hero-home{background:linear-gradient(110deg,rgba(255,254,251,.97),rgba(255,241,225,.91)),
+  url('./img/hue-city-day.webp') center /cover no-repeat!important}
+ .payment-period-toolbar{padding:12px;gap:10px}
+ .payment-period-select{flex:1 1 100%}
+ .payment-period-select select{flex:1 1 100%;width:100%}
+ .payment-period-badge{white-space:normal}
+ .payment-period-hint{font-size:10px}
+ .payment-table-tools{gap:6px}
+ .payment-search-label{flex:1 1 100%}
+ .payment-table-tools select{flex:1 1 46%;min-width:0}
+ .payment-export-btn{flex:1 1 auto}
+}
+@media print{
+ .payment-period-toolbar{border:1px solid #999;box-shadow:none}
+ .payment-table-tools{display:none!important}
+ .sidebar,.topbar,.assistant-mobile-fab{display:none!important}
+ body{background:#fff!important}
+}
