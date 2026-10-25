@@ -381,11 +381,11 @@ function buildStatsFeed_(){
   // For backward compatibility the missing KY_BAO_CAO tab means October 2026.
   const monthSheet=hub.getSheetByName('KY_BAO_CAO');
   const period=monthSheet?String(monthSheet.getRange('B2').getDisplayValue()||'').trim():'2026-10';
-  if(!/^20\\d{2}-(0[1-9]|1[0-2])$/.test(period))
+  if(!/^20\d{2}-(0[1-9]|1[0-2])$/.test(period))
     throw new Error('Invalid private KY_BAO_CAO!B2. Expected YYYY-MM.');
   const periodSource=String(src.THU_NOP.snapshot||'').trim();
-  const dateIso=periodSource.match(/^(20\\d{2})-(0[1-9]|1[0-2])(?:-\\d{2})?$/);
-  const dateVi=periodSource.match(/^\\d{2}\\/(0[1-9]|1[0-2])\\/(20\\d{2})$/);
+  const dateIso=periodSource.match(/^(20\d{2})-(0[1-9]|1[0-2])(?:-\d{2})?$/);
+  const dateVi=periodSource.match(/^\d{2}\/(0[1-9]|1[0-2])\/(20\d{2})$/);
   const sourcePeriod=dateIso?(dateIso[1]+'-'+dateIso[2]):dateVi?(dateVi[2]+'-'+dateVi[1]):'';
   if(sourcePeriod&&sourcePeriod!==period)
     return {schema:1,public:false,reviewed:false,period,modules:{},
