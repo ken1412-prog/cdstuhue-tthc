@@ -122,6 +122,25 @@ class SiteTests(unittest.TestCase):
         self.assertIn(".assistant-mobile-fab:not([hidden])",css)
         self.assertIn("height:100dvh",css)
 
+    def test_monthly_payment_tracker_and_detail_modal(self):
+        js=(ROOT/'site/assets/app.js').read_text(encoding='utf-8')
+        css=(ROOT/'site/assets/styles.css').read_text(encoding='utf-8')
+        for page in ('index.html','hoi-dap.html'):
+            html=(ROOT/'site'/page).read_text(encoding='utf-8')
+            self.assertIn('id="financeNavRate"',html)
+            self.assertIn('id="paymentModal"',html)
+            self.assertIn('id="closePaymentDetail"',html)
+            self.assertIn('assets/app.js?v=20261025-payment-tracker',html)
+        self.assertIn("feeRate=state.demo?null:state.stats?.modules?.payment?.completionRate",js)
+        self.assertIn("function openPaymentDetail(index)",js)
+        self.assertIn("paymentTop3Cards(rec)",js)
+        self.assertIn("class=\"payment-table\"",js)
+        self.assertIn("Hoàn thành 100%",js)
+        self.assertIn("'Hoàn thành':'Đang triển khai'",js)
+        self.assertIn("paymentPeriod(stats)",js)
+        self.assertIn("statsRankingPair(v.unitRanking,'bản ghi')",js)
+        self.assertIn(".payment-detail-dialog{",css)
+
     def test_js_syntax(self):
         p=subprocess.run(['node','--check',str(ROOT/'site/assets/app.js')],capture_output=True,text=True)
         self.assertEqual(p.returncode,0,p.stderr)

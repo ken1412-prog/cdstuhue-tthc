@@ -24,6 +24,16 @@ ORIGIN_LINK = re.compile(
 
 
 class PublicSurfaceTests(unittest.TestCase):
+    def test_monthly_approved_finance_tracker(self):
+        js=(SITE / "assets/app.js").read_text(encoding="utf-8")
+        self.assertIn("function paymentTop3Cards(records)",js)
+        self.assertIn("const top=rec.slice(0,3)",js)
+        self.assertIn("paymentTop3Cards(rec)",js)
+        self.assertIn("payment-tracker-panel",js)
+        self.assertIn("payment-table-viewport",js)
+        self.assertIn("closePaymentDetail()",js)
+        self.assertNotIn("v.owner",js[js.index("function statsDashboard()"):js.index("function financeView()")])
+
     def test_no_duplicate_finance_page_highlights(self):
         js=(SITE / "assets/app.js").read_text(encoding="utf-8")
         # Preserve homepage Top 3, but omit it from detailed finance hero.
@@ -44,7 +54,7 @@ class PublicSurfaceTests(unittest.TestCase):
         css=(SITE / "assets/styles.css").read_text(encoding="utf-8")
         self.assertIn("function paymentTop3Cards(records)",js)
         self.assertIn("paymentTop3Cards(rec)",js)
-        self.assertIn("const top=(m.ranking?.records||[]).slice(0,3)",js)
+        self.assertIn("const top=rec.slice(0,3)",js)
         self.assertIn("stats-ranking-scroll",js)
         self.assertIn("const maxMissing=Math.max",js)
         for marker in ("stats-payment-top3","stats-bank-panel","stats-missing-panel"):

@@ -9,8 +9,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/styles.css?v=20261025-footer-qa-fit">
-<script src="assets/app.js?v=20261025-assistantfab" defer></script>
+<link rel="stylesheet" href="assets/styles.css?v=20261025-payment-tracker">
+<script src="assets/app.js?v=20261025-payment-tracker" defer></script>
 </head>
 <body class="menu-loading">
 <div class="app">
@@ -25,7 +25,7 @@
       <div class="menu-group" id="coreMenuGroup">TỔNG HỢP</div>
       <nav class="nav" id="mainNav" aria-label="Điều hướng chính">
         <button type="button" class="nav-link active" data-view="overview"><span class="nav-ico">▦</span><span>Tổng quan điều hành</span></button>
-        <button type="button" class="nav-link" data-view="finance"><span class="nav-ico">◫</span><span>Thống kê đảng phí</span><span class="menu-new">MỚI</span></button>
+        <button type="button" class="nav-link" data-view="finance"><span class="nav-ico">◫</span><span>Thống kê đảng phí</span><span class="finance-nav-rate" id="financeNavRate" hidden></span></button>
         <button type="button" class="nav-link" data-view="units" hidden><span class="nav-ico">▤</span><span>Bảng tiến độ</span></button>
       </nav>
       <div class="menu-group" id="procedureMenuGroup" hidden>THỦ TỤC · HƯỚNG DẪN</div>
@@ -69,6 +69,7 @@
   </div>
 </div>
 <div class="dialog-backdrop hidden" id="qaModal" role="presentation"><section class="qa-dialog" role="dialog" aria-modal="true" aria-labelledby="modalTitle"><div class="dialog-top"><div><span class="eyebrow" id="modalGroup"></span><h2 id="modalTitle"></h2></div><button type="button" class="close-dialog" id="closeModal" aria-label="Đóng">×</button></div><div id="modalBody" class="dialog-body"></div><div class="dialog-foot"><span id="modalId"></span></div></section></div>
+<div class="dialog-backdrop hidden" id="paymentModal" role="presentation"><section class="payment-detail-dialog" role="dialog" aria-modal="true" aria-labelledby="paymentDetailTitle"><div class="payment-detail-titlebar"><div><span class="payment-detail-eyebrow" id="paymentDetailPeriod"></span><h2 id="paymentDetailTitle"></h2></div><button type="button" id="closePaymentDetail" class="payment-detail-close" aria-label="Đóng chi tiết Đảng bộ">×</button></div><div id="paymentDetailBody" class="payment-detail-body"></div></section></div>
 <button type="button" class="assistant-mobile-fab" id="assistantMobileFab" aria-label="Mở hỏi đáp nhanh không dùng AI bên ngoài" hidden><span aria-hidden="true">✧</span><span>Hỏi đáp nhanh<small>Không dùng AI</small></span></button>
 <div class="assistant-wrap hidden" id="assistantWrap"><section class="assistant-box" role="dialog" aria-label="Trợ lý tra cứu"><div class="assistant-head"><div><strong>✧ Trợ lý tra cứu nhanh</strong><small>Tìm trong QA đã được duyệt, không gửi nội dung ra ngoài</small></div><button type="button" id="closeAssistant" aria-label="Đóng trợ lý">×</button></div><div class="assistant-intro">Nhập câu hỏi hoặc lỗi bạn gặp. Hệ thống sẽ gợi ý các mục phù hợp trong kho công khai.</div><div class="assistant-results" id="assistantResults"></div><form class="assistant-compose" id="assistantForm"><input id="assistantInput" type="search" placeholder="Ví dụ: không thấy nút phê duyệt..." autocomplete="off" required><button type="submit">Tìm →</button></form></section></div>
 <div class="toast hidden" id="toast" role="status" aria-live="polite"></div>

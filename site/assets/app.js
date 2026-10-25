@@ -126,7 +126,7 @@ async function loadData(){
 }
 function updateGlobal(){const q=published(),by=g=>q.filter(x=>x.group===g).length;$('#qaTotalSide').textContent=q.length;$('#qaTthcSide').textContent=by('tthc');$('#qaStdvSide').textContent=by('stdv');$('#qaCsdlSide').textContent=by('csdl');$('#updatedTag').textContent=state.demo?'Đang xem dữ liệu minh họa':(state.generatedAt?'Bản xuất '+DATE(state.generatedAt):'Chưa có bản xuất công khai');const approvedDate=state.stats&&state.stats.approvedDate;
  const approvedMatch=typeof approvedDate==='string'?approvedDate.match(/^(\d{4})-(\d{2})-(\d{2})$/):null;
- if(approvedMatch){const el=$('#lastApprovedDate');if(el)el.textContent=approvedMatch[3]+'/'+approvedMatch[2]+'/'+approvedMatch[1];}$('#demoBanner').classList.toggle('hidden',!(state.demo||state.local));$('#demoBanner strong').textContent=state.demo?'ĐANG XEM DỮ LIỆU MINH HỌA':'DỮ LIỆU NHẬP CỤC BỘ';$('#demoBanner span').textContent=state.demo?'Không phải số liệu hoặc câu trả lời thực tế.':'Bản ghi từ máy của bạn, chưa xuất bản hoặc lưu vào hệ thống.';$('#endDemo').textContent=state.demo?'Tắt minh họa ×':'Xóa dữ liệu cục bộ ×'}
+ if(approvedMatch){const el=$('#lastApprovedDate');if(el)el.textContent=approvedMatch[3]+'/'+approvedMatch[2]+'/'+approvedMatch[1];}$('#demoBanner').classList.toggle('hidden',!(state.demo||state.local));$('#demoBanner strong').textContent=state.demo?'ĐANG XEM DỮ LIỆU MINH HỌA':'DỮ LIỆU NHẬP CỤC BỘ';$('#demoBanner span').textContent=state.demo?'Không phải số liệu hoặc câu trả lời thực tế.':'Bản ghi từ máy của bạn, chưa xuất bản hoặc lưu vào hệ thống.';$('#endDemo').textContent=state.demo?'Tắt minh họa ×':'Xóa dữ liệu cục bộ ×';const feeBadge=$('#financeNavRate'),feeRate=state.demo?null:state.stats?.modules?.payment?.completionRate;if(feeBadge){feeBadge.hidden=!viewAllowed('finance')||typeof feeRate!=='number';if(typeof feeRate==='number')feeBadge.textContent=(feeRate*100).toFixed(1).replace('.',',')+'%';}}
 function stat(label,note,val,icon){return `<div class="stat-card"><div class="stat-top"><span>${E(label)}</span><span class="stat-icon">${icon}</span></div><div class="stat-number">${E(val)}</div></div>`}
 function statusForProgress(rows){if(!rows.length)return null;let units=new Set(rows.map(x=>x.unit));const avg=rows.reduce((a,x)=>a+x.progress,0)/rows.length;const done=rows.filter(x=>x.progress>=99.9).length;const doing=rows.filter(x=>x.progress>0&&x.progress<99.9).length;return {units:units.size,avg,done,doing,records:rows.length}}
 function msgEmpty(what){return `<div class="notice"><div class="big-icon">▤</div><strong>${E(what||'Chưa có dữ liệu công khai')}</strong><p>Bản giao diện đã sẵn sàng. Chỉ những dữ liệu được duyệt và đồng bộ mới xuất hiện. Không sử dụng số liệu của tỉnh khác làm số liệu địa phương.</p><button type="button" class="btn" data-action="demo">◈ Xem dữ liệu minh họa</button><button type="button" class="btn" data-view="guide">ⓘ Cách kết nối</button></div>`}
@@ -138,17 +138,67 @@ function missingCardNote(stats){
  const count=Number.isInteger(current)&&current>=0&&current<=missing.rowCount?current:(missing.rowCount===15901?1090:null);
  return count===null?'':'('+pretty.format(count)+' HS không thể xác minh, không thuộc diện đóng)';
 }
+// Only the approved monthly aggregate and public rank/name/rate are eligible for this view.
+function paymentPeriod(stats=state.stats){
+ const s=String(stats?.period||'').trim(),m=s.match(/^(\d{4})-(\d{1,2})$/);
+ return m?'Tháng '+Number(m[2])+'/'+m[1]:(s||'Kỳ chưa cập nhật');
+}
+function paymentRate(record){
+ const n=Number(record?.rate);
+ return record&&record.rate!==null&&record.rate!==undefined&&Number.isFinite(n)&&n>=0&&n<=1?n:null;
+}
+function paymentPercent(record){
+ const n=paymentRate(record);
+ if(n===null)return '—';
+ return (n>=1?100:Math.min(99.9,n*100)).toFixed(1).replace('.',',')+'%';
+}
+function paymentCompleted(record){return paymentRate(record)!==null&&paymentRate(record)>=1;}
+function paymentProgressWidth(record){
+ const n=paymentRate(record);
+ return n===null?'0':(n*100).toFixed(1);
+}
+function openPaymentDetail(index){
+ if(state.demo||state.stats?.public!==true||state.stats?.reviewed!==true)return;
+ const records=state.stats?.modules?.ranking?.records;
+ const row=Array.isArray(records)&&records[index];
+ if(!row||paymentRate(row)===null)return;
+ const done=paymentCompleted(row),pct=paymentPercent(row);
+ const modal=$('#paymentModal'),body=$('#paymentDetailBody');
+ $('#paymentDetailTitle').textContent=row.name;
+ $('#paymentDetailPeriod').textContent=paymentPeriod();
+ body.innerHTML='<div class="payment-detail-head"><span class="payment-detail-rank">Hạng '+E(row.rank)+' / '+E(String(records.length))+'</span>'+
+  '<span class="payment-state '+(done?'is-complete':'is-active')+'">'+(done?'Hoàn thành':'Đang triển khai')+'</span></div>'+
+  '<div class="payment-detail-rate">'+E(pct)+'</div>'+
+  '<div class="payment-detail-caption">Tỷ lệ thu nộp đảng phí · '+E(paymentPeriod())+'</div>'+
+  '<div class="payment-detail-track" role="progressbar" aria-label="Tỷ lệ thu nộp" aria-valuenow="'+(paymentRate(row)*100).toFixed(1)+'" aria-valuemin="0" aria-valuemax="100"><i style="width:'+paymentProgressWidth(row)+'%"></i></div>'+
+  '<div class="payment-detail-note">Thông tin tổng hợp đã được duyệt. Không hiển thị số tiền, số tài khoản hoặc dữ liệu cá nhân.</div>';
+ modal.classList.remove('hidden');
+ document.body.style.overflow='hidden';
+ $('#closePaymentDetail').focus();
+}
+function closePaymentDetail(){
+ const modal=$('#paymentModal');
+ if(!modal||modal.classList.contains('hidden'))return;
+ modal.classList.add('hidden');
+ document.body.style.overflow='';
+}
 function statsFinanceHero({compact=false}={}){
  const stats=state.stats, m=stats?.modules||{};
- const pct=n=>typeof n==='number'?(n*100).toFixed(1).replace('.',',')+'%':'—';
  const num=n=>typeof n==='number'?pretty.format(n):'—';
  const metrics=[
-  m.payment&&['Thu nộp đảng phí',pct(m.payment.completionRate),'Tỷ lệ hoàn thành'],
-  m.banking&&['Đăng ký tài khoản',pct(m.banking.registrationRate),'Đã đăng ký'],
-  m.missing&&['Số HS chưa khai báo',num(m.missing.rowCount),'']
+  m.payment&&['Thu nộp đảng phí',typeof m.payment.completionRate==='number'?(m.payment.completionRate*100).toFixed(1).replace('.',',')+'%':'—'],
+  m.banking&&['Đăng ký tài khoản',typeof m.banking.registrationRate==='number'?(m.banking.registrationRate*100).toFixed(1).replace('.',',')+'%':'—'],
+  m.missing&&['Số HS chưa khai báo',num(m.missing.rowCount)]
  ].filter(Boolean);
- const top=(m.ranking?.records||[]).slice(0,3);
- return '<section class="stats-hero-home"><div class="stats-hero-title"><div><span class="stats-eyebrow">CDSTUHUE · SỐ LIỆU ĐÃ DUYỆT</span><h2>Thống kê & xếp hạng theo đơn vị</h2><p>4 nguồn báo cáo · kỳ '+E(stats.period||'—')+' · Chỉ công bố số đếm và tỷ lệ tổng hợp, không công bố số tiền hoặc số tài khoản.</p></div><button type="button" data-view="finance" class="stats-hero-open">Xem chi tiết →</button></div><div class="stats-hero-metrics">'+metrics.map(x=>'<div class="stats-hero-metric"><small>'+E(x[0])+(x[0]==='Số HS chưa khai báo'&&missingCardNote(stats)?'<span class="stats-context-line">'+E(missingCardNote(stats))+'</span>':'')+'</small><strong>'+E(x[1])+'</strong></div>').join('')+'</div>'+(compact&&top.length?'<div class="stats-hero-ranking"><div class="stats-hero-rank-title"><b>Xếp hạng thu nộp</b><span>Top '+top.length+' / '+E(m.ranking.eligibleUnits||top.length)+' đơn vị</span></div>'+top.map(x=>'<div class="stats-hero-rank"><span>#'+E(x.rank)+'</span><div class="stats-hero-rank-unit"><b>'+E(x.name)+'</b><div class="stats-meter"><i style="width:'+Math.max(0,Math.min(100,100*(Number(x.rate)||0))).toFixed(1)+'%"></i></div></div><strong>'+pct(x.rate)+'</strong></div>').join('')+'</div>':'')+'</section>';
+ const rec=m.ranking?.records||[];
+ const top=rec.slice(0,3);
+ return '<section class="stats-hero-home"><div class="stats-hero-title"><div><span class="stats-eyebrow">CDSTUHUE · SỐ LIỆU ĐÃ DUYỆT · '+E(paymentPeriod(stats))+'</span>'+
+  '<h2>'+(compact?'Tổng quan thu nộp đảng phí':'Thống kê & xếp hạng theo đơn vị')+'</h2>'+
+  '<p>Số liệu được duyệt theo kỳ. Chỉ công bố số đếm và tỷ lệ tổng hợp.</p></div>'+
+  '<button type="button" data-view="finance" class="stats-hero-open">Xem bảng 46 Đảng bộ →</button></div>'+
+  '<div class="stats-hero-metrics">'+metrics.map(x=>'<div class="stats-hero-metric"><small>'+E(x[0])+(x[0]==='Số HS chưa khai báo'&&missingCardNote(stats)?'<span class="stats-context-line">'+E(missingCardNote(stats))+'</span>':'')+'</small><strong>'+E(x[1])+'</strong></div>').join('')+'</div>'+
+  (compact&&top.length?'<div class="stats-hero-ranking"><div class="stats-hero-rank-title"><b>🏆 Top 03 thu nộp · '+E(paymentPeriod(stats))+'</b><span>Bấm Đảng bộ để xem chi tiết</span></div>'+paymentTop3Cards(rec)+'</div>':'')+
+  '</section>';
 }
 function financeCards({compact=false}={}){
  if(!state.demo&&state.stats?.public===true&&Object.keys(state.stats.modules||{}).length)return statsFinanceHero({compact});
@@ -164,11 +214,12 @@ function financeCards({compact=false}={}){
 function paymentTop3Cards(records){
  const top=Array.isArray(records)?records.slice(0,3):[];
  if(!top.length)return '';
- return '<div class="stats-payment-top3" aria-label="Top 3 Đảng bộ dẫn đầu tỷ lệ thu nộp">'+top.map((x,i)=>
-  '<article class="stats-payment-leader leader-'+(i+1)+'"><div class="stats-payment-leader-top"><span class="stats-payment-medal" aria-label="Hạng '+(i+1)+'">'+(i+1)+'</span><b>'+
-  E(typeof x.rate==='number'?(x.rate*100).toFixed(1).replace('.',',')+'%':'—')+'</b></div><strong>'+E(x.name)+'</strong>'+
-  '<div class="stats-meter" role="meter" aria-label="Tỷ lệ thu nộp" aria-valuemin="0" aria-valuemax="100" aria-valuenow="'+Math.max(0,Math.min(100,100*(Number(x.rate)||0))).toFixed(1)+'"><i style="width:'+
-  Math.max(0,Math.min(100,100*(Number(x.rate)||0))).toFixed(1)+'%"></i></div></article>').join('')+'</div>';
+ return '<div class="stats-payment-top3" aria-label="Top 3 Đảng bộ dẫn đầu thu nộp">'+
+  top.map((x,i)=>'<button type="button" class="stats-payment-leader leader-'+(i+1)+'" data-payment-index="'+i+'" aria-label="Xem chi tiết '+E(x.name)+'">'+
+   '<div class="stats-payment-leader-top"><span class="stats-payment-medal" aria-hidden="true">'+(i+1)+'</span>'+
+   '<b>'+E(paymentPercent(x))+'</b></div><strong>'+E(x.name)+'</strong>'+
+   '<div class="stats-meter"><i style="width:'+paymentProgressWidth(x)+'%"></i></div>'+
+   '<span class="payment-leader-status">'+(paymentCompleted(x)?'Hoàn thành':'Đang triển khai')+' · Xem chi tiết ›</span></button>').join('')+'</div>';
 }
 function statsRankingPair(unitRanking,source){
  if(!unitRanking||!Array.isArray(unitRanking.top)||!Array.isArray(unitRanking.bottom)||unitRanking.eligibleUnits!==46||unitRanking.top.length!==10||unitRanking.bottom.length!==10){
@@ -186,8 +237,27 @@ function statsDashboard(){
 
  if(m.ranking?.records?.length){
   const rec=m.ranking.records;
-  const rankRows=rec.map(x=>'<div class="stats-rank-row"><b>#'+E(x.rank)+'</b><div><strong>'+E(x.name)+'</strong><div class="stats-meter" role="meter" aria-label="Tỷ lệ thu nộp" aria-valuemin="0" aria-valuemax="100" aria-valuenow="'+Math.max(0,Math.min(100,100*(x.rate||0))).toFixed(1)+'"><i style="width:'+Math.max(0,Math.min(100,100*(x.rate||0))).toFixed(1)+'%"></i></div></div><em>'+percent(x.rate)+'</em></div>').join('');
-  panels+='<section class="panel stats-panel stats-panel-wide stats-payment-panel"><div class="panel-head"><div><h2>Xếp hạng tỷ lệ thu nộp</h2></div><span class="stats-count-chip">'+E(String(rec.length))+'/46 Đảng bộ</span></div>'+paymentTop3Cards(rec)+'<div class="stats-ranking-scroll" role="region" tabindex="0" aria-label="Danh sách xếp hạng tỷ lệ thu nộp">'+rankRows+'</div>'+(rec.length!==46?'<p class="stats-sync-pending">Dữ liệu hiện có '+E(String(rec.length))+'/46 Đảng bộ. Cần cập nhật phiên bản Apps Script để đồng bộ đủ.</p>':'')+'</section>';
+  const complete=rec.filter(paymentCompleted).length;
+  const period=paymentPeriod(stats);
+  const rows=rec.map((x,i)=>{
+   const done=paymentCompleted(x);
+   return '<tr class="'+(done?'is-complete':'is-active')+'">'+
+    '<td><span class="payment-rank-badge '+(i<3?'top-'+(i+1):'')+'">'+E(x.rank)+'</span></td>'+
+    '<td><button type="button" class="payment-unit-button" data-payment-index="'+i+'">'+E(x.name)+'</button></td>'+
+    '<td class="payment-rate-cell">'+E(paymentPercent(x))+'</td>'+
+    '<td><div class="payment-table-meter" role="progressbar" aria-label="Tiến độ '+E(x.name)+'" aria-valuenow="'+(paymentRate(x)===null?0:(paymentRate(x)*100).toFixed(1))+'" aria-valuemin="0" aria-valuemax="100"><i style="width:'+paymentProgressWidth(x)+'%"></i></div></td>'+
+    '<td><span class="payment-state '+(done?'is-complete':'is-active')+'">'+(done?'Hoàn thành':'Đang triển khai')+'</span></td>'+
+    '<td><button type="button" class="payment-table-open" data-payment-index="'+i+'" aria-label="Chi tiết '+E(x.name)+'">Xem ›</button></td></tr>';
+  }).join('');
+  panels+='<section class="panel stats-panel stats-panel-wide stats-payment-panel payment-tracker-panel">'+
+   '<div class="payment-tracker-heading"><div><span class="payment-kicker">THEO DÕI THU NỘP ĐẢNG PHÍ · '+E(period)+'</span>'+
+   '<h2>Bảng xếp hạng theo 46 Đảng bộ</h2><p>Bấm tên đơn vị để xem tỷ lệ và trạng thái đã được duyệt.</p></div>'+
+   '<div class="payment-tracker-totals"><div><b>'+pretty.format(rec.length)+'</b><small>Đảng bộ</small></div>'+
+   '<div><b>'+pretty.format(complete)+'</b><small>Hoàn thành 100%</small></div>'+
+   '<div><b>'+pretty.format(rec.length-complete)+'</b><small>Đang triển khai</small></div></div></div>'+
+   '<div class="payment-table-viewport" role="region" tabindex="0" aria-label="Xếp hạng thu nộp đảng phí của 46 Đảng bộ">'+
+   '<table class="payment-table"><thead><tr><th>Hạng</th><th>Đảng bộ</th><th>Tỷ lệ thu nộp</th><th>Tiến độ</th><th>Trạng thái</th><th>Chi tiết</th></tr></thead><tbody>'+rows+'</tbody></table></div>'+
+   (rec.length!==46?'<p class="stats-sync-pending">Đang có '+E(String(rec.length))+'/46 Đảng bộ được duyệt trong bản xuất.</p>':'')+'</section>';
  }
  const statBreakdown=(data,total)=>'<div class="stats-breakdown">'+data.map(([name,count])=>'<div class="stats-breakdown-item"><span>'+E(name)+'</span><strong>'+amount(count)+'</strong><small>'+percent(count/(total||1))+'</small></div>').join('')+'</div>';
  if(m.banking){
@@ -283,7 +353,7 @@ function render(){
  bindPage();
  applyMenuVisibility();
 }
-function route(view,{replace=false}={}){
+function route(view,{replace=false}={}){closePaymentDetail();
  if(!viewAllowed(view))view=firstVisibleView();
  if(state.view!==view){state.query='';state.page=0;state.unitQuery='';}
  state.view=view;
@@ -328,9 +398,9 @@ function discourageSourceHotkeys(e){
  if(k==='f12'||sourceShortcut||devtoolsShortcut)e.preventDefault();
 }
 function boot(){document.addEventListener('keydown',discourageSourceHotkeys,true);if(new URL(location.href).searchParams.get('demo')==='1')state.demo=true;syncFromUrl();const clock=()=>$('#clock').textContent=new Intl.DateTimeFormat('vi-VN',{year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',timeZone:'Asia/Ho_Chi_Minh'}).format(new Date());clock();setInterval(clock,60000);
- document.addEventListener('click',async e=>{const node=e.target.closest('[data-view],[data-action],[data-qa]');if(!node)return;if(node.dataset.view){route(node.dataset.view);return}if(node.dataset.qa){openQA(node.dataset.qa);return}const a=node.dataset.action;if(a==='demo')toggleDemo(true);if(a==='prev'){state.page=Math.max(0,state.page-1);render();}if(a==='next'){state.page++;render()}if(a==='upload-progress')$('#progressFile')?.click();if(a==='export-progress')exportProgress();if(a==='export-qa')exportQA();if(a==='export-finance')exportFinance();if(a==='print')window.print()});
+ document.addEventListener('click',async e=>{const node=e.target.closest('[data-view],[data-action],[data-qa],[data-payment-index]');if(!node)return;if(node.hasAttribute('data-payment-index')){openPaymentDetail(Number(node.dataset.paymentIndex));return}if(node.dataset.view){route(node.dataset.view);return}if(node.dataset.qa){openQA(node.dataset.qa);return}const a=node.dataset.action;if(a==='demo')toggleDemo(true);if(a==='prev'){state.page=Math.max(0,state.page-1);render();}if(a==='next'){state.page++;render()}if(a==='upload-progress')$('#progressFile')?.click();if(a==='export-progress')exportProgress();if(a==='export-qa')exportQA();if(a==='export-finance')exportFinance();if(a==='print')window.print()});
  $('#endDemo').onclick=()=>{if(state.local){loadData();toast('Đã xóa dữ liệu xem thử cục bộ')}else toggleDemo(false)};$('#refreshBtn').onclick=()=>loadData().then(()=>toast('Đã tải lại dữ liệu xuất bản'));$('#openMenu').onclick=()=>{$('#sidebar').classList.add('mobile-open');$('#shade').classList.add('mobile-open')};$('#closeMenu').onclick=closeMobile;$('#shade').onclick=closeMobile;
- $('#closeModal').onclick=closeQA;$('#qaModal').onclick=e=>{if(e.target===$('#qaModal'))closeQA()};
+ $('#closeModal').onclick=closeQA;$('#qaModal').onclick=e=>{if(e.target===$('#qaModal'))closeQA()};$('#closePaymentDetail').onclick=closePaymentDetail;$('#paymentModal').onclick=e=>{if(e.target===$('#paymentModal'))closePaymentDetail()};
  const assistant=$('#assistantWrap');
  const toggleAssistant=()=>{
   if(state.menu.assistant!==true)return;
@@ -341,7 +411,7 @@ function boot(){document.addEventListener('keydown',discourageSourceHotkeys,true
  $('#openAssistant').onclick=toggleAssistant;
  $('#navAssistant').onclick=toggleAssistant;
  $('#assistantMobileFab').onclick=toggleAssistant;$('#closeAssistant').onclick=()=>assistant.classList.add('hidden');$('#assistantForm').onsubmit=e=>{e.preventDefault();assistantResults($('#assistantInput').value)};$('#askToggle').onclick=()=>{const panel=$('#askPanel');panel.classList.toggle('hidden');$('#askToggle').setAttribute('aria-expanded',String(!panel.classList.contains('hidden')));if(!panel.classList.contains('hidden'))$('#questionText').focus()};$('#questionForm').onsubmit=e=>{if($('#questionSubmit').disabled){e.preventDefault();toast('Chưa kích hoạt nhận câu hỏi mới');return}const text=$('#questionText').value.trim();if(text.length<12||text.length>1200||/([a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}|\b(?:0[35789]\d{8}|\d{12})\b)/i.test(text)){e.preventDefault();toast('Vui lòng không gửi thông tin cá nhân; câu hỏi dài 12–1200 ký tự');return}setTimeout(()=>{$('#questionText').value=''},200)};loadQuestionFormConfig();
- document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeQA();assistant.classList.add('hidden');closeMobile()}});window.addEventListener('popstate',syncFromUrl);loadData();}
+ document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeQA();closePaymentDetail();assistant.classList.add('hidden');closeMobile()}});window.addEventListener('popstate',syncFromUrl);loadData();}
 window.CDSTUHUE_TEST={fold,scoreQA,normQA,validProgress};
 boot();
 })();
