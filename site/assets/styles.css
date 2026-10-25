@@ -866,7 +866,7 @@ body{
   background-color:#102c4d!important;
   background:
     linear-gradient(102deg,rgba(7,23,47,.90) 0%,rgba(9,34,63,.82) 45%,rgba(9,30,55,.25) 100%),
-    url('./img/nguyen-hoang-bridge-3840.jpg') left 0% top 8% /140% auto no-repeat!important;
+    url('./img/nguyen-hoang-bridge-3840.jpg') left top /140% auto no-repeat!important;
 }
 @media(max-width:760px){
   body{
@@ -885,7 +885,7 @@ body{
     background-color:#102c4d!important;
     background:
       linear-gradient(100deg,rgba(6,24,47,.91),rgba(10,37,65,.55)),
-      url('./img/nguyen-hoang-bridge-3840.jpg') left 0% top 5% /155% auto no-repeat!important;
+      url('./img/nguyen-hoang-bridge-3840.jpg') left top /155% auto no-repeat!important;
   }
 }
 @media print{
