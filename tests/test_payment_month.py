@@ -19,7 +19,8 @@ def approved():
         {"rank": i, "name": f"Đảng bộ đơn vị {i}",
          "rate": round((47 - i) / 46, 6),
          "bankDone": 14, "bankTotal": 20,
-         "filedRate": 0.75, "secret": "MUST_NOT_PUBLISH"}
+         "filedRate": 0.75, "filedDone": 15, "filedTotal": 20,
+         "secret": "MUST_NOT_PUBLISH"}
         for i in range(1, 47)
     ]
     return {
@@ -56,6 +57,8 @@ class FreezePaymentMonthTest(unittest.TestCase):
             doc = json.loads(first)
             self.assertTrue(doc["closed"])
             self.assertEqual(len(doc["modules"]["ranking"]["records"]), 46)
+            self.assertEqual(doc["modules"]["ranking"]["records"][0]["filedDone"], 15)
+            self.assertEqual(doc["modules"]["ranking"]["records"][0]["filedTotal"], 20)
             for token in ("MUST_NOT_PUBLISH", "DO_NOT_PUBLISH", "PRIVATE",
                           "accountNumber", "amount", "privateNotes"):
                 self.assertNotIn(token, first)

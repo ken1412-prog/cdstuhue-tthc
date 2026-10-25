@@ -86,13 +86,29 @@ class PublicSurfaceTests(unittest.TestCase):
     def test_compact_payment_columns_and_no_sensitive_details(self):
         js=(SITE / "assets/app.js").read_text(encoding="utf-8")
         css=(SITE / "assets/styles.css").read_text(encoding="utf-8")
-        self.assertIn("TK NH (x/y)",js)
-        self.assertIn("HS khai báo (%)",js)
+        self.assertIn("TK NH đã có / Tổng đơn vị",js)
+        self.assertIn("HS khai báo / Tổng ĐV",js)
         self.assertIn("Thu trong kỳ (%)",js)
         self.assertIn("payment-rate-inline",js)
         self.assertIn("payment-rate-inline",css)
         self.assertNotIn("Tên chủ tài khoản",js)
         self.assertNotIn("Số tài khoản ngân hàng",js)
+
+    def test_private_count_fields_are_independently_approved(self):
+        app=(SITE / "assets/app.js").read_text(encoding="utf-8")
+        sync=(ROOT / "scripts/sync_public.py").read_text(encoding="utf-8")
+        gs=(ROOT / "apps-script/Code.gs").read_text(encoding="utf-8")
+        self.assertIn("function paymentCountPair(done,total)",app)
+        self.assertIn("paymentFiledText(x)",app)
+        self.assertIn("HS_FILED_XY_BY_LEVEL2",gs)
+        self.assertIn("BANK_XY_BY_LEVEL2",gs)
+        self.assertIn("const members=statsWhole_(r[2])",gs)
+        self.assertIn("filed=[7,8,9]",gs)
+        self.assertIn("filedTotal:reconciled?members:null",gs)
+        self.assertIn("filing_xy_ok=isinstance(extra,dict) and extra.get('filedXY') is True",sync)
+        self.assertIn("if filing_xy_ok:",sync)
+        self.assertIn("done/total",sync)
+        self.assertNotIn("data/payment-history/2026-10.json",app)
 
     def test_bright_approved_monthly_finance(self):
         js=(SITE / "assets/app.js").read_text(encoding="utf-8")

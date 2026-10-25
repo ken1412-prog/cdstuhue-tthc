@@ -70,6 +70,11 @@ def select_payment_snapshot(raw, month, closed_on):
         row = {"rank": i, "name": name.strip(), "rate": r["rate"]}
         if safe_rate(r.get("filedRate")):
             row["filedRate"] = r["filedRate"]
+        if safe_count(r.get("filedDone")) and safe_count(r.get("filedTotal")) \
+                and r["filedTotal"] > 0 and r["filedDone"] <= r["filedTotal"]:
+            pair_rate = r["filedDone"] / r["filedTotal"]
+            if "filedRate" not in row or abs(row["filedRate"] - pair_rate) < 0.000001:
+                row.update(filedDone=r["filedDone"], filedTotal=r["filedTotal"])
         if safe_count(r.get("bankDone")) and safe_count(r.get("bankTotal")) \
                 and r["bankTotal"] > 0 and r["bankDone"] <= r["bankTotal"]:
             row.update(bankDone=r["bankDone"], bankTotal=r["bankTotal"])

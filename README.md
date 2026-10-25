@@ -154,21 +154,21 @@ Không đặt mật khẩu trong HTML/JavaScript công khai. Các trạng thái 
 - Có tìm kiếm tên Đảng bộ không dấu, lọc **tất cả / hoàn thành 100% / đang triển khai**, sắp xếp thứ hạng, tỷ lệ thấp trước hoặc theo tên; tải CSV từ các hàng đang lọc. Trường hợp không có mẫu số/không duyệt, hiện dấu **—**, không tự tạo tỷ lệ.
 - Giao diện dùng tông **trắng kem–đỏ–vàng** như bảng điều hành nội bộ, sử dụng ảnh Huế đã nằm sẵn trong site. Không kết nối nguồn hình ảnh bên ngoài.
 
-### 2. Khóa tháng 10 chỉ sau 31/10/2026
+### 2. Chỉ CHỐT khi chủ sở hữu yêu cầu — không có lịch tự động
 
-GitHub Actions `Freeze approved payment month` chạy từ **00:15 sáng giờ Việt Nam, ngày 01–07 mỗi tháng** để tự thử đóng kỳ trước. Khi nhận được `stats.json` **đã công khai, đã duyệt, có đúng kỳ tháng trước và đủ 46 Đảng bộ**, mã `scripts/freeze_payment_month.py` sẽ lưu lần đầu thành:
-- `site/data/payment-history/2026-10.json` (hoặc kỳ tương ứng);
-- `site/data/payment-history.json` (chỉ mục các tháng đã chốt).
+Tháng 10/2026 **vẫn là dữ liệu đang cập nhật**, kể cả khi qua ngày 31/10 hoặc sang tháng 11, cho đến khi chủ sở hữu yêu cầu riêng: **"Chốt/lưu tháng 10 và chuyển sang tháng 11"**.
 
-Bản đã chốt **bất biến**: chương trình không ghi đè dù Google Sheets kỳ sau thay đổi. Chỉ sao lưu các trường **tỷ lệ tổng hợp, tên và hạng tổ chức, TK NH x/y và tỷ lệ hồ sơ nếu từng trường đã duyệt**, không lấy bảng nguồn, tiền, tài khoản cá nhân, căn cước, tên đảng viên. Nếu nguồn chưa có 46 đơn vị, sai tháng hoặc chưa duyệt, **không lưu bản giả**. Chủ sở hữu có thể mở GitHub → Actions → `Freeze approved payment month` → `Run workflow` để thử đóng lại trong 7 ngày đầu tháng. Không đổi dữ liệu sang tháng 11 **trước khi tháng 10 đã chốt**.
+Workflow `Freeze approved payment month` **chỉ có** `workflow_dispatch`, không còn `schedule`/cron. Khi có lệnh chính thức, quản trị viên nhập `period=2026-10` và `confirmation=CHOT 2026-10`; chương trình đối chiếu đã qua tháng 10, nguồn JSON đúng kỳ, đã duyệt, có đủ 46 Đảng bộ. Nếu chưa đạt, không ghi file và không chuyển kỳ. Khi thành công, lưu:
+- `site/data/payment-history/2026-10.json` (bản đã chốt, không ghi đè bằng chương trình).
+- `site/data/payment-history.json` (danh sách kỳ có bản lưu).
 
-Ngày **25/10/2026 vẫn là tháng 10 đang chạy**; không công bố bản lịch sử tháng 10 trước khi tháng kết thúc. Nếu lịch chạy bị lỗi/cấu hình token repo ngăn commit, phải kiểm tra Actions và chạy lại; không mặc định tuyên bố đã chốt.
+Bản chỉ chứa **trường công khai đã duyệt**: tỷ lệ, tên và thứ hạng Đảng bộ, x/y số tổ chức có TK ngân hàng và x/y hồ sơ khai báo nếu đã duyệt công khai từng chỉ tiêu. Không chứa số tiền, số tài khoản, CCCD, tên cá nhân hoặc dữ liệu riêng tư. Cần chốt kỳ cũ **trước** khi thay nguồn sang kỳ mới; không tự khóa hoặc đổi `KY_BAO_CAO`.
 
 ### 3. Cập nhật Google Sheets cho tháng 11
 
 Mẫu dữ liệu nguồn thực tế là **46 Đảng bộ** trong Sheet riêng tư của nhóm `THU_NOP` (14 cột), không lấy tỷ lệ từ Lào Cai. Để chuyển sang kỳ mới:
 
-1. **Sau khi đã khóa tháng 10**, sao chép tab dữ liệu nguồn thu nộp đã duyệt thành tab mới, ví dụ `Thang11`, **xóa dữ liệu tháng 10 và nhập báo cáo thực tế tháng 11**. Không xóa tab cũ, không tải lên website dữ liệu nhạy cảm.
+1. **Chỉ sau khi bạn ra lệnh chốt và đã lưu thành công tháng 10**, sao chép tab nguồn thành tab mới, ví dụ `Thang11`, **làm trống phần dữ liệu mẫu trên tab tháng 11 mới rồi nhập báo cáo thực tế tháng 11**. Không xóa tab cũ, không tải lên website dữ liệu nhạy cảm.
 2. Trong Google Sheet riêng tư **CDSTUHUE STATS HUB 2026**, tại tab `NGUON_4_FILE`, đổi trường *tên tab* hàng `THU_NOP` (cột D) sang tab tháng 11, đồng thời cập nhật *ngày snapshot* ở cột F sang ngày tháng 11. Các Sheet còn lại không được coi mặc nhiên là số liệu tháng 11.
 3. Tạo tab `KY_BAO_CAO` trong STATS HUB; ô **B2** nhập chính xác `2026-11` (ô A2 có thể ghi `Kỳ thu nộp`). Tháng 10 dùng `2026-10`. Nếu tab này chưa có, phiên bản Apps Script mới vẫn tạm giữ mặc định `2026-10` để không làm thay đổi bản hiện tại.
 4. Đối chiếu tổng thu, 46 tên đơn vị và tỷ lệ; tại tab `DUYET_WEBSITE`, duyệt lại phạm vi `TỔNG HỢP THU NỘP` và `XẾP HẠNG 46 ĐƠN VỊ`, ngày duyệt thuộc **tháng 11 hoặc muộn hơn**, trước khi cho phép xuất bản. Tính năng xuất công khai sẽ **từ chối tháng 11** nếu chưa có ngày duyệt hợp lệ hoặc ngày snapshot THU_NOP không thuộc kỳ đã chọn.
@@ -178,3 +178,18 @@ Mẫu dữ liệu nguồn thực tế là **46 Đảng bộ** trong Sheet riêng
 **Không có lũy kế tỷ lệ tự cộng** vì tỷ lệ các tháng không thể cộng trực tiếp, và website không có số tiền/số hồ sơ gốc được phép công bố. Nếu cần chỉ tiêu lũy kế, phải có bảng lũy kế tổng hợp và phê duyệt riêng; không giả lập kết quả.
 
 **Lưu ý về dữ liệu nhiều nguồn:** các mô-đun ngân hàng, chưa khai báo và phân bổ không mặc định cùng kỳ với thu đảng phí. Khi xem **tháng đã chốt**, website chỉ hiển thị phần thu nộp và xếp hạng tương ứng; không ghép chỉ tiêu từ các kỳ khác. Không truy cập Google Sheets trực tiếp từ trình duyệt người xem.
+
+
+### 4. Vì sao TK NH và HS khai báo theo từng Đảng bộ từng hiển thị “—”?
+
+Ngày 25/10/2026 đã kiểm tra `DUYET_WEBSITE`: hàng **XẾP HẠNG 46 ĐƠN VỊ** hiện chỉ duyệt *tên, thứ hạng, tỷ lệ thu*; hàng **TÀI KHOẢN NGÂN HÀNG** chỉ duyệt *số lượng/tỷ lệ tổng hợp toàn nguồn*. Do đó mã Apps Script **không xuất x/y từng Đảng bộ**, mặc dù nguồn đã có. Đây là kiểm soát công khai, không phải thiếu bản ghi.
+
+Nguồn `THU_NOP` có 46 Đảng bộ, tổng số đảng viên ở **C**, số hồ sơ đã khai báo = **H + I + J**, số chưa có hồ sơ = **K**. Công thức được chỉnh thành **(H + I + J) / C**, không dùng `(H+I+J)/(H+I+J+K)` vì không cùng mẫu số và có thể sai lệch. Kết quả được kiểm tra đúng điều kiện `0 <= khai_báo <= tổng_ĐV`; sai lệch thì để `—`, không bịa số.
+
+Nguồn ngân hàng có trạng thái **đã có/chưa có** và quan hệ mã đơn vị; tổng hợp `bankDone/bankTotal` theo 46 Đảng bộ cấp 2, loại phần không xác định quan hệ. Đây là **số tổ chức có tài khoản / tổng tổ chức có bản ghi hợp lệ**, không phải số tài khoản ngân hàng cá nhân.
+
+Phải có **quyết định phê duyệt công khai riêng** trước khi hiện chi tiết x/y trên website. Khi chủ sở hữu đồng ý rõ ràng, đặt trong cột E của `DUYET_WEBSITE`:
+- Hàng **TÀI KHOẢN NGÂN HÀNG**: thêm `BANK_XY_BY_LEVEL2` để cho phép số tổ chức có TK NH / tổng tổ chức theo 46 Đảng bộ.
+- Hàng **XẾP HẠNG 46 ĐƠN VỊ**: thêm `HS_FILED_XY_BY_LEVEL2` để cho phép số hồ sơ đã khai báo / tổng ĐV theo 46 Đảng bộ; nếu muốn duyệt riêng tỷ lệ mà chưa duyệt x/y, dùng `HS_DECLARED_RATE`.
+
+Không tự sửa cột E/phạm vi duyệt chỉ vì đã đọc được nguồn. Sau khi phạm vi được chủ sở hữu duyệt, triển khai phiên bản `apps-script/Code.gs` đã cập nhật vào web app thực tế, rồi chạy workflow xuất dữ liệu được duyệt. `scripts/sync_public.py` kiểm tra thêm cờ `approvedExtraFields` và điều kiện tử/mẫu để không xuất quá quyền. Trên website, dấu `—` nghĩa là chưa được duyệt công khai hoặc chưa đối chiếu đầy đủ, **không phải 0**.
