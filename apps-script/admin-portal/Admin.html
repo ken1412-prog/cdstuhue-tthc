@@ -99,7 +99,7 @@ function invoke(method,args){
    rpc[method](...(args||[]));
  });
 }
-function setBusy(on){busy=on;document.querySelectorAll('button').forEach(b=>{if(b.id!=='logout')b.disabled=on;});}
+function setBusy(on){busy=on;document.querySelectorAll('button').forEach(b=>{if(b.id!=='logout')b.disabled=on||b.dataset.locked==='true';});}
 async function load(){
  if(!session)return;
  setBusy(true);
@@ -113,8 +113,10 @@ async function load(){
   $('excelConfig').textContent=payload.excelInputConfigured?
     'Đã cấu hình thư mục Excel riêng tư.' :
     'Chưa có CDSTUHUE_EXCEL_INBOX_FOLDER_ID trong Script Properties của Apps Script quản trị.';
-  $('checkExcel').disabled=!payload.excelInputConfigured;
-  $('stageExcel').disabled=!payload.excelInputConfigured;
+  for(const b of [$('checkExcel'),$('stageExcel')]){
+    b.dataset.locked=payload.excelInputConfigured?'false':'true';
+    b.disabled=!payload.excelInputConfigured;
+  }
  }catch(e){say('notice',e.message,'error');if(/Phiên.*hạn/.test(e.message))logout();}
  finally{setBusy(false)}
 }
@@ -125,7 +127,8 @@ function line(title,sub,active,onClick,disabled){
  const s=document.createElement('small');s.textContent=sub||'';
  info.append(t,s);
  const btn=document.createElement('button');btn.className=active?'switch btn-red':'switch';btn.textContent=active?'Tạm ẩn':'Hiện lên';
- btn.disabled=!!disabled;btn.addEventListener('click',onClick);
+ btn.disabled=!!disabled;btn.dataset.locked=disabled?'true':'false';
+ btn.addEventListener('click',onClick);
  if(disabled&&active)btn.textContent='Luôn hiện';
  div.append(info,btn);return div;
 }
