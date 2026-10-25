@@ -52,7 +52,7 @@ function sheet(r){
   getRange:(row,col,n=1,width=1)=>({
    getDisplayValues:()=>Array.from({length:n},(_,i)=>Array.from({length:width},(_,j)=>String(r.rows[row+i-2]?.[col+j-1]??''))),
    setValue:x=>{r.rows[row-2][col-1]=x;return true},
-   setValues:v=>{for(let i=0;i<v.length;i++)for(let j=0;j<v[i].length;j++)r.rows[row+i-2][col+j-1]=v[i][j]}
+   setValues:v=>{for(let i=0;i<v.length;i++){const index=row+i-2;if(index<0)continue;if(!r.rows[index])r.rows[index]=[];for(let j=0;j<v[i].length;j++)r.rows[index][col+j-1]=v[i][j]}}
   }),
   appendRow:values=>{audit.push(values)},
   setFrozenRows:()=>{}
