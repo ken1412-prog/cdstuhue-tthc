@@ -405,6 +405,9 @@ function buildStatsFeed_(){
   // their own explicit DUYET_WEBSITE scope tokens before public export.
   const bankXYApproved=enabled.banking&&approvedScopes['TÀI KHOẢN NGÂN HÀNG'].includes('BANK_XY_BY_LEVEL2');
   const filedRateApproved=enabled.ranking&&approvedScopes['XẾP HẠNG 46 ĐƠN VỊ'].includes('HS_DECLARED_RATE');
+  // Publishing integer numerator/denominator per unit requires a separate
+  // approval from the existing percentage-only scope.
+  const filedXYApproved=enabled.ranking&&approvedScopes['XẾP HẠNG 46 ĐƠN VỊ'].includes('HS_FILED_XY_BY_LEVEL2');
   const orgKey=v=>String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'')
     .replace(/đ/g,'d').replace(/Đ/g,'D').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();
   if(enabled.payment||enabled.ranking){
@@ -415,16 +418,17 @@ function buildStatsFeed_(){
     payments=list.map(r=>{
       const required=statsWhole_(r[11]),received=statsWhole_(r[12]);
       sumRequired+=required;sumReceived+=received;
-      // H:I:J:K = 3 groups with files and 1 group without files.
-      // Deliberately use status total, not required-to-pay population: source
-      // has rows where the two independently reported totals do not agree.
-      const fileCounts=[7,8,9,10].map(i=>statsWhole_(r[i]));
-      const fileTotal=fileCounts.reduce((a,b)=>a+b,0);
-      const filed=fileCounts[0]+fileCounts[1]+fileCounts[2];
-      return {name:String(r[1]).trim().slice(0,190),
-        members:statsWhole_(r[2]),required,
+      // Use total members from source column C as requested denominator.
+      // H+I+J are three filed-case statuses; K denotes no filing.
+      // Do not silently substitute H+I+J+K or fee-paying membership.
+      const members=statsWhole_(r[2]);
+      const filed=[7,8,9].reduce((n,i)=>n+statsWhole_(r[i]),0);
+      const reconciled=members>0&&filed<=members;
+      return {name:String(r[1]).trim().slice(0,190),members,required,
         rate:required>0?received/required:null,
-        filedRate:fileTotal>0?filed/fileTotal:null};
+        filedDone:reconciled?filed:null,
+        filedTotal:reconciled?members:null,
+        filedRate:reconciled?filed/members:null};
     });
     if(enabled.payment)modules.payment={
       scope:'46 đơn vị trong báo cáo',
@@ -436,13 +440,16 @@ function buildStatsFeed_(){
       const ranked=payments.filter(x=>x.required>0)
         .sort((a,b)=>(b.rate||0)-(a.rate||0)||a.name.localeCompare(b.name,'vi'))
         .map((x,i)=>({rank:i+1,name:x.name,rate:x.rate,
-          ...(filedRateApproved&&x.filedRate!==null?{filedRate:x.filedRate}:{})}));
+          ...((filedRateApproved||filedXYApproved)&&x.filedRate!==null?{filedRate:x.filedRate}:{}),
+          ...(filedXYApproved&&x.filedDone!==null&&x.filedTotal!==null?
+             {filedDone:x.filedDone,filedTotal:x.filedTotal}:{})}));
       modules.ranking={
         scope:'46 Đảng bộ trực thuộc Thành ủy Huế trong báo cáo',
         eligibleUnits:ranked.length,
         sort:'Tỷ lệ thu nộp; đồng tỷ lệ xếp theo tên',
         records:ranked,sourceSnapshot:src.THU_NOP.snapshot,
-        approvedExtraFields:{filedRate:filedRateApproved,bankXY:bankXYApproved}};
+        approvedExtraFields:{filedRate:filedRateApproved||filedXYApproved,
+          filedXY:filedXYApproved,bankXY:bankXYApproved}};
     }
   }
   let missingOrgRows=null;
