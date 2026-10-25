@@ -102,6 +102,12 @@ vm.runInNewContext(fs.readFileSync('apps-script/Code.gs','utf8'),context,{timeou
 const feed=context.buildStatsFeed_();
 assert.equal(feed.public,true);
 assert.equal(feed.modules.ranking.records.length,46);
+for(const filedUnit of feed.modules.ranking.records){
+ assert.equal(filedUnit.filedDone,70); // H+I+J, not K
+ assert.equal(filedUnit.filedTotal,100); // total party members in column C
+ assert.ok(Math.abs(filedUnit.filedRate-0.7)<1e-12);
+}
+
 const bankResult=feed.modules.banking;
 assert.equal(bankResult.excludedCaQsUnits,108);
 assert.equal(bankResult.excludedCityRoot,1);
