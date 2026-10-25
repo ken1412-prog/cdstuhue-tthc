@@ -94,6 +94,7 @@ jobs:
           node --check site/assets/app.js
           node --check < apps-script/ExcelIntake.gs
           node --check < apps-script/Code.gs
+          node tests/test_excel_intake.js
           node tests/test_ca_qs_stats.js
           python -m unittest discover -s tests -p 'test_public_surface.py' -v
           python -m unittest discover -s tests -p 'test_payment_month.py' -v
