@@ -500,36 +500,50 @@ function buildStatsFeed_(){
     const nodes={};
     info.forEach(r=>{const code=String(r[0]||'').trim(),name=String(r[1]||'').trim(),parent=String(r[2]||'').trim();
       if(code&&name&&!Object.prototype.hasOwnProperty.call(nodes,code))nodes[code]={name:name.slice(0,190),parent};});
-    const roots=Object.keys(nodes).filter(code=>nodes[code].parent==='A57');
+    // The owner excludes the military/border-guard branches A57.12 / A57.13
+    // and the specific police sub-branch A57.121.39 from the 46-unit report.
+    // Prefix boundaries are deliberate: A57.121 and its other children stay.
+    const isExcludedCaQs=code=>{
+      const c=String(code||'').trim();
+      return /^A57\.(?:12|13)(?:\.|$)/.test(c)||/^A57\.121\.39(?:\.|$)/.test(c);
+    };
+    const roots=Object.keys(nodes).filter(code=>nodes[code].parent==='A57'&&!isExcludedCaQs(code));
     if(roots.length!==46)throw new Error('Unexpected level-2 organization count');
     const rootSet=new Set(roots);
     function rootOf(code){
       let key=String(code||'').trim(),seen=new Set();
       for(let depth=0;depth<20&&key&&!seen.has(key);depth++){
+        if(isExcludedCaQs(key))return '';
         if(rootSet.has(key))return key;
         seen.add(key);key=nodes[key]?.parent||'';
       }
       return '';
     }
-    unitTree={roots,nodes,rootOf,info,status};
+    unitTree={roots,nodes,rootOf,info,status,isExcludedCaQs};
     if(enabled.banking){
       let registered=0,notRegistered=0,unmapped=0;
+      const excludedCaQsUnits=info.filter(r=>isExcludedCaQs(r[0])).length;
+      const excludedCityRoot=info.filter(r=>String(r[0]||'').trim()==='A57').length;
       const groups={};
       roots.forEach(code=>{groups[code]={name:nodes[code].name,total:0,done:0};});
       info.forEach((r,i)=>{
         const state=String(status[i]?.[0]||'').trim();
         if(state!=='Đã có tài khoản ngân hàng'&&state!=='Chưa có tài khoản ngân hàng')return;
-        if(state==='Đã có tài khoản ngân hàng')registered++;else notRegistered++;
+        if(String(r[0]||'').trim()==='A57'||isExcludedCaQs(r[0]))return;
         const root=rootOf(r[0]);
         if(!root){unmapped++;return;}
+        if(state==='Đã có tài khoản ngân hàng')registered++;else notRegistered++;
         groups[root].total++;
         if(state==='Đã có tài khoản ngân hàng')groups[root].done++;
       });
+      // Both numerator and denominator contain ONLY organizations mapped to 46
+      // direct-level-2 units. Do not dilute the rate with CA/QS or city root.
       const all=registered+notRegistered;
       const ranked=statsUnitRankings_(Object.values(groups));
       modules.banking={rowCount:all,registered,notRegistered,
         registrationRate:all?registered/all:null,
         unitRanking:ranked,unmappedForRanking:unmapped,
+        excludedCaQsUnits,excludedCityRoot,
         sourceSnapshot:src.NGAN_HANG.snapshot};
       if(bankXYApproved&&modules.ranking?.records?.length===46){
         const byName=new Map(),rows=modules.ranking.records;
@@ -543,18 +557,54 @@ function buildStatsFeed_(){
         const mapped=rows.map(r=>byName.get(orgKey(r.name)));
         const mappedTotal=mapped.reduce((n,g)=>n+g.total,0);
         const mappedDone=mapped.reduce((n,g)=>n+g.done,0);
-        if(mappedTotal!==all-unmapped||mappedDone>registered)
+        if(mappedTotal!==all||mappedDone!==registered)
           throw new Error('Bank aggregate count mismatch');
         rows.forEach((r,i)=>{r.bankDone=mapped[i].done;r.bankTotal=mapped[i].total;});
       }
     }
   }
 
+  // Remove the reporting rows belonging to the explicitly excluded
+  // 108 CA/QS organizations, before totals, parent rankings or leaderboards.
+  // Only organization-name columns B/D are used; personal-name column C
+  // remains unread. Never match generic names such as "Chi bộ 1" alone.
+  if(enabled.missing&&unitTree&&missingOrgRows){
+    const pair=(unit,parent)=>orgKey(unit)+'|'+orgKey(parent);
+    const excludedPairs=new Set(),includedPairs=new Set();
+    const excludedNames=new Set(),includedNames=new Set();
+    unitTree.info.forEach(r=>{
+      const code=String(r[0]||'').trim();
+      const name=String(r[1]||'').trim(),parent=String(r[3]||'').trim();
+      if(!name)return;
+      if(unitTree.isExcludedCaQs(code)){
+        excludedPairs.add(pair(name,parent));
+        excludedNames.add(orgKey(name));
+      }else{
+        includedPairs.add(pair(name,parent));
+        includedNames.add(orgKey(name));
+      }
+    });
+    const safeExcludedParentNames=new Set([...excludedNames].filter(x=>x&&!includedNames.has(x)));
+    const before=missingOrgRows.length;
+    missingOrgRows=missingOrgRows.filter(r=>{
+      const key=pair(r.unit,r.parent),parentKey=orgKey(r.parent);
+      const direct=excludedPairs.has(key)&&!includedPairs.has(key);
+      const byVerifiedParent=safeExcludedParentNames.has(parentKey);
+      return !(direct||byVerifiedParent);
+    });
+    const counts={};
+    missingOrgRows.forEach(r=>{counts[r.parent]=(counts[r.parent]||0)+1;});
+    const byParent=Object.keys(counts).filter(k=>counts[k]>=20)
+      .map(name=>({name:name.slice(0,190),rows:counts[name]}))
+      .sort((a,b)=>b.rows-a.rows||a.name.localeCompare(b.name,'vi')).slice(0,30);
+    modules.missing.rowCount=missingOrgRows.length;
+    modules.missing.distinctParents=Object.keys(counts).length;
+    modules.missing.rowsByParent=byParent;
+    modules.missing.excludedCaQsRows=before-missingOrgRows.length;
+  }
   // Public missing-record ranking: only counts from organization names unambiguously
   // linked to exactly one of the 46 level-2 organizations. No person-level data.
   if(enabled.missing&&unitTree&&missingOrgRows){
-    const orgKey=v=>String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'')
-      .replace(/đ/g,'d').replace(/Đ/g,'D').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();
     const nameRoots={};
     unitTree.info.forEach(r=>{
       const root=unitTree.rootOf(r[0]),key=orgKey(r[1]);
