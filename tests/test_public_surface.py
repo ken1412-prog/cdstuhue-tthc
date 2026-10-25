@@ -184,9 +184,11 @@ class PublicSurfaceTests(unittest.TestCase):
         ):
             self.assertNotIn(removed,js)
         self.assertIn("subtitleEl.hidden=!sub",js)
-        self.assertIn("const maxMissing=Math.max",js)
-        self.assertIn("rowBlock(rank.top",js)
-        self.assertIn("rowBlock(rank.bottom",js)
+        self.assertIn("function filingRankingFromApprovedUnits(records)",js)
+        self.assertIn("x.filedDone/x.filedTotal",js)
+        self.assertIn("Xếp hạng tỷ lệ khai báo hồ sơ",js)
+        self.assertIn("statsRankingPair(filingRank,'hồ sơ','Tỷ lệ khai báo hồ sơ')",js)
+        self.assertNotIn("Top 10 nhiều nhất",js)
 
     def test_no_original_host_or_repo_links_in_ui_assets(self):
         for path in PUBLIC_ASSETS:
