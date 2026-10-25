@@ -397,11 +397,21 @@ function statsDashboard(){
     '<p class="stats-scope-note">'+E(String(v.unmappedForRanking))+' bản ghi khác chưa ghép được vào 46 Đảng bộ, không tính vào chỉ tiêu.</p>':'')+'</section>';
  }
  if(m.missing){
-  // Same two-column leaderboard as the bank registration module: highest and
-  // lowest ratios, with an explicit approved numerator/denominator under each.
+  // Same unit-ranking method as the bank panel, with the three reviewed
+  // aggregate filing statuses supplied by the private Sheet via Apps Script.
   const filingRank=filingRankingFromApprovedUnits(m.ranking?.records);
+  const filing=m.filingSummary;
+  const filingCounts=(filing&&Number.isInteger(filing.totalMembers)&&filing.totalMembers>0
+     &&[filing.completed,filing.pendingApproval,filing.notFiled,filing.unclassified].every(Number.isInteger)
+     &&filing.completed+filing.pendingApproval+filing.notFiled+filing.unclassified===filing.totalMembers)
+     ?statBreakdown([['Đã hoàn thành',filing.completed],
+       ['Đã khai báo HS nhưng chưa duyệt',filing.pendingApproval],
+       ['Chưa khai báo hồ sơ',filing.notFiled]],filing.totalMembers)+
+       (filing.unclassified>0?'<p class="stats-scope-note">Còn '+amount(filing.unclassified)+
+        ' đảng viên chưa khớp trạng thái với tổng nguồn 46 Đảng bộ; không cộng vào ba nhóm.</p>':'')
+     :'<p class="stats-sync-pending">Đang chờ bản dữ liệu tổng hợp 3 trạng thái đã duyệt từ Google Sheets.</p>');
   panels+='<section class="panel stats-panel stats-panel-wide stats-missing-panel"><div class="panel-head"><div><h2>Xếp hạng tỷ lệ khai báo hồ sơ</h2></div><span class="stats-count-chip">46 Đảng bộ cấp 2</span></div>'+
-    statsRankingPair(filingRank,'hồ sơ','Tỷ lệ khai báo hồ sơ')+'</section>';
+    filingCounts+statsRankingPair(filingRank,'hồ sơ','Tỷ lệ khai báo hồ sơ')+'</section>';
  }
  return '<div class="section-heading"><div><h2>Trung tâm thống kê · '+E(paymentPeriod(stats))+'</h2><p>Dữ liệu tổng hợp được duyệt từ bốn bảng nguồn riêng tư</p></div></div><div class="stats-grid stats-dashboard-grid">'+panels+'</div>';
 }

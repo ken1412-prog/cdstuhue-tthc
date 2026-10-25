@@ -235,6 +235,20 @@ def main():
                 if records:
                     modules['ranking']={'records':records,'eligibleUnits':len(records),
                         'scope':'Đảng bộ trực thuộc Thành ủy Huế'}
+            # Owner-approved 46-unit aggregate only; reject incoherent status totals.
+            filing=raw.get('filingSummary')
+            if isinstance(filing,dict):
+                keys=('totalMembers','completed','pendingApproval','notFiled','unclassified')
+                v={k:bounded_int(filing.get(k),100000) for k in keys}
+                if (all(isinstance(v[k],int) for k in keys)
+                        and v['totalMembers']>0 and
+                        sum(v[k] for k in keys if k!='totalMembers')==v['totalMembers']
+                        and isinstance(filing.get('sourceSnapshot'),str)
+                        and len(filing['sourceSnapshot'])<=32
+                        and raw.get('period')==str(filing['sourceSnapshot'])[:7]):
+                    modules['filingSummary']={
+                        **v,'scope':'46 Đảng bộ cấp 2 trong báo cáo thu nộp',
+                        'sourceSnapshot':filing['sourceSnapshot']}
             missing=raw.get('missing')
             if isinstance(missing,dict):
                 count=bounded_int(missing.get('rowCount'),30000)

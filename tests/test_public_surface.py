@@ -49,6 +49,9 @@ class PublicSurfaceTests(unittest.TestCase):
         self.assertIn("Bảng xếp hạng theo 46 Đảng bộ",js)
         self.assertIn("statsRankingPair(v.unitRanking,'bản ghi')",js)
         self.assertIn("stats-missing-panel",js)
+        self.assertIn("m.filingSummary",js)
+        self.assertIn("Đã khai báo HS nhưng chưa duyệt",js)
+        self.assertIn("Chưa khai báo hồ sơ",js)
         # Hero card must display the entire undeclared source list (15,238
         # on Oct 25), not the 46-unit mapped subset (14,235).
         self.assertIn("m.missing.sourceRowCount>=m.missing.rowCount",js)

@@ -968,3 +968,10 @@ body{
       url('./img/nguyen-hoang-bridge-3840.jpg') center 46% /cover no-repeat!important;
   }
 }
+
+/* Filing totals: three balanced summary cards above the Top/Bottom rate charts. */
+.stats-missing-panel .stats-breakdown{grid-template-columns:repeat(3,minmax(0,1fr))}
+.stats-missing-panel .stats-breakdown-item:first-child{border-left:3px solid #198c64}
+.stats-missing-panel .stats-breakdown-item:nth-child(2){border-left:3px solid #d79b26}
+.stats-missing-panel .stats-breakdown-item:nth-child(3){border-left:3px solid #b73e4b}
+@media(max-width:700px){.stats-missing-panel .stats-breakdown{grid-template-columns:1fr}}

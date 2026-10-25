@@ -408,6 +408,8 @@ function buildStatsFeed_(){
   // Publishing integer numerator/denominator per unit requires a separate
   // approval from the existing percentage-only scope.
   const filedXYApproved=enabled.ranking&&approvedScopes['XẾP HẠNG 46 ĐƠN VỊ'].includes('HS_FILED_XY_BY_LEVEL2');
+  // Owner-approved three-way status totals: no individual-level records.
+  const filingStatusApproved=enabled.ranking&&approvedScopes['XẾP HẠNG 46 ĐƠN VỊ'].includes('HS_FILING_STATUS_SUMMARY_46');
   const orgKey=v=>String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'')
     .replace(/đ/g,'d').replace(/Đ/g,'D').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();
   if(enabled.payment||enabled.ranking){
@@ -430,6 +432,28 @@ function buildStatsFeed_(){
         filedTotal:reconciled?members:null,
         filedRate:reconciled?filed/members:null};
     });
+    if(filingStatusApproved&&list.length===46){
+      // H = filed but awaiting review; I+J = reviewed (fee unpaid or paid);
+      // K = not filed. Use the same 46 organization rows as the ranking.
+      let members=0,completed=0,pendingApproval=0,notFiled=0;
+      let valid=true;
+      list.forEach(r=>{
+        const total=statsWhole_(r[2]),h=statsWhole_(r[7]),
+          i=statsWhole_(r[8]),j=statsWhole_(r[9]),k=statsWhole_(r[10]);
+        if(total<=0||h+i+j+k>total)valid=false;
+        members+=total;
+        pendingApproval+=h;completed+=i+j;notFiled+=k;
+      });
+      if(valid&&members>0){
+        modules.filingSummary={
+          totalMembers:members,completed,pendingApproval,notFiled,
+          unclassified:members-completed-pendingApproval-notFiled,
+          interpretation:'Completed means reviewed filing; payment may still be pending.',
+          scope:'46 Đảng bộ cấp 2 trong báo cáo thu nộp',
+          sourceSnapshot:src.THU_NOP.snapshot
+        };
+      }
+    }
     if(enabled.payment)modules.payment={
       scope:'46 đơn vị trong báo cáo',
       completionRate:sumRequired>0?sumReceived/sumRequired:null,

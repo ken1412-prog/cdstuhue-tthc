@@ -8,7 +8,7 @@ const vm = require('node:vm');
 
 const policies = [
  ['TỔNG HỢP THU NỘP','ĐÃ DUYỆT','','2026-10-25',''],
- ['XẾP HẠNG 46 ĐƠN VỊ','ĐÃ DUYỆT','','2026-10-25','HS_FILED_XY_BY_LEVEL2'],
+ ['XẾP HẠNG 46 ĐƠN VỊ','ĐÃ DUYỆT','','2026-10-25','HS_FILED_XY_BY_LEVEL2 HS_FILING_STATUS_SUMMARY_46'],
  ['CHƯA KHAI BÁO THEO ĐƠN VỊ CHA','ĐÃ DUYỆT','','2026-10-25',''],
  ['XÁC NHẬN PHÂN BỔ','CHỜ DUYỆT','','',''],
  ['TÀI KHOẢN NGÂN HÀNG','ĐÃ DUYỆT','','2026-10-25','BANK_XY_BY_LEVEL2']
@@ -102,6 +102,10 @@ vm.runInNewContext(fs.readFileSync('apps-script/Code.gs','utf8'),context,{timeou
 const feed=context.buildStatsFeed_();
 assert.equal(feed.public,true);
 assert.equal(feed.modules.ranking.records.length,46);
+assert.deepEqual(JSON.parse(JSON.stringify(feed.modules.filingSummary&&[
+ feed.modules.filingSummary.totalMembers,feed.modules.filingSummary.completed,
+ feed.modules.filingSummary.pendingApproval,feed.modules.filingSummary.notFiled,
+ feed.modules.filingSummary.unclassified])),[4600,2760,460,1380,0]);
 for(const filedUnit of feed.modules.ranking.records){
  assert.equal(filedUnit.filedDone,70); // H+I+J, not K
  assert.equal(filedUnit.filedTotal,100); // total party members in column C
