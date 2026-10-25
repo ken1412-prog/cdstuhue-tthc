@@ -237,6 +237,15 @@ def main():
                         'scope':'Đảng bộ trực thuộc Thành ủy Huế'}
             # Owner-approved 46-unit aggregate only; reject incoherent status totals.
             filing=raw.get('filingSummary')
+            # Log only presence/validation status. Never log private rows,
+            # script endpoint URLs, spreadsheet IDs or individual records.
+            if filing is None:
+                print('Filing summary diagnostic: absent from Apps Script stats modules')
+            elif not isinstance(filing,dict):
+                print('Filing summary diagnostic: unexpected source type')
+            else:
+                print('Filing summary diagnostic: present, validating aggregates')
+
             if isinstance(filing,dict):
                 keys=('totalMembers','completed','pendingApproval','notFiled','unclassified')
                 v={k:bounded_int(filing.get(k),100000) for k in keys}
