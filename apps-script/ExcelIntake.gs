@@ -395,3 +395,170 @@ function cdstuhueInstallIntakeWatch() {
   if(!exists)ScriptApp.newTrigger('cdstuhueAutoIntakeWatch').timeBased().everyHours(1).create();
   return {hourly:true,changesPublicData:false};
 }
+
+
+/**
+ * Phase 3: owner-approved, explicit promotion. No public /exec endpoint calls this.
+ * Source validation and owner approval are two separate gates.
+ *
+ * From the spreadsheet menu:
+ *  1. stage four Excel files
+ *  2. review DU_LIEU_CHO_DUYET and mark all four H cells "ĐÃ DUYỆT"
+ *  3. run this function and type "DUYET YYYY-MM" in the owner-only UI
+ * Existing DUYET_WEBSITE scope tokens are preserved. Approval dates for
+ * previously enabled modules are re-stamped only after this explicit action.
+ */
+function cdstuhueApproveStagedBatch() {
+  const ui=SpreadsheetApp.getUi();
+  const props=PropertiesService.getScriptProperties();
+  const hubId=props.getProperty('CDSTUHUE_STATS_HUB_ID');
+  if(!hubId)throw Error('Thiếu Script Property CDSTUHUE_STATS_HUB_ID');
+  const lock=LockService.getScriptLock();
+  if(!lock.tryLock(30000))throw Error('Đợt nhập liệu khác đang chạy');
+  try {
+    const raw=props.getProperty('CDSTUHUE_PENDING_STAGE_JSON');
+    if(!raw)throw Error('Chưa có lượt Excel chờ duyệt. Chạy cdstuhueStageExcel4 trước');
+    const pending=JSON.parse(raw),keys=['THU_NOP','THU_NOP_CITY','CHUA_KHAI','NGAN_HANG'];
+    if(pending.mode!=='STAGED_AWAITING_REVIEW'||pending.reconciled!==true||
+       keys.some(key=>!pending.sources?.[key]))throw Error('Dữ liệu nháp chưa đạt kiểm tra');
+    if(props.getProperty('CDSTUHUE_ACTIVE_STAGE_SIGNATURE')===pending.signature)
+      throw Error('Bộ Excel này đã được chuyển nguồn trước đó');
+    const input=cdstuhueInputFiles_();
+    if(input.signature!==pending.signature)
+      throw Error('Bốn tệp Excel đã thay đổi sau kiểm tra: cần tạo bản nháp mới');
+    const hub=SpreadsheetApp.openById(hubId);
+    const pendingTab=hub.getSheetByName('DU_LIEU_CHO_DUYET'),
+      registry=hub.getSheetByName('NGUON_4_FILE'),
+      policy=hub.getSheetByName('DUYET_WEBSITE');
+    if(!pendingTab||!registry||!policy)
+      throw Error('Thiếu tab quản trị cần thiết trong STATS HUB');
+    const rows=pendingTab.getRange(2,1,4,9).getDisplayValues();
+    const byKey={};rows.forEach(r=>{if(byKey[r[0]])throw Error('Lặp mã nguồn trong bảng chờ duyệt');byKey[r[0]]=r;});
+    const snapshots={};
+    keys.forEach(key=>{
+      const r=byKey[key],x=pending.sources[key];
+      if(!r||r[2]!==x.id||r[3]!==x.tab||
+         Number(r[4])!==x.summary.rows||
+         String(r[7]||'').trim()!=='ĐÃ DUYỆT')
+        throw Error('Nguồn '+key+' chưa được duyệt hoặc đã đổi sau kiểm tra');
+      const snapshot=String(r[5]||'').trim();
+      if(!/^20\d{2}-(0[1-9]|1[0-2])(?:-(0[1-9]|[12]\d|3[01]))?$/.test(snapshot))
+        throw Error('Nguồn '+key+' thiếu kỳ/ngày YYYY-MM hoặc YYYY-MM-DD ở cột F');
+      snapshots[key]=snapshot;
+      const sh=SpreadsheetApp.openById(x.id).getSheetByName(x.tab);
+      if(!sh)throw Error('Sheet chuẩn hóa không tồn tại: '+key);
+      const now=cdstuhueExcelValidate_(key,sh);
+      if(now.rows!==x.summary.rows||JSON.stringify(now)!==JSON.stringify(x.summary))
+        throw Error('Dữ liệu nháp '+key+' đã đổi sau kiểm tra; chạy lại');
+    });
+    if(snapshots.THU_NOP.slice(0,7)!==snapshots.THU_NOP_CITY.slice(0,7))
+      throw Error('46 Đảng bộ và báo cáo thành phố phải cùng kỳ');
+    // Do not let this handler close/open a reporting month automatically.
+    const monthSheet=hub.getSheetByName('KY_BAO_CAO');
+    const period=monthSheet?String(monthSheet.getRange('B2').getDisplayValue()||'').trim():'2026-10';
+    if(snapshots.THU_NOP.slice(0,7)!==period)
+      throw Error('Kỳ Excel khác KY_BAO_CAO; cần chốt và chuyển kỳ đúng quy trình trước');
+    const prompt=ui.prompt(
+      'Xác nhận chuyển nguồn chính thức',
+      'Bốn nguồn đã duyệt, kỳ '+period+'. Chỉ cập nhật dữ liệu tổng hợp và xuất theo phạm vi đã duyệt. Nhập chính xác: DUYET '+period,
+      ui.ButtonSet.OK_CANCEL);
+    if(prompt.getSelectedButton()!==ui.Button.OK||
+        prompt.getResponseText().trim()!=='DUYET '+period)
+      return {promoted:false,cancelled:true};
+    const snapshot=registry.getRange(2,1,4,8).getValues();
+    const oldApproval=policy.getRange(2,1,5,5).getValues();
+    // Keep prior registry for audit/recovery; no raw/person rows enter the log.
+    const previous=JSON.stringify({
+      changedAt:new Date().toISOString(),registry:snapshot,
+      approvals:oldApproval.map(r=>[r[0],r[1],r[3],r[4]])
+    });
+    if(previous.length>=9000)throw Error('Old configuration exceeds audit safety limit');
+    const newRegistry=keys.map(key=>{
+      const x=pending.sources[key],old=snapshot.find(r=>r[0]===key);
+      return [key,byKey[key][1],x.id,x.tab,x.summary.rows,snapshots[key],
+        old?.[6]||'Dữ liệu đã đối chiếu trong CDSTUHUE',
+        'RIÊNG TƯ'];
+    });
+    // Compute/read all aggregates before editing live config.
+    const payment=SpreadsheetApp.openById(pending.sources.THU_NOP.id)
+      .getSheetByName(pending.sources.THU_NOP.tab).getRange(3,1,46,14).getValues();
+    const city=SpreadsheetApp.openById(pending.sources.THU_NOP_CITY.id)
+      .getSheetByName(pending.sources.THU_NOP_CITY.tab).getRange(3,1,1,14).getValues()[0];
+    const bank=pending.sources.NGAN_HANG.summary,missing=pending.sources.CHUA_KHAI.summary;
+    const number=v=>cdstuhueExcelInt_(v,'Private aggregate');
+    const sum=col=>payment.reduce((n,r)=>n+number(r[col]),0);
+    const people=sum(2),due=sum(11),paid=sum(12),noFile=sum(10),
+      cityPeople=number(city[2]),cityDue=number(city[11]),
+      cityPaid=number(city[12]),cityMissing=number(city[10]);
+    if(cityPaid!==paid||cityMissing!==missing.rows||
+       cityPeople<people||cityDue<due||bank.registered+bank.notRegistered!==bank.rows)
+      throw Error('Reconciliation changed after review; no publication');
+    const ranking=payment.map(r=>({
+      name:String(r[1]||'').trim(),members:number(r[2]),due:number(r[11]),
+      paid:number(r[12]),noFile:number(r[10]),pending:number(r[7]),
+      paidFiled:number(r[9])})).sort((a,b)=>
+        (b.paid/b.due)-(a.paid/a.due)||a.name.localeCompare(b.name,'vi'))
+      .map((r,i)=>[i+1,r.name,r.members,r.due,r.paid,r.paid/r.due,
+        r.noFile,r.pending,r.paidFiled,r.members>=100?'ĐỦ':'KHÔNG']);
+    if(ranking.length!==46||ranking.some(r=>!Number.isFinite(r[5])))
+      throw Error('Không thể xếp hạng từ nguồn vừa duyệt');
+    const overview=hub.getSheetByName('TONG_QUAN'),
+      rankings=hub.getSheetByName('XEP_HANG_SNAPSHOT');
+    if(!overview||!rankings)throw Error('Thiếu tab tổng hợp của STATS HUB');
+    // Only known dashboard value cells are updated. Keep B20:B21 formulas intact.
+    const oldValues={
+      b2b9:overview.getRange('B2:B9').getValues(),
+      a10e12:overview.getRange('A10:E12').getValues(),
+      b13b19:overview.getRange('B13:B19').getValues(),
+      ranking:rankings.getRange('A2:J47').getValues()
+    };
+    try {
+      registry.getRange(2,1,4,8).setValues(newRegistry);
+      overview.getRange('B2:B9').setValues([
+        [46],[people],[due],[paid],[paid/due],[noFile],[missing.rows],[missing.rows-noFile]]);
+      // PHAN_BO retired. Remove legacy display fields, not the archived source.
+      overview.getRange('A10:E12').clearContent();
+      overview.getRange('B13:B19').setValues([
+        [bank.registered],[bank.notRegistered],[bank.registered/bank.rows],
+        [cityPeople],[cityMissing],[cityPeople-people],[cityPaid/cityDue]]);
+      rankings.getRange('A2:J47').setValues(ranking);
+      // Explicit batch approval renews the existing public scopes, never adds scopes.
+      const stamp=Utilities.formatDate(new Date(),'Asia/Bangkok','yyyy-MM-dd');
+      const refreshed=oldApproval.map(row=>{
+        if(String(row[1]).trim()==='ĐÃ DUYỆT')row[3]=stamp;
+        return row;
+      });
+      policy.getRange(2,1,5,5).setValues(refreshed);
+    }catch(e){
+      // Best-effort rollback of active registry and private aggregates.
+      try{
+        registry.getRange(2,1,4,8).setValues(snapshot);
+        overview.getRange('B2:B9').setValues(oldValues.b2b9);
+        overview.getRange('A10:E12').setValues(oldValues.a10e12);
+        overview.getRange('B13:B19').setValues(oldValues.b13b19);
+        rankings.getRange('A2:J47').setValues(oldValues.ranking);
+        policy.getRange(2,1,5,5).setValues(oldApproval);
+      }catch(rollback){console.error('PROMOTION ROLLBACK FAILED: restore previous private config manually');}
+      throw e;
+    }
+    props.setProperty('CDSTUHUE_PREVIOUS_CONFIG_JSON',previous);
+    props.setProperty('CDSTUHUE_ACTIVE_STAGE_SIGNATURE',pending.signature);
+    props.deleteProperty('CDSTUHUE_PENDING_STAGE_JSON');
+    pendingTab.getRange(2,8,4,1).setValues(keys.map(()=>['ĐÃ CHUYỂN NGUỒN']));
+    ui.alert('Đã chuyển 4 nguồn đã duyệt vào STATS HUB. Website sẽ nhận qua lịch GitHub Actions; không cần AI tính lại.');
+    return {promoted:true,period,rows:keys.map(k=>[k,pending.sources[k].summary.rows])};
+  }finally{
+    lock.releaseLock();
+  }
+}
+/** Menu wrappers: never expose approval as a public web endpoint. */
+function cdstuhueCheckExcelMenu() {
+  const result=cdstuhuePreflightExcel4();
+  SpreadsheetApp.getUi().alert(result.valid?'Bốn file hợp lệ. Có thể tạo bản nháp.':'Kiểm tra thất bại');
+}
+function cdstuhueStageExcelMenu() {
+  const result=cdstuhueStageExcel4();
+  SpreadsheetApp.getUi().alert(result.mode==='STAGED_AWAITING_REVIEW'?
+    'Đã tạo bản nháp riêng tư. Mở STATS HUB / DU_LIEU_CHO_DUYET để kiểm tra và duyệt.':
+    'Bộ bốn Excel không thay đổi so với lượt đã nạp.');
+}
