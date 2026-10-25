@@ -82,7 +82,8 @@ const cityMinimal=fake([
 assert.equal(identify(cityMinimal),'THU_NOP_CITY');
 assert.equal(validate('THU_NOP_CITY',cityMinimal).members,56558);
 standardize('THU_NOP_CITY',cityMinimal);
-assert.equal(cityMinimal.getWritten()[2][7],'');
+assert.equal(cityMinimal.getWritten()[2][7],0);
+assert.equal(validate('THU_NOP_CITY',fake(cityMinimal.getWritten())).members,56558);
 assert.equal(cityMinimal.getWritten()[2][10],15238);
 
 // Missing-source report can omit private individual names, STT, IDs and period.

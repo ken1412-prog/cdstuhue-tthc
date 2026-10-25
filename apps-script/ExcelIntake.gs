@@ -236,6 +236,12 @@ function cdstuhueNormalizeStagedSheet_(type,sh) {
         const field=maps[idx];
         if(data[field])row[Number(idx)]=data[field][i];
       });
+      // The one-row city control does not need three filing-status fields.
+      // Canonicalize absent optional city fields to 0 so a second validation
+      // does not confuse deliberately omitted columns with corrupt values.
+      if(type==='THU_NOP_CITY'){
+        [7,8,9].forEach(idx=>{if(row[idx]==='')row[idx]=0;});
+      }
       return row;
     });
     normalized.getRange(head.length+begin+1,1,count,width).setValues(rows);
