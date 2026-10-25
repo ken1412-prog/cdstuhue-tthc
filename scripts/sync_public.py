@@ -251,10 +251,25 @@ def main():
                         'rowsByParent':rows,
                         'countType':'Số dòng chưa khai báo theo danh sách riêng, không phải tỷ lệ chưa khai báo trên tổng đảng viên'}
                     excluded=bounded_int(missing.get('excludedCaQsRows'),30000)
-                    if excluded is not None and excluded+count<=30000:
+                    no_parent=bounded_int(missing.get('excludedNoParentRows'),30000)
+                    ambiguous=bounded_int(missing.get('excludedAmbiguousRows'),30000)
+                    incomplete=bounded_int(missing.get('excludedIncompleteRows'),30000)
+                    source_rows=bounded_int(missing.get('sourceRowCount'),30000)
+                    if all(x is not None for x in (excluded,no_parent,ambiguous,incomplete,source_rows)):
+                        if count+excluded+no_parent+ambiguous+incomplete!=source_rows:
+                            modules.pop('missing',None)
+                        else:
+                            modules['missing'].update({
+                                'sourceRowCount':source_rows,
+                                'excludedCaQsRows':excluded,
+                                'excludedNoParentRows':no_parent,
+                                'excludedAmbiguousRows':ambiguous,
+                                'excludedIncompleteRows':incomplete})
+                    elif excluded is not None and excluded+count<=30000:
+                        # Backward compatibility with the previous Apps Script deployment.
                         modules['missing']['excludedCaQsRows']=excluded
                     verified=approved_missing_level2(missing.get('level2Ranking'),count)
-                    if verified is not None:
+                    if verified is not None and 'missing' in modules:
                         modules['missing']['level2Ranking']=verified
             allocation=raw.get('allocation')
             if isinstance(allocation,dict):
