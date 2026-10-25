@@ -76,7 +76,7 @@ class PublicSurfaceTests(unittest.TestCase):
             html=(SITE / page).read_text(encoding="utf-8")
             self.assertIn('<div class="footer-byline">',html)
             self.assertIn('<span class="footer-copyright">© 2026 CDSTUHUE</span><span class="footer-author">NKien',html)
-            self.assertIn('assets/styles.css?v=20261025-user-bridge-contain-v11',html)
+            self.assertIn('assets/styles.css?v=20261025-user-bridge-softedge-v12',html)
             self.assertNotIn('id="navAssistant"',html)
             self.assertIn('id="openAssistant"',html)
             self.assertIn('id="assistantMobileFab"',html)
@@ -165,8 +165,8 @@ class PublicSurfaceTests(unittest.TestCase):
         self.assertIn("center top /100% auto no-repeat",final)
         self.assertIn("rgba(7,24,44,.99)",final)
         active=css[css.rfind("/* Full panoramic Nguyễn Hoàng image"):]
-        self.assertIn("right center / contain no-repeat",active)
-        self.assertIn("width:72%",active)
+        self.assertIn("right center / auto 100% no-repeat",active)
+        self.assertIn("width:100%",active)
         self.assertIn("transform:none",active)
         self.assertIn("mask-image:linear-gradient",active)
 

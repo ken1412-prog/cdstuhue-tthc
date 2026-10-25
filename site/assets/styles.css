@@ -919,7 +919,7 @@ body{
   .hero{background:#fff!important}
 }
 
-/* Full panoramic Nguyễn Hoàng image at natural proportions: navy text zone + soft fade. */
+/* Nguyễn Hoàng: keep photo at natural banner scale; feather its LEFT edge into navy. */
 @media screen and (min-width:761px){
   .hero{
     background:linear-gradient(110deg,#102a49 0%,#123454 70%,#153c62 100%)!important;
@@ -928,17 +928,17 @@ body{
     content:"";
     display:block!important;
     position:absolute;
-    inset:0 0 0 auto;
-    width:72%;
+    inset:0;
+    width:100%;
     height:100%;
     transform:none;
     border:0;
     border-radius:0;
     background:
-      url('./img/nguyen-hoang-user-banner.avif') right center / contain no-repeat,
-      url('./img/nguyen-hoang-bridge-3840.jpg') right center / contain no-repeat;
-    -webkit-mask-image:linear-gradient(90deg,transparent 0%,rgba(0,0,0,.15) 13%,rgba(0,0,0,.78) 38%,#000 57%);
-    mask-image:linear-gradient(90deg,transparent 0%,rgba(0,0,0,.15) 13%,rgba(0,0,0,.78) 38%,#000 57%);
+      url('./img/nguyen-hoang-user-banner.avif') right center / auto 100% no-repeat,
+      url('./img/nguyen-hoang-bridge-3840.jpg') right center / auto 100% no-repeat;
+    -webkit-mask-image:linear-gradient(90deg,transparent 0%,transparent 49%,rgba(0,0,0,.15) 55%,rgba(0,0,0,.55) 65%,rgba(0,0,0,.85) 74%,#000 83%);
+    mask-image:linear-gradient(90deg,transparent 0%,transparent 49%,rgba(0,0,0,.15) 55%,rgba(0,0,0,.55) 65%,rgba(0,0,0,.85) 74%,#000 83%);
     z-index:0;
     pointer-events:none;
   }
