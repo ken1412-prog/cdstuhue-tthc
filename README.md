@@ -218,7 +218,7 @@ Theo chỉ đạo chủ sở hữu, **không tính 108 đơn vị thuộc nhánh
 
 Đã chuẩn bị bộ kiểm tra 4 file tại apps-script/ExcelIntake.gs. Khi được cài trong Apps Script quản trị riêng, chương trình nhận diện file qua tiêu đề cột; không dựa vào tên file, không dùng AI.
 
-**Cách sử dụng:** tải đúng 4 file Excel (.xlsx hoặc .xls) cùng một lượt vào thư mục Google Drive riêng tư CDSTUHUE - NHAP 4 FILE EXCEL. Trong dự án Apps Script của chủ sở hữu, thêm file GS theo nội dung ExcelIntake.gs, bật Services / Drive API v3; thêm Script Property CDSTUHUE_EXCEL_INBOX_FOLDER_ID là ID thư mục Google Drive này. Chạy cdstuhuePreflightExcel4 thủ công. Nếu kết quả mode=DRY_RUN_ONLY, valid=true và đủ THU_NOP, CHUA_KHAI, PHAN_BO, NGAN_HANG thì cấu trúc đầu vào đạt kiểm tra ban đầu.
+**Cách sử dụng:** tải đúng 4 file Excel (.xlsx hoặc .xls) cùng một lượt vào thư mục Google Drive riêng tư CDSTUHUE - NHAP 4 FILE EXCEL. Trong dự án Apps Script của chủ sở hữu, thêm file GS theo nội dung ExcelIntake.gs, bật Services / Drive API v3; thêm Script Property CDSTUHUE_EXCEL_INBOX_FOLDER_ID là ID thư mục Google Drive này. Chạy cdstuhuePreflightExcel4 thủ công. Nếu kết quả mode=DRY_RUN_ONLY, valid=true và đủ THU_NOP, THU_NOP_CITY, CHUA_KHAI, NGAN_HANG thì cấu trúc đầu vào đạt kiểm tra ban đầu.
 
 Quan trọng: bước 1 KHÔNG tự ghi/đổi Google Sheets nguồn, không thay TONG_QUAN, DUYET_WEBSITE hoặc website. Chương trình tạm chuyển đổi Excel thành Sheet riêng tư để đối chiếu, sau đó đưa bản tạm vào Thùng rác; không công bố dữ liệu cá nhân. Chỉ sang bước 2 (nạp dữ liệu có sao lưu và đối chiếu) sau khi thử thành công với 4 file.
 
@@ -253,3 +253,8 @@ Khi Excel có ít cột hơn hoặc người dùng xóa các trường không c�
 Luồng mới vẫn là **kiểm tra → bản nháp riêng tư → đối chiếu → chờ duyệt**.
 Việc bật Apps Script thực tế và chuyển nguồn công khai vẫn là bước riêng; commit GitHub
 không tự cài phiên bản Apps Script đang chạy.
+
+
+## Mã triển khai Apps Script một-file (25/10/2026)
+
+Dán **apps-script/CDSTUHUE_DEPLOY_SINGLE.gs** vào Code.gs của dự án Web App hiện hành, không giữ module cũ trùng tên; xem [hướng dẫn triển khai](apps-script/DEPLOY_GOOGLE_APPS_SCRIPT.md). Giữ Script Properties riêng tư, bật Advanced Drive API v3, lưu, **Deploy New version**. Bộ nhập sẽ tự phân loại/chuẩn hóa theo tên cột, tạo nháp và chỉ chuyển nguồn khi chủ sở hữu duyệt. Không dùng AI tính số liệu.
