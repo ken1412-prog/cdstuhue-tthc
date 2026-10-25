@@ -50,6 +50,17 @@ class PublicSurfaceTests(unittest.TestCase):
             with self.subTest(path=path.name):
                 self.assertNotIn("sourceMappingURL=", path.read_text(encoding="utf-8"))
 
+    def test_source_hotkeys_are_only_soft_deterrence(self):
+        js = (SITE / "assets/app.js").read_text(encoding="utf-8")
+        self.assertIn("function discourageSourceHotkeys(e)", js)
+        self.assertIn("document.addEventListener('keydown',discourageSourceHotkeys,true)", js)
+        self.assertIn("k==='f12'", js)
+        self.assertIn("k==='u'", js)
+        self.assertNotIn("oncontextmenu", js)
+        self.assertNotIn("preventDefault(); // copy", js)
+        # Copy, paste, screenshot and right-click context menu remain native.
+        self.assertNotRegex(js, r"addEventListener\s*\(\s*['\"](?:copy|contextmenu|selectstart)['\"]")
+
     def test_copy_text_and_native_browser_features_remain_available(self):
         js = (SITE / "assets/app.js").read_text(encoding="utf-8")
         css = (SITE / "assets/styles.css").read_text(encoding="utf-8")
