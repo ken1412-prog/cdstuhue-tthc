@@ -370,12 +370,15 @@ function buildStatsFeed_(){
   const src={};
   sources.getRange(2,1,4,8).getDisplayValues().forEach(r=>{
     const key=String(r[0]).trim();
-    if(!['THU_NOP','CHUA_KHAI','PHAN_BO','NGAN_HANG'].includes(key))return;
+    if(!['THU_NOP','THU_NOP_CITY','CHUA_KHAI','NGAN_HANG'].includes(key))return;
     const id=String(r[2]).trim(),tab=String(r[3]).trim();
     if(!/^[A-Za-z0-9_-]{20,}$/.test(id)||!tab)throw new Error('Invalid private source configuration');
     src[key]={id,tab,snapshot:String(r[5]||'')};
   });
-  if(Object.keys(src).length!==4)throw new Error('Incomplete private source configuration');
+  // Transition-safe: legacy PHAN_BO is ignored until the hub switches to THU_NOP_CITY.
+  if(!src.THU_NOP||!src.CHUA_KHAI||!src.NGAN_HANG)
+    throw new Error('Incomplete private source configuration');
+  if(Object.keys(src).length>4)throw new Error('Too many source configurations');
   // Period is owner-controlled in the private STATS HUB. Never infer a new month
   // from today's date, because the underlying upload may still be from last month.
   // For backward compatibility the missing KY_BAO_CAO tab means October 2026.
@@ -395,8 +398,7 @@ function buildStatsFeed_(){
     return {schema:1,public:false,reviewed:false,period,modules:{},
       note:'Chưa có xác nhận duyệt của kỳ báo cáo mới.'};
   const keys={payment:'TỔNG HỢP THU NỘP',ranking:'XẾP HẠNG 46 ĐƠN VỊ',
-     missing:'CHƯA KHAI BÁO THEO ĐƠN VỊ CHA',allocation:'XÁC NHẬN PHÂN BỔ',
-     banking:'TÀI KHOẢN NGÂN HÀNG'};
+     missing:'CHƯA KHAI BÁO THEO ĐƠN VỊ CHA',banking:'TÀI KHOẢN NGÂN HÀNG'};
   const enabled=Object.fromEntries(Object.entries(keys).map(([k,name])=>[k,!!gates[name]]));
   const count=Object.values(enabled).filter(Boolean).length;
   if(count===0)return {schema:1,public:false,reviewed:false,period,modules:{},note:'Chưa có phân hệ thống kê được duyệt công khai.'};
@@ -416,6 +418,27 @@ function buildStatsFeed_(){
     const list=statsRows_(src.THU_NOP.id,src.THU_NOP.tab,3,14)
       .filter(r=>statsNumber_(r[0])>0&&String(r[1]||'').trim());
     if(list.length!==46)throw new Error('Unexpected number of payment reporting units');
+
+    // City summary is one control row, not another of the 46 units.
+    // Optional only during the migration of the private source registry.
+    if(src.THU_NOP_CITY){
+      const cityRows=statsRows_(src.THU_NOP_CITY.id,src.THU_NOP_CITY.tab,3,14)
+        .filter(r=>statsNumber_(r[0])>0&&String(r[1]||'').trim());
+      if(cityRows.length!==1||orgKey(cityRows[0][1])!==orgKey('Đảng bộ Thành phố Huế'))
+        throw new Error('Invalid city-level summary source');
+      const city=cityRows[0],sums={members:0,noFile:0,due:0,paid:0};
+      list.forEach(r=>{
+        sums.members+=statsWhole_(r[2]);sums.noFile+=statsWhole_(r[10]);
+        sums.due+=statsWhole_(r[11]);sums.paid+=statsWhole_(r[12]);
+      });
+      if(statsWhole_(city[2])<sums.members||
+          statsWhole_(city[10])<sums.noFile||
+          statsWhole_(city[11])<sums.due||
+          statsWhole_(city[12])!==sums.paid)
+        throw new Error('City summary does not reconcile with 46 payment units');
+      // The city control totals are private unless separately approved.
+    }
+
     let sumRequired=0,sumReceived=0;
     payments=list.map(r=>{
       const required=statsWhole_(r[11]),received=statsWhole_(r[12]);
@@ -504,21 +527,10 @@ function buildStatsFeed_(){
       rowsByParent:byParent,countType:'Số dòng trong danh sách, không xác nhận số người duy nhất',
       noCrossSourceReconciliation:false,sourceSnapshot:src.CHUA_KHAI.snapshot};
   }
-  if(enabled.allocation){
-    const statuses={XAC_NHAN:0,CHUA_XAC_NHAN:0,TY_LE_TD_CHO_XAC_NHAN:0};
-    let valid=0;
-    statsRows_(src.PHAN_BO.id,src.PHAN_BO.tab,2,3).forEach(r=>{
-      const key=String(r[2]||'').trim();
-      if(Object.prototype.hasOwnProperty.call(statuses,key)){statuses[key]++;valid++;}
-    });
-    modules.allocation={rowCount:valid,confirmed:statuses.XAC_NHAN,
-      unconfirmed:statuses.CHUA_XAC_NHAN,waitingRate:statuses.TY_LE_TD_CHO_XAC_NHAN,
-      sourceSnapshot:src.PHAN_BO.snapshot};
-  }
   // Only public organization identifiers, parent links and status cells are read.
   // Column F (bank account number) and individual confirmation columns are NEVER read.
   let unitTree=null;
-  if(enabled.allocation||enabled.banking||enabled.missing){
+  if(enabled.banking||enabled.missing){
     const sh=SpreadsheetApp.openById(src.NGAN_HANG.id).getSheetByName(src.NGAN_HANG.tab);
     if(!sh)throw new Error('Missing banking hierarchy source');
     const n=sh.getLastRow()-1;
@@ -715,35 +727,6 @@ function buildStatsFeed_(){
       }
     }catch(auditError){
       console.warn('Private unmatched audit sync skipped: '+String(auditError));
-    }
-  }
-  // Allocation sheet has only agency name and status; duplicated names such as
-  // "Chi bộ 1" across multiple branches cannot be assigned to a level-2 unit.
-  // Optional G column "Mã cơ quan" can enable fully verified per-unit rankings.
-  if(enabled.allocation&&unitTree){
-    const sh=SpreadsheetApp.openById(src.PHAN_BO.id).getSheetByName(src.PHAN_BO.tab);
-    if(!sh)throw new Error('Missing allocation sheet');
-    const hasCodes=String(sh.getRange(1,7).getDisplayValue()||'').trim()==='Mã cơ quan';
-    if(hasCodes){
-      const count=sh.getLastRow()-1;
-      if(count>25000)throw new Error('Allocation source exceeds safety size');
-      const rows=count>0?sh.getRange(2,3,count,1).getDisplayValues():[];
-      const codes=count>0?sh.getRange(2,7,count,1).getDisplayValues():[];
-      const groups={};unitTree.roots.forEach(c=>{groups[c]={name:unitTree.nodes[c].name,total:0,done:0};});
-      let valid=0,mapped=0;
-      rows.forEach((r,i)=>{
-        const status=String(r[0]||'').trim();
-        if(!['XAC_NHAN','CHUA_XAC_NHAN','TY_LE_TD_CHO_XAC_NHAN'].includes(status))return;
-        valid++;
-        const code=unitTree.rootOf(codes[i]?.[0]);
-        if(!code)return;
-        mapped++;groups[code].total++;
-        if(status==='XAC_NHAN')groups[code].done++;
-      });
-      // No partial denominators, no guessed matches and no unverified Top 10.
-      if(valid===modules.allocation.rowCount&&mapped===valid){
-        modules.allocation.unitRanking=statsUnitRankings_(Object.values(groups));
-      }
     }
   }
   // IMPORTANT: Never expose source spreadsheet IDs, individual names,
