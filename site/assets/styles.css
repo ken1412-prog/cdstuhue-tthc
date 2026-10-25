@@ -844,3 +844,47 @@ a:hover,.card-link:hover{color:#8f0b12}
 /* Attribution for the licensed Huế photos used by the site. */
 .photo-attribution{display:block;font-size:10px;line-height:1.45;margin-top:4px;color:#243a56;font-weight:600}
 .photo-attribution a{color:#164a7c;text-decoration:underline;text-underline-offset:2px}
+
+/* CDSTUHUE photo selection: Nguyễn Hoàng + Thuận An sea bridge (25 Oct 2026) */
+/* Public editorial photo displayed by URL, never bundled into this repository.
+   Backup is the already-licensed local Nguyễn Hoàng photo. */
+body{
+  background:
+    linear-gradient(180deg,rgba(245,250,253,.38) 0%,rgba(244,249,251,.30) 55%,rgba(240,247,251,.35) 100%),
+    url('https://nqs.1cdn.vn/2026/01/03/7676_day-vang-2-1767428052961279118961.jpg') center 52% /cover fixed no-repeat,
+    url('./img/nguyen-hoang-bridge-3840.jpg') center 46% /cover fixed no-repeat!important;
+}
+.stats-hero-home{
+  background:
+    linear-gradient(100deg,rgba(250,253,255,.78) 0%,rgba(250,252,255,.57) 40%,rgba(246,250,253,.19) 82%,rgba(246,250,253,.10) 100%),
+    url('https://nqs.1cdn.vn/2026/01/03/7676_day-vang-2-1767428052961279118961.jpg') center 53% /cover no-repeat,
+    url('./img/nguyen-hoang-bridge-3840.jpg') center 48% /cover no-repeat!important;
+  border-color:#a9c3d5;
+}
+.hero{
+  background:
+    linear-gradient(102deg,rgba(7,23,47,.90) 0%,rgba(9,34,63,.82) 45%,rgba(9,30,55,.25) 100%),
+    url('./img/nguyen-hoang-bridge-3840.jpg') center 46% /cover no-repeat!important;
+}
+@media(max-width:760px){
+  body{
+    background:
+      linear-gradient(180deg,rgba(247,251,253,.51),rgba(244,248,253,.35)),
+      url('https://nqs.1cdn.vn/2026/01/03/7676_day-vang-2-1767428052961279118961.jpg') center center /cover no-repeat,
+      url('./img/nguyen-hoang-bridge-3840.jpg') center 46% /cover no-repeat!important;
+  }
+  .stats-hero-home{
+    background:
+      linear-gradient(102deg,rgba(250,253,255,.83),rgba(246,250,253,.37)),
+      url('https://nqs.1cdn.vn/2026/01/03/7676_day-vang-2-1767428052961279118961.jpg') center 53% /cover no-repeat,
+      url('./img/nguyen-hoang-bridge-3840.jpg') center 46% /cover no-repeat!important;
+  }
+  .hero{
+    background:
+      linear-gradient(100deg,rgba(6,24,47,.91),rgba(10,37,65,.55)),
+      url('./img/nguyen-hoang-bridge-3840.jpg') center 45% /cover no-repeat!important;
+  }
+}
+@media print{
+  body,.hero,.stats-hero-home{background:#fff!important}
+}
