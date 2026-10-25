@@ -227,3 +227,29 @@ Quan trọng: bước 1 KHÔNG tự ghi/đổi Google Sheets nguồn, không tha
 Nguồn Excel đầu vào chính thức từ nay là: THU_NOP (46 Đảng bộ), THU_NOP_CITY (1 dòng tổng thành phố), CHUA_KHAI (danh sách chưa khai báo), NGAN_HANG (tài khoản ngân hàng). PHAN_BO ngừng dùng trong quy trình mới; bộ xuất bản trên GitHub sẽ bỏ trường allocation dù endpoint cũ còn trả về. Không xóa dữ liệu phân bổ lịch sử trong Google Drive.
 
 Kiểm tra chỉ đọc bằng apps-script/ExcelIntake.gs. Đầu vào CHUA_KHAI hỗ trợ bản Excel gốc với mã đơn vị ở cột B và đơn vị cha ở E; NGAN_HANG hỗ trợ Excel 6 cột với trạng thái ở F. Không đổi vị trí thủ công. Việc cập nhật bản Google Apps Script production cần thao tác triển khai riêng của chủ sở hữu. Trước đó hệ thống website vẫn chạy với nguồn cũ ngoài phân bổ.
+
+
+### Excel đầu vào linh hoạt — không phụ thuộc vị trí cột (25/10/2026)
+
+\`apps-script/ExcelIntake.gs\` dùng **tên cột sau chuẩn hóa** (không dấu, không phân biệt hoa/thường,
+không quan trọng thứ tự cột và số thứ tự chỉ tiêu trong ngoặc), không giả định B/C/D/F/H.
+Khi Excel có ít cột hơn hoặc người dùng xóa các trường không cần thiết, bộ tiếp nhận vẫn phân loại
+được bốn nguồn, tự đưa dữ liệu về \`CDSTUHUE_CHUAN\` riêng tư theo vị trí ổn định mà Web App đọc.
+
+- **Thu nộp 46 đơn vị / toàn thành phố:** cần tên đơn vị; tổng đảng viên; ba trạng thái hồ sơ
+  (chưa duyệt, đã duyệt chưa nộp, đã duyệt đã nộp); số chưa có hồ sơ; tổng tiền theo hồ sơ;
+  tổng tiền đã nộp. STT, loại đảng viên, miễn giảm, phần trăm có sẵn và các cột phụ có thể bỏ.
+  Báo cáo một dòng thành phố có thể dùng tiêu đề một dòng.
+- **Chưa khai báo:** chỉ cần tên đơn vị và tên đơn vị cha. STT, mã, kỳ và tên cá nhân đều
+  có thể không có. Không copy tên cá nhân sang tab chuẩn hóa.
+- **Ngân hàng:** cần mã cơ quan, tên cơ quan, mã cơ quan cha, tên cơ quan cha và trạng thái
+  đăng ký tài khoản. Ngày tạo, chủ tài khoản, số tài khoản, STT và các cột phụ có thể bỏ.
+  Hai cột trạng thái cùng tên chỉ được chấp nhận khi không mâu thuẫn.
+- Nếu đổi tên cột vượt ra ngoài danh sách từ đồng nghĩa trong
+  \`CDSTUHUE_EXCEL_ALIASES_\`, báo rõ trường bắt buộc bị thiếu; **không bao giờ đoán theo vị trí**
+  hoặc tự coi cột mất là 0. Bổ sung tên gọi mới vào danh sách alias và kiểm thử trước khi dùng.
+  Trên đầu ra, cả bốn Sheet nguồn đều trở về vị trí cột chuẩn nên \`Code.gs\` không phải đoán.
+
+Luồng mới vẫn là **kiểm tra → bản nháp riêng tư → đối chiếu → chờ duyệt**.
+Việc bật Apps Script thực tế và chuyển nguồn công khai vẫn là bước riêng; commit GitHub
+không tự cài phiên bản Apps Script đang chạy.
