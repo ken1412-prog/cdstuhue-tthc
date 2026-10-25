@@ -96,6 +96,9 @@ jobs:
           node --check < apps-script/Code.gs
           node --check < apps-script/CDSTUHUE_DEPLOY_SINGLE.gs
           node tests/test_excel_intake.js
+          node --check < apps-script/admin-portal/AdminPortal.gs
+          node --check site/assets/admin-launcher.js
+          node tests/test_admin_portal.js
           node tests/test_ca_qs_stats.js
           python -m unittest discover -s tests -p 'test_public_surface.py' -v
           python -m unittest discover -s tests -p 'test_payment_month.py' -v
