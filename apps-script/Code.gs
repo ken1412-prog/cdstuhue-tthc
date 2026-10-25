@@ -571,7 +571,7 @@ function buildStatsFeed_(){
   if(enabled.missing&&unitTree&&missingOrgRows){
     const pair=(unit,parent)=>orgKey(unit)+'|'+orgKey(parent);
     const excludedPairs=new Set(),includedPairs=new Set();
-    const excludedNames=new Set(),includedNames=new Set();
+    const excludedNames=new Set(),includedNames=new Set(),excludedParentLabels=new Set();
     unitTree.info.forEach(r=>{
       const code=String(r[0]||'').trim();
       const name=String(r[1]||'').trim(),parent=String(r[3]||'').trim();
@@ -579,12 +579,17 @@ function buildStatsFeed_(){
       if(unitTree.isExcludedCaQs(code)){
         excludedPairs.add(pair(name,parent));
         excludedNames.add(orgKey(name));
+        if(orgKey(parent))excludedParentLabels.add(orgKey(parent));
       }else{
         includedPairs.add(pair(name,parent));
         includedNames.add(orgKey(name));
       }
     });
-    const safeExcludedParentNames=new Set([...excludedNames].filter(x=>x&&!includedNames.has(x)));
+    // Some excluded parents exist only as names in the child rows when the
+    // parent node is missing from the source. Their distinct labels remain
+    // excluded, unless the same organization name exists in the included tree.
+    const safeExcludedParentNames=new Set([...excludedNames,...excludedParentLabels]
+      .filter(x=>x&&!includedNames.has(x)));
     const before=missingOrgRows.length;
     missingOrgRows=missingOrgRows.filter(r=>{
       const key=pair(r.unit,r.parent),parentKey=orgKey(r.parent);
@@ -623,6 +628,12 @@ function buildStatsFeed_(){
       else if(candidates&&candidates.size>1&&child&&child.size===1){
         const possible=[...child][0];
         if(candidates.has(possible))code=possible;
+      }else if(orgKey(r.parent)===orgKey('Đảng bộ Thành phố Huế')&&child&&child.size===1){
+        // A57 is a level-1 aggregate, never counted itself. A named direct
+        // level-2 unit under A57 can still be matched by its unique exact name.
+        const possible=[...child][0];
+        if(unitTree.roots.includes(possible)&&
+           orgKey(unitTree.nodes[possible].name)===orgKey(r.unit))code=possible;
       }
       // Never assign by the child name alone if its parent is not identifiable.
       if(code){groups[code].count++;matched++;}else unmatched++;

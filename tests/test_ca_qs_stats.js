@@ -36,8 +36,9 @@ bank.push({code:'A57.U1.01',name:'Chi bộ 1',parent:'A57.U1',
 for(let i=0;i<107;i++){
  bank.push({code:i<80?'A57.12.'+(i+1):'A57.13.'+(i+1),
   name:i===0?'Chi bộ 1':'Chi bộ Loại '+i,
-  parent:i<80?'A57.12':'A57.13',
-  parentName:i<80?'Đảng bộ Quân sự':'Đảng bộ Biên phòng',
+  parent:i===80?'A57.13.17':(i<80?'A57.12':'A57.13'),
+  parentName:i===80?'Đảng bộ Đồn Biên phòng Phong Hải':
+    (i<80?'Đảng bộ Quân sự':'Đảng bộ Biên phòng'),
   state:'Chưa có tài khoản ngân hàng'});
 }
 bank.push({code:'A57.121.39.03',name:'Chi bộ An Ninh',
@@ -50,7 +51,9 @@ const missing = [
  {unit:'Chi bộ lạ',parent:'Chi bộ Loại 2'},     // exclude by unique verified parent
  {unit:'Chi bộ 1',parent:'Đảng bộ đơn vị 1'},   // preserve: same name, other parent
  {unit:'Chi bộ 1',parent:'Đảng bộ khác'},       // preserve: ambiguous name
- {unit:'Chi bộ phòng kế toán',parent:'Đảng bộ đơn vị 2'} // preserve
+ {unit:'Chi bộ phòng kế toán',parent:'Đảng bộ đơn vị 2'}, // preserve
+ {unit:'Chi bộ không có dòng cha',parent:'Đảng bộ Đồn Biên phòng Phong Hải'}, // exclude
+ {unit:'Đảng bộ đơn vị 2',parent:'Đảng bộ Thành phố Huế'} // match level 2
 ];
 function wrapRows(data,firstRow=2){
  return {
@@ -107,10 +110,10 @@ assert.equal(bankResult.registered,46);
 assert.equal(bankResult.notRegistered,1);
 assert.equal(bankResult.registrationRate,46/47);
 const missingResult=feed.modules.missing;
-assert.equal(missingResult.excludedCaQsRows,3);
-assert.equal(missingResult.rowCount,3);
+assert.equal(missingResult.excludedCaQsRows,4);
+assert.equal(missingResult.rowCount,4);
 assert.equal(missingResult.level2Ranking.eligibleUnits,46);
-assert.equal(missingResult.level2Ranking.matchedRows,2);
+assert.equal(missingResult.level2Ranking.matchedRows,3);
 assert.equal(missingResult.level2Ranking.unmatchedRows,1);
 const mappedTotal=feed.modules.ranking.records.reduce((sum,r)=>sum+(r.bankTotal||0),0);
 assert.equal(mappedTotal,47);
