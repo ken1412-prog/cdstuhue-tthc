@@ -142,11 +142,16 @@ function progressBars(){const rows=progress();return `<div class="bars">${Object
 function missingCardNote(stats){
  const missing=stats?.modules?.missing;
  if(!missing)return '';
- const excluded=missing.excludedCaQsRows,other=missing.level2Ranking?.unmatchedRows;
  const notes=[];
- if(Number.isInteger(excluded)&&excluded>0)notes.push('Đã trừ '+pretty.format(excluded)+' dòng thuộc nhóm đơn vị CA/QS đã loại khỏi phạm vi');
- if(Number.isInteger(other)&&other>0)notes.push(pretty.format(other)+' dòng còn chưa ghép cấp 2');
- return notes.join(' · ');
+ const ca=missing.excludedCaQsRows,unknown=missing.excludedNoParentRows,
+   ambiguous=missing.excludedAmbiguousRows,incomplete=missing.excludedIncompleteRows;
+ if(Number.isInteger(ca)&&ca>0)notes.push(pretty.format(ca)+' hồ sơ CA/QS');
+ if(Number.isInteger(unknown)&&unknown>0)notes.push(pretty.format(unknown)+' không tìm thấy đơn vị cha');
+ if(Number.isInteger(ambiguous)&&ambiguous>0)notes.push(pretty.format(ambiguous)+' trùng tên, chưa xác định cấp 2');
+ if(Number.isInteger(incomplete)&&incomplete>0)notes.push(pretty.format(incomplete)+' thiếu thông tin tổ chức');
+ if(!notes.length&&Number.isInteger(missing.level2Ranking?.unmatchedRows)&&missing.level2Ranking.unmatchedRows>0)
+  notes.push(pretty.format(missing.level2Ranking.unmatchedRows)+' chưa ghép cấp 2');
+ return notes.length?'Không tính: '+notes.join(' · ')+'.':'';
 }
 function bankExclusionNote(bank){
  const count=bank?.excludedCaQsUnits,city=bank?.excludedCityRoot;
@@ -382,9 +387,9 @@ function statsDashboard(){
    const rowBlock=(items,tone,title)=>'<div class="stats-leaderboard-col '+tone+'"><div class="stats-leaderboard-head"><strong>'+title+'</strong><span>10 Đảng bộ</span></div>'+
     items.map((x,i)=>'<div class="stats-leaderboard-row"><span class="stats-leaderboard-rank">'+(i+1)+'</span><div class="stats-leaderboard-unit"><strong>'+E(x.name)+'</strong><div class="stats-meter" aria-hidden="true"><i style="width:'+Math.max(0,Math.min(100,100*x.count/maxMissing)).toFixed(1)+'%"></i></div><small>Dòng chưa khai báo đã đối chiếu</small></div><b>'+amount(x.count)+'</b></div>').join('')+'</div>';
    rankingContent='<div class="stats-leaderboards stats-missing-leaders">'+rowBlock(rank.top,'is-weak','Top 10 nhiều nhất')+rowBlock(rank.bottom,'is-good','Top 10 ít nhất')+'</div>';
-   rankingContent+='<p class="stats-scope-note">Thống kê theo số dòng chưa khai báo (không phải tỷ lệ đảng viên). Đã xác định cấp 2: '+amount(rank.matchedRows)+' / '+amount(v.rowCount)+' dòng. '+amount(rank.unmatchedRows)+' dòng còn chưa đủ thông tin ghép cấp 2.</p>'+
-    (Number.isInteger(v.excludedCaQsRows)&&v.excludedCaQsRows>0?
-    '<p class="stats-scope-note">Đã trừ '+amount(v.excludedCaQsRows)+' dòng danh sách thuộc các đơn vị CA/QS đã loại khỏi phạm vi theo tên đơn vị và cấp cha. Không xóa dữ liệu nguồn.</p>':'');
+   rankingContent+='<p class="stats-scope-note">Chỉ tính '+amount(v.rowCount)+' hồ sơ đã xác định chắc chắn thuộc 46 Đảng bộ'+
+    (Number.isInteger(v.sourceRowCount)?' trên '+amount(v.sourceRowCount)+' hồ sơ nguồn':'')+
+    '. Không phải tỷ lệ đảng viên. '+E(missingCardNote(stats))+' Không xóa dữ liệu nguồn.</p>';
   }else{
    rankingContent='<div class="stats-unit-unavailable">Top 10 cấp 2 sẽ hiển thị sau khi cập nhật Apps Script và đồng bộ danh mục tổ chức. Không xếp hạng các đơn vị cấp 3 riêng lẻ.</div>';
   }
