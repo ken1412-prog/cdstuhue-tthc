@@ -3,85 +3,240 @@
  * Requires Apps Script advanced Drive service v3 and private script property
  * CDSTUHUE_EXCEL_INBOX_FOLDER_ID. Execute cdstuhuePreflightExcel4 manually.
  */
+// Logical fields, not fixed Excel column letters. Only required information
+// must survive a future export; optional headers and their ordering may change.
+const CDSTUHUE_EXCEL_ALIASES_={
+  payment:{
+    name:['ten don vi','ten dang bo','ten to chuc'],
+    members:['tong sl dang vien','tong so dang vien','tong dang vien','tong so luong dang vien','so luong dang vien'],
+    pending:['chua duyet','ho so chua duyet','khai bao chua duyet'],
+    approvedNotPaid:['da duyet chua nop','da duyet chua thu','ho so da duyet chua nop'],
+    approvedPaid:['da duyet da nop','da duyet da thu','ho so da duyet da nop'],
+    noFile:['so dang vien chua co ho so','so luong dang vien chua co ho so','chua co ho so','so dang vien chua khai bao ho so'],
+    due:['tong tien theo ho so da khai bao','tong tien phai nop','tong tien phai thu','tong tien ho so da khai bao'],
+    paid:['tong tien da nop','so tien da nop','tong so tien da nop','tong tien da thu'],
+    stt:['stt','so thu tu']
+  },
+  missing:{
+    unit:['ten don vi','ten to chuc','ten co quan','don vi'],
+    parent:['don vi cha','ten don vi cha','co quan cha','ten co quan cha','don vi cap tren'],
+    code:['ma don vi','ma co quan','ma to chuc'],
+    stt:['stt','so thu tu'],period:['ky dang phi','ky bao cao']
+  },
+  banking:{
+    code:['ma co quan','ma don vi','ma to chuc'],
+    name:['ten co quan','ten don vi','ten to chuc'],
+    parentCode:['ma co quan cha','ma don vi cha','ma don vi cap tren','ma co quan cap tren'],
+    parentName:['co quan cha','ten co quan cha','don vi cha','ten don vi cha'],
+    status:['trang thai cau hinh tai khoan ngan hang','trang thai tai khoan ngan hang',
+      'trang thai dang ky tai khoan ngan hang','trang thai dang ky tknh','trang thai cau hinh tknh'],
+    stt:['stt','so thu tu']
+  }
+};
 function cdstuhueExcelNormalize_(value) {
   return String(value == null ? '' : value).normalize('NFD')
-    .replace(/[\u0300-\u036f]/g,'').replace(/[đĐ]/g,'d').toLowerCase()
+    .replace(/[\u0300-\u036f]/g,'').replace(/[đĐ]/g,'d')
+    .toLowerCase().replace(/\(\s*\d+\s*\)/g,' ')
     .replace(/[^a-z0-9]+/g,' ').trim();
 }
 function cdstuhueExcelInt_(v,where) {
-  const n=typeof v==='number'?v:(typeof v==='string'&&/^\d+$/.test(v.trim())?Number(v.trim()):NaN);
+  let n=NaN;
+  if(typeof v==='number')n=v;
+  else if(typeof v==='string'){
+    const s=v.trim();
+    if(/^\d+$/.test(s))n=Number(s);
+    else if(/^\d{1,3}([., ]\d{3})+$/.test(s))n=Number(s.replace(/[., ]/g,''));
+  }
   if(!Number.isSafeInteger(n)||n<0)throw Error('Số không hợp lệ ở '+where);
   return n;
 }
+function cdstuhueExcelHeaders_(sh,type) {
+  const cols=Math.min(sh.getLastColumn(),80);
+  if(cols<1)throw Error('Excel không có tiêu đề cột');
+  const two=type==='payment'&&sh.getLastRow()>=2;
+  const rows=sh.getRange(1,1,two?2:1,cols).getDisplayValues();
+  const aliases=CDSTUHUE_EXCEL_ALIASES_[type];
+  const found={}; const duplicates={};
+  Object.keys(aliases).forEach(field=>{
+    const allowed=aliases[field];
+    const indices=[];
+    for(let c=0;c<cols;c++){
+      if(rows.some(row=>allowed.includes(cdstuhueExcelNormalize_(row[c]))))
+        indices.push(c+1);
+    }
+    if(indices.length>1&&!(type==='banking'&&field==='status'))
+      throw Error('Cột '+field+' xuất hiện nhiều lần, cần kiểm tra tránh nhập nhầm');
+    if(indices.length)found[field]=indices[indices.length-1];
+    if(indices.length>1)duplicates[field]=indices;
+  });
+  const isPaySecond=two&&rows[1].some(v=>[
+    ...aliases.members,...aliases.pending,...aliases.approvedNotPaid,
+    ...aliases.approvedPaid,...aliases.noFile,...aliases.due,...aliases.paid
+  ].includes(cdstuhueExcelNormalize_(v)));
+  return {cols:found,duplicates,headerRows:isPaySecond?2:1};
+}
+function cdstuhueExcelRequired_(type,found) {
+  const needed=type==='payment'?
+    ['name','members','pending','approvedNotPaid','approvedPaid','noFile','due','paid']:
+    type==='missing'?['unit','parent']:
+    ['code','name','parentCode','parentName','status'];
+  const absent=needed.filter(k=>!found[k]);
+  if(absent.length)throw Error('Thiếu trường BẮT BUỘC: '+type+' / '+absent.join(', ')+
+    '. Các cột khác có thể xóa hoặc đổi thứ tự.');
+}
+function cdstuhueExcelDescribe_(sh,type) {
+  const info=cdstuhueExcelHeaders_(sh,type);
+  return {cols:info.cols,duplicates:info.duplicates,
+    first:info.headerRows+1,rows:sh.getLastRow()-info.headerRows};
+}
 function cdstuhueExcelIdentify_(sh) {
-  if(sh.getLastRow()<2||sh.getMaxColumns()<6)return '';
-  const rows=sh.getRange(1,1,2,Math.min(14,sh.getMaxColumns())).getDisplayValues();
-  const h=(r,c)=>cdstuhueExcelNormalize_(rows[r][c]);
-  if(h(0,1)==='ten don vi'&&h(1,2).includes('tong sl dang vien')&&h(1,11).includes('tong tien theo ho so')) {
-    const n=sh.getLastRow()-2;
-    return n===46?'THU_NOP':n===1?'THU_NOP_CITY':'';
+  if(sh.getLastRow()<2)return '';
+  const payment=cdstuhueExcelDescribe_(sh,'payment');
+  if(payment.cols.name&&payment.cols.members&&
+     (payment.cols.due||payment.cols.paid)){
+    return payment.rows===46?'THU_NOP':payment.rows===1?'THU_NOP_CITY':'';
   }
-  // Accept canonical six-column layout and the exported layout with MA DON VI in B.
-  if ((h(0,1)==='ten don vi'&&h(0,2)==='ten dang vien'&&h(0,3)==='don vi cha') ||
-      (h(0,1)==='ma don vi'&&h(0,2)==='ten don vi'&&h(0,3)==='ten dang vien'&&h(0,4)==='don vi cha'))
-    return 'CHUA_KHAI';
-  if(h(0,1)==='ma co quan'&&h(0,2)==='ten co quan'&&h(0,3)==='ma co quan cha'&&
-      (h(0,5).includes('trang thai cau hinh tai khoan ngan hang') ||
-       h(0,7).includes('trang thai cau hinh tai khoan ngan hang')))
+  const bank=cdstuhueExcelDescribe_(sh,'banking');
+  if(bank.cols.code&&bank.cols.name&&(bank.cols.status||bank.cols.parentCode))
     return 'NGAN_HANG';
+  const missing=cdstuhueExcelDescribe_(sh,'missing');
+  if(missing.cols.unit&&(missing.cols.parent||missing.cols.code))
+    return 'CHUA_KHAI';
   return '';
 }
+function cdstuhueExcelRead_(sh,desc,field) {
+  const col=desc.cols[field];
+  if(!col)return Array.from({length:desc.rows},()=>null);
+  return sh.getRange(desc.first,col,desc.rows,1).getValues().map(r=>r[0]);
+}
 function cdstuhueExcelValidate_(type,sh) {
-  const first=(type==='THU_NOP'||type==='THU_NOP_CITY')?3:2, n=sh.getLastRow()-first+1;
-  if(n<1||n>25000)throw Error(type+': số dòng không hợp lệ');
-  if(type==='THU_NOP'||type==='THU_NOP_CITY') {
-    if(n!==(type==='THU_NOP'?46:1)||sh.getMaxColumns()<14)
-      throw Error(type+': sai số dòng hoặc thiếu cột (46 đơn vị / 1 tổng thành phố)');
-    const rows=sh.getRange(3,1,n,14).getValues(), names=new Set();
+  const family=type==='THU_NOP'||type==='THU_NOP_CITY'?'payment':
+    type==='CHUA_KHAI'?'missing':'banking';
+  const desc=cdstuhueExcelDescribe_(sh,family),n=desc.rows;
+  cdstuhueExcelRequired_(family,desc.cols);
+  if(n<1||n>25000)throw Error(type+': số dòng vượt giới hạn');
+  if(family==='payment'){
+    if(n!==(type==='THU_NOP'?46:1))
+      throw Error(type+': phải đúng '+(type==='THU_NOP'?46:1)+' dòng báo cáo');
+    const fields=['name','members','pending','approvedNotPaid','approvedPaid','noFile','due','paid'];
+    const data=Object.fromEntries(fields.map(k=>[k,cdstuhueExcelRead_(sh,desc,k)]));
+    const names=new Set();
     let members=0,required=0,received=0,notFiled=0;
-    rows.forEach((r,i)=>{
-      const line=i+3, name=cdstuhueExcelNormalize_(r[1]);
-      if(cdstuhueExcelInt_(r[0],'STT '+line)!==i+1||!name||names.has(name))throw Error('THU_NOP: mã thứ tự/tên đơn vị sai tại dòng '+line);
-      names.add(name);
-      const total=cdstuhueExcelInt_(r[2],'C'+line), filed=[7,8,9].reduce((a,j)=>a+cdstuhueExcelInt_(r[j],'H-J'+line),0);
-      if(filed>total+1||cdstuhueExcelInt_(r[10],'K'+line)>total)throw Error('THU_NOP: hồ sơ vượt số đảng viên dòng '+line);
-      const due=cdstuhueExcelInt_(r[11],'L'+line),done=cdstuhueExcelInt_(r[12],'M'+line);
-      if(done>due)throw Error('THU_NOP: tiền nộp vượt tiền phải nộp dòng '+line);
-      members+=total;required+=due;received+=done;
-      notFiled+=cdstuhueExcelInt_(r[10],'K'+line);
-    });
-    if(!required)throw Error('THU_NOP: tổng tiền chưa có');
-    if(type==='THU_NOP_CITY'&&
-        cdstuhueExcelNormalize_(rows[0][1])!=='dang bo thanh pho hue')
-      throw Error('THU_NOP_CITY: tên dòng tổng thành phố không hợp lệ');
-    return {rows:n,members,required,received,notFiled};
-  }
-  if(type==='CHUA_KHAI') {
-    if(sh.getMaxColumns()<6)throw Error('CHUA_KHAI: thiếu cột');
-    // Never read column C (personal names).
-    const h=sh.getRange(1,1,1,6).getDisplayValues()[0].map(cdstuhueExcelNormalize_);
-    const shifted=h[1]==='ma don vi'&&h[2]==='ten don vi'&&h[4]==='don vi cha';
-    const unit=sh.getRange(2,shifted?3:2,n,1).getDisplayValues(),
-      parent=sh.getRange(2,shifted?5:4,n,1).getDisplayValues();
-    for(let i=0;i<n;i++)if(!String(unit[i][0]).trim()||!String(parent[i][0]).trim())throw Error('CHUA_KHAI: thiếu đơn vị dòng '+(i+2));
-    return {rows:n};
-  }
-  if(type==='NGAN_HANG') {
-    const header=sh.getRange(1,1,1,Math.min(8,sh.getMaxColumns())).getDisplayValues()[0];
-    const statusCol=cdstuhueExcelNormalize_(header[7]||'').includes('trang thai cau hinh tai khoan ngan hang')?8:6;
-    const names=sh.getRange(2,2,n,2).getDisplayValues(),
-      states=sh.getRange(2,statusCol,n,1).getDisplayValues();
-    let registered=0,notRegistered=0;
     for(let i=0;i<n;i++){
-      if(!String(names[i][0]).trim()||!String(names[i][1]).trim())throw Error('NGAN_HANG: thiếu mã/tên đơn vị dòng '+(i+2));
-      const s=String(states[i][0]).trim();
-      if(s==='Đã có tài khoản ngân hàng')registered++;
-      else if(s==='Chưa có tài khoản ngân hàng')notRegistered++;
-      else throw Error('NGAN_HANG: trạng thái không xác định dòng '+(i+2));
+      const line=desc.first+i;
+      const name=cdstuhueExcelNormalize_(data.name[i]);
+      if(!name||names.has(name))throw Error(type+': trùng/thiếu tên đơn vị tại dòng '+line);
+      names.add(name);
+      const total=cdstuhueExcelInt_(data.members[i],type+' / members dòng '+line);
+      const h=cdstuhueExcelInt_(data.pending[i],type+' / pending dòng '+line);
+      const j=cdstuhueExcelInt_(data.approvedNotPaid[i],type+' / approvedNotPaid dòng '+line);
+      const k=cdstuhueExcelInt_(data.approvedPaid[i],type+' / approvedPaid dòng '+line);
+      const noFile=cdstuhueExcelInt_(data.noFile[i],type+' / noFile dòng '+line);
+      const due=cdstuhueExcelInt_(data.due[i],type+' / due dòng '+line);
+      const done=cdstuhueExcelInt_(data.paid[i],type+' / paid dòng '+line);
+      if(h+j+k>total+1||noFile>total||done>due)
+        throw Error(type+': dữ liệu hồ sơ/tiền không hợp lệ tại dòng '+line);
+      members+=total;required+=due;received+=done;notFiled+=noFile;
     }
-    return {rows:n,registered,notRegistered,layout:statusCol===8?'canonical':'uploaded6'};
+    if(type==='THU_NOP_CITY'&&
+        cdstuhueExcelNormalize_(data.name[0])!=='dang bo thanh pho hue')
+      throw Error('Tệp tổng thành phố thiếu dòng Đảng bộ Thành phố Huế');
+    if(required<=0)throw Error(type+': tổng tiền theo hồ sơ phải lớn hơn 0');
+    return {rows:n,members,required,received,notFiled,optionalColumnsAllowed:true};
   }
-  throw Error('Không nhận diện được cấu trúc Excel');
+  if(family==='missing'){
+    // Read ONLY public organizational columns, not personal names or identifiers.
+    const unit=cdstuhueExcelRead_(sh,desc,'unit');
+    const parent=cdstuhueExcelRead_(sh,desc,'parent');
+    for(let i=0;i<n;i++)
+      if(!String(unit[i]??'').trim()||!String(parent[i]??'').trim())
+        throw Error('CHUA_KHAI: thiếu đơn vị/đơn vị cha tại dòng '+(i+desc.first));
+    return {rows:n,optionalColumnsAllowed:true};
+  }
+  const code=cdstuhueExcelRead_(sh,desc,'code');
+  const name=cdstuhueExcelRead_(sh,desc,'name');
+  const parentCode=cdstuhueExcelRead_(sh,desc,'parentCode');
+  const parentName=cdstuhueExcelRead_(sh,desc,'parentName');
+  const status=cdstuhueExcelRead_(sh,desc,'status');
+  const repeated=desc.duplicates.status;
+  if(repeated){
+    // Old canonical exports can contain the status twice (F/H). Reject
+    // conflicting values instead of silently choosing one by column index.
+    const first=sh.getRange(desc.first,repeated[0],n,1).getDisplayValues();
+    for(let i=0;i<n;i++){
+      const a=String(first[i][0]||'').trim(),b=String(status[i]||'').trim();
+      if(a&&b&&a!==b)throw Error('NGAN_HANG: hai cột trạng thái mâu thuẫn tại dòng '+(desc.first+i));
+    }
+  }
+  let registered=0,notRegistered=0;const seen=new Set();
+  for(let i=0;i<n;i++){
+    const id=String(code[i]??'').trim(),state=String(status[i]??'').trim();
+    if(!id||!String(name[i]??'').trim()||!String(parentCode[i]??'').trim()||
+       !String(parentName[i]??'').trim()||seen.has(id))
+      throw Error('NGAN_HANG: thiếu/trùng mã, đơn vị hoặc cấp cha dòng '+(desc.first+i));
+    seen.add(id);
+    if(state==='Đã có tài khoản ngân hàng')registered++;
+    else if(state==='Chưa có tài khoản ngân hàng')notRegistered++;
+    else throw Error('NGAN_HANG: trạng thái không hợp lệ tại dòng '+(desc.first+i));
+  }
+  return {rows:n,registered,notRegistered,optionalColumnsAllowed:true};
+}
+/**
+ * Always create a fixed-format *private* downstream tab. Public Apps Script
+ * reads B/D for missing and B:E/H for bank; changing Excel columns must never
+ * change those stable internal contracts.
+ *
+ * Personal names are NOT copied into CHUA_KHAI_CHUAN (column C stays empty).
+ */
+function cdstuhueNormalizeStagedSheet_(type,sh) {
+  const family=type==='THU_NOP'||type==='THU_NOP_CITY'?'payment':
+    type==='CHUA_KHAI'?'missing':'banking';
+  const desc=cdstuhueExcelDescribe_(sh,family);
+  cdstuhueExcelRequired_(family,desc.cols);
+  const ss=sh.getParent(),n=desc.rows,tab='CDSTUHUE_CHUAN';
+  if(ss.getSheetByName(tab))throw Error('Excel nguồn đã có tên tab chuẩn hóa, cần đổi tên tab nguồn');
+  const normalized=ss.insertSheet(tab);
+  const width=family==='payment'?14:family==='missing'?6:8;
+  const head=family==='payment'?
+    [['STT','Tên đơn vị','Đảng viên','','','','','Hồ sơ đảng phí','','','','Số tiền','',''],
+     ['','','Tổng sl đảng viên (1)','','','','','Chưa duyệt (6)',
+      'Đã duyệt, chưa nộp (7)','Đã duyệt, đã nộp (8)','Số đảng viên chưa có hồ sơ (9)',
+      'Tổng tiền theo hồ sơ đã khai báo','Tổng tiền đã nộp','Tỷ lệ hoàn thành']]:
+    family==='missing'?
+      [['STT','TÊN ĐƠN VỊ','TÊN ĐẢNG VIÊN','ĐƠN VỊ CHA','KỲ ĐẢNG PHÍ','MÃ ĐƠN VỊ']]:
+      [['STT','Mã cơ quan','Tên cơ quan','Mã cơ quan cha','Cơ quan cha',
+        'Trạng thái cấu hình tài khoản ngân hàng','Ngày tạo TKNH',
+        'Trạng thái cấu hình tài khoản ngân hàng']];
+  const height=n+head.length;
+  if(normalized.getMaxRows()<height)
+    normalized.insertRowsAfter(normalized.getMaxRows(),height-normalized.getMaxRows());
+  normalized.getRange(1,1,head.length,width).setValues(head);
+  normalized.setFrozenRows(head.length);
+  const maps=family==='payment'?
+    {1:'name',2:'members',7:'pending',8:'approvedNotPaid',9:'approvedPaid',
+      10:'noFile',11:'due',12:'paid'}:
+    family==='missing'?{1:'unit',3:'parent',4:'period',5:'code'}:
+      {1:'code',2:'name',3:'parentCode',4:'parentName',5:'status',7:'status'};
+  // Small chunks avoid Apps Script memory/time spikes with ~15K rows.
+  for(let begin=0;begin<n;begin+=400){
+    const count=Math.min(400,n-begin),data={};
+    Object.keys(maps).forEach(index=>{
+      const field=maps[index],col=desc.cols[field];
+      if(col&&!data[field])
+        data[field]=sh.getRange(desc.first+begin,col,count,1).getValues().map(r=>r[0]);
+    });
+    const rows=Array.from({length:count},(_,i)=>{
+      const row=Array(width).fill('');
+      row[0]=begin+i+1;
+      Object.keys(maps).forEach(idx=>{
+        const field=maps[idx];
+        if(data[field])row[Number(idx)]=data[field][i];
+      });
+      return row;
+    });
+    normalized.getRange(head.length+begin+1,1,count,width).setValues(rows);
+  }
+  return tab;
 }
 function cdstuhuePreflightExcel4() {
   const id=PropertiesService.getScriptProperties().getProperty('CDSTUHUE_EXCEL_INBOX_FOLDER_ID');
@@ -135,7 +290,7 @@ function cdstuhuePreflightExcel4() {
  * This function can be run manually; see cdstuhueInstallIntakeWatch().
  */
 function cdstuhueBatchSignature_(files) {
-  const text=files.map(f=>[f.getId(),f.getSize(),f.getLastUpdated().getTime()].join(':'))
+  const text=files.map(f=>[f.getId(),f.getSize(),f.getLastUpdated().getTime(),'SCHEMA_HEADER_V3'].join(':'))
     .sort().join('|');
   return Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256,text)
     .map(b=>('0'+(b&255).toString(16)).slice(-2)).join('');
@@ -153,35 +308,6 @@ function cdstuhueInputFiles_() {
   }
   if(files.length!==4)throw Error('Cần đúng bốn Excel, hiện có '+files.length);
   return {dir,files,signature:cdstuhueBatchSignature_(files)};
-}
-function cdstuhueNormalizeStagedSheet_(type,sheet) {
-  const ss=sheet.getParent(),last=sheet.getLastRow();
-  if(type==='CHUA_KHAI'){
-    const head=sheet.getRange(1,1,1,6).getDisplayValues()[0].map(cdstuhueExcelNormalize_);
-    if(head[1]==='ten don vi'&&head[3]==='don vi cha')return sheet.getName();
-    if(head[1]!=='ma don vi'||head[2]!=='ten don vi'||head[4]!=='don vi cha')
-      throw Error('CHUA_KHAI: không thể chuẩn hóa thứ tự cột');
-    const dest=ss.insertSheet('CHUA_KHAI_CHUAN');
-    if(dest.getMaxRows()<last)dest.insertRowsAfter(dest.getMaxRows(),last-dest.getMaxRows());
-    // Processing stays inside the private Sheet; no personal rows enter logs or public JSON.
-    for(let pos=1;pos<=last;pos+=500){
-      const chunk=sheet.getRange(pos,1,Math.min(500,last-pos+1),6).getValues();
-      dest.getRange(pos,1,chunk.length,6).setValues(
-        chunk.map(r=>[r[0],r[2],r[3],r[4],r[5],r[1]]));
-    }
-    dest.setFrozenRows(1);
-    return dest.getName();
-  }
-  if(type==='NGAN_HANG'){
-    const head=sheet.getRange(1,1,1,Math.min(8,sheet.getMaxColumns())).getDisplayValues()[0];
-    if(cdstuhueExcelNormalize_(head[7]||'').includes('trang thai cau hinh tai khoan ngan hang'))
-      return sheet.getName();
-    if(!cdstuhueExcelNormalize_(head[5]||'').includes('trang thai cau hinh tai khoan ngan hang'))
-      throw Error('NGAN_HANG: thiếu cột trạng thái F');
-    // Keep original 6 columns untouched; H is canonical for the existing aggregator.
-    sheet.getRange(1,8,last,1).setValues(sheet.getRange(1,6,last,1).getValues());
-  }
-  return sheet.getName();
 }
 function cdstuhueStageExcel4() {
   if(typeof Drive==='undefined'||!Drive.Files||!Drive.Files.create)
