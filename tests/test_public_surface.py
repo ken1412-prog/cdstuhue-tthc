@@ -149,8 +149,8 @@ class PublicSurfaceTests(unittest.TestCase):
         css=(SITE / "assets/styles.css").read_text(encoding="utf-8")
         # Check the final cascade block, not an obsolete earlier hero declaration.
         final=css[css.rfind("/* CDSTUHUE photo selection:"):]
-        self.assertIn("left 0% top 8% /140% auto no-repeat!important",final)
-        self.assertIn("left 0% top 5% /155% auto no-repeat!important",final)
+        self.assertIn("left top /140% auto no-repeat!important",final)
+        self.assertIn("left top /155% auto no-repeat!important",final)
         self.assertIn("nguyen-hoang-bridge-3840.jpg",final)
 
     def test_no_redundant_dashboard_explanations(self):
