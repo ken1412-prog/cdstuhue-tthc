@@ -1,10 +1,15 @@
 name: Freeze approved payment month
 on:
   workflow_dispatch:
-  schedule:
-    # 00:15 Vietnam time on days 1-7 of each month.
-    # Safe retries: once a month is frozen, it is never overwritten.
-    - cron: '15 17 1-7 * *'
+    inputs:
+      period:
+        description: 'Kỳ muốn chốt (YYYY-MM), chỉ thực hiện khi chủ sở hữu đã yêu cầu'
+        required: true
+        type: string
+      confirmation:
+        description: 'Nhập chính xác CHOT YYYY-MM để xác nhận'
+        required: true
+        type: string
 permissions:
   contents: write
 concurrency:
@@ -18,7 +23,12 @@ jobs:
         with:
           persist-credentials: true
       - name: Freeze only the approved public previous month
-        run: python scripts/freeze_payment_month.py
+        env:
+          CLOSE_PERIOD: ${{ inputs.period }}
+          CLOSE_CONFIRMATION: ${{ inputs.confirmation }}
+        run: |
+          test "$CLOSE_CONFIRMATION" = "CHOT $CLOSE_PERIOD"
+          python scripts/freeze_payment_month.py --close-period "$CLOSE_PERIOD" --confirm "$CLOSE_CONFIRMATION"
       - name: Commit the immutable monthly archive if present
         run: |
           if [ -n "$(git status --porcelain -- site/data/payment-history.json site/data/payment-history/)" ]; then
