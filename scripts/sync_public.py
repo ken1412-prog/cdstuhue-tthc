@@ -298,19 +298,7 @@ def main():
                                 modules['missing'].get('sourceRowCount') or count)):
                         modules['missing']['unlinkedSourceRows']=unlinked
                         modules['missing']['unlinkedUnitPairs']=unit_pairs
-            allocation=raw.get('allocation')
-            if isinstance(allocation,dict):
-                n=bounded_int(allocation.get('rowCount'),30000)
-                confirmed=bounded_int(allocation.get('confirmed'),30000)
-                pending=bounded_int(allocation.get('unconfirmed'),30000)
-                wait=bounded_int(allocation.get('waitingRate'),30000)
-                if n is not None and n>0 and all(v is not None for v in (confirmed,pending,wait)) and confirmed+pending+wait==n:
-                    modules['allocation']={'rowCount':n,'confirmed':confirmed,'unconfirmed':pending,
-                        'waitingRate':wait,'confirmedRate':round(confirmed/n,8),
-                        'unconfirmedRate':round(pending/n,8),'waitingRateShare':round(wait/n,8)}
-                    verified=approved_unit_rankings(allocation.get('unitRanking'))
-                    if verified is not None:
-                        modules['allocation']['unitRanking']=verified
+            # Allocation was retired at owner request; never export this module.
             bank=raw.get('banking')
             if isinstance(bank,dict):
                 n=bounded_int(bank.get('rowCount'),30000)

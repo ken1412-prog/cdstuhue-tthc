@@ -221,3 +221,9 @@ Theo chỉ đạo chủ sở hữu, **không tính 108 đơn vị thuộc nhánh
 **Cách sử dụng:** tải đúng 4 file Excel (.xlsx hoặc .xls) cùng một lượt vào thư mục Google Drive riêng tư CDSTUHUE - NHAP 4 FILE EXCEL. Trong dự án Apps Script của chủ sở hữu, thêm file GS theo nội dung ExcelIntake.gs, bật Services / Drive API v3; thêm Script Property CDSTUHUE_EXCEL_INBOX_FOLDER_ID là ID thư mục Google Drive này. Chạy cdstuhuePreflightExcel4 thủ công. Nếu kết quả mode=DRY_RUN_ONLY, valid=true và đủ THU_NOP, CHUA_KHAI, PHAN_BO, NGAN_HANG thì cấu trúc đầu vào đạt kiểm tra ban đầu.
 
 Quan trọng: bước 1 KHÔNG tự ghi/đổi Google Sheets nguồn, không thay TONG_QUAN, DUYET_WEBSITE hoặc website. Chương trình tạm chuyển đổi Excel thành Sheet riêng tư để đối chiếu, sau đó đưa bản tạm vào Thùng rác; không công bố dữ liệu cá nhân. Chỉ sang bước 2 (nạp dữ liệu có sao lưu và đối chiếu) sau khi thử thành công với 4 file.
+
+## Cập nhật 25/10/2026: bốn file mới, bỏ xác nhận phân bổ
+
+Nguồn Excel đầu vào chính thức từ nay là: THU_NOP (46 Đảng bộ), THU_NOP_CITY (1 dòng tổng thành phố), CHUA_KHAI (danh sách chưa khai báo), NGAN_HANG (tài khoản ngân hàng). PHAN_BO ngừng dùng trong quy trình mới; bộ xuất bản trên GitHub sẽ bỏ trường allocation dù endpoint cũ còn trả về. Không xóa dữ liệu phân bổ lịch sử trong Google Drive.
+
+Kiểm tra chỉ đọc bằng apps-script/ExcelIntake.gs. Đầu vào CHUA_KHAI hỗ trợ bản Excel gốc với mã đơn vị ở cột B và đơn vị cha ở E; NGAN_HANG hỗ trợ Excel 6 cột với trạng thái ở F. Không đổi vị trí thủ công. Việc cập nhật bản Google Apps Script production cần thao tác triển khai riêng của chủ sở hữu. Trước đó hệ thống website vẫn chạy với nguồn cũ ngoài phân bổ.

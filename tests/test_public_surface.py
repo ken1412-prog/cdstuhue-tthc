@@ -232,6 +232,11 @@ class PublicSurfaceTests(unittest.TestCase):
                     f"Unexpected hard-coded original host or GitHub repository URL: {path}",
                 )
 
+    def test_allocation_is_retired_from_publication(self):
+        sync=(Path(__file__).resolve().parents[1] / 'scripts' / 'sync_public.py').read_text(encoding='utf-8')
+        self.assertNotIn("modules['allocation']", sync)
+        self.assertNotIn("allocation=raw.get('allocation')", sync)
+
     def test_no_source_maps_published(self):
         self.assertFalse(list(SITE.rglob("*.map")), "Do not publish JS/CSS source maps")
         for path in PUBLIC_ASSETS:
