@@ -891,3 +891,30 @@ body{
 @media print{
   body,.hero,.stats-hero-home{background:#fff!important}
 }
+
+/* User-supplied panoramic bridge hero — full-arch navy composition, 25 Oct 2026 */
+/* The photo is intentionally framed at its native ratio on the right.
+   Preserve both arches; avoid the cropped people/motorbike shoreline photo. */
+.hero{
+  background:
+    linear-gradient(90deg,rgba(7,24,44,.99) 0%,rgba(8,27,49,.98) 37%,rgba(10,35,60,.76) 63%,rgba(9,31,54,.19) 100%),
+    url('./img/nguyen-hoang-user-banner.avif') right center /auto 100% no-repeat,
+    url('./img/nguyen-hoang-bridge-3840.jpg') right center /auto 100% no-repeat,
+    linear-gradient(110deg,#102a49,#153c62)!important;
+  border-color:#315476;
+}
+.hero h1,.hero .eyebrow,.hero .tag{
+  text-shadow:0 2px 6px rgba(3,15,31,.95);
+}
+@media(max-width:760px){
+  .hero{
+    background:
+      linear-gradient(180deg,rgba(7,24,44,.64) 0%,rgba(8,27,49,.92) 42%,#0b2949 78%),
+      url('./img/nguyen-hoang-user-banner.avif') center top /100% auto no-repeat,
+      url('./img/nguyen-hoang-bridge-3840.jpg') center top /100% auto no-repeat,
+      #0d2b4b!important;
+  }
+}
+@media print{
+  .hero{background:#fff!important}
+}
