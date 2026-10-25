@@ -49,6 +49,10 @@ class PublicSurfaceTests(unittest.TestCase):
         self.assertIn("Bảng xếp hạng theo 46 Đảng bộ",js)
         self.assertIn("statsRankingPair(v.unitRanking,'bản ghi')",js)
         self.assertIn("stats-missing-panel",js)
+        # Hero card must display the entire undeclared source list (15,238
+        # on Oct 25), not the 46-unit mapped subset (14,235).
+        self.assertIn("m.missing.sourceRowCount>=m.missing.rowCount",js)
+        self.assertIn("num(Number.isInteger(m.missing.sourceRowCount)",js)
 
     def test_top3_and_statistical_bars_without_extra_search(self):
         js=(SITE / "assets/app.js").read_text(encoding="utf-8")
