@@ -78,6 +78,7 @@ function cdstuhueExcelHeaders_(sh,type) {
 function cdstuhueExcelRequired_(type,found) {
   const needed=type==='payment'?
     ['name','members','pending','approvedNotPaid','approvedPaid','noFile','due','paid']:
+    type==='paymentCity'?['name','members','noFile','due','paid']:
     type==='missing'?['unit','parent']:
     ['code','name','parentCode','parentName','status'];
   const absent=needed.filter(k=>!found[k]);
@@ -113,7 +114,7 @@ function cdstuhueExcelValidate_(type,sh) {
   const family=type==='THU_NOP'||type==='THU_NOP_CITY'?'payment':
     type==='CHUA_KHAI'?'missing':'banking';
   const desc=cdstuhueExcelDescribe_(sh,family),n=desc.rows;
-  cdstuhueExcelRequired_(family,desc.cols);
+  cdstuhueExcelRequired_(type==='THU_NOP_CITY'?'paymentCity':family,desc.cols);
   if(n<1||n>25000)throw Error(type+': số dòng vượt giới hạn');
   if(family==='payment'){
     if(n!==(type==='THU_NOP'?46:1))
@@ -128,9 +129,12 @@ function cdstuhueExcelValidate_(type,sh) {
       if(!name||names.has(name))throw Error(type+': trùng/thiếu tên đơn vị tại dòng '+line);
       names.add(name);
       const total=cdstuhueExcelInt_(data.members[i],type+' / members dòng '+line);
-      const h=cdstuhueExcelInt_(data.pending[i],type+' / pending dòng '+line);
-      const j=cdstuhueExcelInt_(data.approvedNotPaid[i],type+' / approvedNotPaid dòng '+line);
-      const k=cdstuhueExcelInt_(data.approvedPaid[i],type+' / approvedPaid dòng '+line);
+      const h=type==='THU_NOP_CITY'&&!desc.cols.pending?0:
+        cdstuhueExcelInt_(data.pending[i],type+' / pending dòng '+line);
+      const j=type==='THU_NOP_CITY'&&!desc.cols.approvedNotPaid?0:
+        cdstuhueExcelInt_(data.approvedNotPaid[i],type+' / approvedNotPaid dòng '+line);
+      const k=type==='THU_NOP_CITY'&&!desc.cols.approvedPaid?0:
+        cdstuhueExcelInt_(data.approvedPaid[i],type+' / approvedPaid dòng '+line);
       const noFile=cdstuhueExcelInt_(data.noFile[i],type+' / noFile dòng '+line);
       const due=cdstuhueExcelInt_(data.due[i],type+' / due dòng '+line);
       const done=cdstuhueExcelInt_(data.paid[i],type+' / paid dòng '+line);
@@ -192,7 +196,7 @@ function cdstuhueNormalizeStagedSheet_(type,sh) {
   const family=type==='THU_NOP'||type==='THU_NOP_CITY'?'payment':
     type==='CHUA_KHAI'?'missing':'banking';
   const desc=cdstuhueExcelDescribe_(sh,family);
-  cdstuhueExcelRequired_(family,desc.cols);
+  cdstuhueExcelRequired_(type==='THU_NOP_CITY'?'paymentCity':family,desc.cols);
   const ss=sh.getParent(),n=desc.rows,tab='CDSTUHUE_CHUAN';
   if(ss.getSheetByName(tab))throw Error('Excel nguồn đã có tên tab chuẩn hóa, cần đổi tên tab nguồn');
   const normalized=ss.insertSheet(tab);
