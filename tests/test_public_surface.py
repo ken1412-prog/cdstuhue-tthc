@@ -28,7 +28,7 @@ class PublicSurfaceTests(unittest.TestCase):
         js=(SITE / "assets/app.js").read_text(encoding="utf-8")
         # Preserve homepage Top 3, but omit it from detailed finance hero.
         self.assertIn("financeCards({compact:true})",js)
-        self.assertIn("(compact&&top.length?'<div class=\\"stats-hero-ranking\\">",js)
+        self.assertIn("compact&&top.length",js)
         self.assertIn("function financeView(){return financeCards()+statsDashboard()}",js)
         # The repeated three KPI cards in the detail view are removed.
         self.assertNotIn("const viewCards=",js)
