@@ -68,8 +68,8 @@ a{color:#21538a}.foot{margin-top:24px;text-align:center;font-size:12px;color:#6b
  <section><h2>Công cụ quản trị khác</h2>
   <div class="actions">
    <button type="button" class="btn-light" id="refresh">Tải lại trạng thái</button>
-   <a id="hubLink" href="https://docs.google.com/spreadsheets/d/1PBwfYm0wds9GaNMigr_aiUnuI7YIM6i6PKUYKkcUV60/edit" target="_blank" rel="noopener noreferrer">Mở STATS HUB</a>
-   <a href="https://docs.google.com/spreadsheets/d/1OZgFV1Urhy0u3fTl98psR8P3M_htv4F8PB94eDMej3w/edit" target="_blank" rel="noopener noreferrer">Mở bảng duyệt hỏi đáp</a>
+   <a id="hubLink" href="#" target="_blank" rel="noopener noreferrer">Mở STATS HUB</a>
+   <a id="qaLink" href="#" target="_blank" rel="noopener noreferrer">Mở bảng duyệt hỏi đáp</a>
   </div>
   <p class="muted">Nhật ký thao tác ghi tại tab NHAT_KY_QUAN_TRI của STATS HUB. Trạng thái xuất bản mới có hiệu lực sau lần website đồng bộ tiếp theo.</p>
  </section>
@@ -98,6 +98,9 @@ async function load(){
   const payload=await invoke('cdsAdminGetSnapshot',[session]);render(payload);
   $('loginPanel').hidden=true;$('dashboard').hidden=false;$('logout').hidden=false;
   $('updated').textContent='Máy chủ cập nhật: '+new Date(payload.serverTime).toLocaleString('vi-VN');
+  $('hubLink').href=payload.links?.hub||'#';
+  $('qaLink').href=payload.links?.qa||'#';
+  $('qaLink').hidden=!payload.links?.qa;
  }catch(e){say('notice',e.message,'error');if(/Phiên.*hạn/.test(e.message))logout();}
  finally{setBusy(false)}
 }

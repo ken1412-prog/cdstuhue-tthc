@@ -114,7 +114,11 @@ function cdsAdminGetSnapshot(token){
   .map(r=>({code:r[0],name:String(r[1]||'').slice(0,130),
     rows:Number(r[4])||0,snapshot:String(r[5]||'').slice(0,20),
     status:String(r[7]||'').slice(0,50)})):[];
+ const qaId=cdsAdminProps_().getProperty('CDSTUHUE_QA_SHEET_ID')||'';
  return {nav,modules,staged,serverTime:new Date().toISOString(),
+   links:{hub:hub.getUrl(),
+     qa:/^[A-Za-z0-9_-]{20,}$/.test(qaId)?
+       'https://docs.google.com/spreadsheets/d/'+qaId+'/edit':''},
    info:'Thay đổi tại đây được lưu vào STATS HUB. Website đồng bộ theo lịch GitHub.'};
 }
 function cdsAdminAudit_(hub,action,key,oldValue,newValue){
