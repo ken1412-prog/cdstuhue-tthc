@@ -90,6 +90,15 @@ const runtime={
 vm.createContext(runtime);
 vm.runInContext(gs,runtime);
 assert.throws(()=>runtime.cdsAdminGetSnapshot('wrong'),/Phiên/);
+assert.throws(()=>runtime.cdsAdminCheckExcel('wrong'),/Phiên/);
+assert.throws(()=>runtime.cdsAdminStageExcel('wrong'),/Phiên/);
+assert(gs.includes('function cdstuhuePreflightExcel4_()'));
+assert(gs.includes('function cdstuhueStageExcel4_()'));
+assert(!gs.includes('function cdstuhuePreflightExcel4()'));
+assert(!gs.includes('function cdstuhueStageExcel4()'));
+assert(html.includes('id="checkExcel"')&&html.includes('id="stageExcel"'));
+assert(html.includes('cdsAdminCheckExcel')&&html.includes('cdsAdminStageExcel'));
+
 assert.throws(()=>runtime.cdsAdminSetMenu('invalid','finance',false),/Phiên/);
 assert.equal(runtime.cdsAdminBootstrap().includes('Đã tạo mật khẩu'),true);
 assert(!props.has('CDSTUHUE_ADMIN_INITIAL_PASSWORD'));
