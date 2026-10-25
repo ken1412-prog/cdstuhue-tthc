@@ -164,7 +164,7 @@ class PublicSurfaceTests(unittest.TestCase):
         self.assertIn("right center /auto 100% no-repeat",final)
         self.assertIn("center top /100% auto no-repeat",final)
         self.assertIn("rgba(7,24,44,.99)",final)
-        active=css[css.rfind("/* Hero seamless full-width bridge photo"):]
+        active=css[css.rfind("/* Full panoramic Nguyễn Hoàng image"):]
         self.assertIn("right center / contain no-repeat",active)
         self.assertIn("width:72%",active)
         self.assertIn("transform:none",active)
