@@ -76,7 +76,7 @@ class PublicSurfaceTests(unittest.TestCase):
             html=(SITE / page).read_text(encoding="utf-8")
             self.assertIn('<div class="footer-byline">',html)
             self.assertIn('<span class="footer-copyright">© 2026 CDSTUHUE</span><span class="footer-author">NKien',html)
-            self.assertIn('assets/styles.css?v=20261025-bridges-thuanan-v5',html)
+            self.assertIn('assets/styles.css?v=20261025-nguyen-hoang-arch-v6',html)
             self.assertNotIn('id="navAssistant"',html)
             self.assertIn('id="openAssistant"',html)
             self.assertIn('id="assistantMobileFab"',html)
@@ -144,6 +144,14 @@ class PublicSurfaceTests(unittest.TestCase):
         self.assertIn("nguyen-hoang-bridge-3840.jpg",css)
         self.assertIn("rgba(245,250,253,.38)",css)
         self.assertIn("url('./img/nguyen-hoang-bridge-3840.jpg') center 46% /cover fixed no-repeat!important",css)
+
+    def test_nguyen_hoang_hero_shows_bridge_arch_not_right_bank(self):
+        css=(SITE / "assets/styles.css").read_text(encoding="utf-8")
+        # Check the final cascade block, not an obsolete earlier hero declaration.
+        final=css[css.rfind("/* CDSTUHUE photo selection:"):]
+        self.assertIn("left 0% top 8% /140% auto no-repeat!important",final)
+        self.assertIn("left 0% top 5% /155% auto no-repeat!important",final)
+        self.assertIn("nguyen-hoang-bridge-3840.jpg",final)
 
     def test_no_redundant_dashboard_explanations(self):
         js=(SITE / "assets/app.js").read_text(encoding="utf-8")
