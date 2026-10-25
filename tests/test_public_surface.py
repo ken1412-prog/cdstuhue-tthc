@@ -76,7 +76,7 @@ class PublicSurfaceTests(unittest.TestCase):
             html=(SITE / page).read_text(encoding="utf-8")
             self.assertIn('<div class="footer-byline">',html)
             self.assertIn('<span class="footer-copyright">© 2026 CDSTUHUE</span><span class="footer-author">NKien',html)
-            self.assertIn('assets/styles.css?v=20261025-nguyen-hoang-arch-v7',html)
+            self.assertIn('assets/styles.css?v=20261025-user-bridge-navy-v8',html)
             self.assertNotIn('id="navAssistant"',html)
             self.assertIn('id="openAssistant"',html)
             self.assertIn('id="assistantMobileFab"',html)
@@ -152,6 +152,18 @@ class PublicSurfaceTests(unittest.TestCase):
         self.assertIn("left top /140% auto no-repeat!important",final)
         self.assertIn("left top /155% auto no-repeat!important",final)
         self.assertIn("nguyen-hoang-bridge-3840.jpg",final)
+
+    def test_user_provided_bridge_hero_asset_and_framing(self):
+        image=SITE / "assets" / "img" / "nguyen-hoang-user-banner.avif"
+        self.assertTrue(image.is_file())
+        self.assertGreater(image.stat().st_size,5000)
+        self.assertIn(b"ftypavif",image.read_bytes()[:32])
+        css=(SITE / "assets/styles.css").read_text(encoding="utf-8")
+        final=css[css.rfind("/* User-supplied panoramic bridge hero"):]
+        self.assertIn("nguyen-hoang-user-banner.avif",final)
+        self.assertIn("right center /auto 100% no-repeat",final)
+        self.assertIn("center top /100% auto no-repeat",final)
+        self.assertIn("rgba(7,24,44,.99)",final)
 
     def test_no_redundant_dashboard_explanations(self):
         js=(SITE / "assets/app.js").read_text(encoding="utf-8")
