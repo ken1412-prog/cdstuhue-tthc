@@ -236,6 +236,203 @@ function cdsAdminStageExcel(token){
       'Bốn Google Sheets nháp đã tạo và ghi chờ duyệt. Nguồn live không đổi.'};
 }
 
+
+/**
+ * Owner-only final promotion of an approved 4-Excel staging batch.
+ * Called ONLY from the private authenticated Admin Web App, never doGet/doPost.
+ * Each stage is revalidated against its current private Google Sheet before
+ * switching NGUON_4_FILE. Public scopes are preserved (never broadened).
+ * Requires a fresh explicit owner confirmation "DUYET YYYY-MM".
+ */
+function cdsAdminPromoteStaged(token,confirmation){
+  const hub=cdsAdminHub_(token),props=cdsAdminProps_();
+  const lock=LockService.getScriptLock();
+  if(!lock.tryLock(30000))throw Error('Đang có thao tác nhập liệu khác; vui lòng thử lại');
+  try{
+    const stage=hub.getSheetByName('DU_LIEU_CHO_DUYET'),
+      registry=hub.getSheetByName('NGUON_4_FILE'),
+      policy=hub.getSheetByName('DUYET_WEBSITE'),
+      overview=hub.getSheetByName('TONG_QUAN'),
+      rank=hub.getSheetByName('XEP_HANG_SNAPSHOT');
+    if(!stage||!registry||!policy||!overview||!rank)
+      throw Error('STATS HUB thiếu tab bắt buộc, chưa chuyển nguồn');
+    const rows=stage.getRange(2,1,4,9).getDisplayValues(),byKey={};
+    rows.forEach(row=>{
+      const key=String(row[0]||'').trim();
+      if(!CDS_ADMIN_SOURCE_KEYS_.includes(key)||byKey[key])
+        throw Error('Bảng nháp phải có đúng 4 mã nguồn, không trùng');
+      byKey[key]=row;
+    });
+    if(CDS_ADMIN_SOURCE_KEYS_.some(key=>!byKey[key]))
+      throw Error('Chưa có đủ bốn nguồn nháp');
+    const active=registry.getRange(2,1,4,8).getValues();
+    if(CDS_ADMIN_SOURCE_KEYS_.every(key=>{
+      const prior=active.find(row=>String(row[0]).trim()===key);
+      return prior&&String(prior[2])===String(byKey[key][2])&&
+        String(prior[3])===String(byKey[key][3]);
+    }))throw Error('Bốn nguồn này đã được chuyển chính thức rồi');
+    const snapshots={},summaries={},sources={};
+    CDS_ADMIN_SOURCE_KEYS_.forEach(key=>{
+      const row=byKey[key];
+      if(String(row[7]||'').trim()!=='ĐÃ DUYỆT')
+        throw Error('Nguồn '+key+' chưa được chủ sở hữu duyệt');
+      const snapshot=String(row[5]||'').trim();
+      if(!/^20\d{2}-(0[1-9]|1[0-2])(?:-(0[1-9]|[12]\d|3[01]))?$/.test(snapshot))
+        throw Error('Nguồn '+key+' chưa khai báo kỳ/ngày YYYY-MM[-DD]');
+      snapshots[key]=snapshot;
+      const id=String(row[2]||'').trim(),tab=String(row[3]||'').trim();
+      if(!/^[A-Za-z0-9_-]{20,}$/.test(id)||!tab||tab.length>100)
+        throw Error('Thiếu tham chiếu nguồn nháp '+key);
+      const book=SpreadsheetApp.openById(id),sheet=book.getSheetByName(tab);
+      if(!sheet)throw Error('Không mở được tab nguồn nháp '+key);
+      const summary=cdstuhueExcelValidate_(key,sheet);
+      if(summary.rows!==Number(row[4]))
+        throw Error('Nguồn '+key+' có số dòng khác lúc duyệt; dừng chuyển');
+      sources[key]={id,tab,name:String(row[6]||'').trim()};
+      summaries[key]=summary;
+    });
+    const period=snapshots.THU_NOP.slice(0,7);
+    if(CDS_ADMIN_SOURCE_KEYS_.some(key=>snapshots[key].slice(0,7)!==period))
+      throw Error('Bốn nguồn không thuộc cùng kỳ; chưa chuyển');
+    const month=hub.getSheetByName('KY_BAO_CAO');
+    const effectiveMonth=month?String(month.getRange('B2').getDisplayValue()||'').trim():'2026-10';
+    if(period!==effectiveMonth)
+      throw Error('Kỳ nhập '+period+' khác kỳ đang mở '+effectiveMonth+
+        '. Cần chốt và chuyển kỳ trước khi nhập');
+    if(typeof confirmation!=='string'||confirmation.trim()!=='DUYET '+period)
+      throw Error('Xác nhận sai. Hãy nhập chính xác DUYET '+period);
+    // Reject changed input files if the set is still available. For earlier
+    // portal batches without a manifest, match four original filenames as a
+    // provenance gate; never silently promote unrelated staging sheets.
+    const input=cdstuhueInputFiles_();
+    const stagedNames=CDS_ADMIN_SOURCE_KEYS_.map(k=>sources[k].name).sort();
+    const inboxNames=input.files.map(f=>f.getName()).sort();
+    if(stagedNames.some((name,i)=>!name||name!==inboxNames[i]))
+      throw Error('Tên bốn Excel trong thư mục đã khác lúc tạo nháp; cần tạo lại nháp và duyệt');
+    const raw=props.getProperty('CDSTUHUE_PENDING_STAGE_JSON');
+    const pending=raw?JSON.parse(raw):null;
+    if(pending&&pending.mode==='STAGED_AWAITING_REVIEW'&&pending.reconciled){
+      const sameStage=CDS_ADMIN_SOURCE_KEYS_.every(k=>
+        pending.sources?.[k]?.id===sources[k].id&&
+        pending.sources[k].tab===sources[k].tab);
+      if(sameStage){
+        if(input.signature!==pending.signature)
+          throw Error('4 Excel đã thay đổi sau khi tạo nháp; cần kiểm tra và duyệt lại');
+        for(const key of CDS_ADMIN_SOURCE_KEYS_){
+          if(JSON.stringify(pending.sources[key].summary)!==JSON.stringify(summaries[key]))
+            throw Error('Dữ liệu nguồn nháp '+key+' thay đổi sau lần kiểm tra');
+        }
+      }else{
+        throw Error('Bản nháp đã duyệt không khớp đợt tạo nháp mới nhất. Cần tạo và duyệt lại 4 nguồn');
+      }
+    }
+    const payment=sources.THU_NOP,city=sources.THU_NOP_CITY;
+    const citySummary=summaries.THU_NOP_CITY,sourceSummary=summaries.THU_NOP;
+    if(citySummary.members<sourceSummary.members||
+       citySummary.required<sourceSummary.required||
+       citySummary.received!==sourceSummary.received||
+       citySummary.notFiled!==summaries.CHUA_KHAI.rows||
+       summaries.NGAN_HANG.registered+summaries.NGAN_HANG.notRegistered!==summaries.NGAN_HANG.rows)
+      throw Error('Đối chiếu bốn nguồn không khớp; không chuyển');
+    const payRows=SpreadsheetApp.openById(payment.id).getSheetByName(payment.tab)
+      .getRange(3,1,46,14).getValues();
+    const cityRow=SpreadsheetApp.openById(city.id).getSheetByName(city.tab)
+      .getRange(3,1,1,14).getValues()[0];
+    const toInt=v=>cdstuhueExcelInt_(v,'Đối chiếu nội bộ');
+    const sum=i=>payRows.reduce((total,row)=>total+toInt(row[i]),0);
+    const totalMembers=sum(2),totalDue=sum(11),totalPaid=sum(12),
+      totalMissing=sum(10),cityMembers=toInt(cityRow[2]),cityMissing=toInt(cityRow[10]),
+      cityDue=toInt(cityRow[11]),cityPaid=toInt(cityRow[12]);
+    if(totalMembers!==sourceSummary.members||totalDue!==sourceSummary.required||
+       totalPaid!==sourceSummary.received||totalMissing!==sourceSummary.notFiled||
+       cityMembers!==citySummary.members||cityMissing!==citySummary.notFiled||
+       cityDue!==citySummary.required||cityPaid!==citySummary.received||
+       cityPaid!==totalPaid||cityMissing!==summaries.CHUA_KHAI.rows||
+       cityDue<totalDue||cityMembers<totalMembers)
+      throw Error('Tổng tiền/số người không khớp giữa các nguồn');
+    const ranking=payRows.map(row=>({
+      name:String(row[1]||'').trim(),members:toInt(row[2]),due:toInt(row[11]),
+      paid:toInt(row[12]),noFile:toInt(row[10]),pending:toInt(row[7]),
+      paidFiled:toInt(row[9])
+    }));
+    if(ranking.length!==46||ranking.some(r=>!r.name||!r.due||
+      r.paid>r.due||!Number.isFinite(r.paid/r.due)))
+      throw Error('Không thể tạo xếp hạng 46 Đảng bộ');
+    ranking.sort((a,b)=>(b.paid/b.due)-(a.paid/a.due)||
+      a.name.localeCompare(b.name,'vi'));
+    const displayRank=ranking.map((r,i)=>[
+      i+1,r.name,r.members,r.due,r.paid,r.paid/r.due,
+      r.noFile,r.pending,r.paidFiled,r.members>=100?'ĐỦ':'KHÔNG'
+    ]);
+    const previousPolicy=policy.getRange(2,1,5,5).getValues();
+    const old={
+      registry:active,policy:previousPolicy,b1:overview.getRange('B1').getValue(),
+      b2b9:overview.getRange('B2:B9').getValues(),
+      a10e12:overview.getRange('A10:E12').getValues(),
+      b13b19:overview.getRange('B13:B19').getValues(),
+      ranking:rank.getRange('A2:J47').getValues(),
+      stageStatus:stage.getRange(2,8,4,1).getValues()
+    };
+    const stamp=Utilities.formatDate(new Date(),'Asia/Ho_Chi_Minh','yyyy-MM-dd');
+    const backup=JSON.stringify({changedAt:new Date().toISOString(),
+      registry:active,approvals:previousPolicy.map(r=>[r[0],r[1],r[3],r[4]])});
+    if(backup.length>9000)throw Error('Bản sao cấu hình vượt giới hạn; dừng để kiểm tra');
+    const registryNew=CDS_ADMIN_SOURCE_KEYS_.map(key=>{
+      const x=sources[key],r=byKey[key],prev=active.find(row=>row[0]===key);
+      return [key,r[1],x.id,x.tab,summaries[key].rows,snapshots[key],
+        prev?.[6]||'Đã đối chiếu 4 Excel trong CDSTUHUE','RIÊNG TƯ'];
+    });
+    const refreshed=previousPolicy.map(row=>{
+      if(String(row[1]).trim()==='ĐÃ DUYỆT')row[3]=stamp;
+      return row;
+    });
+    // Only already-approved public fields will be exported by Code.gs.
+    // Approval of source data does not create new public publication scopes.
+    try{
+      registry.getRange(2,1,4,8).setValues(registryNew);
+      overview.getRange('B1').setValue('SỐ LIỆU '+snapshots.THU_NOP.split('-').reverse().join('/'));
+      overview.getRange('B2:B9').setValues([
+        [46],[totalMembers],[totalDue],[totalPaid],[totalPaid/totalDue],
+        [totalMissing],[summaries.CHUA_KHAI.rows],
+        [summaries.CHUA_KHAI.rows-totalMissing]
+      ]);
+      overview.getRange('A10:E12').clearContent(); // legacy allocation retired
+      overview.getRange('B13:B19').setValues([
+        [summaries.NGAN_HANG.registered],[summaries.NGAN_HANG.notRegistered],
+        [summaries.NGAN_HANG.registered/summaries.NGAN_HANG.rows],
+        [cityMembers],[cityMissing],[cityMembers-totalMembers],
+        [cityPaid/cityDue]
+      ]);
+      rank.getRange('A2:J47').setValues(displayRank);
+      policy.getRange(2,1,5,5).setValues(refreshed);
+      stage.getRange(2,8,4,1).setValues(CDS_ADMIN_SOURCE_KEYS_.map(()=>['ĐÃ CHUYỂN NGUỒN']));
+    }catch(error){
+      // Restore original private HUB values if any update failed.
+      try{
+        registry.getRange(2,1,4,8).setValues(old.registry);
+        overview.getRange('B1').setValue(old.b1);
+        overview.getRange('B2:B9').setValues(old.b2b9);
+        overview.getRange('A10:E12').setValues(old.a10e12);
+        overview.getRange('B13:B19').setValues(old.b13b19);
+        rank.getRange('A2:J47').setValues(old.ranking);
+        policy.getRange(2,1,5,5).setValues(old.policy);
+        stage.getRange(2,8,4,1).setValues(old.stageStatus);
+      }catch(rollback){console.error('CDSTUHUE rollback needs owner inspection');}
+      throw error;
+    }
+    props.setProperty('CDSTUHUE_PREVIOUS_CONFIG_JSON',backup);
+    props.setProperty('CDSTUHUE_ACTIVE_STAGE_SIGNATURE',input.signature);
+    props.deleteProperty('CDSTUHUE_PENDING_STAGE_JSON');
+    try{cdsAdminAudit_(hub,'CHUYỂN NGUỒN CHÍNH THỨC 4 EXCEL',period,'Đã duyệt nháp','ĐÃ CHUYỂN NGUỒN');}
+    catch(auditError){console.error('Đã chuyển nguồn; ghi nhật ký bổ sung thất bại');}
+    return {ok:true,promoted:true,period,sourceCount:4,
+      info:'Đã chuyển chính thức bốn nguồn kỳ '+period+
+        '. Website nhận số liệu mới trong lượt Publish CDSTUHUE website tiếp theo.'};
+  }finally{
+    lock.releaseLock();
+  }
+}
+
 /* === FLEXIBLE EXCEL IMPORT SUPPORT / INTERNAL ONLY === */
 const CDSTUHUE_EXCEL_ALIASES_={
   payment:{
