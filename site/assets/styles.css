@@ -1032,3 +1032,30 @@ body{
  .footer-online{font-size:10px;padding:4px 9px;gap:5px}
  .footer-online strong{font-size:11px}
 }
+
+
+/* Floating online count v2: always visible, including on long finance pages. */
+.footer-online{
+ position:fixed!important;
+ right:16px;
+ left:auto;
+ bottom:calc(16px + env(safe-area-inset-bottom, 0px));
+ z-index:26;
+ align-self:auto;
+ box-shadow:0 5px 16px rgba(24,45,74,.18);
+ backdrop-filter:blur(7px);
+ -webkit-backdrop-filter:blur(7px);
+ pointer-events:auto;
+}
+@media(max-width:760px){
+ /* Leave the right side free for the mobile Q&A assistant button. */
+ .footer-online{
+  left:12px;
+  right:auto;
+  bottom:calc(14px + env(safe-area-inset-bottom, 0px));
+  max-width:calc(100vw - 118px);
+  border-radius:18px;
+  text-align:left;
+ }
+}
+@media print{.footer-online{display:none!important}}
