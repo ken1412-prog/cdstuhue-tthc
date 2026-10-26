@@ -627,7 +627,7 @@ function startOnlinePresence(){
   const u=new URL(String(c.endpoint||''));
   if(c.schema!==1||u.protocol!=='https:'||
      !['script.google.com','script.googleusercontent.com'].includes(u.hostname)||
-     !/\\/exec$/.test(u.pathname))throw Error('Unapproved online endpoint');
+     !/\/exec$/.test(u.pathname))throw Error('Unapproved online endpoint');
   endpoint=u.toString();
   ping();
   setInterval(ping,75000);
