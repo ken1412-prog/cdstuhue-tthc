@@ -92,11 +92,19 @@ vm.runInContext(gs,runtime);
 assert.throws(()=>runtime.cdsAdminGetSnapshot('wrong'),/Phiên/);
 assert.throws(()=>runtime.cdsAdminCheckExcel('wrong'),/Phiên/);
 assert.throws(()=>runtime.cdsAdminStageExcel('wrong'),/Phiên/);
+assert.throws(()=>runtime.cdsAdminPromoteStaged('wrong','DUYET 2026-10'),/Phiên/);
 assert(gs.includes('function cdstuhuePreflightExcel4_()'));
 assert(gs.includes('function cdstuhueStageExcel4_()'));
 assert(!gs.includes('function cdstuhuePreflightExcel4()'));
 assert(!gs.includes('function cdstuhueStageExcel4()'));
 assert(html.includes('id="checkExcel"')&&html.includes('id="stageExcel"'));
+assert(html.includes('id="promoteExcel"'));
+assert(html.includes('id="promotionConfirmation"'));
+assert(html.includes('cdsAdminPromoteStaged'));
+assert(gs.includes('function cdsAdminPromoteStaged(token,confirmation)'));
+assert(!html.includes('CDSTUHUE_PENDING_STAGE_JSON'),'Do not embed internal signing state in client HTML');
+assert(!html.includes('CDSTUHUE_STATS_HUB_ID'),'Do not expose private sheet properties');
+
 assert(html.includes('cdsAdminCheckExcel')&&html.includes('cdsAdminStageExcel'));
 
 assert.throws(()=>runtime.cdsAdminSetMenu('invalid','finance',false),/Phiên/);
@@ -108,6 +116,8 @@ assert.throws(()=>runtime.cdsAdminLogin('bad-passphrase'),/Mật khẩu/);
 const token=runtime.cdsAdminLogin('a-Long-Unique-Password-2026').token;
 assert.equal(token.length,73);
 const snap=runtime.cdsAdminGetSnapshot(token);
+assert.equal(snap.promotion.ready,false);
+assert.equal(snap.promotion.currentPeriod,'2026-10');
 assert.equal(snap.nav.length,3);
 assert.equal(snap.modules.length,4,'Retired allocation must never render');
 assert(!JSON.stringify(snap).includes('private_id'),'No private source file IDs in payload');
