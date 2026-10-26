@@ -23,7 +23,6 @@ function onOpen() {
     .addSeparator()
     .addItem('Kiểm tra 4 file Excel', 'cdstuhueCheckExcelMenu')
     .addItem('Nhập 4 Excel thành bản nháp', 'cdstuhueStageExcelMenu')
-    .addItem('Duyệt và chuyển nguồn chính thức', 'cdstuhueApproveStagedBatch')
     .addToUi();
 }
 
