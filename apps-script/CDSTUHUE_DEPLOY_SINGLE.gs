@@ -127,10 +127,37 @@ function cdstuhuePresenceScript_(e){
     .setMimeType(ContentService.MimeType.JAVASCRIPT);
 }
 
+function cdstuhueLiveStatsScript_(){
+  // Exact server-owned callback. Only the already-approved public aggregation
+  // is serialized; never reflect a URL callback parameter into JavaScript.
+  let payload;
+  try{
+    const cache=CacheService.getScriptCache(),key='CDSTUHUE_LIVE_STATS_V1';
+    const cached=cache.get(key);
+    if(cached){return ContentService.createTextOutput(
+      'cdstuhueStatsReceive('+cached+');')
+      .setMimeType(ContentService.MimeType.JAVASCRIPT);
+    }
+    payload=buildStatsFeed_();
+    const json=JSON.stringify(payload);
+    // Store a short-lived public snapshot only when safely below the 100 KB
+    // Apps Script cache value limit (Vietnamese UTF-8 may use 3 bytes/char).
+    if(json.length<24000)cache.put(key,json,60);
+    return ContentService.createTextOutput(
+      'cdstuhueStatsReceive('+json+');')
+      .setMimeType(ContentService.MimeType.JAVASCRIPT);
+  }catch(error){
+    return ContentService.createTextOutput(
+      'cdstuhueStatsReceive({"schema":1,"error":"Live stats unavailable"});')
+      .setMimeType(ContentService.MimeType.JAVASCRIPT);
+  }
+}
+
 function doGet(e){
   try {
     const kind=String((e&&e.parameter&&e.parameter.kind)||'qa');
     if(kind==='presence')return cdstuhuePresenceScript_(e);
+    if(kind==='stats-live')return cdstuhueLiveStatsScript_();
     const payload=kind==='finance'?buildFinanceFeed_():kind==='qa'?buildPublicFeed_():kind==='intake-status'?questionIntakeStatus_():kind==='stats'?buildStatsFeed_():kind==='menu'?buildMenuFeed_():{schema:1,error:'Unknown public feed type'};
     return ContentService.createTextOutput(JSON.stringify(payload)).setMimeType(ContentService.MimeType.JSON);
   } catch(err){return ContentService.createTextOutput(JSON.stringify({schema:1,error:'Public feed unavailable'})).setMimeType(ContentService.MimeType.JSON)}
