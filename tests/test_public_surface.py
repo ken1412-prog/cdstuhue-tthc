@@ -104,7 +104,7 @@ class PublicSurfaceTests(unittest.TestCase):
             html=(SITE / page).read_text(encoding="utf-8")
             self.assertIn('<div class="footer-byline">',html)
             self.assertIn('<span class="footer-copyright">© 2026 CDSTUHUE</span><span class="footer-author">NKien',html)
-            self.assertIn('assets/styles.css?v=20261025-unit-details-v1',html)
+            self.assertIn('assets/styles.css?v=20261026-unit-list-full-v2',html)
             self.assertNotIn('id="navAssistant"',html)
             self.assertIn('id="openAssistant"',html)
             self.assertIn('id="assistantMobileFab"',html)
@@ -265,6 +265,15 @@ class PublicSurfaceTests(unittest.TestCase):
         self.assertNotRegex(css, r"(?is)(?:html|body)\s*\{[^{}]*\buser-select\s*:\s*none")
         self.assertIn('id="qaModal"', html)
         self.assertIn("data-qa=", js)
+
+
+    def test_subordinate_lists_do_not_clip_on_mobile(self):
+        css=(SITE / "assets/styles.css").read_text(encoding="utf-8")
+        js=(SITE / "assets/app.js").read_text(encoding="utf-8")
+        self.assertIn(".payment-incomplete-list{list-style:none;padding:0;margin:9px 0 0;max-height:none;overflow:visible}",css)
+        self.assertNotIn(".payment-incomplete-list{max-height:190px}",css)
+        self.assertIn("paymentIncompleteUnits('Còn hồ sơ chưa khai báo',row.unfiledUnits)",js)
+
 
 
 if __name__ == "__main__":
