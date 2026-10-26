@@ -20,8 +20,11 @@ def main():
         parsed=urlsplit(endpoint)
         if (parsed.scheme=='https' and parsed.hostname=='script.google.com'
                 and re.fullmatch(r'/macros/s/[A-Za-z0-9_-]+/exec',parsed.path)
-                and not (parsed.query or parsed.fragment or parsed.username or parsed.password)):
-            safe=endpoint
+                and not (parsed.username or parsed.password or parsed.port)):
+            # Strip optional query/fragment from the already-public Web App URL.
+            # The site only needs the canonical /exec path; no secret or query
+            # arguments from CI may ever be copied into its public config.
+            safe='https://script.google.com'+parsed.path
         else:
             # Never publish a potentially private or unexpected URL.
             print('Online counter disabled: public QA endpoint URL is not a safe /exec URL')
