@@ -1006,7 +1006,7 @@ body{
 .payment-incomplete-section{border:1px solid #e3e7ed;border-radius:12px;background:#fffdfa;padding:13px 14px;min-width:0}
 .payment-incomplete-section>h3{font-size:13px;line-height:1.45;font-weight:800;color:#213c5e;margin:0}
 .payment-incomplete-count{display:block;color:#a61c35;font-size:11px;font-weight:700;margin:5px 0 8px}
-.payment-incomplete-list{list-style:none;padding:0;margin:9px 0 0;max-height:230px;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin}
+.payment-incomplete-list{list-style:none;padding:0;margin:9px 0 0;max-height:none;overflow:visible}
 .payment-incomplete-list li{padding:9px 3px;border-top:1px solid #ece8e2;display:flex;flex-direction:column;gap:4px;overflow-wrap:anywhere}
 .payment-incomplete-list li strong{font-size:12px;font-weight:720;color:#223c58;line-height:1.45}
 .payment-incomplete-list li small{font-size:10px;color:#687a8c;line-height:1.4}
@@ -1015,5 +1015,4 @@ body{
 @media(max-width:760px){
   .payment-incomplete-section{padding:11px}
   .payment-unit-findings{margin-top:16px;gap:10px}
-  .payment-incomplete-list{max-height:190px}
 }
