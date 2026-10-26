@@ -23,6 +23,12 @@ const ctx={
  Date:{now:()=>now},
  console
 };
+const frontend=fs.readFileSync('site/assets/app.js','utf8');
+assert.match(frontend,/searchParams\.set\('visitor',sid\)/);
+assert.doesNotMatch(frontend,/searchParams\.set\(['"](sid|c)['"]/);
+const backend=fs.readFileSync('apps-script/Code.gs','utf8');
+assert.match(backend,/parameters\.visitor/);
+assert.doesNotMatch(backend,/parameters\.sid/);
 vm.runInNewContext(fs.readFileSync('apps-script/Code.gs','utf8'),ctx,{timeout:3000});
 const id1='a'.repeat(32),id2='b'.repeat(32);
 const req=id=>({parameter:{kind:'presence',visitor:id}});
