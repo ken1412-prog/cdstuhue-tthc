@@ -420,6 +420,11 @@ function buildStatsFeed_(){
   const filedXYApproved=enabled.ranking&&approvedScopes['XẾP HẠNG 46 ĐƠN VỊ'].includes('HS_FILED_XY_BY_LEVEL2');
   // Owner-approved three-way status totals: no individual-level records.
   const filingStatusApproved=enabled.ranking&&approvedScopes['XẾP HẠNG 46 ĐƠN VỊ'].includes('HS_FILING_STATUS_SUMMARY_46');
+  // Separate owner approval is mandatory before exposing subordinate organization names.
+  const bankPendingUnitsApproved=enabled.ranking&&enabled.banking&&
+    approvedScopes['TÀI KHOẢN NGÂN HÀNG'].includes('BANK_PENDING_UNITS_BY_LEVEL2');
+  const unfiledUnitsApproved=enabled.ranking&&enabled.missing&&
+    approvedScopes['CHƯA KHAI BÁO THEO ĐƠN VỊ CHA'].includes('HS_UNFILED_UNITS_BY_LEVEL2');
   const orgKey=v=>String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'')
     .replace(/đ/g,'d').replace(/Đ/g,'D').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();
   if(enabled.payment||enabled.ranking){
@@ -509,7 +514,8 @@ function buildStatsFeed_(){
         sort:'Tỷ lệ thu nộp; đồng tỷ lệ xếp theo tên',
         records:ranked,sourceSnapshot:src.THU_NOP.snapshot,
         approvedExtraFields:{filedRate:filedRateApproved||filedXYApproved,
-          filedXY:filedXYApproved,bankXY:bankXYApproved}};
+          filedXY:filedXYApproved,bankXY:bankXYApproved,
+          bankPendingUnits:bankPendingUnitsApproved,unfiledUnits:unfiledUnitsApproved}};
     }
   }
   let missingOrgRows=null;
@@ -573,7 +579,7 @@ function buildStatsFeed_(){
       const excludedCaQsUnits=info.filter(r=>isExcludedCaQs(r[0])).length;
       const excludedCityRoot=info.filter(r=>String(r[0]||'').trim()==='A57').length;
       const groups={};
-      roots.forEach(code=>{groups[code]={name:nodes[code].name,total:0,done:0};});
+      roots.forEach(code=>{groups[code]={name:nodes[code].name,total:0,done:0,pending:[],seenPending:new Set()};});
       info.forEach((r,i)=>{
         const state=String(status[i]?.[0]||'').trim();
         if(state!=='Đã có tài khoản ngân hàng'&&state!=='Chưa có tài khoản ngân hàng')return;
@@ -583,6 +589,16 @@ function buildStatsFeed_(){
         if(state==='Đã có tài khoản ngân hàng')registered++;else notRegistered++;
         groups[root].total++;
         if(state==='Đã có tài khoản ngân hàng')groups[root].done++;
+        // Only subordinate organizations with an explicitly missing bank account.
+        // Never include the level-2 root itself, an account number, or a person.
+        if(bankPendingUnitsApproved&&state==='Chưa có tài khoản ngân hàng'){
+          const code=String(r[0]||'').trim(),name=String(r[1]||'').trim();
+          if(code!==root&&name&&!groups[root].seenPending.has(code)){
+            groups[root].seenPending.add(code);
+            groups[root].pending.push({name:name.slice(0,190),
+              parentName:String(r[3]||'').trim().slice(0,190)});
+          }
+        }
       });
       // Both numerator and denominator contain ONLY organizations mapped to 46
       // direct-level-2 units. Do not dilute the rate with CA/QS or city root.
@@ -593,7 +609,7 @@ function buildStatsFeed_(){
         unitRanking:ranked,unmappedForRanking:unmapped,
         excludedCaQsUnits,excludedCityRoot,
         sourceSnapshot:src.NGAN_HANG.snapshot};
-      if(bankXYApproved&&modules.ranking?.records?.length===46){
+      if((bankXYApproved||bankPendingUnitsApproved)&&modules.ranking?.records?.length===46){
         const byName=new Map(),rows=modules.ranking.records;
         Object.values(groups).forEach(g=>{
           const key=orgKey(g.name);
@@ -607,7 +623,12 @@ function buildStatsFeed_(){
         const mappedDone=mapped.reduce((n,g)=>n+g.done,0);
         if(mappedTotal!==all||mappedDone!==registered)
           throw new Error('Bank aggregate count mismatch');
-        rows.forEach((r,i)=>{r.bankDone=mapped[i].done;r.bankTotal=mapped[i].total;});
+        rows.forEach((r,i)=>{
+          if(bankXYApproved){r.bankDone=mapped[i].done;r.bankTotal=mapped[i].total;}
+          if(bankPendingUnitsApproved)
+            r.bankPendingUnits=mapped[i].pending.sort((a,b)=>
+              a.name.localeCompare(b.name,'vi')||a.parentName.localeCompare(b.parentName,'vi'));
+        });
       }
     }
   }
@@ -686,7 +707,7 @@ function buildStatsFeed_(){
         excludedCaQsRows++;return;
       }
       if(candidates.length===1&&roots.has(candidates[0])){
-        groups[candidates[0]].count++;matched++;matchedOrgRows.push(r);return;
+        groups[candidates[0]].count++;matched++;matchedOrgRows.push({...r,root:candidates[0]});return;
       }
       if(candidates.length>1)excludedAmbiguousRows++;
       else if(!parents.length)excludedNoParentRows++;
@@ -719,6 +740,35 @@ function buildStatsFeed_(){
     const bottom=records.slice().sort((a,b)=>a.count-b.count||byUnitName(a,b)).slice(0,10);
     modules.missing.level2Ranking={
       eligibleUnits:46,matchedRows:matched,unmatchedRows:0,top,bottom};
+    if(unfiledUnitsApproved&&modules.ranking?.records?.length===46){
+      // The separate CHUA_KHAI file establishes only outstanding UNFILED
+      // records. It cannot establish review status or full completion of each unit.
+      const rankByName=new Map();
+      modules.ranking.records.forEach(row=>{
+        const key=orgKey(row.name);
+        if(rankByName.has(key))throw new Error('Ambiguous level-2 filing name');
+        rankByName.set(key,row);
+      });
+      if(rankByName.size!==46||unitTree.roots.some(code=>
+          !rankByName.has(orgKey(unitTree.nodes[code].name))))
+        throw new Error('Filing/payment level-2 names do not reconcile');
+      const pairs={};
+      unitTree.roots.forEach(code=>{pairs[code]=new Map();});
+      missingOrgRows.forEach(item=>{
+        const root=item.root,unitKey=orgKey(item.unit),parentKey=orgKey(item.parent);
+        if(!pairs[root]||!unitKey||!parentKey||
+            unitKey===orgKey(unitTree.nodes[root].name))return;
+        const identity=unitKey+'|'+parentKey;
+        if(!pairs[root].has(identity))
+          pairs[root].set(identity,{name:String(item.unit).slice(0,190),
+            parentName:String(item.parent).slice(0,190)});
+      });
+      unitTree.roots.forEach(code=>{
+        rankByName.get(orgKey(unitTree.nodes[code].name)).unfiledUnits=
+          [...pairs[code].values()].sort((a,b)=>
+            a.name.localeCompare(b.name,'vi')||a.parentName.localeCompare(b.parentName,'vi'));
+      });
+    }
     // Write only aggregate counters to the PRIVATE reporting hub.
     // The two TONG_QUAN formulas follow these cells without manual copy/paste.
     try{
