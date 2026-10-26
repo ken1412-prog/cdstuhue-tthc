@@ -562,7 +562,79 @@ function discourageSourceHotkeys(e){
  const devtoolsShortcut=modifier&&e.shiftKey&&(k==='i'||k==='j'||k==='c');
  if(k==='f12'||sourceShortcut||devtoolsShortcut)e.preventDefault();
 }
-function boot(){document.addEventListener('keydown',discourageSourceHotkeys,true);if(new URL(location.href).searchParams.get('demo')==='1')state.demo=true;syncFromUrl();const clock=()=>$('#clock').textContent=new Intl.DateTimeFormat('vi-VN',{year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',timeZone:'Asia/Ho_Chi_Minh'}).format(new Date());clock();setInterval(clock,60000);
+/* Public online session estimate: active tabs ping a short-lived Apps Script cache.
+ * Do not store IPs, accounts or anything identifying a visitor. 
+ * A failed/unconfigured service must show "—" rather than an invented count.
+ */
+function startOnlinePresence(){
+ const element=document.getElementById('footerOnlineCount');
+ const badge=document.getElementById('footerOnline');
+ if(!element||!badge)return;
+ let endpoint='',pending=false,request=null;
+ const unavailable=()=>{
+  element.textContent='—';
+  badge.classList.remove('is-live');
+  badge.title='Chưa kết nối được bộ đếm trực tuyến';
+ };
+ const show=data=>{
+  if(!data||data.schema!==1||data.ok!==true||
+     !Number.isInteger(data.online)||data.online<0||data.online>1000){
+   unavailable();return;
+  }
+  element.textContent=new Intl.NumberFormat('vi-VN').format(data.online)+(data.limited?'+':'');
+  badge.classList.add('is-live');
+  badge.title='Số phiên trình duyệt hoạt động trong 3 phút gần nhất (ước tính, không phải số người duy nhất)';
+ };
+ unavailable();
+ let sid='';
+ try{
+  sid=sessionStorage.getItem('cdstuhue-online-session-v1')||'';
+  if(!/^[0-9a-f]{32}$/.test(sid)){
+   const bytes=crypto.getRandomValues(new Uint8Array(16));
+   sid=Array.from(bytes,b=>b.toString(16).padStart(2,'0')).join('');
+   sessionStorage.setItem('cdstuhue-online-session-v1',sid);
+  }
+ }catch(_){return;}
+ window.cdstuhueOnlineReceive=show; // Fixed JSONP callback in public Apps Script.
+ const ping=()=>{
+  if(!endpoint||document.visibilityState!=='visible'||pending)return;
+  pending=true;
+  const script=document.createElement('script');
+  request=script;
+  const u=new URL(endpoint);
+  u.searchParams.set('kind','presence');
+  u.searchParams.set('sid',sid);
+  u.searchParams.set('r',String(Date.now()));
+  script.src=u.toString();
+  script.async=true;
+  script.onerror=unavailable;
+  script.onload=()=>{
+   if(request===script)request=null;
+   pending=false;
+   script.remove();
+  };
+  // A timeout also covers script responses that never finish.
+  document.head.appendChild(script);
+  setTimeout(()=>{
+   if(request!==script)return;
+   request=null;pending=false;script.remove();unavailable();
+  },15000);
+ };
+ fetch('data/online-config.json',{cache:'no-store'}).then(r=>{
+  if(!r.ok)throw Error('Online service unavailable');
+  return r.json();
+ }).then(c=>{
+  const u=new URL(String(c.endpoint||''));
+  if(c.schema!==1||u.protocol!=='https:'||
+     !['script.google.com','script.googleusercontent.com'].includes(u.hostname)||
+     !/\\/exec$/.test(u.pathname))throw Error('Unapproved online endpoint');
+  endpoint=u.toString();
+  ping();
+  setInterval(ping,75000);
+  document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')ping()});
+ }).catch(unavailable);
+}
+function boot(){document.addEventListener('keydown',discourageSourceHotkeys,true);startOnlinePresence();if(new URL(location.href).searchParams.get('demo')==='1')state.demo=true;syncFromUrl();const clock=()=>$('#clock').textContent=new Intl.DateTimeFormat('vi-VN',{year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',timeZone:'Asia/Ho_Chi_Minh'}).format(new Date());clock();setInterval(clock,60000);
  document.addEventListener('click',async e=>{const node=e.target.closest('[data-view],[data-action],[data-qa],[data-payment-index]');if(!node)return;if(node.hasAttribute('data-payment-index')){openPaymentDetail(Number(node.dataset.paymentIndex));return}if(node.dataset.view){route(node.dataset.view);return}if(node.dataset.qa){openQA(node.dataset.qa);return}const a=node.dataset.action;if(a==='demo')toggleDemo(true);if(a==='prev'){state.page=Math.max(0,state.page-1);render();}if(a==='next'){state.page++;render()}if(a==='upload-progress')$('#progressFile')?.click();if(a==='export-progress')exportProgress();if(a==='export-qa')exportQA();if(a==='export-finance')exportFinance();if(a==='export-payment-month')exportPaymentMonth();if(a==='print')window.print()});
  $('#endDemo').onclick=()=>{if(state.local){loadData();toast('Đã xóa dữ liệu xem thử cục bộ')}else toggleDemo(false)};$('#refreshBtn').onclick=()=>loadData().then(()=>toast('Đã tải lại dữ liệu xuất bản'));$('#openMenu').onclick=()=>{$('#sidebar').classList.add('mobile-open');$('#shade').classList.add('mobile-open')};$('#closeMenu').onclick=closeMobile;$('#shade').onclick=closeMobile;
  $('#closeModal').onclick=closeQA;$('#qaModal').onclick=e=>{if(e.target===$('#qaModal'))closeQA()};$('#closePaymentDetail').onclick=closePaymentDetail;$('#paymentModal').onclick=e=>{if(e.target===$('#paymentModal'))closePaymentDetail()};
