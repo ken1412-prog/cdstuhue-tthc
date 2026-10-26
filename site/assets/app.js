@@ -131,6 +131,84 @@ async function loadData(){
  state.local=false;
  state.loadError=issues.length?issues.join('; '):null;
  updateGlobal();render();
+ startLiveStats();
+}
+/* Live approved statistics: public Google Apps Script /exec, no manual CI.
+ * GitHub Pages JSON remains fallback when the live feed is temporarily down.
+ */
+let liveStatsEndpointPromise=null,liveStatsPending=false,
+    liveStatsPollInstalled=false,liveStatsLastCheck=0;
+function readLiveStatsEndpoint(){
+ if(!liveStatsEndpointPromise){
+  liveStatsEndpointPromise=fetch('data/online-config.json',{cache:'no-store'})
+   .then(r=>{if(!r.ok)throw Error('No endpoint');return r.json()})
+   .then(v=>{
+    const u=new URL(String(v.endpoint||''));
+    if(v.schema!==1||u.protocol!=='https:'||u.hostname!=='script.google.com'||
+       !/^\/macros\/s\/[A-Za-z0-9_-]+\/exec$/.test(u.pathname))
+      throw Error('Invalid public /exec');
+    return u;
+   }).catch(()=>null);
+ }
+ return liveStatsEndpointPromise;
+}
+function applyLiveStats(data){
+ if(state.demo||state.local||!data||data.schema!==1||data.error)return false;
+ if(data.public===false&&data.reviewed===false){
+  state.stats=null;
+ }else{
+  if(data.public!==true||data.reviewed!==true||!data.modules||
+     typeof data.modules!=='object'||Array.isArray(data.modules))return false;
+  const ranked=data.modules.ranking?.records;
+  if(ranked!==undefined&&(!Array.isArray(ranked)||ranked.length>46))return false;
+  const oldDate=state.stats?.modules?.payment?.sourceSnapshot||'';
+  const newDate=data.modules?.payment?.sourceSnapshot||'';
+  if(oldDate&&newDate&&newDate<oldDate)return false;
+  state.stats=data;
+ }
+ updateGlobal();render();
+ return true;
+}
+async function refreshLiveStats(){
+ if(liveStatsPending||document.visibilityState==='hidden'||state.demo||state.local)return;
+ liveStatsPending=true;
+ let tag=null,timeout=null;
+ try{
+  const endpoint=await readLiveStatsEndpoint();
+  if(!endpoint)return;
+  const url=new URL(endpoint.toString());
+  url.searchParams.set('kind','stats-live');
+  url.searchParams.set('refresh',String(Date.now()));
+  await new Promise((resolve,reject)=>{
+   let received=false;
+   tag=document.createElement('script');tag.async=true;
+   window.cdstuhueStatsReceive=payload=>{received=true;applyLiveStats(payload)};
+   tag.src=url.toString();
+   tag.onload=()=>received?resolve():reject(Error('No callback'));
+   tag.onerror=()=>reject(Error('Failed to fetch approved stats'));
+   timeout=setTimeout(()=>reject(Error('Stats request timeout')),25000);
+   document.head.appendChild(tag);
+  });
+ }catch(_){/* Keep the already-reviewed GitHub Pages JSON fallback. */}
+ finally{
+  if(timeout)clearTimeout(timeout);
+  if(tag)tag.remove();
+  window.cdstuhueStatsReceive=()=>{};
+  liveStatsPending=false;liveStatsLastCheck=Date.now();
+ }
+}
+function startLiveStats(){
+ if(!liveStatsPollInstalled){
+  liveStatsPollInstalled=true;
+  setInterval(()=>{
+   if(document.visibilityState==='visible')refreshLiveStats();
+  },180000);
+  document.addEventListener('visibilitychange',()=>{
+   if(document.visibilityState==='visible'&&Date.now()-liveStatsLastCheck>60000)
+     refreshLiveStats();
+  });
+ }
+ refreshLiveStats();
 }
 function updateGlobal(){const q=published(),by=g=>q.filter(x=>x.group===g).length;$('#qaTotalSide').textContent=q.length;$('#qaTthcSide').textContent=by('tthc');$('#qaStdvSide').textContent=by('stdv');$('#qaCsdlSide').textContent=by('csdl');const approvedDate=state.stats&&state.stats.approvedDate;
  const approvedMatch=typeof approvedDate==='string'?approvedDate.match(/^(\d{4})-(\d{2})-(\d{2})$/):null;
