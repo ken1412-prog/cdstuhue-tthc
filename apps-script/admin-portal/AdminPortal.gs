@@ -444,7 +444,7 @@ function cdsAdminPromoteStaged(token,confirmation){
     catch(auditError){console.error('Đã chuyển nguồn; ghi nhật ký bổ sung thất bại');}
     return {ok:true,promoted:true,period,sourceCount:4,
       info:'Đã chuyển chính thức bốn nguồn kỳ '+period+
-        '. Website nhận số liệu mới trong lượt Publish CDSTUHUE website tiếp theo.'};
+        '. Website sẽ đọc thống kê đã duyệt trực tiếp khi mở hoặc tải lại, không cần chạy GitHub Actions thủ công.'};
   }finally{
     lock.releaseLock();
   }
