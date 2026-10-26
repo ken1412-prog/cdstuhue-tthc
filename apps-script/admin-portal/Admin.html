@@ -28,6 +28,13 @@ small{display:block;font-size:12px;color:#718096;margin-top:4px;line-height:1.5}
 .staging{display:grid;grid-template-columns:1fr auto auto;gap:10px;align-items:center}
 .staging input{width:140px;font-size:13px}
 .staging .actions{justify-content:flex-end}
+.promotion{margin-top:18px;padding-top:17px;border-top:1px solid #e1e7ee}
+.promotion h2{font-size:17px;margin:0 0 7px}
+.promotion label{display:block;margin:12px 0 7px;font-size:13px;font-weight:700}
+.promotion-controls{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.promotion-controls input{flex:1 1 230px;max-width:280px}
+.promotion-controls button{flex:0 1 auto}
+
 @media(max-width:620px){.staging{grid-template-columns:1fr}.staging input{width:100%}.staging .actions{justify-content:flex-start}
 .item{align-items:flex-start;flex-direction:column}.switch{width:100%}}
 a{color:#21538a}.foot{margin-top:24px;text-align:center;font-size:12px;color:#6b788a}
@@ -70,9 +77,21 @@ a{color:#21538a}.foot{margin-top:24px;text-align:center;font-size:12px;color:#6b
   <p id="excelFeedback" class="muted" aria-live="polite"></p>
  </section>
  <section><h2>Kiểm tra và duyệt nguồn Excel nháp</h2>
-  <p class="muted">Đánh dấu xét duyệt cho bốn nguồn nháp. <strong>Bước này chưa chuyển nguồn chính thức</strong>; thao tác chuyển nguồn vẫn theo quy trình kiểm tra cuối trong Apps Script nhập Excel.</p>
+  <p class="muted">Duyệt riêng từng nguồn sau khi kiểm tra kỳ và số liệu. <strong>Chỉ duyệt nháp chưa thay nguồn website.</strong></p>
   <div id="stagedItems" class="items"></div>
   <p class="muted">Không có tên đảng viên, số tài khoản hoặc mã nguồn nhạy cảm trong bảng điều khiển này.</p>
+  <div class="promotion">
+    <h2>3. Chuyển 4 nguồn chính thức</h2>
+    <p class="muted">Sau khi đủ bốn nguồn <strong>ĐÃ DUYỆT</strong>, xác nhận kỳ để chuyển nguồn lên STATS HUB. Máy chủ sẽ đối chiếu lại các bảng nguồn, sao lưu cấu hình cũ và chỉ cập nhật dữ liệu trong phạm vi công khai đã duyệt.</p>
+    <p id="promotionStatus" class="muted" aria-live="polite">Đang kiểm tra trạng thái duyệt...</p>
+    <label for="promotionConfirmation" id="promotionLabel">Nhập xác nhận theo kỳ báo cáo</label>
+    <div class="promotion-controls">
+      <input id="promotionConfirmation" type="text" spellcheck="false" autocomplete="off" placeholder="DUYET YYYY-MM" disabled>
+      <button type="button" class="btn-red" id="promoteExcel" disabled>Chuyển nguồn chính thức</button>
+    </div>
+    <p class="muted">Nút chỉ hoạt động khi đủ bốn nguồn cùng kỳ được duyệt. Sau khi chuyển, chạy lại Publish CDSTUHUE website trên GitHub Actions để cập nhật trang công khai.</p>
+    <p id="promotionFeedback" class="muted" aria-live="polite"></p>
+  </div>
  </section>
  <section><h2>Công cụ quản trị khác</h2>
   <div class="actions">
@@ -154,6 +173,20 @@ function render(data){
     item.approved,()=>perform('cdsAdminSetModule',[item.name,!item.approved],
       (item.approved?'Tạm ẩn':'PHÊ DUYỆT CÔNG KHAI')+' phân hệ "'+item.name+'"? Kiểm tra phạm vi dữ liệu trước khi xác nhận.'),false));
  }
+ const promote=data.promotion||{};
+ const status=$('promotionStatus'),field=$('promotionConfirmation'),button=$('promoteExcel');
+ const canPromote=promote.ready===true;
+ status.textContent=promote.completed?
+   'Bốn nguồn đã được chuyển chính thức. Không cần thực hiện lại.':
+   canPromote?'Đã duyệt đủ 4 nguồn · Kỳ '+promote.period+
+     ' · Sẵn sàng đối chiếu và chuyển chính thức.':
+   'Chưa đủ điều kiện chuyển nguồn. Kiểm tra 4 dòng ĐÃ DUYỆT, kỳ trùng nhau và kỳ đang mở '+
+     (promote.currentPeriod||'trong STATS HUB')+'.';
+ field.disabled=!canPromote;field.value='';
+ field.placeholder='DUYET '+(promote.period||'YYYY-MM');
+ $('promotionLabel').textContent='Nhập chính xác: DUYET '+(promote.period||'YYYY-MM');
+ button.dataset.period=promote.period||'';
+ button.dataset.locked='true';button.disabled=true;
  const staged=$('stagedItems');staged.replaceChildren();
  if(!data.staged.length){
   const p=document.createElement('p');p.className='muted';p.textContent='Chưa có nguồn nháp; cần chạy chức năng nhập Excel trước.';staged.append(p);
@@ -211,6 +244,37 @@ $('checkExcel').addEventListener('click',()=>doExcel('cdsAdminCheckExcel',
  'Kiểm tra đủ 4 file Excel trên Drive? Thao tác chỉ đọc dữ liệu, không thay nguồn website.'));
 $('stageExcel').addEventListener('click',()=>doExcel('cdsAdminStageExcel',
  'Tạo bản Google Sheets nháp mới từ 4 Excel? File cá nhân được giữ riêng tư, nguồn đang xuất bản không đổi.'));
+
+$('promotionConfirmation').addEventListener('input',()=>{
+ const field=$('promotionConfirmation'),button=$('promoteExcel');
+ const correct='DUYET '+button.dataset.period;
+ const valid=!field.disabled&&field.value.trim()===correct;
+ button.dataset.locked=valid?'false':'true';
+ button.disabled=busy||!valid;
+});
+$('promoteExcel').addEventListener('click',async()=>{
+ const required='DUYET '+$('promoteExcel').dataset.period;
+ const typed=$('promotionConfirmation').value.trim();
+ if(busy||!$('promoteExcel').dataset.period||typed!==required)return;
+ if(!window.confirm('CHUYỂN NGUỒN CHÍNH THỨC cho kỳ '+$('promoteExcel').dataset.period+
+   '? Dữ liệu sẽ thay bốn nguồn hiện hành trong STATS HUB sau khi máy chủ đối chiếu lại.'))return;
+ setBusy(true);
+ $('promotionFeedback').textContent='Đang đối chiếu và chuyển nguồn đã duyệt...';
+ $('promotionFeedback').className='muted';
+ try{
+  const result=await invoke('cdsAdminPromoteStaged',[session,typed]);
+  if(!result?.ok||!result?.promoted)throw Error('Máy chủ chưa xác nhận chuyển nguồn');
+  say('promotionFeedback',result.info,'success');
+  say('notice',result.info,'success');
+ }catch(error){
+  say('promotionFeedback',error.message,'error');
+  say('notice',error.message,'error');
+ }finally{
+  setBusy(false);
+  await load();
+ }
+});
+
 
 $('refresh').addEventListener('click',load);
 </script>
