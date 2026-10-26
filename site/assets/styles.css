@@ -1059,3 +1059,41 @@ body{
  }
 }
 @media print{.footer-online{display:none!important}}
+
+
+/* Centered quick-search launcher in the sidebar */
+.sidebar .side-assist,.side-assist{
+ display:flex;
+ flex-direction:column;
+ align-items:center;
+ justify-content:center;
+ gap:5px;
+ text-align:center;
+ width:100%;
+}
+.side-assist .side-assist-heading{
+ display:inline-flex;
+ align-items:center;
+ justify-content:center;
+ gap:8px;
+ max-width:100%;
+ color:#fff;
+ font-size:12px;
+ font-weight:800;
+ line-height:1.4;
+ text-align:center;
+}
+.side-assist .side-assist-icon{
+ flex:0 0 auto;
+ color:#ffe3a0;
+ font-size:18px;
+ line-height:1;
+}
+.sidebar .side-assist small,.side-assist small{
+ display:block;
+ width:100%;
+ margin:0;
+ text-align:center;
+ font-size:11px;
+ line-height:1.4;
+}
