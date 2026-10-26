@@ -104,7 +104,7 @@ class PublicSurfaceTests(unittest.TestCase):
             html=(SITE / page).read_text(encoding="utf-8")
             self.assertIn('<div class="footer-byline">',html)
             self.assertIn('<span class="footer-copyright">© 2026 CDSTUHUE</span><span class="footer-author">NKien',html)
-            self.assertIn('assets/styles.css?v=20261026-online-floating-v2',html)
+            self.assertIn('assets/styles.css?v=20261026-assist-centered-v1',html)
             self.assertNotIn('id="navAssistant"',html)
             self.assertIn('id="openAssistant"',html)
             self.assertIn('id="assistantMobileFab"',html)
@@ -287,7 +287,7 @@ class PublicSurfaceTests(unittest.TestCase):
             self.assertIn("assets/app.js?v=20261026-presence-v1", html)
         self.assertIn(".footer-online{", css)
         self.assertIn('position:fixed!important', css)
-        self.assertIn('20261026-online-floating-v2', (SITE / 'index.html').read_text(encoding='utf-8'))
+        self.assertIn('20261026-assist-centered-v1', (SITE / 'index.html').read_text(encoding='utf-8'))
         self.assertIn("function startOnlinePresence()", js)
         self.assertIn("startOnlinePresence();", js)
         self.assertIn("window.cdstuhueOnlineReceive=show", js)
@@ -297,6 +297,20 @@ class PublicSurfaceTests(unittest.TestCase):
         self.assertIn("ContentService.MimeType.JAVASCRIPT", script)
         self.assertIn("scripts/build_online_config.py", workflow)
         self.assertNotIn("Math.random()", js[js.index("function startOnlinePresence"):js.index("function boot()")])
+
+
+    def test_quick_search_sidebar_button_is_centered_and_qa_labelled(self):
+        css=(SITE / "assets/styles.css").read_text(encoding="utf-8")
+        for page in ("index.html","hoi-dap.html"):
+            html=(SITE / page).read_text(encoding="utf-8")
+            self.assertIn('id="openAssistant"',html)
+            self.assertIn('class="side-assist-heading"',html)
+            self.assertIn('<small>Trong kho câu hỏi</small>',html)
+            self.assertNotIn('Trợ lý tra cứu nhanh <small>Không dùng AI bên ngoài</small>',html)
+            self.assertIn('assets/styles.css?v=20261026-assist-centered-v1',html)
+        self.assertIn('/* Centered quick-search launcher in the sidebar */',css)
+        self.assertIn('justify-content:center;',css[css.rfind('/* Centered quick-search launcher in the sidebar */'):])
+        self.assertIn('text-align:center;',css[css.rfind('/* Centered quick-search launcher in the sidebar */'):])
 
 
 if __name__ == "__main__":
