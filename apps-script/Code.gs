@@ -86,9 +86,51 @@ function buildPublicFeed_() {
   result.sort((a,b)=>a.group.localeCompare(b.group)||a.id.localeCompare(b.id));
   return {schema:1,generatedAt:new Date().toISOString(),source:'Verified WEB_PUBLISH only',count:result.length,items:result};
 }
+/* Anonymous, short-lived online-presence tally for the public website.
+ * Approximate number of active browser sessions in the last three minutes.
+ * No IP, account, user agent, personal data, spreadsheet, or persistent log.
+ * This is NOT a unique-person metric; CacheService is best effort/ephemeral.
+ */
+function cdstuhuePresence_(e){
+  const parameters=e&&e.parameter||{};
+  const sid=String(parameters.sid||'');
+  if(!/^[0-9a-f]{32}$/.test(sid))return {schema:1,ok:false};
+  const now=Date.now(),maxAge=180000;
+  const lock=LockService.getScriptLock();
+  if(!lock.tryLock(2000))return {schema:1,ok:false};
+  try{
+    const cache=CacheService.getScriptCache(),key='CDSTUHUE_PRESENCE_V1';
+    let entries=[];
+    try{
+      const stored=JSON.parse(cache.get(key)||'[]');
+      if(Array.isArray(stored))entries=stored;
+    }catch(_){entries=[];}
+    const active=new Map();
+    entries.forEach(item=>{
+      if(Array.isArray(item)&&/^[0-9a-f]{32}$/.test(String(item[0]))&&
+         Number.isFinite(item[1])&&item[1]<=now&&now-item[1]<maxAge)
+        active.set(item[0],item[1]);
+    });
+    // Only record page views actively pinging; repeated tabs using the same
+    // session token count once. Hard cap to fit the 100KB Apps Script cache.
+    if(active.has(sid)||active.size<1000)active.set(sid,now);
+    const snapshot=[...active.entries()];
+    cache.put(key,JSON.stringify(snapshot),240);
+    return {schema:1,ok:true,online:snapshot.length,limited:snapshot.length>=1000,
+      windowSeconds:180};
+  }finally{lock.releaseLock();}
+}
+function cdstuhuePresenceScript_(e){
+  // Fixed callback: do NOT reflect caller-provided callback names into code.
+  const result=cdstuhuePresence_(e);
+  return ContentService.createTextOutput('cdstuhueOnlineReceive('+JSON.stringify(result)+');')
+    .setMimeType(ContentService.MimeType.JAVASCRIPT);
+}
+
 function doGet(e){
   try {
     const kind=String((e&&e.parameter&&e.parameter.kind)||'qa');
+    if(kind==='presence')return cdstuhuePresenceScript_(e);
     const payload=kind==='finance'?buildFinanceFeed_():kind==='qa'?buildPublicFeed_():kind==='intake-status'?questionIntakeStatus_():kind==='stats'?buildStatsFeed_():kind==='menu'?buildMenuFeed_():{schema:1,error:'Unknown public feed type'};
     return ContentService.createTextOutput(JSON.stringify(payload)).setMimeType(ContentService.MimeType.JSON);
   } catch(err){return ContentService.createTextOutput(JSON.stringify({schema:1,error:'Public feed unavailable'})).setMimeType(ContentService.MimeType.JSON)}
