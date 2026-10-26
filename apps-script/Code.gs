@@ -93,7 +93,7 @@ function buildPublicFeed_() {
  */
 function cdstuhuePresence_(e){
   const parameters=e&&e.parameter||{};
-  const sid=String(parameters.sid||'');
+  const sid=String(parameters.visitor||'');
   if(!/^[0-9a-f]{32}$/.test(sid))return {schema:1,ok:false};
   const now=Date.now(),maxAge=180000;
   const lock=LockService.getScriptLock();
