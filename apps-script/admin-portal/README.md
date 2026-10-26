@@ -46,7 +46,7 @@ Mở **trực tiếp URL `/exec` của Web App `CDSTUHUE_ADMIN_PRIVATE`** đã l
 5. Cuộn xuống mục **Nhập và kiểm tra 4 Excel**: bấm **1. Kiểm tra 4 Excel**, đọc kết quả rồi bấm **2. Tạo bản nháp sau kiểm tra**. Chờ thông báo thành công. Dữ liệu đã chuẩn hóa nằm trên Google Drive riêng tư, các mã nguồn và số liệu tổng hợp ghi trong `DU_LIEU_CHO_DUYET` của STATS HUB.
 6. Kiểm tra ngày nguồn ở cột F và đánh dấu **ĐÃ DUYỆT** cho đủ bốn dòng. Duyệt nháp chưa thay nguồn.
 7. Ngay bên dưới, mục **3. Chuyển 4 nguồn chính thức** sẽ bật khi bốn nguồn cùng kỳ đã được duyệt và chưa chuyển. Nhập chính xác `DUYET YYYY-MM` (ví dụ `DUYET 2026-10`) rồi xác nhận lần nữa trong hộp thoại. Hệ thống kiểm tra lại tính hợp lệ của file, trạng thái, ngày kỳ, tổng 46 đơn vị/tổng thành phố, tổng ngân hàng và số chưa khai, sau đó ghi `NGUON_4_FILE`, `TONG_QUAN`, `XEP_HANG_SNAPSHOT`, bảo toàn phạm vi `DUYET_WEBSITE`. Không cần chạy hàm `cdstuhueApproveStagedBatch` trong Sheet QA nữa.
-8. Mở GitHub Actions → **Publish CDSTUHUE website → Run workflow (main)**, đợi `build` và `deploy` xanh rồi tải lại trang công khai. Chuyển nguồn xong mới chạy GitHub Actions.
+8. Khi hiện **ĐÃ CHUYỂN NGUỒN**, mở lại website hoặc bấm **Làm mới** để lấy thống kê được duyệt trực tiếp từ Web App công khai. **Không cần chạy GitHub Actions cho mỗi đợt cập nhật 4 Excel.** Trang web đang mở sẽ tự kiểm tra lại định kỳ (khoảng 3 phút). Workflow hai giờ/lần chỉ duy trì bản JSON dự phòng.
 9. Kiểm tra tab `NGUON_4_FILE`: phải chứa đúng `THU_NOP, THU_NOP_CITY, CHUA_KHAI, NGAN_HANG` (không còn nguồn `PHAN_BO` trong bốn hàng active).
 
 **Bảo mật:** toàn bộ RPC bấm nút có kiểm tra phiên mật khẩu phía máy chủ; các hàm nhập cốt lõi kết thúc bằng `_`, không mở trực tiếp cho `google.script.run`. Tệp cá nhân không xuất lên GitHub. Nếu chưa cấu hình thư mục Excel, hai nút nhập sẽ bị vô hiệu hóa.
@@ -59,3 +59,10 @@ Mở **trực tiếp URL `/exec` của Web App `CDSTUHUE_ADMIN_PRIVATE`** đã l
 - Tính năng này kiểm tra **phiên đăng nhập quản trị trên máy chủ** và xác nhận theo kỳ, không sử dụng `SpreadsheetApp.getUi()` hay đăng một endpoint chuyển nguồn ra Web App QA công khai.
 - Nếu bảng nháp chưa khớp bốn Excel còn trong thư mục nhận, hoặc dữ liệu khác đi từ khi duyệt, máy chủ từ chối; phải tạo lại bản nháp và duyệt lại. Không được sửa trực tiếp `NGUON_4_FILE` để bỏ qua bước kiểm tra.
 - Không gửi tên đảng viên, mã nguồn Google Sheets riêng tư, hay số tài khoản trong phản hồi của RPC. Nhật ký chỉ ghi hành động và kỳ nguồn, không ghi dữ liệu từng người.
+
+
+### Tự động xuất thống kê sau khi duyệt — kích hoạt một lần
+
+- Website sẽ gọi Web App QA/stats công khai với `kind=stats-live`; Apps Script chỉ trả các chỉ số/tên đơn vị đã qua cổng `DUYET_WEBSITE`. Không có mật khẩu GitHub, không cần API token, không đưa dữ liệu cá nhân hay IDs nguồn vào HTML.
+- **Kích hoạt một lần sau nâng cấp:** triển khai **phiên bản mới** của Web App QA công khai bằng `apps-script/Code.gs` mới (hoặc một file `apps-script/CDSTUHUE_DEPLOY_SINGLE.gs`, theo cách dự án đang cài). Không tạo deployment mới, giữ nguyên URL `/exec`. GitHub Pages sẽ tự build giao diện mới sau commit của repo.
+- Từ đợt Excel tiếp theo: chỉ nhập 4 Excel vào Drive, kiểm tra, tạo nháp, duyệt, bấm **Chuyển nguồn chính thức**. Không chạy Apps Script editor hoặc GitHub Actions nữa. Nếu trực tiếp tạm lỗi, website giữ bản JSON đã duyệt gần nhất và thử lại khi mở/tải lại; GitHub Actions theo lịch vẫn đồng bộ dự phòng.
