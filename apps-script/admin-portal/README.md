@@ -13,9 +13,9 @@ Website CDSTUHUE trên GitHub Pages là trang tĩnh, vì vậy mật khẩu khô
 6. **Deploy → New deployment → Web app**; chọn **Execute as Me** và **Who has access: Only myself**. *Không* dùng **Anyone** hoặc **Anyone with Google account**. Nếu nền tảng/tổ chức không cung cấp Only myself, dừng để điều chỉnh phương án bảo mật.
 7. Sao chép URL Web App quản trị dạng `https://script.google.com/macros/s/.../exec`.
 
-## Mở từ website
+## Mở trang Quản trị
 
-Vào website CDSTUHUE, bấm **⚙ Quản trị** ở chân trang. Lần đầu dán URL Web App quản trị; trình duyệt chỉ nhớ URL, không nhớ mật khẩu. Lần sau bấm nút sẽ mở trực tiếp trang quản trị. Giữ **Shift** khi bấm để đổi URL. Google sẽ kiểm tra tài khoản chủ sở hữu, sau đó trang yêu cầu mật khẩu quản trị riêng.
+Mở **trực tiếp URL `/exec` của Web App `CDSTUHUE_ADMIN_PRIVATE`** đã lưu lúc cài đặt. Nút ⚙ Quản trị không còn hiển thị trên website công khai để tránh nhầm với khu vực dành riêng cho chủ sở hữu. Sau khi Google xác thực tài khoản có quyền, đăng nhập bằng mật khẩu quản trị riêng. **Không dùng URL `/exec` của Web App QA công khai.**
 
 ## Các tính năng đã có
 
@@ -31,10 +31,10 @@ Vào website CDSTUHUE, bấm **⚙ Quản trị** ở chân trang. Lần đầu 
 - Mật khẩu riêng chỉ được xác minh ở máy chủ; Script Properties lưu bản băm + salt sau bootstrap; mật khẩu không hiện trong HTML, GitHub hoặc localStorage.
 - Tối đa 5 lượt sai, khóa tạm khoảng 15 phút; phiên quản trị sống 25 phút trong CacheService và chỉ giữ trên tab đang mở.
 - Những thay đổi ẩn/hiện cần website chạy workflow **Publish CDSTUHUE website** (lịch khoảng 2 giờ/lần) để cập nhật số công khai; không có nút nào tự ghi HTML mới bằng mật khẩu.
-- Nút quản trị hiện trên website cho mọi người nhưng trang quản trị thực tế chỉ chủ sở hữu đăng nhập Google và có mật khẩu riêng mới mở được.
+- Trang quản trị được mở qua URL Apps Script riêng tư, không được công bố nút đăng nhập trên website công khai.
 - Muốn thay mật khẩu, thao tác trong Apps Script dự án quản trị do chủ sở hữu kiểm soát. Không gửi mật khẩu cho AI.
 
-**Các file:** AdminPortal.gs, Admin.html, README.md; nút website ở `site/assets/admin-launcher.js`.
+**Các file:** AdminPortal.gs, Admin.html, README.md; chỉ cài vào dự án quản trị riêng tư.
 ## Nâng cấp giao diện hiện có — nhập Excel từ chính trang Quản trị
 
 **Nếu bạn đã cài và đăng nhập được trang Quản trị:** không tạo dự án hoặc triển khai URL mới. Chỉ cập nhật đúng dự án `CDSTUHUE_ADMIN_PRIVATE` đang hoạt động:
