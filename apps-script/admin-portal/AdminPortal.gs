@@ -129,7 +129,7 @@ function cdsAdminGetSnapshot(token){
    return row&&active&&row[2]===active[2]&&row[3]===active[3];
  });
  const promotion={period,currentPeriod,
-   ready:!!(complete&&/^20\\d{2}-(0[1-9]|1[0-2])$/.test(period)&&
+   ready:!!(complete&&/^20\d{2}-(0[1-9]|1[0-2])$/.test(period)&&
      period===currentPeriod&&!alreadyLive),
    completed:!!alreadyLive};
  return {nav,modules,staged,promotion,serverTime:new Date().toISOString(),
