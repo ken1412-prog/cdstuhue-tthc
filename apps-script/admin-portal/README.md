@@ -21,7 +21,7 @@ Vào website CDSTUHUE, bấm **⚙ Quản trị** ở chân trang. Lần đầu 
 
 - **Ẩn/hiện các mục website:** ghi vào `STATS HUB → QUAN_TRI_DANH_MUC`; mục Tổng quan không được tắt.
 - **Duyệt/tạm ẩn phân hệ thống kê:** ghi vào `STATS HUB → DUYET_WEBSITE`, giữ nguyên giới hạn phạm vi công khai đã duyệt. Không đưa phân bổ quay lại.
-- **Đánh dấu duyệt các nguồn Excel nháp:** sửa kỳ nguồn (cột F) và trạng thái (cột H) trong `DU_LIEU_CHO_DUYET`. **Chưa tự chuyển nguồn chính thức**, vẫn phải chạy bộ nhập Excel và xác nhận đối chiếu ở bước chuyển nguồn.
+- **Duyệt và chuyển bốn nguồn Excel:** kiểm tra → tạo bản nháp → duyệt kỳ/cột H trong `DU_LIEU_CHO_DUYET` → bấm **3. Chuyển 4 nguồn chính thức** ngay trong trang Quản trị; xác nhận đúng `DUYET YYYY-MM`. Máy chủ đối chiếu lại bốn nguồn, sao lưu cấu hình và thay `NGUON_4_FILE` chỉ khi hợp lệ.
 - Có nhật ký `NHAT_KY_QUAN_TRI` để đối chiếu ai/điều gì được thay đổi (trong dự án owner-only thì người thao tác là chủ sở hữu).
 - Liên kết trực tiếp tới STATS HUB và bảng hỏi đáp để rà soát.
 
@@ -44,8 +44,18 @@ Vào website CDSTUHUE, bấm **⚙ Quản trị** ở chân trang. Lần đầu 
 3. Chọn **Services (+) → Drive API → Add (v3)** để hỗ trợ chuyển Excel sang Google Sheets nháp, rồi Save.
 4. Chọn **Deploy → Manage deployments → WEBAPP → Edit (bút chì) → New version → Deploy**. URL `/exec` hiện có không đổi. Tải lại trang, đăng nhập bằng mật khẩu đã thiết lập trước đây.
 5. Cuộn xuống mục **Nhập và kiểm tra 4 Excel**: bấm **1. Kiểm tra 4 Excel**, đọc kết quả rồi bấm **2. Tạo bản nháp sau kiểm tra**. Chờ thông báo thành công. Dữ liệu đã chuẩn hóa nằm trên Google Drive riêng tư, các mã nguồn và số liệu tổng hợp ghi trong `DU_LIEU_CHO_DUYET` của STATS HUB.
-6. Kiểm tra ngày nguồn ở cột F và đánh dấu duyệt từng nguồn trong panel. **Không tự chuyển `NGUON_4_FILE` hoặc cập nhật website** ở bước này; việc chuyển nguồn cần triển khai phiên bản dữ liệu công khai tương thích và xác nhận cuối.
+6. Kiểm tra ngày nguồn ở cột F và đánh dấu **ĐÃ DUYỆT** cho đủ bốn dòng. Duyệt nháp chưa thay nguồn.
+7. Ngay bên dưới, mục **3. Chuyển 4 nguồn chính thức** sẽ bật khi bốn nguồn cùng kỳ đã được duyệt và chưa chuyển. Nhập chính xác `DUYET YYYY-MM` (ví dụ `DUYET 2026-10`) rồi xác nhận lần nữa trong hộp thoại. Hệ thống kiểm tra lại tính hợp lệ của file, trạng thái, ngày kỳ, tổng 46 đơn vị/tổng thành phố, tổng ngân hàng và số chưa khai, sau đó ghi `NGUON_4_FILE`, `TONG_QUAN`, `XEP_HANG_SNAPSHOT`, bảo toàn phạm vi `DUYET_WEBSITE`. Không cần chạy hàm `cdstuhueApproveStagedBatch` trong Sheet QA nữa.
+8. Mở GitHub Actions → **Publish CDSTUHUE website → Run workflow (main)**, đợi `build` và `deploy` xanh rồi tải lại trang công khai. Chuyển nguồn xong mới chạy GitHub Actions.
+9. Kiểm tra tab `NGUON_4_FILE`: phải chứa đúng `THU_NOP, THU_NOP_CITY, CHUA_KHAI, NGAN_HANG` (không còn nguồn `PHAN_BO` trong bốn hàng active).
 
 **Bảo mật:** toàn bộ RPC bấm nút có kiểm tra phiên mật khẩu phía máy chủ; các hàm nhập cốt lõi kết thúc bằng `_`, không mở trực tiếp cho `google.script.run`. Tệp cá nhân không xuất lên GitHub. Nếu chưa cấu hình thư mục Excel, hai nút nhập sẽ bị vô hiệu hóa.
 
 **Ghi chú vận hành:** chỉ giữ đúng 4 file Excel của một lượt trong thư mục nhận; chuyển 4 file lượt cũ sang thư mục lưu trữ bên ngoài trước khi đưa lượt mới. Giữ kỳ báo cáo chính xác, không để chương trình tự suy ra kỳ từ ngày hệ thống.
+
+
+### Cập nhật 26/10/2026 — chuyển nguồn ngay trong Quản trị
+- Để **bật** tính năng mới trong Web App quản trị đang chạy, cập nhật cả **AdminPortal.gs** và **Admin.html** trong dự án `CDSTUHUE_ADMIN_PRIVATE`, nhấn **Deploy → Manage deployments → Edit → New version → Deploy**. Chỉ cập nhật GitHub là chưa đủ; URL Web App quản trị cũ giữ nguyên.
+- Tính năng này kiểm tra **phiên đăng nhập quản trị trên máy chủ** và xác nhận theo kỳ, không sử dụng `SpreadsheetApp.getUi()` hay đăng một endpoint chuyển nguồn ra Web App QA công khai.
+- Nếu bảng nháp chưa khớp bốn Excel còn trong thư mục nhận, hoặc dữ liệu khác đi từ khi duyệt, máy chủ từ chối; phải tạo lại bản nháp và duyệt lại. Không được sửa trực tiếp `NGUON_4_FILE` để bỏ qua bước kiểm tra.
+- Không gửi tên đảng viên, mã nguồn Google Sheets riêng tư, hay số tài khoản trong phản hồi của RPC. Nhật ký chỉ ghi hành động và kỳ nguồn, không ghi dữ liệu từng người.
