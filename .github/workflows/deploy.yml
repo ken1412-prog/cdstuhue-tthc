@@ -84,6 +84,10 @@ jobs:
           else
             echo "QA_PUBLIC_ENDPOINT not configured: publishing empty approved.json placeholder"
           fi
+      - name: Configure anonymous online counter
+        env:
+          QA_PUBLIC_ENDPOINT: ${{ secrets.QA_PUBLIC_ENDPOINT }}
+        run: python scripts/build_online_config.py
       - name: Validate dashboard assets
         run: |
           python -m json.tool site/data/approved.json > /dev/null
@@ -91,6 +95,7 @@ jobs:
           python -m json.tool site/data/finance.json > /dev/null
           python -m json.tool site/data/stats.json > /dev/null
           python -m json.tool site/data/menu.json > /dev/null
+          python -m json.tool site/data/online-config.json > /dev/null
           node --check site/assets/app.js
           node --check < apps-script/ExcelIntake.gs
           node --check < apps-script/Code.gs
