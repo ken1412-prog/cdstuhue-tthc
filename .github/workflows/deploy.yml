@@ -104,6 +104,7 @@ jobs:
           node --check < apps-script/admin-portal/AdminPortal.gs
           node --check site/assets/admin-launcher.js
           node tests/test_admin_portal.js
+          node tests/test_admin_promotion.js
           node tests/test_online_presence.js
           node tests/test_ca_qs_stats.js
           python -m unittest discover -s tests -p 'test_public_surface.py' -v
