@@ -603,7 +603,7 @@ function startOnlinePresence(){
   request=script;
   const u=new URL(endpoint);
   u.searchParams.set('kind','presence');
-  u.searchParams.set('sid',sid);
+  u.searchParams.set('visitor',sid);
   u.searchParams.set('r',String(Date.now()));
   script.src=u.toString();
   script.async=true;
