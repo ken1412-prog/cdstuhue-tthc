@@ -25,8 +25,11 @@ const ctx={
 };
 vm.runInNewContext(fs.readFileSync('apps-script/Code.gs','utf8'),ctx,{timeout:3000});
 const id1='a'.repeat(32),id2='b'.repeat(32);
-const req=id=>({parameter:{kind:'presence',sid:id}});
+const req=id=>({parameter:{kind:'presence',visitor:id}});
 assert.equal(ctx.cdstuhuePresence_(req('bad')).ok,false);
+// Apps Script reserves 'sid' and 'c' URL parameters: never send them.
+assert.ok(!req('safe').parameter.sid);
+assert.ok(!req('safe').parameter.c);
 let a=ctx.cdstuhuePresence_(req(id1));
 assert.equal(a.online,1);
 assert.equal(a.windowSeconds,180);
