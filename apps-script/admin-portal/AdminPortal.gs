@@ -115,7 +115,24 @@ function cdsAdminGetSnapshot(token){
     rows:Number(r[4])||0,snapshot:String(r[5]||'').slice(0,20),
     status:String(r[7]||'').slice(0,50)})):[];
  const qaId=cdsAdminProps_().getProperty('CDSTUHUE_QA_SHEET_ID')||'';
- return {nav,modules,staged,serverTime:new Date().toISOString(),
+ const current=hub.getSheetByName('NGUON_4_FILE');
+ const live=current?current.getRange(2,1,4,4).getDisplayValues():[];
+ const stageRows=staging?staging.getRange(2,1,4,9).getDisplayValues():[];
+ const period=staged.length===4?String(staged[0].snapshot||'').slice(0,7):'';
+ const currentPeriodSheet=hub.getSheetByName('KY_BAO_CAO');
+ const currentPeriod=currentPeriodSheet?
+   String(currentPeriodSheet.getRange('B2').getDisplayValue()||'').trim():'2026-10';
+ const complete=CDS_ADMIN_SOURCE_KEYS_.every(k=>staged.some(r=>r.code===k&&
+   r.status==='ĐÃ DUYỆT'&&r.snapshot.slice(0,7)===period));
+ const alreadyLive=CDS_ADMIN_SOURCE_KEYS_.every(k=>{
+   const row=stageRows.find(r=>r[0]===k),active=live.find(r=>r[0]===k);
+   return row&&active&&row[2]===active[2]&&row[3]===active[3];
+ });
+ const promotion={period,currentPeriod,
+   ready:!!(complete&&/^20\\d{2}-(0[1-9]|1[0-2])$/.test(period)&&
+     period===currentPeriod&&!alreadyLive),
+   completed:!!alreadyLive};
+ return {nav,modules,staged,promotion,serverTime:new Date().toISOString(),
    links:{hub:hub.getUrl(),
      qa:/^[A-Za-z0-9_-]{20,}$/.test(qaId)?
        'https://docs.google.com/spreadsheets/d/'+qaId+'/edit':''},
