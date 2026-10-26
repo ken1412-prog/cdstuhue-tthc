@@ -47,7 +47,7 @@ class PublicSurfaceTests(unittest.TestCase):
             html=(SITE / page).read_text(encoding="utf-8")
             self.assertIn('>Thống kê đảng phí <span>↗</span>',html)
             self.assertNotIn("Khám phá thống kê",html)
-            self.assertIn("assets/app.js?v=20261025-unit-details-v1",html)
+            self.assertIn("assets/app.js?v=20261026-presence-v1",html)
         # The repeated three KPI cards in the detail view are removed.
         self.assertNotIn("const viewCards=",js)
         self.assertNotIn("'+viewCards+'",js)
@@ -274,6 +274,27 @@ class PublicSurfaceTests(unittest.TestCase):
         self.assertNotIn(".payment-incomplete-list{max-height:190px}",css)
         self.assertIn("paymentIncompleteUnits('Còn hồ sơ chưa khai báo',row.unfiledUnits)",js)
 
+
+
+    def test_online_counter_uses_real_presence_not_fake_number(self):
+        css=(SITE / "assets/styles.css").read_text(encoding="utf-8")
+        js=(SITE / "assets/app.js").read_text(encoding="utf-8")
+        script=(ROOT / "apps-script" / "Code.gs").read_text(encoding="utf-8")
+        workflow=(ROOT / ".github" / "workflows" / "deploy.yml").read_text(encoding="utf-8")
+        for page in ("index.html", "hoi-dap.html"):
+            html=(SITE / page).read_text(encoding="utf-8")
+            self.assertIn('id="footerOnlineCount"', html)
+            self.assertIn("assets/app.js?v=20261026-presence-v1", html)
+        self.assertIn(".footer-online{", css)
+        self.assertIn("function startOnlinePresence()", js)
+        self.assertIn("startOnlinePresence();", js)
+        self.assertIn("window.cdstuhueOnlineReceive=show", js)
+        self.assertIn("element.textContent='—'", js)
+        self.assertIn("function cdstuhuePresence_(e)", script)
+        self.assertIn("CacheService.getScriptCache()", script)
+        self.assertIn("ContentService.MimeType.JAVASCRIPT", script)
+        self.assertIn("scripts/build_online_config.py", workflow)
+        self.assertNotIn("Math.random()", js[js.index("function startOnlinePresence"):js.index("function boot()")])
 
 
 if __name__ == "__main__":
