@@ -699,7 +699,42 @@ function closeMobile(){$('#sidebar').classList.remove('mobile-open');$('#shade')
 function toast(msg){let el=$('#toast');el.textContent=msg;el.classList.remove('hidden');clearTimeout(toast._timer);toast._timer=setTimeout(()=>el.classList.add('hidden'),2600)}
 function exportCsv(filename,rows){const s=rows.map(r=>r.map(v=>'"'+String(v??'').replace(/"/g,'""')+'"').join(',')).join('\r\n');const b=new Blob(['\uFEFF'+s],{type:'text/csv;charset=utf-8;'}),url=URL.createObjectURL(b),a=document.createElement('a');a.href=url;a.download=filename;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1500)}
 function exportProgress(){const rows=progress().filter(x=>state.view==='units'||!PROCEDURES[state.view]||x.procedure===state.view);exportCsv('tien-do-cong-khai.csv',[['Đơn vị','Thủ tục','Tiến độ %','Hồ sơ tiếp nhận','Hồ sơ hoàn thành','Cập nhật'],...rows.map(x=>[x.unit,PROCEDURES[x.procedure]?.title,x.progress,x.received,x.completed,x.updated])]);toast('Đã tạo CSV từ dữ liệu '+(state.demo?'MINH HỌA':'công khai'))}
-function exportFinance(){const f=finance();if(!f){toast('Chưa có thống kê công khai để xuất');return}exportCsv(state.demo?'THAM_KHAO_thong_ke_dang_phi.csv':'thong_ke_dang_phi_cong_khai.csv',[['CHÚ Ý',state.demo?'DỮ LIỆU MINH HỌA – CHƯA ĐƯỢC DUYỆT':'BẢN ĐÃ DUYỆT'],['Kỳ',f.period],['Hồ sơ báo cáo',f.reportRecords],['Chưa khai báo',f.notDeclared],['Chờ phê duyệt',f.waitingApproval],['Chờ nộp',f.waitingPayment],['Nhóm tổ chức','Số tài khoản'],...f.bankGroups.map(z=>[z.name,z.accounts])]);toast('Đã xuất bản '+(state.demo?'tham chiếu':'công khai'))}
+function exportFinance(){
+ const approved=state.demo?null:selectedFinanceStats();
+ if(approved?.public===true&&approved?.reviewed===true&&approved.modules&&
+   Object.keys(approved.modules).length){
+  const m=approved.modules,rows=[
+   ['Chỉ tiêu công khai','Giá trị'],
+   ['Kỳ báo cáo',approved.period||''],
+   ['Ngày xác nhận',approved.approvedDate||'']
+  ];
+  if(typeof m.payment?.completionRate==='number')
+   rows.push(['Tỷ lệ thu nộp 46 Đảng bộ',m.payment.completionRate]);
+  if(Number.isInteger(m.missing?.rowCount))
+   rows.push(['Số dòng hồ sơ chưa khai báo',m.missing.rowCount]);
+  if(Number.isInteger(m.banking?.registered))
+   rows.push(['Tổ chức đã có tài khoản ngân hàng',m.banking.registered]);
+  if(Number.isInteger(m.banking?.notRegistered))
+   rows.push(['Tổ chức chưa có tài khoản ngân hàng',m.banking.notRegistered]);
+  if(Array.isArray(m.ranking?.records)){
+   rows.push([],['Thứ hạng','Đảng bộ','Tỷ lệ thu nộp']);
+   m.ranking.records.forEach(r=>rows.push([r.rank,r.name,
+     typeof r.rate==='number'?r.rate:'']));
+  }
+  exportCsv('thong_ke_dang_phi_da_duyet_'+(approved.period||'moi_nhat')+'.csv',rows);
+  toast('Đã xuất thống kê từ cùng nguồn đã duyệt đang hiển thị');
+  return;
+ }
+ const f=finance();
+ if(!f){toast('Chưa có thống kê công khai để xuất');return;}
+ exportCsv(state.demo?'THAM_KHAO_thong_ke_dang_phi.csv':'thong_ke_dang_phi_cong_khai.csv',
+  [['CHÚ Ý',state.demo?'DỮ LIỆU MINH HỌA – CHƯA ĐƯỢC DUYỆT':'BẢN ĐÃ DUYỆT'],
+   ['Kỳ',f.period],['Hồ sơ báo cáo',f.reportRecords],
+   ['Chưa khai báo',f.notDeclared],['Chờ phê duyệt',f.waitingApproval],
+   ['Chờ nộp',f.waitingPayment],['Nhóm tổ chức','Số tài khoản'],
+   ...f.bankGroups.map(z=>[z.name,z.accounts])]);
+ toast('Đã xuất bản '+(state.demo?'tham chiếu':'công khai'));
+}
 function exportQA(){exportCsv('hoi-dap-cong-khai.csv',[['Mã QA','Nhóm','Chủ đề','Câu hỏi','Trả lời','Cập nhật','Nguồn công khai'],...published().map(x=>[x.id,GROUPS[x.group]?.full,x.topic,x.question,x.answer,x.updated,x.sourceUrl||''])]);toast('Đã tạo CSV từ dữ liệu '+(state.demo?'MINH HỌA':'công khai'))}
 function bindPage(){const uploader=$('#progressFile');if(uploader)uploader.onchange=async e=>{const file=e.target.files?.[0];if(!file)return;try{if(file.size>4*1024*1024)throw Error('Tệp quá lớn');const data=JSON.parse(await file.text());if(data.schema!==1||!Array.isArray(data.records))throw Error('Định dạng không hợp lệ');const clean=data.records.filter(validProgress).map(x=>({unit:String(x.unit),procedure:x.procedure,progress:Number(x.progress),received:Number(x.received)||0,completed:Number(x.completed)||0,updated:String(x.updated||'')}));if(!clean.length)throw Error('Không có bản ghi hợp lệ (cần public:true)');state.demo=false;state.local=true;state.progress=clean;updateGlobal();render();toast('Đã nhập '+clean.length+' bản ghi xem thử – KHÔNG tải lên mạng')}catch(err){toast('Không thể nhập tệp: '+err.message)}};const inp=$('#qaSearch');if(inp)inp.addEventListener('input',e=>{const pos=e.target.selectionStart;state.query=e.target.value;state.page=0;render();let x=$('#qaSearch');x.focus();x.setSelectionRange(Math.min(pos,x.value.length),Math.min(pos,x.value.length))});const sel=$('#qaGroup');if(sel)sel.onchange=e=>route(e.target.value==='all'?'qa-all':'qa-'+e.target.value);const unit=$('#unitSearch');if(unit)unit.oninput=e=>{const pos=e.target.selectionStart;state.unitQuery=e.target.value;render();let el=$('#unitSearch');el.focus();el.setSelectionRange(Math.min(pos,el.value.length),Math.min(pos,el.value.length))};
  const mon=$('#paymentMonthSelect');if(mon)mon.onchange=e=>selectPaymentMonth(e.target.value);
