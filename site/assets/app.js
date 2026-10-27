@@ -834,18 +834,14 @@ function startOnlinePresence(){
    request=null;pending=false;script.remove();unavailable();
   },15000);
  };
- fetch('data/online-config.json',{cache:'no-store'}).then(r=>{
-  if(!r.ok)throw Error('Online service unavailable');
-  return r.json();
- }).then(c=>{
-  const u=new URL(String(c.endpoint||''));
-  if(c.schema!==1||u.protocol!=='https:'||
-     !['script.google.com','script.googleusercontent.com'].includes(u.hostname)||
-     !/\/exec$/.test(u.pathname))throw Error('Unapproved online endpoint');
-  endpoint=u.toString();
+ readLiveStatsEndpoint().then(url=>{
+  if(!url)throw Error('Public Apps Script endpoint unavailable');
+  endpoint=url.toString();
   ping();
   setInterval(ping,75000);
-  document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')ping()});
+  document.addEventListener('visibilitychange',()=>{
+   if(document.visibilityState==='visible')ping();
+  });
  }).catch(unavailable);
 }
 function boot(){document.addEventListener('keydown',discourageSourceHotkeys,true);startOnlinePresence();if(new URL(location.href).searchParams.get('demo')==='1')state.demo=true;syncFromUrl();const clock=()=>$('#clock').textContent=new Intl.DateTimeFormat('vi-VN',{year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',timeZone:'Asia/Ho_Chi_Minh'}).format(new Date());clock();setInterval(clock,60000);
