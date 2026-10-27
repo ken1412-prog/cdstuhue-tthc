@@ -768,7 +768,6 @@ function startOnlinePresence(){
  const unavailable=()=>{
   element.textContent='—';
   badge.classList.remove('is-live');
-  badge.title='Chưa kết nối được bộ đếm trực tuyến';
  };
  const show=data=>{
   if(!data||data.schema!==1||data.ok!==true||
@@ -777,7 +776,6 @@ function startOnlinePresence(){
   }
   element.textContent=new Intl.NumberFormat('vi-VN').format(data.online)+(data.limited?'+':'');
   badge.classList.add('is-live');
-  badge.title='Số phiên trình duyệt có hoạt động trong 15 phút gần nhất (ước tính, không phải số người duy nhất hay số người trực tuyến đồng thời)';
   const visits=document.getElementById('sidebarVisitCount');
   if(visits&&Number.isSafeInteger(data.totalVisits)&&data.totalVisits>=123){
     visits.textContent=new Intl.NumberFormat('vi-VN').format(data.totalVisits);
