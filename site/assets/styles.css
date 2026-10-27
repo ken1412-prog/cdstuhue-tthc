@@ -1100,3 +1100,21 @@ body{
  font-size:11px;
  line-height:1.4;
 }
+
+
+/* Approved, data-driven completion statuses in each payment detail popup. */
+#paymentModal .payment-incomplete-section.is-complete{
+ background:linear-gradient(110deg,#08684f,#07523f);
+ border:1px solid #06523f;
+ color:#fff;
+ padding:17px 18px;
+ box-shadow:0 5px 14px rgba(4,91,64,.14);
+}
+#paymentModal .payment-complete-message{
+ display:block;color:#fff;font-size:14px;font-weight:800;
+ line-height:1.55;letter-spacing:.005em;overflow-wrap:anywhere;
+}
+#paymentModal .payment-source-updated{
+ margin:19px 0 0;text-align:right;color:#54677a;
+ font-size:11px;line-height:1.55;font-weight:650;
+}
