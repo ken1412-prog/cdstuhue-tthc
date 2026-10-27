@@ -25,6 +25,23 @@ ORIGIN_LINK = re.compile(
 
 
 class PublicSurfaceTests(unittest.TestCase):
+    def test_last_approved_date_visible_and_compact_on_mobile(self):
+        js=(SITE / "assets/app.js").read_text(encoding="utf-8")
+        css=(SITE / "assets/styles.css").read_text(encoding="utf-8")
+        for page in ("index.html", "hoi-dap.html"):
+            html=(SITE / page).read_text(encoding="utf-8")
+            self.assertIn('class="announcement-label-mobile">Cập nhật lần cuối:</span>',html)
+            self.assertIn('id="lastApprovedDateMobile" aria-live="polite">—</span>',html)
+            self.assertIn('id="lastApprovedDate" aria-live="polite">—</span>',html)
+            self.assertNotIn('id="lastApprovedDate" aria-live="polite">24/10/2026</span>',html)
+            self.assertIn("assets/app.js?v=20261027-mobile-update-v1",html)
+            self.assertIn("assets/styles.css?v=20261027-mobile-update-v1",html)
+        self.assertIn("const approvedDate=state.stats?.approvedDate;",js)
+        self.assertIn("if(fullDate)fullDate.textContent=approvedFull;",js)
+        self.assertIn("if(shortDate)shortDate.textContent=approvedShort;",js)
+        self.assertIn(".topbar .announcement{\n  display:inline-flex!important;",css)
+        self.assertIn(".topbar-left .breadcrumb{display:none!important}",css)
+
     def test_monthly_approved_finance_tracker(self):
         js=(SITE / "assets/app.js").read_text(encoding="utf-8")
         self.assertIn("function paymentTop3Cards(records)",js)
@@ -47,7 +64,7 @@ class PublicSurfaceTests(unittest.TestCase):
             html=(SITE / page).read_text(encoding="utf-8")
             self.assertIn('>Thống kê đảng phí <span>↗</span>',html)
             self.assertNotIn("Khám phá thống kê",html)
-            self.assertIn("assets/app.js?v=20261027-popup-complete-v1",html)
+            self.assertIn("assets/app.js?v=20261027-mobile-update-v1",html)
         # The repeated three KPI cards in the detail view are removed.
         self.assertNotIn("const viewCards=",js)
         self.assertNotIn("'+viewCards+'",js)
@@ -106,7 +123,7 @@ class PublicSurfaceTests(unittest.TestCase):
             html=(SITE / page).read_text(encoding="utf-8")
             self.assertIn('<div class="footer-byline">',html)
             self.assertIn('<span class="footer-copyright">© 2026 CDSTUHUE</span><span class="footer-author">NKien',html)
-            self.assertIn('assets/styles.css?v=20261027-popup-complete-v1',html)
+            self.assertIn('assets/styles.css?v=20261027-mobile-update-v1',html)
             self.assertNotIn('id="navAssistant"',html)
             self.assertIn('id="openAssistant"',html)
             self.assertIn('id="assistantMobileFab"',html)
@@ -293,7 +310,7 @@ class PublicSurfaceTests(unittest.TestCase):
             self.assertIn('<span>Đang online:</span>', html)
             self.assertNotIn('title="Chưa kết nối được bộ đếm trực tuyến"', html)
             self.assertNotIn('Hoạt động 15 phút (ước tính):', html)
-            self.assertIn("assets/app.js?v=20261027-popup-complete-v1", html)
+            self.assertIn("assets/app.js?v=20261027-mobile-update-v1", html)
         self.assertIn(".footer-online{", css)
         self.assertIn('position:fixed!important', css)
         self.assertIn('20261027-total-visits-v1', (SITE / 'index.html').read_text(encoding='utf-8'))
@@ -317,7 +334,7 @@ class PublicSurfaceTests(unittest.TestCase):
             self.assertIn('class="side-assist-heading"',html)
             self.assertIn('<small>Trong kho câu hỏi</small>',html)
             self.assertNotIn('Trợ lý tra cứu nhanh <small>Không dùng AI bên ngoài</small>',html)
-            self.assertIn('assets/styles.css?v=20261027-popup-complete-v1',html)
+            self.assertIn('assets/styles.css?v=20261027-mobile-update-v1',html)
         self.assertIn('/* Centered quick-search launcher in the sidebar */',css)
         self.assertIn('justify-content:center;',css[css.rfind('/* Centered quick-search launcher in the sidebar */'):])
         self.assertIn('text-align:center;',css[css.rfind('/* Centered quick-search launcher in the sidebar */'):])
