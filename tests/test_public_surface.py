@@ -71,7 +71,7 @@ class PublicSurfaceTests(unittest.TestCase):
             self.assertIn('id="sidebarVisitCount">123</strong>',html)
             self.assertIn('Tổng lượt truy cập:',html)
             self.assertNotIn('NKIEN TEST',html)
-            self.assertIn('class="brand-signature"',html)
+            self.assertIn('class="brand-signature site-visits"',html)
         self.assertIn("Đã khai báo HS nhưng chưa duyệt",js)
         self.assertIn("Chưa khai báo hồ sơ",js)
         # Hero card must display the entire undeclared source list (15,238
