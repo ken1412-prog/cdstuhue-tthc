@@ -423,6 +423,38 @@ function paymentIncompleteUnits(title,units){
     '</strong>'+(u.parentName?'<small>Trực thuộc: '+E(u.parentName)+'</small>':'')+'</li>').join('')+
   '</ul></section>';
 }
+function paymentCompletePair(done,total){
+ return Number.isInteger(done)&&Number.isInteger(total)&&total>0&&done===total;
+}
+function paymentFiledComplete(row){
+ // Exact counts win over a separately approved rate when both are supplied.
+ if(Number.isInteger(row.filedDone)&&Number.isInteger(row.filedTotal))
+  return paymentCompletePair(row.filedDone,row.filedTotal);
+ return typeof row.filedRate==='number'&&Number.isFinite(row.filedRate)&&row.filedRate===1;
+}
+function paymentDetailFinding(title,units,complete,completeText){
+ if(complete){
+  return '<section class="payment-incomplete-section is-complete">'+
+   '<strong class="payment-complete-message">'+E(completeText)+'</strong></section>';
+ }
+ return paymentIncompleteUnits(title,units);
+}
+function paymentLastUpdateDate(stats){
+ // Use only real source/approval dates; the page refresh time is not a data date.
+ const mods=stats?.modules||{};
+ const values=[
+  stats?.approvedDate,mods.payment?.sourceSnapshot,
+  mods.ranking?.sourceSnapshot,mods.banking?.sourceSnapshot,
+  mods.missing?.sourceSnapshot
+ ];
+ const valid=values.filter(v=>{
+  if(typeof v!=='string'||!/^20\d{2}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/.test(v))return false;
+  const dt=new Date(v+'T00:00:00Z');
+  return !Number.isNaN(dt.getTime())&&dt.toISOString().slice(0,10)===v;
+ });
+ const latest=valid.sort().at(-1);
+ return latest?latest.slice(8,10)+'/'+latest.slice(5,7)+'/'+latest.slice(0,4):'—';
+}
 function openPaymentDetail(index){
  if(state.demo||selectedFinanceStats()?.public!==true||selectedFinanceStats()?.reviewed!==true)return;
  const stats=selectedFinanceStats();
@@ -440,13 +472,17 @@ function openPaymentDetail(index){
   '<div class="payment-detail-track" role="progressbar" aria-label="Tỷ lệ thu nộp" aria-valuenow="'+(paymentRate(row)*100).toFixed(1)+'" aria-valuemin="0" aria-valuemax="100"><i style="width:'+paymentProgressWidth(row)+'%"></i></div>'+
   '<div class="payment-detail-extra"><div><small>Đơn vị đã có TK NH / tổng đơn vị</small><strong>'+E(paymentCountPair(row.bankDone,row.bankTotal))+'</strong></div><div><small>Hồ sơ đã khai báo / tổng ĐV</small><strong>'+E(paymentFiledText(row))+'</strong></div></div>'+
   '<div class="payment-unit-findings"><h3>Đơn vị cấp con cần xử lý</h3>'+
-  (state.paymentArchive?
-   '<p class="payment-incomplete-note">Bản tháng đã chốt không lưu danh sách cấp con; không ghép dữ liệu mới vào tháng cũ.</p>':
-   paymentIncompleteUnits('Chưa có tài khoản ngân hàng',row.bankPendingUnits)+
-   paymentIncompleteUnits('Còn hồ sơ chưa khai báo',row.unfiledUnits))+
-  (!state.paymentArchive?'<p class="payment-detail-note">Danh sách hồ sơ chỉ xác định cấp con còn dòng chưa khai báo, không bao gồm hồ sơ đã khai báo đang chờ duyệt. Hai nguồn có thể khác thời điểm; danh sách trống không tự khẳng định hoàn thành 100%.</p>':'')+
+  paymentDetailFinding('Chưa có tài khoản ngân hàng',
+   state.paymentArchive?null:row.bankPendingUnits,
+   paymentCompletePair(row.bankDone,row.bankTotal),
+   'Đã hoàn thành khai báo tài khoản Ngân hàng')+
+  paymentDetailFinding('Còn hồ sơ chưa khai báo',
+   state.paymentArchive?null:row.unfiledUnits,
+   paymentFiledComplete(row),
+   'Đã hoàn thành khai báo hồ sơ')+
   '</div>'+
-  '<div class="payment-detail-note">Chỉ công bố tên đơn vị được duyệt. Không công bố thông tin cá nhân, số tài khoản hoặc hồ sơ từng người.</div>';
+  '<p class="payment-source-updated">Dữ liệu cập nhật lần cuối: '+
+    E(paymentLastUpdateDate(stats))+'</p>';
  modal.classList.remove('hidden');
  document.body.style.overflow='hidden';
  $('#closePaymentDetail').focus();
