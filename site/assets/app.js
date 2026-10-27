@@ -140,15 +140,23 @@ let liveStatsEndpointPromise=null,liveStatsPending=false,
     liveStatsPollInstalled=false,liveStatsLastCheck=0;
 function readLiveStatsEndpoint(){
  if(!liveStatsEndpointPromise){
-  liveStatsEndpointPromise=fetch('data/online-config.json',{cache:'no-store'})
-   .then(r=>{if(!r.ok)throw Error('No endpoint');return r.json()})
-   .then(v=>{
-    const u=new URL(String(v.endpoint||''));
-    if(v.schema!==1||u.protocol!=='https:'||u.hostname!=='script.google.com'||
-       !/^\/macros\/s\/[A-Za-z0-9_-]+\/exec$/.test(u.pathname))
-      throw Error('Invalid public /exec');
-    return u;
-   }).catch(()=>null);
+  const validEndpoint=v=>{
+    if(!v||v.schema!==1)return null;
+    try{
+      const u=new URL(String(v.endpoint||''));
+      if(u.protocol!=='https:'||u.hostname!=='script.google.com'||
+        !/^\/macros\/s\/[A-Za-z0-9_-]+\/exec$/.test(u.pathname))return null;
+      u.search='';u.hash='';
+      return u;
+    }catch(_){return null;}
+  };
+  const config=path=>fetch(path,{cache:'no-store'})
+    .then(r=>{if(!r.ok)throw Error('Missing public endpoint config');return r.json()})
+    .then(validEndpoint).catch(()=>null);
+  // The QA endpoint is already public and stored in two safe configurations.
+  // The backup makes live stats/QA/menu independent of the scheduled CI build.
+  liveStatsEndpointPromise=config('data/online-config.json').then(
+    u=>u||config('data/questions-config.json'));
  }
  return liveStatsEndpointPromise;
 }
@@ -201,14 +209,87 @@ function startLiveStats(){
  if(!liveStatsPollInstalled){
   liveStatsPollInstalled=true;
   setInterval(()=>{
-   if(document.visibilityState==='visible')refreshLiveStats();
+   if(document.visibilityState==='visible'){
+     refreshLiveStats();
+     refreshLivePublished();
+   }
   },180000);
   document.addEventListener('visibilitychange',()=>{
-   if(document.visibilityState==='visible'&&Date.now()-liveStatsLastCheck>60000)
-     refreshLiveStats();
+   if(document.visibilityState==='visible'){
+     if(Date.now()-liveStatsLastCheck>60000)refreshLiveStats();
+     if(Date.now()-livePublicationLastCheck>60000)refreshLivePublished();
+   }
   });
  }
  refreshLiveStats();
+ refreshLivePublished();
+}
+/* Public-only approved QA and menu use the same /exec as stats-live.
+ * No private Sheets, user tokens or unpublished records are exposed here.
+ */
+const livePublicationPending={qa:false,menu:false};
+let livePublicationLastCheck=0;
+function loadApprovedLiveScript(kind,receiver,apply){
+ if(livePublicationPending[kind]||state.demo||state.local||
+   document.visibilityState==='hidden')return Promise.resolve(false);
+ livePublicationPending[kind]=true;
+ let tag=null,timeout=null;
+ return readLiveStatsEndpoint().then(endpoint=>{
+  if(!endpoint)return false;
+  const url=new URL(endpoint.toString());
+  url.searchParams.set('kind',kind+'-live');
+  url.searchParams.set('refresh',String(Date.now()));
+  return new Promise((resolve,reject)=>{
+   let delivered=false;
+   tag=document.createElement('script');tag.async=true;
+   window[receiver]=payload=>{delivered=true;resolve(apply(payload))};
+   tag.src=url.toString();
+   tag.onerror=()=>reject(Error('Public data feed unavailable'));
+   tag.onload=()=>{if(!delivered)reject(Error('Public data callback missing'))};
+   timeout=setTimeout(()=>reject(Error('Public data request timeout')),25000);
+   document.head.appendChild(tag);
+  });
+ }).catch(()=>false).finally(()=>{
+   if(timeout)clearTimeout(timeout);
+   if(tag)tag.remove();
+   window[receiver]=()=>{};
+   livePublicationPending[kind]=false;
+   livePublicationLastCheck=Date.now();
+ });
+}
+function applyLiveQA(feed){
+ if(state.demo||state.local||!feed||feed.schema!==1||feed.error||
+   !Array.isArray(feed.items)||feed.items.length>2000)return false;
+ const raw=feed.items.filter(x=>x&&x.public===true);
+ const next=raw.map(normQA).filter(x=>x.id&&x.question&&x.answer&&GROUPS[x.group]);
+ if(next.length!==raw.length)return false;
+ const unique=new Set();
+ if(next.some(x=>unique.has(x.id)||!unique.add(x.id)))return false;
+ if(JSON.stringify(state.qa)===JSON.stringify(next))return true;
+ state.qa=next;
+ state.generatedAt=String(feed.generatedAt||'').slice(0,40);
+ state.page=0;
+ updateGlobal();render();
+ return true;
+}
+function applyLiveMenu(feed){
+ if(state.demo||state.local||!feed||feed.schema!==1||feed.error||
+   !feed.visible||typeof feed.visible!=='object')return false;
+ const next={...MENU_DEFAULTS};
+ for(const key of Object.keys(MENU_DEFAULTS)){
+   if(typeof feed.visible[key]!=='boolean')return false;
+   next[key]=feed.visible[key];
+ }
+ if(JSON.stringify(next)===JSON.stringify(state.menu))return true;
+ state.menu=next;state.menuReady=true;
+ procedureMenu();
+ if(!viewAllowed(state.view))state.view=firstVisibleView();
+ updateGlobal();render();
+ return true;
+}
+function refreshLivePublished(){
+ loadApprovedLiveScript('qa','cdstuhueQAReceive',applyLiveQA);
+ loadApprovedLiveScript('menu','cdstuhueMenuReceive',applyLiveMenu);
 }
 function updateGlobal(){const q=published(),by=g=>q.filter(x=>x.group===g).length;$('#qaTotalSide').textContent=q.length;$('#qaTthcSide').textContent=by('tthc');$('#qaStdvSide').textContent=by('stdv');$('#qaCsdlSide').textContent=by('csdl');const approvedDate=state.stats&&state.stats.approvedDate;
  const approvedMatch=typeof approvedDate==='string'?approvedDate.match(/^(\d{4})-(\d{2})-(\d{2})$/):null;
