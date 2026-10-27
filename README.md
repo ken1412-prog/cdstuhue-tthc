@@ -313,3 +313,11 @@ Website đã có client gọi trực tiếp ba endpoint **chỉ chứa nội dun
 **Kích hoạt một lần:** triển khai phiên bản mới của **dự án Web App QA công khai đang dùng** với `apps-script/Code.gs` hoặc `apps-script/CDSTUHUE_DEPLOY_SINGLE.gs` (chỉ một phương án). Vào **Deploy → Manage deployments → Edit → New version → Deploy**, **giữ nguyên /exec**. Việc cập nhật file trong GitHub không tự triển khai lại Apps Script. Phần giao diện lên GitHub Pages theo workflow khi commit; không cần nhấn Run workflow cho mỗi đợt dữ liệu.
 
 **Nghiệm thu thực tế:** sau khi triển khai một lần, đọc `?kind=stats-live`, `?kind=qa-live`, `?kind=menu-live` của URL /exec. Ba phản hồi phải gọi lần lượt hàm `cdstuhueStatsReceive`, `cdstuhueQAReceive`, `cdstuhueMenuReceive`. Sau đó thử đổi 1 mục menu không nhạy cảm, duyệt trong Quản trị, xem website có tự cập nhật **không chạy GitHub Actions**; đổi trở lại và kiểm tra lần nữa. Không cần thay đổi hay nạp lại 4 Excel để thử.
+
+
+## Bộ đếm tổng lượt truy cập (bổ sung 27/10/2026)
+
+- Trên cả `index.html` và `hoi-dap.html`, chữ thử nghiệm `© NKIEN TEST ©` ở cuối sidebar được thay bằng **Tổng lượt truy cập: 123**. Đây là **mốc lịch sử do chủ sở hữu đặt**, không phải số thống kê được đo cho các ngày trước.
+- Mỗi lượt truy cập mới sau tối đa 30 phút không hoạt động sẽ được cộng một lần. Nhiều lần tải lại, nhiều tab và các nhịp ping 75 giây trong cùng phiên không tự cộng thêm. Chỉ lưu tổng cộng dồn trong Apps Script Script Properties (`CDSTUHUE_TOTAL_VISITS_V1`); mã phiên ngẫu nhiên chỉ được nhớ ngắn hạn trong CacheService và trình duyệt, không lưu tên, IP hoặc tài khoản.
+- Bộ đếm online (3 phút gần nhất) được giữ nguyên; phần phản hồi `kind=presence` giờ có thêm `totalVisits`. Mọi trình duyệt nhận được số tổng đã được máy chủ lưu. Vì đây là bộ đếm công khai không cần đăng nhập, nó đo **lượt phiên truy cập ước tính**, không phải người duy nhất, và không thể ngăn tuyệt đối truy cập tự động.
+- **Cần kích hoạt một lần:** cập nhật Web App công khai bằng `apps-script/Code.gs` hoặc `apps-script/CDSTUHUE_DEPLOY_SINGLE.gs` tùy dạng đang dùng; Deploy → Manage deployments → Edit → New version → Deploy. Giữ URL `/exec` hiện tại. Không cần reset hoặc thêm Script Property bằng tay. Sau đó bộ đếm tự lưu lâu dài qua những lần chạy website tiếp theo, không cần GitHub Actions thủ công cho lượt truy cập mới.
