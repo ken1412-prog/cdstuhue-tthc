@@ -1118,3 +1118,38 @@ body{
  margin:19px 0 0;text-align:right;color:#54677a;
  font-size:11px;line-height:1.55;font-weight:650;
 }
+
+
+/* Mobile first-view approved-source date. The same reviewed snapshot powers
+   the full desktop date and the compact mobile date; no hardcoded day. */
+.announcement-label-mobile,.announcement-date-short{display:none}
+@media screen and (max-width:760px){
+ .topbar{gap:8px}
+ .topbar-left{flex:0 0 auto}
+ .topbar-left .breadcrumb{display:none!important}
+ .topbar .announcement{
+  display:inline-flex!important;flex:1 1 auto;justify-content:center;
+  min-width:0;max-width:100%;gap:5px;padding:6px 9px;
+  border-radius:99px;white-space:nowrap;overflow:hidden;
+  background:rgba(255,255,255,.12);
+  border:1px solid rgba(255,255,255,.36);
+ }
+ .topbar .announcement-label{display:none!important}
+ .topbar .announcement-label-mobile{
+  display:inline;color:#ffe6ad;font-size:10px;line-height:1.3;
+  font-weight:750;white-space:nowrap;letter-spacing:0;
+ }
+ .topbar .announcement-date-full{display:none!important}
+ .topbar .announcement-date-short{
+  display:inline;flex:0 0 auto;color:#fff!important;
+  font-size:11px;line-height:1.3;font-weight:850;font-variant-numeric:tabular-nums;
+  overflow:visible;white-space:nowrap;
+ }
+ .topbar .header-actions{flex:0 0 auto}
+}
+@media screen and (max-width:350px){
+ .topbar{gap:5px;padding-inline:8px}
+ .topbar .announcement{gap:4px;padding:5px 6px}
+ .topbar .announcement-label-mobile{font-size:9px}
+ .topbar .announcement-date-short{font-size:10px}
+}
