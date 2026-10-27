@@ -274,7 +274,11 @@ class PublicSurfaceTests(unittest.TestCase):
         js=(SITE / "assets/app.js").read_text(encoding="utf-8")
         self.assertIn(".payment-incomplete-list{list-style:none;padding:0;margin:9px 0 0;max-height:none;overflow:visible}",css)
         self.assertNotIn(".payment-incomplete-list{max-height:190px}",css)
-        self.assertIn("paymentIncompleteUnits('Còn hồ sơ chưa khai báo',row.unfiledUnits)",js)
+        self.assertIn("paymentDetailFinding('Còn hồ sơ chưa khai báo',",js)
+        self.assertIn("paymentDetailFinding('Chưa có tài khoản ngân hàng',",js)
+        self.assertIn("Dữ liệu cập nhật lần cuối: ",js)
+        self.assertNotIn('Danh sách hồ sơ chỉ xác định cấp con',js)
+        self.assertNotIn('Chỉ công bố tên đơn vị được duyệt',js)
 
 
 
