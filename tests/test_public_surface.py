@@ -47,7 +47,7 @@ class PublicSurfaceTests(unittest.TestCase):
             html=(SITE / page).read_text(encoding="utf-8")
             self.assertIn('>Thống kê đảng phí <span>↗</span>',html)
             self.assertNotIn("Khám phá thống kê",html)
-            self.assertIn("assets/app.js?v=20261027-total-visits-v1",html)
+            self.assertIn("assets/app.js?v=20261027-online15-v1",html)
         # The repeated three KPI cards in the detail view are removed.
         self.assertNotIn("const viewCards=",js)
         self.assertNotIn("'+viewCards+'",js)
@@ -286,7 +286,7 @@ class PublicSurfaceTests(unittest.TestCase):
         for page in ("index.html", "hoi-dap.html"):
             html=(SITE / page).read_text(encoding="utf-8")
             self.assertIn('id="footerOnlineCount"', html)
-            self.assertIn("assets/app.js?v=20261027-total-visits-v1", html)
+            self.assertIn("assets/app.js?v=20261027-online15-v1", html)
         self.assertIn(".footer-online{", css)
         self.assertIn('position:fixed!important', css)
         self.assertIn('20261027-total-visits-v1', (SITE / 'index.html').read_text(encoding='utf-8'))
