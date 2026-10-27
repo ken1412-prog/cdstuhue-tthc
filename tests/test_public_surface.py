@@ -68,7 +68,9 @@ class PublicSurfaceTests(unittest.TestCase):
         self.assertNotIn('<span class="stats-count-chip">46 Đảng bộ cấp 2</span>',js)
         for page in ("index.html","hoi-dap.html"):
             html=(SITE / page).read_text(encoding="utf-8")
-            self.assertIn("© NKIEN TEST ©",html)
+            self.assertIn('id="sidebarVisitCount">123</strong>',html)
+            self.assertIn('Tổng lượt truy cập:',html)
+            self.assertNotIn('NKIEN TEST',html)
             self.assertIn('class="brand-signature"',html)
         self.assertIn("Đã khai báo HS nhưng chưa duyệt",js)
         self.assertIn("Chưa khai báo hồ sơ",js)
