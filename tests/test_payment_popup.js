@@ -54,8 +54,11 @@ assert.equal(paymentLastUpdateDate({approvedDate:'2026-02-30'}),'—');
 assert.equal(paymentLastUpdateDate({period:'2026-10',generatedAt:'2026-10-27T14:00:00Z'}),'—',
  'Neither current time nor a month-only period can fabricate source day');
 const modal=js.slice(js.indexOf('function openPaymentDetail('),js.indexOf('function closePaymentDetail('));
-assert(modal.includes("paymentCompletePair(row.bankDone,row.bankTotal)"));
-assert(modal.includes("paymentFiledComplete(row)"));
+assert(modal.includes("const bankIsComplete=paymentCompletePair(row.bankDone,row.bankTotal)"));
+assert(modal.includes("const filedIsComplete=paymentFiledComplete(row)"));
+assert(modal.includes("bankIsComplete&&filedIsComplete"));
+assert(modal.includes("bankIsComplete,"));
+assert(modal.includes("filedIsComplete,"));
 assert(modal.includes("paymentLastUpdateDate(stats)"));
 assert(modal.includes("Dữ liệu cập nhật lần cuối: "));
 assert(!modal.includes('Danh sách hồ sơ chỉ xác định cấp con'));
