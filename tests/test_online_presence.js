@@ -5,12 +5,12 @@
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const vm=require('node:vm');
-const storage=new Map();
+const storage=new Map(),persisted=new Map();
 let now=1700000000000;
 let releases=0;
 const lock={tryLock:()=>true,releaseLock:()=>{releases++}};
 const ctx={
- PropertiesService:{getScriptProperties:()=>({getProperty:()=>null})},
+ PropertiesService:{getScriptProperties:()=>({getProperty:key=>persisted.get(key)||null,setProperty:(key,val)=>persisted.set(key,val)})},
  CacheService:{getScriptCache:()=>({
   get:key=>storage.get(key)||null,
   put:(key,value)=>{storage.set(key,value)}
@@ -25,6 +25,7 @@ const ctx={
 };
 const frontend=fs.readFileSync('site/assets/app.js','utf8');
 assert.match(frontend,/searchParams\.set\('visitor',sid\)/);
+assert(frontend.includes("u.searchParams.set('visit',visit)"));
 assert.doesNotMatch(frontend,/searchParams\.set\(['"](sid|c)['"]/);
 const backend=fs.readFileSync('apps-script/Code.gs','utf8');
 assert.match(backend,/parameters\.visitor/);
@@ -53,4 +54,21 @@ now+=180001; // sessions without fresh pings must age out
 a=ctx.cdstuhuePresence_(req(id2));
 assert.equal(a.online,1);
 assert.ok(releases>=4);
-console.log('Presence: anonymous sessions, dedupe, 3-minute expiry and fixed JSONP PASS');
+assert.equal(a.totalVisits,123);
+const visitA='c'.repeat(32),visitB='d'.repeat(32);
+let count=ctx.cdstuhuePresence_({parameter:{visitor:id1,visit:visitA}});
+assert.equal(count.totalVisits,124);
+count=ctx.cdstuhuePresence_({parameter:{visitor:id1,visit:visitA}});
+assert.equal(count.totalVisits,124,'same visit must not increment');
+count=ctx.cdstuhuePresence_({parameter:{visitor:id2,visit:visitA}});
+assert.equal(count.totalVisits,124,'two tabs sharing token do not increment');
+count=ctx.cdstuhuePresence_({parameter:{visitor:id2,visit:visitB}});
+assert.equal(count.totalVisits,125);
+assert.equal(persisted.get('CDSTUHUE_TOTAL_VISITS_V1'),'125');
+storage.delete('CDSTUHUE_PRESENCE_V1');
+count=ctx.cdstuhuePresence_(req(id1));
+assert.equal(count.totalVisits,125,'total not lost on presence cache eviction');
+assert.equal(JSON.stringify(count).includes(visitB),false);
+count=ctx.cdstuhuePresence_({parameter:{visitor:id2,visit:'bad'}});
+assert.equal(count.totalVisits,125);
+console.log('Online and total visit counts PASS: 123 baseline, stored cumulatively, deduplicated');
