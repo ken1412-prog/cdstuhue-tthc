@@ -91,7 +91,7 @@ function cdstuhuePresence_(e){
   const parameters=e&&e.parameter||{};
   const sid=String(parameters.visitor||'');
   if(!/^[0-9a-f]{32}$/.test(sid))return {schema:1,ok:false};
-  const now=Date.now(),maxAge=180000;
+  const now=Date.now(),maxAge=900000; // 15-minute activity window
   const lock=LockService.getScriptLock();
   if(!lock.tryLock(2000))return {schema:1,ok:false};
   try{
@@ -111,9 +111,9 @@ function cdstuhuePresence_(e){
     // session token count once. Hard cap to fit the 100KB Apps Script cache.
     if(active.has(sid)||active.size<1000)active.set(sid,now);
     const snapshot=[...active.entries()];
-    cache.put(key,JSON.stringify(snapshot),240);
+    cache.put(key,JSON.stringify(snapshot),960); // Retain online sessions beyond 15 minutes
 
-    // An approximate *total visit* counter, separate from the 3-minute online
+    // An approximate *total visit* counter, separate from the 15-minute online
     // estimate. It begins at 123 to account for the site's earlier operation.
     // The count survives browser reloads and Apps Script cache expiration
     // because the total itself lives in Script Properties (not a Sheet).
@@ -137,7 +137,7 @@ function cdstuhuePresence_(e){
       cache.put(visitKey,'1',21600);
     }
     return {schema:1,ok:true,online:snapshot.length,limited:snapshot.length>=1000,
-      windowSeconds:180,totalVisits:total};
+      windowSeconds:900,totalVisits:total};
   }finally{lock.releaseLock();}
 }
 function cdstuhuePresenceScript_(e){
