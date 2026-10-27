@@ -778,6 +778,11 @@ function startOnlinePresence(){
   element.textContent=new Intl.NumberFormat('vi-VN').format(data.online)+(data.limited?'+':'');
   badge.classList.add('is-live');
   badge.title='Số phiên trình duyệt hoạt động trong 3 phút gần nhất (ước tính, không phải số người duy nhất)';
+  const visits=document.getElementById('sidebarVisitCount');
+  if(visits&&Number.isSafeInteger(data.totalVisits)&&data.totalVisits>=123){
+    visits.textContent=new Intl.NumberFormat('vi-VN').format(data.totalVisits);
+    visits.parentElement.title='Tổng lượt truy cập tích lũy; mốc ban đầu 123, mỗi phiên mới cộng một lần';
+  }
  };
  unavailable();
  let sid='';
@@ -798,6 +803,21 @@ function startOnlinePresence(){
   const u=new URL(endpoint);
   u.searchParams.set('kind','presence');
   u.searchParams.set('visitor',sid);
+  // Anonymous browsing-session token, renewed after 30 minutes idle.
+  let visit=sid;
+  try{
+    const now=Date.now(),key='cdstuhue-last-visit-v1';
+    const last=JSON.parse(localStorage.getItem(key)||'null');
+    if(last&&/^[0-9a-f]{32}$/.test(last.id)&&
+      Number.isFinite(last.last)&&now>=last.last&&now-last.last<1800000){
+      visit=last.id;
+    }else{
+      const bytes=crypto.getRandomValues(new Uint8Array(16));
+      visit=Array.from(bytes,b=>b.toString(16).padStart(2,'0')).join('');
+    }
+    localStorage.setItem(key,JSON.stringify({id:visit,last:now}));
+  }catch(_){/* Keep the in-tab token as fallback. */}
+  u.searchParams.set('visit',visit);
   u.searchParams.set('r',String(Date.now()));
   script.src=u.toString();
   script.async=true;
