@@ -990,6 +990,9 @@ body{
   color:#f7fbff;
   text-shadow:0 1px 1px rgba(4,17,35,.7),0 0 7px rgba(255,255,255,.24),0 0 15px rgba(114,193,255,.20);
 }
+.brand-signature.site-visits{font-weight:600;font-size:12px;letter-spacing:.01em}
+.brand-signature.site-visits strong{font-size:16px;font-weight:800;color:#aceeff;font-variant-numeric:tabular-nums;white-space:nowrap}
+
 
 /* Four consistent summary tiles, with a non-clickable guidance placeholder. */
 .stats-hero-home .stats-hero-metrics{grid-template-columns:repeat(4,minmax(0,1fr))}
