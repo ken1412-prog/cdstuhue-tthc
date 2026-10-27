@@ -116,8 +116,32 @@ function cdstuhuePresence_(e){
     if(active.has(sid)||active.size<1000)active.set(sid,now);
     const snapshot=[...active.entries()];
     cache.put(key,JSON.stringify(snapshot),240);
+
+    // An approximate *total visit* counter, separate from the 3-minute online
+    // estimate. It begins at 123 to account for the site's earlier operation.
+    // The count survives browser reloads and Apps Script cache expiration
+    // because the total itself lives in Script Properties (not a Sheet).
+    // A visit token represents one browsing session after up to 30m idle;
+    // the cache entry is renewed on each active ping (maximum TTL 6h).
+    // A random visit token is neither returned nor stored permanently.
+    const props=PropertiesService.getScriptProperties();
+    const propKey='CDSTUHUE_TOTAL_VISITS_V1';
+    const saved=Number(props.getProperty(propKey));
+    let total=Number.isSafeInteger(saved)&&saved>=123?saved:123;
+    const visit=String(parameters.visit||'');
+    if(/^[0-9a-f]{32}$/.test(visit)){
+      const visitKey='CDSTUHUE_COUNTED_VISIT_'+visit;
+      if(!cache.get(visitKey)){
+        if(total<Number.MAX_SAFE_INTEGER){
+          const next=total+1;
+          props.setProperty(propKey,String(next));
+          total=next;
+        }
+      }
+      cache.put(visitKey,'1',21600);
+    }
     return {schema:1,ok:true,online:snapshot.length,limited:snapshot.length>=1000,
-      windowSeconds:180};
+      windowSeconds:180,totalVisits:total};
   }finally{lock.releaseLock();}
 }
 function cdstuhuePresenceScript_(e){
