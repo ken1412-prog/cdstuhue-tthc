@@ -462,6 +462,8 @@ function openPaymentDetail(index){
  const row=Array.isArray(records)&&records[index];
  if(!row||paymentRate(row)===null)return;
  const done=paymentCompleted(row),pct=paymentPercent(row);
+ const bankIsComplete=paymentCompletePair(row.bankDone,row.bankTotal);
+ const filedIsComplete=paymentFiledComplete(row);
  const modal=$('#paymentModal'),body=$('#paymentDetailBody');
  $('#paymentDetailTitle').textContent=row.name;
  $('#paymentDetailPeriod').textContent=paymentPeriod(stats);
@@ -471,14 +473,15 @@ function openPaymentDetail(index){
   '<div class="payment-detail-caption">Tỷ lệ thu nộp đảng phí · '+E(paymentPeriod(stats))+'</div>'+
   '<div class="payment-detail-track" role="progressbar" aria-label="Tỷ lệ thu nộp" aria-valuenow="'+(paymentRate(row)*100).toFixed(1)+'" aria-valuemin="0" aria-valuemax="100"><i style="width:'+paymentProgressWidth(row)+'%"></i></div>'+
   '<div class="payment-detail-extra"><div><small>Đơn vị đã có TK NH / tổng đơn vị</small><strong>'+E(paymentCountPair(row.bankDone,row.bankTotal))+'</strong></div><div><small>Hồ sơ đã khai báo / tổng ĐV</small><strong>'+E(paymentFiledText(row))+'</strong></div></div>'+
-  '<div class="payment-unit-findings"><h3>Đơn vị cấp con cần xử lý</h3>'+
+  '<div class="payment-unit-findings"><h3>'+(bankIsComplete&&filedIsComplete?
+    'Tình trạng khai báo cấp con':'Đơn vị cấp con cần xử lý')+'</h3>'+
   paymentDetailFinding('Chưa có tài khoản ngân hàng',
    state.paymentArchive?null:row.bankPendingUnits,
-   paymentCompletePair(row.bankDone,row.bankTotal),
+   bankIsComplete,
    'Đã hoàn thành khai báo tài khoản Ngân hàng')+
   paymentDetailFinding('Còn hồ sơ chưa khai báo',
    state.paymentArchive?null:row.unfiledUnits,
-   paymentFiledComplete(row),
+   filedIsComplete,
    'Đã hoàn thành khai báo hồ sơ')+
   '</div>'+
   '<p class="payment-source-updated">Dữ liệu cập nhật lần cuối: '+
