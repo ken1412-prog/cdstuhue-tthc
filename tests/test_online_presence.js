@@ -5,7 +5,7 @@
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const vm=require('node:vm');
-const storage=new Map(),persisted=new Map();
+const storage=new Map(),persisted=new Map(),ttlByKey=new Map();
 let now=1700000000000;
 let releases=0;
 const lock={tryLock:()=>true,releaseLock:()=>{releases++}};
@@ -13,7 +13,7 @@ const ctx={
  PropertiesService:{getScriptProperties:()=>({getProperty:key=>persisted.get(key)||null,setProperty:(key,val)=>persisted.set(key,val)})},
  CacheService:{getScriptCache:()=>({
   get:key=>storage.get(key)||null,
-  put:(key,value)=>{storage.set(key,value)}
+  put:(key,value,ttl)=>{storage.set(key,value);ttlByKey.set(key,ttl)}
  })},
  LockService:{getScriptLock:()=>lock},
  ContentService:{
@@ -39,7 +39,8 @@ assert.ok(!req('safe').parameter.sid);
 assert.ok(!req('safe').parameter.c);
 let a=ctx.cdstuhuePresence_(req(id1));
 assert.equal(a.online,1);
-assert.equal(a.windowSeconds,180);
+assert.equal(a.windowSeconds,900);
+assert.equal(ttlByKey.get('CDSTUHUE_PRESENCE_V1'),960,'Online cache TTL must exceed 15-minute window');
 a=ctx.cdstuhuePresence_(req(id1));
 assert.equal(a.online,1,'repeat same browser should not grow counter');
 a=ctx.cdstuhuePresence_(req(id2));
@@ -50,9 +51,12 @@ const response=ctx.doGet(req(id1));
 assert.equal(response.mime,'text/javascript');
 assert.match(response.content,/^cdstuhueOnlineReceive\(\{.*\}\);$/);
 assert.doesNotMatch(response.content,/a{32}|b{32}/);
-now+=180001; // sessions without fresh pings must age out
+now+=180001; // still active after 3 minutes
 a=ctx.cdstuhuePresence_(req(id2));
-assert.equal(a.online,1);
+assert.equal(a.online,2,'a session remains active beyond 3 minutes');
+now+=720000; // >15 minutes since id1 last ping, but id2 was refreshed
+a=ctx.cdstuhuePresence_(req(id2));
+assert.equal(a.online,1,'inactive sessions expire only after 15 minutes');
 assert.ok(releases>=4);
 assert.equal(a.totalVisits,123);
 const visitA='c'.repeat(32),visitB='d'.repeat(32);
