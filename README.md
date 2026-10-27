@@ -283,7 +283,7 @@ Trong **Thống kê đảng phí → Bảng xếp hạng theo 46 Đảng bộ**,
 
 ## Bộ đếm đang online ở chân trang (26/10/2026)
 
-Ở ngay dưới chữ **NKien — Phòng CĐS-CY, Thành ủy Huế** trên cả hai trang, website hiển thị **Hoạt động 15 phút (ước tính)**. Đây là số **phiên trình duyệt** gửi tín hiệu trong 15 phút gần nhất, **không** phải định danh người dùng hay số lượt xem tích lũy. Một phiên được đếm một lần, đồng bộ khoảng 75 giây khi trang còn hiển thị; sau 15 phút không gửi tín hiệu thì hết hạn. Mã phiên là 16 byte ngẫu nhiên giữ trong `sessionStorage`; Apps Script chỉ dùng `CacheService` (không đọc/ghi Google Sheets, không lưu IP/tài khoản/tên). Có giới hạn kỹ thuật 1.000 phiên và có thể bị sai số, mất cache hoặc thao túng bằng truy cập tự động. Không dùng số này làm thống kê hành chính.
+Ở ngay dưới chữ **NKien — Phòng CĐS-CY, Thành ủy Huế** trên cả hai trang, website hiển thị **Đang online**. Đây là số **phiên trình duyệt** gửi tín hiệu trong 15 phút gần nhất, **không** phải định danh người dùng hay số lượt xem tích lũy. Một phiên được đếm một lần, đồng bộ khoảng 75 giây khi trang còn hiển thị; sau 15 phút không gửi tín hiệu thì hết hạn. Mã phiên là 16 byte ngẫu nhiên giữ trong `sessionStorage`; Apps Script chỉ dùng `CacheService` (không đọc/ghi Google Sheets, không lưu IP/tài khoản/tên). Có giới hạn kỹ thuật 1.000 phiên và có thể bị sai số, mất cache hoặc thao túng bằng truy cập tự động. Không dùng số này làm thống kê hành chính.
 
 GitHub Pages tĩnh không tự đếm người truy cập. Trong workflow `Publish CDSTUHUE website`, `scripts/build_online_config.py` dùng GitHub Actions secret `QA_PUBLIC_ENDPOINT` (chỉ Web App QA **công khai**, không phải /exec quản trị) để tạo `site/data/online-config.json`. Địa chỉ Web App QA công khai sẽ xuất hiện trong tài nguyên của trang sau khi tính năng được bật; **không** dùng đường dẫn quản trị hoặc thêm dữ liệu bí mật vào URL. Nếu thiếu endpoint hoặc Apps Script chưa hỗ trợ `kind=presence`, giao diện hiển thị **—**, tuyệt đối không tạo số ngẫu nhiên.
 
@@ -325,6 +325,6 @@ Website đã có client gọi trực tiếp ba endpoint **chỉ chứa nội dun
 
 ### Cập nhật 27/10/2026 — cửa sổ hoạt động online 15 phút
 - Đổi `kind=presence` từ cửa sổ 180 giây (3 phút) sang **900 giây (15 phút)**, TTL của cache là 960 giây. Một phiên mới hoặc vừa gửi tín hiệu trong 15 phút gần nhất được tính; website gửi nhịp khoảng 75 giây khi tab đang hiển thị.
-- Hai trang công khai hiển thị **Hoạt động 15 phút (ước tính)** thay cho nhãn Đang online cũ. Đây không phải số người đang nhìn trang đồng thời hay số người duy nhất.
+- Hai trang công khai hiển thị ngắn gọn **Đang online**, không có chú thích rê chuột; máy chủ vẫn dùng cửa sổ hoạt động 15 phút. Đây không phải số người đang nhìn trang đồng thời hay số người duy nhất.
 - Bộ đếm **Tổng lượt truy cập** khởi tạo 123, lưu qua `CDSTUHUE_TOTAL_VISITS_V1`, **không thay đổi**.
 - Muốn thông số 15 phút hoạt động trên Web App công khai, cần **Deploy → Manage deployments → Edit → New version → Deploy** đúng dự án đang dùng; giữ URL `/exec`. Chỉ cập nhật GitHub không tự cập nhật bản Apps Script `/exec`.
