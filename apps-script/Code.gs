@@ -149,11 +149,46 @@ function cdstuhueLiveStatsScript_(){
   }
 }
 
+/* Owner-approved public Q&A and visible navigation, on-demand.
+ * Return only the existing approved-only builders. Fixed JavaScript callbacks
+ * (no caller-provided callback name) prevent arbitrary code injection.
+ */
+function cdstuhueLiveQAScript_(){
+  try{
+    const feed=buildPublicFeed_();
+    if(feed.schema!==1||!Array.isArray(feed.items))throw Error('Invalid approved QA');
+    return ContentService.createTextOutput(
+      'cdstuhueQAReceive('+JSON.stringify(feed)+');')
+      .setMimeType(ContentService.MimeType.JAVASCRIPT);
+  }catch(error){
+    console.warn('Live QA feed unavailable: '+String(error&&error.message||error));
+    return ContentService.createTextOutput(
+      'cdstuhueQAReceive({"schema":1,"error":"Live QA unavailable"});')
+      .setMimeType(ContentService.MimeType.JAVASCRIPT);
+  }
+}
+function cdstuhueLiveMenuScript_(){
+  try{
+    const feed=buildMenuFeed_();
+    if(feed.schema!==1||!feed.visible)throw Error('Invalid public menu');
+    return ContentService.createTextOutput(
+      'cdstuhueMenuReceive('+JSON.stringify(feed)+');')
+      .setMimeType(ContentService.MimeType.JAVASCRIPT);
+  }catch(error){
+    console.warn('Live menu feed unavailable: '+String(error&&error.message||error));
+    return ContentService.createTextOutput(
+      'cdstuhueMenuReceive({"schema":1,"error":"Live menu unavailable"});')
+      .setMimeType(ContentService.MimeType.JAVASCRIPT);
+  }
+}
+
 function doGet(e){
   try {
     const kind=String((e&&e.parameter&&e.parameter.kind)||'qa');
     if(kind==='presence')return cdstuhuePresenceScript_(e);
     if(kind==='stats-live')return cdstuhueLiveStatsScript_();
+    if(kind==='qa-live')return cdstuhueLiveQAScript_();
+    if(kind==='menu-live')return cdstuhueLiveMenuScript_();
     const payload=kind==='finance'?buildFinanceFeed_():kind==='qa'?buildPublicFeed_():kind==='intake-status'?questionIntakeStatus_():kind==='stats'?buildStatsFeed_():kind==='menu'?buildMenuFeed_():{schema:1,error:'Unknown public feed type'};
     return ContentService.createTextOutput(JSON.stringify(payload)).setMimeType(ContentService.MimeType.JSON);
   } catch(err){return ContentService.createTextOutput(JSON.stringify({schema:1,error:'Public feed unavailable'})).setMimeType(ContentService.MimeType.JSON)}
