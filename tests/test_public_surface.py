@@ -289,7 +289,7 @@ class PublicSurfaceTests(unittest.TestCase):
             self.assertIn("assets/app.js?v=20261027-total-visits-v1", html)
         self.assertIn(".footer-online{", css)
         self.assertIn('position:fixed!important', css)
-        self.assertIn('20261026-assist-centered-v1', (SITE / 'index.html').read_text(encoding='utf-8'))
+        self.assertIn('20261027-total-visits-v1', (SITE / 'index.html').read_text(encoding='utf-8'))
         self.assertIn("function startOnlinePresence()", js)
         self.assertIn("startOnlinePresence();", js)
         self.assertIn("window.cdstuhueOnlineReceive=show", js)
