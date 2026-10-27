@@ -297,3 +297,19 @@ GitHub Pages tĩnh không tự đếm người truy cập. Trong workflow `Publi
 Quy trình vận hành từ nay chỉ ở **CDSTUHUE_ADMIN_PRIVATE**: đưa bốn Excel vào thư mục → **1. Kiểm tra** → **2. Tạo bản nháp** → duyệt đúng kỳ cho bốn nguồn → **3. Chuyển 4 nguồn chính thức** (xác nhận `DUYET YYYY-MM`). Dữ liệu trong STATS HUB được cập nhật ngay. Website công khai tự gọi endpoint chỉ-xuất-bản `kind=stats-live` (fixed JSONP callback), do đó **không cần Run workflow**, và không làm các Google Sheet nguồn thành công khai. Trang đang mở sẽ kiểm tra lại sau khoảng ba phút; tải lại trang để xem sớm hơn. Nếu endpoint gián đoạn, sử dụng bản JSON đã duyệt gần nhất từ GitHub Pages.
 
 **Kích hoạt một lần:** phiên bản Web App công khai đang chạy cần có mã `apps-script/Code.gs` mới hỗ trợ `kind=stats-live` (hoặc `apps-script/CDSTUHUE_DEPLOY_SINGLE.gs` theo cách cài). Trong Apps Script dự án QA công khai chọn **Deploy → Manage deployments → Edit → New version → Deploy**; giữ URL `/exec` cũ, không thêm Script Properties. GitHub Pages lấy giao diện mới từ commit `main` theo workflow tự chạy khi push; sau kích hoạt không phải cập nhật Apps Script hoặc GitHub workflow cho từng bộ Excel. Bộ đếm online đã dùng cùng public endpoint cấu hình qua `QA_PUBLIC_ENDPOINT`.
+
+
+## Bổ sung 27/10/2026 — Tự đồng bộ công khai sau khi duyệt
+
+Website đã có client gọi trực tiếp ba endpoint **chỉ chứa nội dung được phép công khai** của `CDSTUHUE_WEB_PUBLIC`, không yêu cầu chủ sở hữu chạy GitHub Actions sau từng lần duyệt:
+
+- `kind=stats-live` → báo cáo thu nộp, xếp hạng, tình hình tài khoản ngân hàng, số hồ sơ chưa khai, trong đúng phạm vi `DUYET_WEBSITE`; phía Apps Script có cache tối đa 60 giây nếu payload vừa giới hạn.
+- `kind=qa-live` → nội dung QA đã có trạng thái ĐÃ DUYỆT và fingerprint khớp; **không** lấy các dòng chưa duyệt/đã sửa chưa ký lại.
+- `kind=menu-live` → trạng thái HIỆN/ẨN của các mục được quản trị cho phép.
+- Giao diện tải nguồn công khai khi mở/trở lại tab, tự hỏi lại khoảng 3 phút/lần; cố gắng dùng `data/online-config.json` rồi `data/questions-config.json` làm đường dự phòng đến URL `/exec` công khai được cấu hình sẵn.
+- Tệp JSON GitHub Pages vẫn là bản dự phòng khi Apps Script tạm lỗi. Số liệu tiến độ `progress.json` vẫn chưa có nguồn chuẩn để bật tự động, còn chốt lịch sử kỳ tháng vẫn là thao tác chủ sở hữu; không tự tạo và công bố dữ liệu chưa duyệt.
+- CSV “Thống kê đảng phí” và bảng trên màn hình hiện dùng cùng dữ liệu `stats-live` khi đã được duyệt, không rút số mới từ `WEB_FINANCE_PUBLIC` cũ.
+
+**Kích hoạt một lần:** triển khai phiên bản mới của **dự án Web App QA công khai đang dùng** với `apps-script/Code.gs` hoặc `apps-script/CDSTUHUE_DEPLOY_SINGLE.gs` (chỉ một phương án). Vào **Deploy → Manage deployments → Edit → New version → Deploy**, **giữ nguyên /exec**. Việc cập nhật file trong GitHub không tự triển khai lại Apps Script. Phần giao diện lên GitHub Pages theo workflow khi commit; không cần nhấn Run workflow cho mỗi đợt dữ liệu.
+
+**Nghiệm thu thực tế:** sau khi triển khai một lần, đọc `?kind=stats-live`, `?kind=qa-live`, `?kind=menu-live` của URL /exec. Ba phản hồi phải gọi lần lượt hàm `cdstuhueStatsReceive`, `cdstuhueQAReceive`, `cdstuhueMenuReceive`. Sau đó thử đổi 1 mục menu không nhạy cảm, duyệt trong Quản trị, xem website có tự cập nhật **không chạy GitHub Actions**; đổi trở lại và kiểm tra lần nữa. Không cần thay đổi hay nạp lại 4 Excel để thử.
