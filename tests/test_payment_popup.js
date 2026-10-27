@@ -69,4 +69,41 @@ for(const file of ['site/index.html','site/hoi-dap.html']){
  const html=fs.readFileSync(file,'utf8');
  assert(html.includes('id="paymentDetailBody"'));
 }
+// Render the actual dialog for completed and incomplete units.
+const runtime=js.slice(js.indexOf('function paymentCountPair('),
+ js.indexOf('function closePaymentDetail('));
+const nodes={};
+for(const id of ['paymentModal','paymentDetailBody','paymentDetailTitle',
+ 'paymentDetailPeriod','closePaymentDetail']){
+ nodes[id]={innerHTML:'',textContent:'',classList:{remove(){}},focus(){}};
+}
+const appState={demo:false,paymentArchive:null};
+const row={rank:1,name:'Đảng bộ thử nghiệm',rate:0.88,
+ bankDone:6,bankTotal:6,filedDone:34,filedTotal:34,
+ bankPendingUnits:[],unfiledUnits:[]};
+const stats={schema:1,public:true,reviewed:true,period:'2026-10',
+ approvedDate:'2026-10-26',modules:{
+ payment:{sourceSnapshot:'2026-10-26'},
+ banking:{sourceSnapshot:'2026-10-25'},ranking:{records:[row]}}};
+const select=node=>nodes[node.slice(1)];
+const openDetail=new Function('state','selectedFinanceStats',String.fromCharCode(36),
+ 'paymentPeriod','E','pretty','document',runtime+'return openPaymentDetail;')(
+ appState,()=>stats,select,()=> 'Tháng 10/2026',
+ x=>String(x),new Intl.NumberFormat('vi-VN'),{body:{style:{overflow:''}}});
+openDetail(0);
+let shown=nodes.paymentDetailBody.innerHTML;
+assert(shown.includes('Đã hoàn thành khai báo tài khoản Ngân hàng'));
+assert(shown.includes('Đã hoàn thành khai báo hồ sơ'));
+assert(shown.includes('Tình trạng khai báo cấp con'));
+assert(shown.includes('Dữ liệu cập nhật lần cuối: 26/10/2026'));
+row.bankDone=5;row.filedDone=33;
+row.bankPendingUnits=[{name:'Đơn vị A',parentName:'Parent'}];
+row.unfiledUnits=[{name:'Đơn vị B',parentName:'Parent'}];
+openDetail(0);
+shown=nodes.paymentDetailBody.innerHTML;
+assert(shown.includes('Đơn vị A')&&shown.includes('Đơn vị B'));
+assert(shown.includes('Đơn vị cấp con cần xử lý'));
+assert(!shown.includes('Đã hoàn thành khai báo tài khoản Ngân hàng'));
+assert(!shown.includes('Đã hoàn thành khai báo hồ sơ'));
+
 console.log('Payment popups PASS: per-unit 100%, partial/unknown, archived dates, dark green status, no obsolete notes');
