@@ -777,7 +777,7 @@ function startOnlinePresence(){
   }
   element.textContent=new Intl.NumberFormat('vi-VN').format(data.online)+(data.limited?'+':'');
   badge.classList.add('is-live');
-  badge.title='Số phiên trình duyệt hoạt động trong 3 phút gần nhất (ước tính, không phải số người duy nhất)';
+  badge.title='Số phiên trình duyệt có hoạt động trong 15 phút gần nhất (ước tính, không phải số người duy nhất hay số người trực tuyến đồng thời)';
   const visits=document.getElementById('sidebarVisitCount');
   if(visits&&Number.isSafeInteger(data.totalVisits)&&data.totalVisits>=123){
     visits.textContent=new Intl.NumberFormat('vi-VN').format(data.totalVisits);
