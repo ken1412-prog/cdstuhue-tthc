@@ -28,6 +28,12 @@ small{display:block;font-size:12px;color:#718096;margin-top:4px;line-height:1.5}
 .staging{display:grid;grid-template-columns:1fr auto auto;gap:10px;align-items:center}
 .staging input{width:140px;font-size:13px}
 .staging .actions{justify-content:flex-end}
+.batch-review{padding:14px;margin:12px 0 18px;border:1px solid #d6e2ee;border-radius:12px;background:#f7faff}
+.batch-review-controls{display:flex;align-items:end;gap:12px;flex-wrap:wrap}
+.batch-review-controls label{font-weight:650;font-size:13px;display:block}
+.batch-review-controls input{width:190px;max-width:100%;margin-top:5px}
+.batch-review-controls button{min-height:46px}
+
 .promotion{margin-top:18px;padding-top:17px;border-top:1px solid #e1e7ee}
 .promotion h2{font-size:17px;margin:0 0 7px}
 .promotion label{display:block;margin:12px 0 7px;font-size:13px;font-weight:700}
@@ -78,6 +84,15 @@ a{color:#21538a}.foot{margin-top:24px;text-align:center;font-size:12px;color:#6b
  </section>
  <section><h2>Kiểm tra và duyệt nguồn Excel nháp</h2>
   <p class="muted">Duyệt riêng từng nguồn sau khi kiểm tra kỳ và số liệu. <strong>Chỉ duyệt nháp chưa thay nguồn website.</strong></p>
+  <div id="batchReview" class="batch-review" hidden>
+    <div class="batch-review-controls">
+      <div><label for="batchReviewDate">Ngày báo cáo (đã đối chiếu từ tên hai file thu nộp)</label>
+        <input type="date" id="batchReviewDate" autocomplete="off" aria-describedby="batchReviewHint"></div>
+      <button type="button" id="approveAllStaged" disabled>Xác nhận kỳ và duyệt cả 4 nguồn</button>
+    </div>
+    <p id="batchReviewHint" class="muted">Xem lại ngày báo cáo rồi bấm duyệt một lần. Chưa chuyển nguồn chính thức và chưa thay dữ liệu website.</p>
+    <p id="batchReviewFeedback" class="muted" aria-live="polite"></p>
+  </div>
   <div id="stagedItems" class="items"></div>
   <p class="muted">Không có tên đảng viên, số tài khoản hoặc mã nguồn nhạy cảm trong bảng điều khiển này.</p>
   <div class="promotion">
@@ -196,6 +211,21 @@ function render(data){
  button.dataset.period=promote.period||'';
  button.dataset.locked='true';button.disabled=true;
  const staged=$('stagedItems');staged.replaceChildren();
+ const readyBatch=data.staged?.length===4&&data.staged.every(x=>
+   x.status==='ĐẠT - CHỜ DUYỆT'||x.status==='ĐÃ DUYỆT');
+ const batch=$('batchReview'),batchDate=$('batchReviewDate'),batchButton=$('approveAllStaged');
+ batch.hidden=!readyBatch;
+ const suggested=/^20\d{2}-\d{2}-\d{2}$/.test(data.suggestedSnapshot||'')?
+   data.suggestedSnapshot:'';
+ if(readyBatch){
+   batchDate.value=suggested;
+   batchDate.placeholder='Chọn ngày báo cáo';
+   $('batchReviewHint').textContent=suggested?
+     'Ngày '+suggested+' được đối chiếu từ hai file thu nộp. Bấm xác nhận để duyệt 4 bản nháp; dữ liệu website chưa thay đổi.':
+     'Chưa suy ra được ngày từ tên hai Excel. Chọn ngày báo cáo thực tế, kiểm tra đúng kỳ rồi duyệt.';
+ }
+ batchButton.dataset.locked=readyBatch?'false':'true';
+ batchButton.disabled=!readyBatch||!batchDate.value;
  if(!data.staged.length){
   const p=document.createElement('p');p.className='muted';p.textContent='Chưa có nguồn nháp; cần chạy chức năng nhập Excel trước.';staged.append(p);
  }
@@ -205,8 +235,10 @@ function render(data){
   const t=document.createElement('div');t.className='item-title';t.textContent=x.name+' ('+x.code+')';
   const meta=document.createElement('small');meta.textContent=x.rows+' dòng · '+x.status;
   info.append(t,meta);
-  const date=document.createElement('input');date.type='text';date.placeholder='YYYY-MM-DD';
-  date.setAttribute('aria-label','Kỳ/ngày nguồn '+x.code);date.value=x.snapshot||'';
+  const date=document.createElement('input');date.type='date';
+  date.setAttribute('aria-label','Ngày nguồn '+x.code);
+  date.value=/^20\d{2}-\d{2}-\d{2}$/.test(x.snapshot||'')?
+    x.snapshot:(suggested||'');
   const group=document.createElement('div');group.className='actions';
   const isApproved=x.status==='ĐÃ DUYỆT';
   const button=document.createElement('button');button.textContent=isApproved?'Thu hồi duyệt':'Duyệt nháp';
@@ -248,6 +280,29 @@ async function doExcel(method,question){
    say('notice',e.message,'error');
  }finally{setBusy(false);await load();}
 }
+$('batchReviewDate').addEventListener('input',()=>{
+ const b=$('approveAllStaged'),d=$('batchReviewDate').value;
+ b.dataset.locked=d?'false':'true';b.disabled=busy||!d;
+});
+$('approveAllStaged').addEventListener('click',async()=>{
+ if(busy)return;
+ const date=$('batchReviewDate').value;
+ if(!/^20\d{2}-\d{2}-\d{2}$/.test(date)){
+   say('batchReviewFeedback','Chọn ngày báo cáo đúng định dạng.','error');return;
+ }
+ if(!window.confirm('Xác nhận bốn Excel đã kiểm tra thuộc kỳ '+date+
+   '? Lệnh này chỉ duyệt bản nháp, chưa chuyển nguồn chính thức.'))return;
+ setBusy(true);
+ try{
+   const result=await invoke('cdsAdminApproveStagedBatch',[session,date]);
+   if(result?.approved!==4)throw Error('Máy chủ chưa xác nhận đủ 4 nguồn');
+   say('batchReviewFeedback',result.info,'success');
+   say('notice',result.info,'success');
+ }catch(err){
+   say('batchReviewFeedback',err.message,'error');
+   say('notice',err.message,'error');
+ }finally{setBusy(false);await load();}
+});
 $('checkExcel').addEventListener('click',()=>doExcel('cdsAdminCheckExcel',
  'Kiểm tra đủ 4 file Excel trên Drive? Thao tác chỉ đọc dữ liệu, không thay nguồn website.'));
 $('stageExcel').addEventListener('click',()=>doExcel('cdsAdminStageExcel',
