@@ -101,7 +101,21 @@ assert(html.includes('id="checkExcel"')&&html.includes('id="stageExcel"'));
 assert(html.includes('id="promoteExcel"'));
 assert(html.includes('id="promotionConfirmation"'));
 assert(html.includes('cdsAdminPromoteStaged'));
-assert(gs.includes('function cdsAdminPromoteStaged(token,confirmation)'));
+assert(gs.includes('function cdsAdminPromoteStaged(token,confirmation,acceptMissingDrift)'));
+assert(gs.includes('function cdsAdminApproveStagedBatch(token,reportDate)'));
+assert(html.includes('id="batchReviewDate"')&&html.includes('id="approveAllStaged"'));
+assert(html.includes("date.type='date'"));
+assert.throws(()=>runtime.cdsAdminApproveStagedBatch('wrong','2026-10-28'),/Phiên/);
+const sampleDates=[
+ ['THU_NOP','','','','','','danh_sach_theo_doi_thu_nop_dang_phi_28102026_121259.xlsx'],
+ ['THU_NOP_CITY','','','','','','danh_sach_theo_doi_thu_nop_dang_phi_28102026_121231.xlsx']
+];
+assert.equal(runtime.cdsAdminSuggestedStageDate_(sampleDates),'2026-10-28');
+assert.equal(runtime.cdsAdminSuggestedStageDate_([
+ sampleDates[0],[...sampleDates[1].slice(0,6),
+ 'danh_sach_theo_doi_thu_nop_dang_phi_27102026_121231.xlsx']
+]),'');
+assert.throws(()=>runtime.cdsAdminValidateReportDate_('2026-02-30'),/không tồn tại/);
 assert(!html.includes('CDSTUHUE_PENDING_STAGE_JSON'),'Do not embed internal signing state in client HTML');
 assert(!html.includes('CDSTUHUE_STATS_HUB_ID'),'Do not expose private sheet properties');
 
