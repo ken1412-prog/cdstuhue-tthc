@@ -128,7 +128,17 @@ function cdsAdminGetSnapshot(token){
    const row=stageRows.find(r=>r[0]===k),active=live.find(r=>r[0]===k);
    return row&&active&&row[2]===active[2]&&row[3]===active[3];
  });
- const promotion={period,currentPeriod,
+ let pendingWarning='';
+ try{
+   const rawStage=cdsAdminProps_().getProperty('CDSTUHUE_PENDING_STAGE_JSON');
+   if(rawStage){
+     const pending=JSON.parse(rawStage),a=pending.sources?.THU_NOP_CITY?.summary?.notFiled,
+       b=pending.sources?.CHUA_KHAI?.summary?.rows;
+     if(Number.isSafeInteger(a)&&Number.isSafeInteger(b)&&Math.abs(a-b)===1)
+       pendingWarning=cdstuhueMissingCountReconcile_(a,b);
+   }
+ }catch(error){console.warn('Cannot read optional pre-promotion warning');}
+ const promotion={period,currentPeriod,warning:pendingWarning,
    ready:!!(complete&&/^20\d{2}-(0[1-9]|1[0-2])$/.test(period)&&
      period===currentPeriod&&!alreadyLive),
    completed:!!alreadyLive};
@@ -265,7 +275,7 @@ function cdsAdminStageExcel(token){
  * switching NGUON_4_FILE. Public scopes are preserved (never broadened).
  * Requires a fresh explicit owner confirmation "DUYET YYYY-MM".
  */
-function cdsAdminPromoteStaged(token,confirmation){
+function cdsAdminPromoteStaged(token,confirmation,acceptMissingDrift){
   const hub=cdsAdminHub_(token),props=cdsAdminProps_();
   const lock=LockService.getScriptLock();
   if(!lock.tryLock(30000))throw Error('Đang có thao tác nhập liệu khác; vui lòng thử lại');
@@ -356,6 +366,8 @@ function cdsAdminPromoteStaged(token,confirmation){
       throw Error('Đối chiếu bốn nguồn không khớp; không chuyển');
     const missingWarning=cdstuhueMissingCountReconcile_(
       citySummary.notFiled,summaries.CHUA_KHAI.rows);
+    if(missingWarning&&acceptMissingDrift!==true)
+      throw Error('Cần đọc và xác nhận riêng chênh lệch 1 hồ sơ trước khi chuyển. '+missingWarning);
     const payRows=SpreadsheetApp.openById(payment.id).getSheetByName(payment.tab)
       .getRange(3,1,46,14).getValues();
     const cityRow=SpreadsheetApp.openById(city.id).getSheetByName(city.tab)
