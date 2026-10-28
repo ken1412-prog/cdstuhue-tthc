@@ -94,6 +94,34 @@ function cdsAdminHub_(token){
  if(!id)throw Error('Chưa cấu hình STATS HUB');
  return SpreadsheetApp.openById(id);
 }
+/**
+ * Suggest the actual Excel export date only if BOTH payment filenames carry
+ * the same unambiguous DDMMYYYY date. Never derive it from the current clock.
+ */
+function cdsAdminSuggestedStageDate_(rows){
+ const keys=['THU_NOP','THU_NOP_CITY'],dates=[];
+ for(const key of keys){
+   const item=rows.find(r=>String(r[0]||'').trim()===key);
+   if(!item)return '';
+   const source=String(item[6]||'').trim();
+   const matches=[...source.matchAll(/(?:^|[_-])([0-3]\d)(0[1-9]|1[0-2])(20\d{2})(?=[_.-]|$)/g)];
+   if(matches.length!==1)return '';
+   const m=matches[0],date=m[3]+'-'+m[2]+'-'+m[1];
+   const stamp=new Date(date+'T00:00:00Z');
+   if(!Number.isFinite(stamp.getTime())||stamp.toISOString().slice(0,10)!==date)return '';
+   dates.push(date);
+ }
+ return dates[0]===dates[1]?dates[0]:'';
+}
+function cdsAdminValidateReportDate_(date){
+ const iso=String(date||'').trim();
+ if(!/^20\d{2}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/.test(iso))
+   throw Error('Chọn ngày nguồn theo YYYY-MM-DD, ví dụ 2026-10-28');
+ const parsed=new Date(iso+'T00:00:00Z');
+ if(!Number.isFinite(parsed.getTime())||parsed.toISOString().slice(0,10)!==iso)
+   throw Error('Ngày nguồn không tồn tại trên lịch');
+ return iso;
+}
 function cdsAdminGetSnapshot(token){
  const hub=cdsAdminHub_(token);
  const menu=hub.getSheetByName('QUAN_TRI_DANH_MUC'),
@@ -138,11 +166,12 @@ function cdsAdminGetSnapshot(token){
        pendingWarning=cdstuhueMissingCountReconcile_(a,b);
    }
  }catch(error){console.warn('Cannot read optional pre-promotion warning');}
+ const suggestedSnapshot=cdsAdminSuggestedStageDate_(stageRows);
  const promotion={period,currentPeriod,warning:pendingWarning,
    ready:!!(complete&&/^20\d{2}-(0[1-9]|1[0-2])$/.test(period)&&
      period===currentPeriod&&!alreadyLive),
    completed:!!alreadyLive};
- return {nav,modules,staged,promotion,serverTime:new Date().toISOString(),
+ return {nav,modules,staged,promotion,suggestedSnapshot,serverTime:new Date().toISOString(),
    links:{hub:hub.getUrl(),
      qa:/^[A-Za-z0-9_-]{20,}$/.test(qaId)?
        'https://docs.google.com/spreadsheets/d/'+qaId+'/edit':''},
@@ -230,6 +259,65 @@ function cdsAdminSetStagedReview(token,code,on,snapshot){
  }finally{lock.releaseLock();}
 }
 
+
+/**
+ * Explicit owner approval of the entire validated staged batch. Does not
+ * promote sources or publish anything. The suggested date must agree with
+ * BOTH report filenames and the owner's selected reporting period.
+ */
+function cdsAdminApproveStagedBatch(token,reportDate){
+ const hub=cdsAdminHub_(token),date=cdsAdminValidateReportDate_(reportDate);
+ const lock=LockService.getScriptLock();
+ if(!lock.tryLock(30000))throw Error('Đang có người xử lý Excel; vui lòng thử lại');
+ try{
+   const sh=hub.getSheetByName('DU_LIEU_CHO_DUYET');
+   if(!sh)throw Error('Không có dữ liệu nháp để duyệt');
+   const rows=sh.getRange(2,1,4,9).getDisplayValues();
+   const keys=CDS_ADMIN_SOURCE_KEYS_;
+   if(rows.length!==4||keys.some(k=>rows.filter(r=>r[0]===k).length!==1))
+     throw Error('Không có đủ bốn nguồn nháp khác loại');
+   const autoDate=cdsAdminSuggestedStageDate_(rows);
+   if(autoDate&&autoDate!==date)
+     throw Error('Ngày nhập '+date+' không trùng ngày xuất báo cáo '+autoDate+
+       '. Vui lòng kiểm tra lại hai Excel thu nộp.');
+   const currentMonthSheet=hub.getSheetByName('KY_BAO_CAO');
+   const openPeriod=currentMonthSheet?String(currentMonthSheet.getRange('B2').getDisplayValue()||'').trim():'2026-10';
+   if(date.slice(0,7)!==openPeriod)
+     throw Error('Kỳ '+date.slice(0,7)+' chưa được mở; kỳ hiện tại '+openPeriod);
+   const pendingRaw=cdsAdminProps_().getProperty('CDSTUHUE_PENDING_STAGE_JSON');
+   if(!pendingRaw)throw Error('Không có bản kiểm tra Excel đang chờ. Cần tạo nháp lại.');
+   let pending;
+   try{pending=JSON.parse(pendingRaw)}catch(_){throw Error('Bản kiểm tra Excel không hợp lệ; tạo lại nháp');}
+   if(pending.mode!=='STAGED_AWAITING_REVIEW'||pending.reconciled!==true)
+     throw Error('Bốn Excel chưa qua bước kiểm tra đối chiếu');
+   for(const key of keys){
+     const row=rows.find(r=>r[0]===key),src=pending.sources?.[key];
+     if(!src||row[2]!==src.id||row[3]!==src.tab||
+       Number(row[4])!==src.summary?.rows||row[6]!==src.sourceName)
+       throw Error('Nguồn '+key+' đã khác lúc kiểm tra; cần tạo lại bản nháp');
+     if(row[7]!=='ĐẠT - CHỜ DUYỆT'&&row[7]!=='ĐÃ DUYỆT')
+       throw Error('Nguồn '+key+' chưa ở trạng thái cho phép duyệt');
+   }
+   const inbox=cdstuhueInputFiles_();
+   if(inbox.signature!==pending.signature)
+     throw Error('Bốn Excel gốc đã thay đổi từ lúc kiểm tra; tạo nháp lại để tránh duyệt nhầm');
+   const oldDate=rows.map(r=>[r[5]]),oldStatus=rows.map(r=>[r[7]]);
+   try{
+     sh.getRange(2,6,4,1).setValues(keys.map(()=>[date]));
+     sh.getRange(2,8,4,1).setValues(keys.map(()=>['ĐÃ DUYỆT']));
+   }catch(e){
+     try{
+       sh.getRange(2,6,4,1).setValues(oldDate);
+       sh.getRange(2,8,4,1).setValues(oldStatus);
+     }catch(rollback){console.error('Không thể hoàn nguyên batch duyệt nháp');}
+     throw e;
+   }
+   try{cdsAdminAudit_(hub,'DUYỆT NHÁP 4 NGUỒN (CHƯA CHUYỂN)',date,'CHỜ DUYỆT','ĐÃ DUYỆT');}
+   catch(e){console.warn('Đã duyệt nháp nhưng nhật ký quản trị bị lỗi');}
+   return {ok:true,approved:4,date,
+     info:'Đã xác nhận kỳ '+date+' và duyệt đủ 4 bản nháp. Nguồn chính thức vẫn giữ nguyên. Tiếp tục bước 3 để chuyển nguồn.'};
+ }finally{lock.releaseLock();}
+}
 
 /** Excel intake actions in the OWNER-ONLY administration project. */
 function cdsAdminCheckExcel(token){
