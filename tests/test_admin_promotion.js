@@ -103,6 +103,15 @@ assert.equal(JSON.stringify(registry.cells.slice(1,5)),initial,'No mutation on r
 stage.cells[2][7]='CHỜ DUYỆT';
 assert.throws(()=>context.cdsAdminPromoteStaged('VALID','DUYET 2026-10'),/chưa được chủ sở hữu duyệt/);
 stage.cells[2][7]='ĐÃ DUYỆT';
+// Synthetic 1-record drift: still requires a separate owner acknowledgement.
+assert.match(context.cdstuhueMissingCountReconcile_(8760,8761),/CẢNH BÁO/);
+assert.throws(()=>context.cdstuhueMissingCountReconcile_(8760,8762),/lệch quá 1 hồ sơ/);
+stage.cells[3][4]=101;
+summary.CHUA_KHAI.rows=101;
+assert.throws(()=>context.cdsAdminPromoteStaged('VALID','DUYET 2026-10'),/Cần đọc và xác nhận riêng/);
+assert.equal(JSON.stringify(registry.cells.slice(1,5)),initial,'Warning must not publish without acknowledgement');
+stage.cells[3][4]=100;
+summary.CHUA_KHAI.rows=100;
 const result=context.cdsAdminPromoteStaged('VALID','DUYET 2026-10');
 assert.equal(result.promoted,true);
 assert.equal(result.period,'2026-10');
