@@ -248,6 +248,23 @@ function cdstuhueNormalizeStagedSheet_(type,sh) {
   }
   return tab;
 }
+/**
+ * Preserve independently exported counts. A one-record timing drift is a
+ * reviewable WARNING, never silently rewritten; larger differences hard-fail.
+ * Both values remain visible and retain their distinct reporting scopes.
+ */
+function cdstuhueMissingCountReconcile_(cityCount,listCount){
+  if(!Number.isSafeInteger(cityCount)||!Number.isSafeInteger(listCount)||
+     cityCount<0||listCount<0)
+    throw Error('Số hồ sơ chưa khai báo không hợp lệ');
+  const delta=listCount-cityCount;
+  if(Math.abs(delta)>1)throw Error(
+    'Chưa khai báo lệch quá 1 hồ sơ: tổng thành phố '+cityCount+
+    ', danh sách '+listCount+' (chênh '+(delta>0?'+':'')+delta+
+    '). Cần xuất lại hai nguồn tại cùng thời điểm, chưa tạo nháp.');
+  return delta===0?'':'CẢNH BÁO: số chưa khai báo lệch 1 hồ sơ giữa báo cáo tổng thành phố ('+
+    cityCount+') và danh sách ('+listCount+'). Hai chỉ tiêu giữ nguyên theo nguồn; người quản trị cần xác nhận trước khi chuyển.';
+}
 function cdstuhuePreflightExcel4() {
   const id=PropertiesService.getScriptProperties().getProperty('CDSTUHUE_EXCEL_INBOX_FOLDER_ID');
   if(!id||!/^[A-Za-z0-9_-]{20,}$/.test(id))throw Error('Chưa cấu hình ID thư mục Excel riêng tư');
@@ -282,8 +299,9 @@ function cdstuhuePreflightExcel4() {
     if(city.members<detailed.members||city.required<detailed.required||
        city.received!==detailed.received||city.notFiled<detailed.notFiled)
       throw Error('Số tổng thành phố không khớp báo cáo 46 đơn vị; dừng nạp');
-    if(city.notFiled!==report.sources.CHUA_KHAI.rows)
-      throw Error('Danh sách chưa khai báo không khớp số hồ sơ trong tổng thành phố; dừng nạp');
+    const missingWarning=cdstuhueMissingCountReconcile_(
+      city.notFiled,report.sources.CHUA_KHAI.rows);
+    report.warnings=missingWarning?[missingWarning]:[];
     report.reconciled=true;
     console.log(JSON.stringify(report)); // Aggregate counts only. Never log person/account data.
     return report;
@@ -355,9 +373,11 @@ function cdstuhueStageExcel4() {
     if(keys.some(k=>!output.sources[k]))throw Error('Bộ bốn Excel thiếu một nguồn');
     const unit=output.sources.THU_NOP.summary,city=output.sources.THU_NOP_CITY.summary;
     if(city.members<unit.members||city.required<unit.required||
-       city.received!==unit.received||city.notFiled<unit.notFiled||
-       city.notFiled!==output.sources.CHUA_KHAI.summary.rows)
-      throw Error('Tổng thành phố, 46 Đảng bộ và chưa khai báo chưa đối chiếu khớp');
+       city.received!==unit.received||city.notFiled<unit.notFiled)
+      throw Error('Tổng thành phố và 46 Đảng bộ chưa đối chiếu khớp');
+    const missingWarning=cdstuhueMissingCountReconcile_(
+      city.notFiled,output.sources.CHUA_KHAI.summary.rows);
+    output.warnings=missingWarning?[missingWarning]:[];
     output.reconciled=true;
     // Write a manifest ONLY to the private STATS HUB's staging tab.
     const hubId=props.getProperty('CDSTUHUE_STATS_HUB_ID');
@@ -500,9 +520,10 @@ function cdstuhueApproveStagedBatch() {
     const people=sum(2),due=sum(11),paid=sum(12),noFile=sum(10),
       cityPeople=number(city[2]),cityDue=number(city[11]),
       cityPaid=number(city[12]),cityMissing=number(city[10]);
-    if(cityPaid!==paid||cityMissing!==missing.rows||
+    if(cityPaid!==paid||
        cityPeople<people||cityDue<due||bank.registered+bank.notRegistered!==bank.rows)
       throw Error('Reconciliation changed after review; no publication');
+    const missingWarning=cdstuhueMissingCountReconcile_(cityMissing,missing.rows);
     const ranking=payment.map(r=>({
       name:String(r[1]||'').trim(),members:number(r[2]),due:number(r[11]),
       paid:number(r[12]),noFile:number(r[10]),pending:number(r[7]),
