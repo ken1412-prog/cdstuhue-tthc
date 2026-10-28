@@ -84,6 +84,8 @@ a{color:#21538a}.foot{margin-top:24px;text-align:center;font-size:12px;color:#6b
     <h2>3. Chuyển 4 nguồn chính thức</h2>
     <p class="muted">Sau khi đủ bốn nguồn <strong>ĐÃ DUYỆT</strong>, xác nhận kỳ để chuyển nguồn lên STATS HUB. Máy chủ sẽ đối chiếu lại các bảng nguồn, sao lưu cấu hình cũ và chỉ cập nhật dữ liệu trong phạm vi công khai đã duyệt.</p>
     <p id="promotionStatus" class="muted" aria-live="polite">Đang kiểm tra trạng thái duyệt...</p>
+    <p id="missingCountWarning" class="alert" hidden aria-live="polite"></p>
+    <label id="missingCountAcceptWrap" hidden><input type="checkbox" id="missingCountAccept"> Tôi đã kiểm tra, hiểu và chấp nhận chênh lệch đúng 1 hồ sơ giữa hai báo cáo trước khi chuyển nguồn.</label>
     <label for="promotionConfirmation" id="promotionLabel">Nhập xác nhận theo kỳ báo cáo</label>
     <div class="promotion-controls">
       <input id="promotionConfirmation" type="text" spellcheck="false" autocomplete="off" placeholder="DUYET YYYY-MM" disabled>
@@ -186,6 +188,11 @@ function render(data){
  field.disabled=!canPromote;field.value='';
  field.placeholder='DUYET '+(promote.period||'YYYY-MM');
  $('promotionLabel').textContent='Nhập chính xác: DUYET '+(promote.period||'YYYY-MM');
+ $('missingCountWarning').textContent=promote.warning||'';
+ $('missingCountWarning').hidden=!promote.warning;
+ $('missingCountAcceptWrap').hidden=!promote.warning||!canPromote;
+ $('missingCountAccept').checked=false;
+ button.dataset.warning=promote.warning?'1':'0';
  button.dataset.period=promote.period||'';
  button.dataset.locked='true';button.disabled=true;
  const staged=$('stagedItems');staged.replaceChildren();
@@ -234,8 +241,8 @@ async function doExcel(method,question){
  try{
    const r=await invoke(method,[session]);
    feedback.textContent=r.info||'Hoàn tất.';
-   feedback.className='alert success';
-   say('notice',r.info||'Đã xử lý dữ liệu nháp; chưa thay nguồn website.','success');
+   feedback.className=r.warnings?.length?'alert':'alert success';
+   say('notice',r.info||'Đã xử lý dữ liệu nháp; chưa thay nguồn website.',r.warnings?.length?'warning':'success');
  }catch(e){
    feedback.textContent=e.message;feedback.className='alert error';
    say('notice',e.message,'error');
@@ -249,21 +256,26 @@ $('stageExcel').addEventListener('click',()=>doExcel('cdsAdminStageExcel',
 $('promotionConfirmation').addEventListener('input',()=>{
  const field=$('promotionConfirmation'),button=$('promoteExcel');
  const correct='DUYET '+button.dataset.period;
- const valid=!field.disabled&&field.value.trim()===correct;
+ const valid=!field.disabled&&field.value.trim()===correct&&
+   (button.dataset.warning!=='1'||$('missingCountAccept').checked);
  button.dataset.locked=valid?'false':'true';
  button.disabled=busy||!valid;
 });
+$('missingCountAccept').addEventListener('change',()=>{$('promotionConfirmation').dispatchEvent(new Event('input'));});
 $('promoteExcel').addEventListener('click',async()=>{
  const required='DUYET '+$('promoteExcel').dataset.period;
  const typed=$('promotionConfirmation').value.trim();
- if(busy||!$('promoteExcel').dataset.period||typed!==required)return;
+ const accepted=$('promoteExcel').dataset.warning!=='1'||$('missingCountAccept').checked;
+ if(busy||!$('promoteExcel').dataset.period||typed!==required||!accepted)return;
+ const warning=$('promoteExcel').dataset.warning==='1'?
+   '\nCẢNH BÁO: hai báo cáo lệch 1 hồ sơ; cả hai số liệu gốc được giữ nguyên theo nguồn.':'';
  if(!window.confirm('CHUYỂN NGUỒN CHÍNH THỨC cho kỳ '+$('promoteExcel').dataset.period+
-   '? Dữ liệu sẽ thay bốn nguồn hiện hành trong STATS HUB sau khi máy chủ đối chiếu lại.'))return;
+   '? Dữ liệu sẽ thay bốn nguồn hiện hành trong STATS HUB sau khi máy chủ đối chiếu lại.'+warning))return;
  setBusy(true);
  $('promotionFeedback').textContent='Đang đối chiếu và chuyển nguồn đã duyệt...';
  $('promotionFeedback').className='muted';
  try{
-  const result=await invoke('cdsAdminPromoteStaged',[session,typed]);
+  const result=await invoke('cdsAdminPromoteStaged',[session,typed,$('missingCountAccept').checked]);
   if(!result?.ok||!result?.promoted)throw Error('Máy chủ chưa xác nhận chuyển nguồn');
   say('promotionFeedback',result.info,'success');
   say('notice',result.info,'success');
