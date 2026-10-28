@@ -224,7 +224,7 @@ function render(data){
      'Ngày '+suggested+' được đối chiếu từ hai file thu nộp. Bấm xác nhận để duyệt 4 bản nháp; dữ liệu website chưa thay đổi.':
      'Chưa suy ra được ngày từ tên hai Excel. Chọn ngày báo cáo thực tế, kiểm tra đúng kỳ rồi duyệt.';
  }
- batchButton.dataset.locked=readyBatch?'false':'true';
+ batchButton.dataset.locked=readyBatch&&!!batchDate.value?'false':'true';
  batchButton.disabled=!readyBatch||!batchDate.value;
  if(!data.staged.length){
   const p=document.createElement('p');p.className='muted';p.textContent='Chưa có nguồn nháp; cần chạy chức năng nhập Excel trước.';staged.append(p);
