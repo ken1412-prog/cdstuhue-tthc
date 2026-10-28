@@ -234,7 +234,9 @@ function cdsAdminCheckExcel(token){
       required:r.required||0,received:r.received||0,notFiled:r.notFiled||0};
   });
   return {ok:true,reconciled:true,sources:safe,
-    info:'Đối chiếu đạt. Chưa cập nhật bất kỳ nguồn dữ liệu đang chạy nào.'};
+    warnings:result.warnings||[],
+    info:'Đối chiếu đạt. Chưa cập nhật bất kỳ nguồn dữ liệu đang chạy nào.'+
+      (result.warnings?.length?' '+result.warnings.join(' '):'')};
 }
 function cdsAdminStageExcel(token){
   cdsAdminSession_(token);
@@ -250,7 +252,9 @@ function cdsAdminStageExcel(token){
   return {ok:true,mode:out.mode,changed:out.mode==='STAGED_AWAITING_REVIEW',
     reconciled:out.reconciled===true,sources:safe,
     info:out.mode==='UNCHANGED'?'Đã có bộ nháp cùng dữ liệu, không tạo trùng.':
-      'Bốn Google Sheets nháp đã tạo và ghi chờ duyệt. Nguồn live không đổi.'};
+      'Bốn Google Sheets nháp đã tạo và ghi chờ duyệt. Nguồn live không đổi.'+
+      (out.warnings?.length?' '+out.warnings.join(' '):''),
+    warnings:out.warnings||[]};
 }
 
 
@@ -348,9 +352,10 @@ function cdsAdminPromoteStaged(token,confirmation){
     if(citySummary.members<sourceSummary.members||
        citySummary.required<sourceSummary.required||
        citySummary.received!==sourceSummary.received||
-       citySummary.notFiled!==summaries.CHUA_KHAI.rows||
        summaries.NGAN_HANG.registered+summaries.NGAN_HANG.notRegistered!==summaries.NGAN_HANG.rows)
       throw Error('Đối chiếu bốn nguồn không khớp; không chuyển');
+    const missingWarning=cdstuhueMissingCountReconcile_(
+      citySummary.notFiled,summaries.CHUA_KHAI.rows);
     const payRows=SpreadsheetApp.openById(payment.id).getSheetByName(payment.tab)
       .getRange(3,1,46,14).getValues();
     const cityRow=SpreadsheetApp.openById(city.id).getSheetByName(city.tab)
@@ -364,8 +369,7 @@ function cdsAdminPromoteStaged(token,confirmation){
        totalPaid!==sourceSummary.received||totalMissing!==sourceSummary.notFiled||
        cityMembers!==citySummary.members||cityMissing!==citySummary.notFiled||
        cityDue!==citySummary.required||cityPaid!==citySummary.received||
-       cityPaid!==totalPaid||cityMissing!==summaries.CHUA_KHAI.rows||
-       cityDue<totalDue||cityMembers<totalMembers)
+       cityPaid!==totalPaid||cityDue<totalDue||cityMembers<totalMembers)
       throw Error('Tổng tiền/số người không khớp giữa các nguồn');
     const ranking=payRows.map(row=>({
       name:String(row[1]||'').trim(),members:toInt(row[2]),due:toInt(row[11]),
@@ -440,11 +444,13 @@ function cdsAdminPromoteStaged(token,confirmation){
     props.setProperty('CDSTUHUE_PREVIOUS_CONFIG_JSON',backup);
     props.setProperty('CDSTUHUE_ACTIVE_STAGE_SIGNATURE',input.signature);
     props.deleteProperty('CDSTUHUE_PENDING_STAGE_JSON');
-    try{cdsAdminAudit_(hub,'CHUYỂN NGUỒN CHÍNH THỨC 4 EXCEL',period,'Đã duyệt nháp','ĐÃ CHUYỂN NGUỒN');}
+    try{cdsAdminAudit_(hub,'CHUYỂN NGUỒN CHÍNH THỨC 4 EXCEL',period,
+      'Đã duyệt nháp',missingWarning?'ĐÃ CHUYỂN NGUỒN - WARN 1 HỒ SƠ':'ĐÃ CHUYỂN NGUỒN');}
     catch(auditError){console.error('Đã chuyển nguồn; ghi nhật ký bổ sung thất bại');}
     return {ok:true,promoted:true,period,sourceCount:4,
       info:'Đã chuyển chính thức bốn nguồn kỳ '+period+
-        '. Website sẽ đọc thống kê đã duyệt trực tiếp khi mở hoặc tải lại, không cần chạy GitHub Actions thủ công.'};
+        '. Website sẽ đọc thống kê đã duyệt trực tiếp khi mở hoặc tải lại, không cần chạy GitHub Actions thủ công.'+
+        (missingWarning?' '+missingWarning:'')};
   }finally{
     lock.releaseLock();
   }
@@ -694,6 +700,23 @@ function cdstuhueNormalizeStagedSheet_(type,sh) {
   }
   return tab;
 }
+/**
+ * Preserve independently exported counts. A one-record timing drift is a
+ * reviewable WARNING, never silently rewritten; larger differences hard-fail.
+ * Both values remain visible and retain their distinct reporting scopes.
+ */
+function cdstuhueMissingCountReconcile_(cityCount,listCount){
+  if(!Number.isSafeInteger(cityCount)||!Number.isSafeInteger(listCount)||
+     cityCount<0||listCount<0)
+    throw Error('Số hồ sơ chưa khai báo không hợp lệ');
+  const delta=listCount-cityCount;
+  if(Math.abs(delta)>1)throw Error(
+    'Chưa khai báo lệch quá 1 hồ sơ: tổng thành phố '+cityCount+
+    ', danh sách '+listCount+' (chênh '+(delta>0?'+':'')+delta+
+    '). Cần xuất lại hai nguồn tại cùng thời điểm, chưa tạo nháp.');
+  return delta===0?'':'CẢNH BÁO: số chưa khai báo lệch 1 hồ sơ giữa báo cáo tổng thành phố ('+
+    cityCount+') và danh sách ('+listCount+'). Hai chỉ tiêu giữ nguyên theo nguồn; người quản trị cần xác nhận trước khi chuyển.';
+}
 function cdstuhuePreflightExcel4_() {
   const id=PropertiesService.getScriptProperties().getProperty('CDSTUHUE_EXCEL_INBOX_FOLDER_ID');
   if(!id||!/^[A-Za-z0-9_-]{20,}$/.test(id))throw Error('Chưa cấu hình ID thư mục Excel riêng tư');
@@ -736,8 +759,9 @@ function cdstuhuePreflightExcel4_() {
     if(city.members<detailed.members||city.required<detailed.required||
        city.received!==detailed.received||city.notFiled<detailed.notFiled)
       throw Error('Số tổng thành phố không khớp báo cáo 46 đơn vị; dừng nạp');
-    if(city.notFiled!==report.sources.CHUA_KHAI.rows)
-      throw Error('Danh sách chưa khai báo không khớp số hồ sơ trong tổng thành phố; dừng nạp');
+    const missingWarning=cdstuhueMissingCountReconcile_(
+      city.notFiled,report.sources.CHUA_KHAI.rows);
+    report.warnings=missingWarning?[missingWarning]:[];
     report.reconciled=true;
     console.log(JSON.stringify(report)); // Aggregate counts only. Never log person/account data.
     return report;
@@ -817,9 +841,11 @@ function cdstuhueStageExcel4_() {
     if(keys.some(k=>!output.sources[k]))throw Error('Bộ bốn Excel thiếu một nguồn');
     const unit=output.sources.THU_NOP.summary,city=output.sources.THU_NOP_CITY.summary;
     if(city.members<unit.members||city.required<unit.required||
-       city.received!==unit.received||city.notFiled<unit.notFiled||
-       city.notFiled!==output.sources.CHUA_KHAI.summary.rows)
-      throw Error('Tổng thành phố, 46 Đảng bộ và chưa khai báo chưa đối chiếu khớp');
+       city.received!==unit.received||city.notFiled<unit.notFiled)
+      throw Error('Tổng thành phố và 46 Đảng bộ chưa đối chiếu khớp');
+    const missingWarning=cdstuhueMissingCountReconcile_(
+      city.notFiled,output.sources.CHUA_KHAI.summary.rows);
+    output.warnings=missingWarning?[missingWarning]:[];
     output.reconciled=true;
     // Write a manifest ONLY to the private STATS HUB's staging tab.
     const hubId=props.getProperty('CDSTUHUE_STATS_HUB_ID');
