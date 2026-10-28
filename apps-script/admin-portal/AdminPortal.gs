@@ -717,7 +717,15 @@ function cdstuhuePreflightExcel4_() {
       temp.push(converted.id);
       const matched=SpreadsheetApp.openById(converted.id).getSheets()
         .map(sh=>({sh,type:cdstuhueExcelIdentify_(sh)})).filter(x=>x.type);
-      if(matched.length!==1)throw Error('Không xác định duy nhất mẫu của một Excel');
+      if(matched.length!==1){
+        const filename=String(f.getName()||'Excel').slice(0,160);
+        if(matched.length===0)throw Error(
+          'Sai mẫu Excel: '+filename+
+          '. Bốn nguồn yêu cầu: thu nộp tổng hợp 46 Đảng bộ, tổng thành phố 1 dòng, chưa khai báo, ngân hàng. '+
+          'Không dùng danh sách chi tiết từng đảng viên thay cho báo cáo tổng hợp.');
+        throw Error('Excel có nhiều sheet khớp mẫu: '+filename+
+          '. Kiểm tra và giữ một sheet đúng loại báo cáo.');
+      }
       const type=matched[0].type;
       if(report.sources[type])throw Error('Trùng loại Excel: '+type);
       report.sources[type]={file:f.getName(),...cdstuhueExcelValidate_(type,matched[0].sh)};
@@ -789,7 +797,15 @@ function cdstuhueStageExcel4_() {
       const ss=SpreadsheetApp.openById(c.id);
       const matched=ss.getSheets().map(sh=>({sh,type:cdstuhueExcelIdentify_(sh)}))
         .filter(x=>!!x.type);
-      if(matched.length!==1)throw Error('Excel không nhận diện được loại duy nhất');
+      if(matched.length!==1){
+        const filename=String(f.getName()||'Excel').slice(0,160);
+        if(matched.length===0)throw Error(
+          'Sai mẫu Excel: '+filename+
+          '. Bốn nguồn yêu cầu: thu nộp tổng hợp 46 Đảng bộ, tổng thành phố 1 dòng, chưa khai báo, ngân hàng. '+
+          'Không dùng danh sách chi tiết từng đảng viên thay cho báo cáo tổng hợp.');
+        throw Error('Excel có nhiều sheet khớp mẫu: '+filename+
+          '. Kiểm tra và giữ một sheet đúng loại báo cáo.');
+      }
       const obj=matched[0];
       if(output.sources[obj.type])throw Error('Hai file trùng loại '+obj.type);
       const summary=cdstuhueExcelValidate_(obj.type,obj.sh);
