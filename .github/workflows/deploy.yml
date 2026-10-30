@@ -107,6 +107,7 @@ jobs:
           node tests/test_admin_promotion.js
           node tests/test_online_presence.js
           node tests/test_live_stats_feed.js
+          node tests/test_mobile_auto_refresh.js
           node tests/test_ca_qs_stats.js
           node tests/test_payment_popup.js
           python -m unittest discover -s tests -p 'test_public_surface.py' -v
