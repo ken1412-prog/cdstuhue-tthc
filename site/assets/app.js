@@ -89,7 +89,22 @@ const qgroup = item => ({'QA TTHC':'tthc','QA STDV':'stdv','QA CSDL 4.0':'csdl'}
 const safeUrl = url => {try{const u=new URL(String(url||''));return ['https:','http:'].includes(u.protocol)?u.href:''}catch{return''}};
 const normQA = item=>({id:String(item.id||'').trim(),group:qgroup(item),topic:String(item.topic||'').trim(),question:String(item.question||'').trim(),answer:String(item.answer||'').trim(),keywords:String(item.keywords||''),alternatives:String(item.alternatives||''),updated:String(item.updated||''),sourceUrl:safeUrl(item.sourceUrl),publicNote:String(item.publicNote||'')});
 const validProgress = item=>Boolean(item&&item.public===true&&String(item.unit||'').trim()&&PROCEDURES[item.procedure]&&Number.isFinite(Number(item.progress))&&Number(item.progress)>=0&&Number(item.progress)<=100);
-async function loadData(){
+// One startup/retry fetch at a time; mobile reconnects should recover without tapping ↻.
+let dataLoadPromise=null,dataLoadRetryTimer=null,dataLoadRetryAttempts=0;
+function loadData(){
+ if(dataLoadPromise)return dataLoadPromise;
+ dataLoadPromise=loadDataCore().finally(()=>{dataLoadPromise=null});
+ return dataLoadPromise;
+}
+function scheduleDataLoadRecovery(){
+ if(dataLoadRetryTimer||state.demo||state.local)return;
+ const delay=Math.min(180000,5000*Math.pow(2,Math.min(dataLoadRetryAttempts++,5)));
+ dataLoadRetryTimer=setTimeout(()=>{
+  dataLoadRetryTimer=null;
+  if(document.visibilityState==='visible'&&(!state.stats||!state.qa.length))loadData();
+ },delay);
+}
+async function loadDataCore(){
  const hiddenMenu={...MENU_DEFAULTS};
  try{
   const r=await fetch('data/menu.json',{cache:'no-store'});if(!r.ok)throw Error('Menu unavailable');
@@ -132,6 +147,11 @@ async function loadData(){
  state.loadError=issues.length?issues.join('; '):null;
  updateGlobal();render();
  startLiveStats();
+ if(!state.stats||!state.qa.length)scheduleDataLoadRecovery();
+ else{
+  dataLoadRetryAttempts=0;
+  if(dataLoadRetryTimer){clearTimeout(dataLoadRetryTimer);dataLoadRetryTimer=null;}
+ }
 }
 /* Live approved statistics: public Google Apps Script /exec, no manual CI.
  * GitHub Pages JSON remains fallback when the live feed is temporarily down.
@@ -155,8 +175,10 @@ function readLiveStatsEndpoint(){
     .then(validEndpoint).catch(()=>null);
   // The QA endpoint is already public and stored in two safe configurations.
   // The backup makes live stats/QA/menu independent of the scheduled CI build.
-  liveStatsEndpointPromise=config('data/online-config.json').then(
-    u=>u||config('data/questions-config.json'));
+  liveStatsEndpointPromise=config('data/online-config.json')
+    .then(u=>u||config('data/questions-config.json'))
+    .then(u=>{if(!u)liveStatsEndpointPromise=null;return u;})
+    .catch(()=>{liveStatsEndpointPromise=null;return null;});
  }
  return liveStatsEndpointPromise;
 }
@@ -223,6 +245,15 @@ function startLiveStats(){
  }
  refreshLiveStats();
  refreshLivePublished();
+ // Second chance after initial mobile network setup or transient failures.
+ if(!liveStatsLastCheck){
+  setTimeout(()=>{
+   if(document.visibilityState==='visible'&&!state.demo&&!state.local){
+     refreshLiveStats();
+     refreshLivePublished();
+   }
+  },35000);
+ }
 }
 /* Public-only approved QA and menu use the same /exec as stats-live.
  * No private Sheets, user tokens or unpublished records are exposed here.
@@ -902,7 +933,14 @@ function boot(){document.addEventListener('keydown',discourageSourceHotkeys,true
  };
  $('#openAssistant').onclick=toggleAssistant;
  $('#assistantMobileFab').onclick=toggleAssistant;$('#closeAssistant').onclick=()=>assistant.classList.add('hidden');$('#assistantForm').onsubmit=e=>{e.preventDefault();assistantResults($('#assistantInput').value)};$('#askToggle').onclick=()=>{const panel=$('#askPanel');panel.classList.toggle('hidden');$('#askToggle').setAttribute('aria-expanded',String(!panel.classList.contains('hidden')));if(!panel.classList.contains('hidden'))$('#questionText').focus()};$('#questionForm').onsubmit=e=>{if($('#questionSubmit').disabled){e.preventDefault();toast('Chưa kích hoạt nhận câu hỏi mới');return}const text=$('#questionText').value.trim();if(text.length<12||text.length>1200||/([a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}|\b(?:0[35789]\d{8}|\d{12})\b)/i.test(text)){e.preventDefault();toast('Vui lòng không gửi thông tin cá nhân; câu hỏi dài 12–1200 ký tự');return}setTimeout(()=>{$('#questionText').value=''},200)};loadQuestionFormConfig();
- document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeQA();closePaymentDetail();assistant.classList.add('hidden');closeMobile()}});window.addEventListener('popstate',syncFromUrl);loadData();}
+ document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeQA();closePaymentDetail();assistant.classList.add('hidden');closeMobile()}});window.addEventListener('popstate',syncFromUrl);
+ // Android Chrome can restore a frozen tab from back/forward cache.
+ window.addEventListener('pageshow',e=>{
+  if(e.persisted&&!state.demo&&!state.local){
+   loadData().then(()=>{refreshLiveStats();refreshLivePublished();});
+  }
+ });
+ loadData();}
 window.CDSTUHUE_TEST={fold,scoreQA,normQA,validProgress};
 boot();
 })();
