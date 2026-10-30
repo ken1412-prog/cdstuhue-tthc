@@ -238,6 +238,7 @@ function startLiveStats(){
   },180000);
   document.addEventListener('visibilitychange',()=>{
    if(document.visibilityState==='visible'){
+     if(!state.stats||!state.qa.length)loadData();
      if(Date.now()-liveStatsLastCheck>60000)refreshLiveStats();
      if(Date.now()-livePublicationLastCheck>60000)refreshLivePublished();
    }
