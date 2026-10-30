@@ -1,0 +1,11 @@
+# Netlify-specific cache rules for the published site.
+# Revalidate entry HTML and runtime JS so mobile users do not keep an older
+# app that needs its manual refresh button after a publication update.
+/index.html
+  Cache-Control: public, max-age=0, must-revalidate
+/hoi-dap.html
+  Cache-Control: public, max-age=0, must-revalidate
+/assets/app.js
+  Cache-Control: public, max-age=0, must-revalidate
+/data/*.json
+  Cache-Control: public, max-age=0, must-revalidate
