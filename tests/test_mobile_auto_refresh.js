@@ -65,12 +65,19 @@ async function main(){
  assert(src.includes("if(lastStaticLoadHadError)loadData();"),
   'Only retry failed static network loads, not correctly empty approved data');
  assert(src.includes('startLiveStats();'));
- assert(src.includes('await Promise.all([refreshLiveStats(),refreshLivePublished()]);'));
+ const firstPaint=src.slice(src.indexOf('async function loadDataCore(){'),
+  src.indexOf('/* Live approved statistics:'));
+ assert(firstPaint.includes('firstPublicSync=false;\n updateGlobal();render();\n startLiveStats();'),
+  'Render approved static fallback without waiting on the live source');
+ assert(!firstPaint.includes('await Promise.all([refreshLiveStats()'),
+  'A slow public endpoint must never block the first paint');
+ assert(!src.includes('Đang kiểm tra dữ liệu công khai mới nhất…'),
+  'Do not insert a blocking full-page loading card');
  assert(src.includes('if(!liveSourceAccepted.stats)state.stats='));
  assert(src.includes('if(!liveSourceAccepted.qa)state.qa='));
  assert(src.includes('if(!liveSourceAccepted.menu)state.menu='));
  assert(src.includes('if(lastStaticLoadHadError)scheduleDataLoadRecovery();'));
- assert(html.includes('20261031-live-first-v2'));
+ assert(html.includes('20261031-approved-fast-open-v3'));
  assert(headers.includes('/assets/app.js'));
  console.log('Mobile auto-refresh PASS: startup retry, endpoint retry, tab restore and version bust');
 }

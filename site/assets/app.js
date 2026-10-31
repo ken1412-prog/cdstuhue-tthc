@@ -148,13 +148,10 @@ async function loadDataCore(){
  if(!liveSourceAccepted.qa)state.generatedAt=qa?.generatedAt||'';
  state.local=false;
  state.loadError=issues.length?issues.join('; '):null;
- // Wait for the owner-approved live feeds before first painting a static
- // snapshot. If live is unreachable, the reviewed Pages JSON is a fallback.
- if(firstPublicSync&&!state.demo&&!state.local){
-  const page=$('#page');
-  if(page)page.innerHTML='<div class="notice"><strong>Đang kiểm tra dữ liệu công khai mới nhất…</strong></div>';
-  await Promise.all([refreshLiveStats(),refreshLivePublished()]);
- }
+ // Show only explicitly reviewed public JSON immediately. Never block the
+ // first paint on a slow Apps Script request (notably on Android Chrome).
+ // The approved live source updates asynchronously; once accepted it cannot
+ // be overwritten by a later retry of the fallback JSON.
  firstPublicSync=false;
  updateGlobal();render();
  startLiveStats();
