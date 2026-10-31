@@ -91,6 +91,8 @@ const normQA = item=>({id:String(item.id||'').trim(),group:qgroup(item),topic:St
 const validProgress = item=>Boolean(item&&item.public===true&&String(item.unit||'').trim()&&PROCEDURES[item.procedure]&&Number.isFinite(Number(item.progress))&&Number(item.progress)>=0&&Number(item.progress)<=100);
 // One startup/retry fetch at a time; mobile reconnects should recover without tapping ↻.
 let dataLoadPromise=null,dataLoadRetryTimer=null,dataLoadRetryAttempts=0;
+let firstPublicSync=true,lastStaticLoadHadError=false,liveRetryScheduled=false;
+const liveSourceAccepted={stats:false,qa:false,menu:false};
 function loadData(){
  if(dataLoadPromise)return dataLoadPromise;
  dataLoadPromise=loadDataCore().finally(()=>{dataLoadPromise=null});
@@ -101,10 +103,11 @@ function scheduleDataLoadRecovery(){
  const delay=Math.min(180000,5000*Math.pow(2,Math.min(dataLoadRetryAttempts++,5)));
  dataLoadRetryTimer=setTimeout(()=>{
   dataLoadRetryTimer=null;
-  if(document.visibilityState==='visible'&&(!state.stats||!state.qa.length))loadData();
+  if(document.visibilityState==='visible'&&lastStaticLoadHadError)loadData();
  },delay);
 }
 async function loadDataCore(){
+ lastStaticLoadHadError=false;
  const hiddenMenu={...MENU_DEFAULTS};
  try{
   const r=await fetch('data/menu.json',{cache:'no-store'});if(!r.ok)throw Error('Menu unavailable');
@@ -112,8 +115,8 @@ async function loadDataCore(){
   if(payload.schema===1&&payload.visible&&typeof payload.visible==='object'){
     for(const id of Object.keys(hiddenMenu))if(typeof payload.visible[id]==='boolean')hiddenMenu[id]=payload.visible[id];
   }
- }catch(err){/* Fail closed: no private administrator settings exposed. */}
- state.menu=hiddenMenu;state.menuReady=true;
+ }catch(err){lastStaticLoadHadError=true;/* Fail closed: no private administrator settings exposed. */}
+ if(!liveSourceAccepted.menu)state.menu=hiddenMenu;state.menuReady=true;
  procedureMenu();
  if(state.pendingView){const requested=state.pendingView;state.pendingView=null;state.view=viewAllowed(requested)?requested:firstVisibleView();}
  if(!viewAllowed(state.view))state.view=firstVisibleView();
@@ -123,12 +126,12 @@ async function loadDataCore(){
  }
  let qa=null,pr=null,fn=null,issues=[];
  try{const r=await fetch('data/approved.json',{cache:'no-store'});if(!r.ok)throw Error('HTTP '+r.status);qa=await r.json();if(!qa||qa.schema!==1||!Array.isArray(qa.items))throw Error('Invalid QA schema');}
- catch(e){issues.push('Không đọc được bản xuất QA: '+e.message);}
+ catch(e){lastStaticLoadHadError=true;issues.push('Không đọc được bản xuất QA: '+e.message);}
  try{const r=await fetch('data/progress.json',{cache:'no-store'});if(!r.ok)throw Error('HTTP '+r.status);pr=await r.json();if(!pr||pr.schema!==1||!Array.isArray(pr.records))throw Error('Invalid progress schema');}
- catch(e){issues.push('Không đọc được tệp tiến độ: '+e.message);}
+ catch(e){lastStaticLoadHadError=true;issues.push('Không đọc được tệp tiến độ: '+e.message);}
  try{const r=await fetch('data/finance.json',{cache:'no-store'});if(!r.ok)throw Error('HTTP '+r.status);const f=await r.json();if(f?.schema!==1)throw Error('Invalid finance schema');if(f.public===true&&f.reviewed===true&&Array.isArray(f.bankGroups)&&f.bankGroups.every(v=>typeof v.name==='string'&&Number.isInteger(v.accounts)&&v.accounts>=0)&&[f.reportRecords,f.notDeclared,f.waitingApproval,f.waitingPayment].every(v=>v==null||(Number.isInteger(v)&&v>=0))&&[f.reportRecords,f.notDeclared,f.waitingApproval,f.waitingPayment,...f.bankGroups.map(g=>g.accounts)].some(v=>v!=null)){fn=f;}}
- catch(e){issues.push('Không đọc được bản thống kê đảng phí: '+e.message);}
- try{const r=await fetch('data/stats.json',{cache:'no-store'});if(!r.ok)throw Error('HTTP '+r.status);const stats=await r.json();state.stats=stats?.schema===1&&stats?.public===true&&stats?.reviewed===true&&stats?.modules&&typeof stats.modules==='object'?stats:null;}catch(e){state.stats=null;}
+ catch(e){lastStaticLoadHadError=true;issues.push('Không đọc được bản thống kê đảng phí: '+e.message);}
+ try{const r=await fetch('data/stats.json',{cache:'no-store'});if(!r.ok)throw Error('HTTP '+r.status);const stats=await r.json();if(!liveSourceAccepted.stats)state.stats=stats?.schema===1&&stats?.public===true&&stats?.reviewed===true&&stats?.modules&&typeof stats.modules==='object'?stats:null;}catch(e){lastStaticLoadHadError=true;if(!liveSourceAccepted.stats)state.stats=null;}
  // Archive index lists only approved, closed public months.
  state.paymentArchive=null;
  try{
@@ -138,16 +141,24 @@ async function loadDataCore(){
    idx.months.filter(x=>x&&/^20\d{2}-(0[1-9]|1[0-2])$/.test(x.period)&&x.closed===true):[];
  }catch(e){state.paymentHistory=[];}
  state.finance=fn;
- state.qa=qa?qa.items.filter(x=>x&&x.public===true).map(normQA).filter(x=>x.id&&x.question&&x.answer&&GROUPS[x.group]):[];
+ if(!liveSourceAccepted.qa)state.qa=qa?qa.items.filter(x=>x&&x.public===true).map(normQA).filter(x=>x.id&&x.question&&x.answer&&GROUPS[x.group]):[];
  // Fail-closed if accidental duplicates/invalid IDs appear in a publication feed.
  const ids=new Set();state.qa=state.qa.filter(x=>{if(ids.has(x.id))return false;ids.add(x.id);return true});
  state.progress=pr?pr.records.filter(validProgress).map(x=>({unit:String(x.unit),procedure:x.procedure,progress:Number(x.progress),received:Number(x.received)||0,completed:Number(x.completed)||0,updated:String(x.updated||'')})):[];
- state.generatedAt=qa?.generatedAt||'';
+ if(!liveSourceAccepted.qa)state.generatedAt=qa?.generatedAt||'';
  state.local=false;
  state.loadError=issues.length?issues.join('; '):null;
+ // Wait for the owner-approved live feeds before first painting a static
+ // snapshot. If live is unreachable, the reviewed Pages JSON is a fallback.
+ if(firstPublicSync&&!state.demo&&!state.local){
+  const page=$('#page');
+  if(page)page.innerHTML='<div class="notice"><strong>Đang kiểm tra dữ liệu công khai mới nhất…</strong></div>';
+  await Promise.all([refreshLiveStats(),refreshLivePublished()]);
+ }
+ firstPublicSync=false;
  updateGlobal();render();
  startLiveStats();
- if(!state.stats||!state.qa.length)scheduleDataLoadRecovery();
+ if(lastStaticLoadHadError)scheduleDataLoadRecovery();
  else{
   dataLoadRetryAttempts=0;
   if(dataLoadRetryTimer){clearTimeout(dataLoadRetryTimer);dataLoadRetryTimer=null;}
@@ -170,7 +181,11 @@ function readLiveStatsEndpoint(){
       return u;
     }catch(_){return null;}
   };
-  const config=path=>fetch(path,{cache:'no-store'})
+  const config=path=>fetch(path,{
+    cache:'no-store',
+    ...(typeof AbortSignal!=='undefined'&&typeof AbortSignal.timeout==='function'?
+      {signal:AbortSignal.timeout(7000)}:{})
+  })
     .then(r=>{if(!r.ok)throw Error('Missing public endpoint config');return r.json()})
     .then(validEndpoint).catch(()=>null);
   // The QA endpoint is already public and stored in two safe configurations.
@@ -196,7 +211,8 @@ function applyLiveStats(data){
   if(oldDate&&newDate&&newDate<oldDate)return false;
   state.stats=data;
  }
- updateGlobal();render();
+ liveSourceAccepted.stats=true;
+ if(!firstPublicSync){updateGlobal();render();}
  return true;
 }
 async function refreshLiveStats(){
@@ -216,7 +232,7 @@ async function refreshLiveStats(){
    tag.src=url.toString();
    tag.onload=()=>received?resolve():reject(Error('No callback'));
    tag.onerror=()=>reject(Error('Failed to fetch approved stats'));
-   timeout=setTimeout(()=>reject(Error('Stats request timeout')),25000);
+   timeout=setTimeout(()=>reject(Error('Stats request timeout')),firstPublicSync?10000:25000);
    document.head.appendChild(tag);
   });
  }catch(_){/* Keep the already-reviewed GitHub Pages JSON fallback. */}
@@ -238,16 +254,17 @@ function startLiveStats(){
   },180000);
   document.addEventListener('visibilitychange',()=>{
    if(document.visibilityState==='visible'){
-     if(!state.stats||!state.qa.length)loadData();
+     if(lastStaticLoadHadError)loadData();
      if(Date.now()-liveStatsLastCheck>60000)refreshLiveStats();
      if(Date.now()-livePublicationLastCheck>60000)refreshLivePublished();
    }
   });
  }
- refreshLiveStats();
- refreshLivePublished();
- // Second chance after initial mobile network setup or transient failures.
- if(!liveStatsLastCheck){
+ // First load already checked current data before showing any fallback.
+ if(!liveStatsLastCheck){refreshLiveStats();refreshLivePublished();}
+ // Give mobile connectivity another chance, with only one retry timer.
+ if(!liveRetryScheduled){
+  liveRetryScheduled=true;
   setTimeout(()=>{
    if(document.visibilityState==='visible'&&!state.demo&&!state.local){
      refreshLiveStats();
@@ -278,7 +295,7 @@ function loadApprovedLiveScript(kind,receiver,apply){
    tag.src=url.toString();
    tag.onerror=()=>reject(Error('Public data feed unavailable'));
    tag.onload=()=>{if(!delivered)reject(Error('Public data callback missing'))};
-   timeout=setTimeout(()=>reject(Error('Public data request timeout')),25000);
+   timeout=setTimeout(()=>reject(Error('Public data request timeout')),firstPublicSync?10000:25000);
    document.head.appendChild(tag);
   });
  }).catch(()=>false).finally(()=>{
@@ -297,11 +314,12 @@ function applyLiveQA(feed){
  if(next.length!==raw.length)return false;
  const unique=new Set();
  if(next.some(x=>unique.has(x.id)||!unique.add(x.id)))return false;
- if(JSON.stringify(state.qa)===JSON.stringify(next))return true;
+ if(JSON.stringify(state.qa)===JSON.stringify(next)){liveSourceAccepted.qa=true;return true;}
  state.qa=next;
+ liveSourceAccepted.qa=true;
  state.generatedAt=String(feed.generatedAt||'').slice(0,40);
  state.page=0;
- updateGlobal();render();
+ if(!firstPublicSync){updateGlobal();render();}
  return true;
 }
 function applyLiveMenu(feed){
@@ -312,16 +330,19 @@ function applyLiveMenu(feed){
    if(typeof feed.visible[key]!=='boolean')return false;
    next[key]=feed.visible[key];
  }
- if(JSON.stringify(next)===JSON.stringify(state.menu))return true;
+ if(JSON.stringify(next)===JSON.stringify(state.menu)){liveSourceAccepted.menu=true;return true;}
  state.menu=next;state.menuReady=true;
+ liveSourceAccepted.menu=true;
  procedureMenu();
  if(!viewAllowed(state.view))state.view=firstVisibleView();
- updateGlobal();render();
+ if(!firstPublicSync){updateGlobal();render();}
  return true;
 }
 function refreshLivePublished(){
- loadApprovedLiveScript('qa','cdstuhueQAReceive',applyLiveQA);
- loadApprovedLiveScript('menu','cdstuhueMenuReceive',applyLiveMenu);
+ return Promise.all([
+  loadApprovedLiveScript('qa','cdstuhueQAReceive',applyLiveQA),
+  loadApprovedLiveScript('menu','cdstuhueMenuReceive',applyLiveMenu)
+ ]);
 }
 function updateGlobal(){const q=published(),by=g=>q.filter(x=>x.group===g).length;$('#qaTotalSide').textContent=q.length;$('#qaTthcSide').textContent=by('tthc');$('#qaStdvSide').textContent=by('stdv');$('#qaCsdlSide').textContent=by('csdl');const approvedDate=state.stats?.approvedDate;
  const approvedMatch=typeof approvedDate==='string'?approvedDate.match(/^(\d{4})-(\d{2})-(\d{2})$/):null;

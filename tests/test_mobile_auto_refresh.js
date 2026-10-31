@@ -40,6 +40,7 @@ async function main(){
  const jobs=[];let loads=0;
  const recoveryCtx={
   state:{demo:false,local:false,stats:null,qa:[]},
+  lastStaticLoadHadError:true,
   document:{visibilityState:'visible'},
   setTimeout:(fn,ms)=>{jobs.push({fn,ms});return jobs.length},
   loadData:()=>{loads++}
@@ -52,7 +53,8 @@ async function main(){
  assert.equal(jobs.length,1,'At most one automatic retry per failure');
  assert.equal(jobs[0].ms,5000);
  jobs[0].fn();
- assert.equal(loads,1,'Automatically reload missing data without pressing button');
+ assert.equal(loads,1,'Automatically retry network failures without pressing button');
+ recoveryCtx.lastStaticLoadHadError=false;
  recoveryCtx.state.stats={schema:1};
  recoveryCtx.state.qa=[{id:'QA001'}];
  recoveryCtx.recover();
@@ -62,7 +64,12 @@ async function main(){
  assert(src.includes("if(e.persisted&&!state.demo&&!state.local)"));
  assert(src.includes("if(!state.stats||!state.qa.length)loadData();"));
  assert(src.includes('startLiveStats();'));
- assert(html.includes('20261030-mobile-auto-recovery-v1'));
+ assert(src.includes('await Promise.all([refreshLiveStats(),refreshLivePublished()]);'));
+ assert(src.includes('if(!liveSourceAccepted.stats)state.stats='));
+ assert(src.includes('if(!liveSourceAccepted.qa)state.qa='));
+ assert(src.includes('if(!liveSourceAccepted.menu)state.menu='));
+ assert(src.includes('if(lastStaticLoadHadError)scheduleDataLoadRecovery();'));
+ assert(html.includes('20261031-live-first-v2'));
  assert(headers.includes('/assets/app.js'));
  console.log('Mobile auto-refresh PASS: startup retry, endpoint retry, tab restore and version bust');
 }
