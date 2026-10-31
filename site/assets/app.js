@@ -200,6 +200,8 @@ function readLiveStatsEndpoint(){
 function applyLiveStats(data){
  if(state.demo||state.local||!data||data.schema!==1||data.error)return false;
  if(data.public===false&&data.reviewed===false){
+  // A revoked publication must clear even a cached previously approved snapshot.
+  if(state.stats===null){liveSourceAccepted.stats=true;return true;}
   state.stats=null;
  }else{
   if(data.public!==true||data.reviewed!==true||!data.modules||
@@ -209,6 +211,9 @@ function applyLiveStats(data){
   const oldDate=state.stats?.modules?.payment?.sourceSnapshot||'';
   const newDate=data.modules?.payment?.sourceSnapshot||'';
   if(oldDate&&newDate&&newDate<oldDate)return false;
+  if(JSON.stringify(state.stats)===JSON.stringify(data)){
+   liveSourceAccepted.stats=true;return true;
+  }
   state.stats=data;
  }
  liveSourceAccepted.stats=true;

@@ -62,7 +62,8 @@ async function main(){
  assert.equal(loads,1,'No fetch loop when recovery data exists');
  assert(src.includes("window.addEventListener('pageshow',e=>{"));
  assert(src.includes("if(e.persisted&&!state.demo&&!state.local)"));
- assert(src.includes("if(!state.stats||!state.qa.length)loadData();"));
+ assert(src.includes("if(lastStaticLoadHadError)loadData();"),
+  'Only retry failed static network loads, not correctly empty approved data');
  assert(src.includes('startLiveStats();'));
  assert(src.includes('await Promise.all([refreshLiveStats(),refreshLivePublished()]);'));
  assert(src.includes('if(!liveSourceAccepted.stats)state.stats='));
