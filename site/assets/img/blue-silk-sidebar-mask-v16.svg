@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 1100" preserveAspectRatio="none">
+<!-- Mask follows only approved V14 sidebar silk curves; no blobs, no data. -->
+<defs><filter id="soft" x="-300%" y="-15%" width="700%" height="130%"><feGaussianBlur stdDeviation="6"/></filter></defs>
+<g fill="none" stroke="#fff" stroke-linecap="round">
+<path d="M-90 130 C84 151 286 190 242 339 S42 522 148 692 S382 832 436 982" opacity=".38" stroke-width="32" filter="url(#soft)"/>
+<path d="M-90 130 C84 151 286 190 242 339 S42 522 148 692 S382 832 436 982" stroke-width="9" opacity="1"/>
+<path d="M418 33 C270 160 68 230 104 378 S343 559 215 721 S-35 878 -95 1040" opacity=".38" stroke-width="32" filter="url(#soft)"/>
+<path d="M418 33 C270 160 68 230 104 378 S343 559 215 721 S-35 878 -95 1040" stroke-width="9" opacity="1"/>
+</g>
+</svg>

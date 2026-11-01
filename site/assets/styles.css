@@ -2527,3 +2527,103 @@ body{
 @media print{
   .main .hero>.hero-silk-runner{display:none!important}
 }
+
+/* CDSTUHUE MENU & STATS BRIGHT RUN V16 — follow the newly approved V15
+   panoramic hero beam; keep that banner's hero-silk-runner unchanged.
+   Animated pure-white/cyan shine is strictly clipped to existing silk paths. */
+.sidebar::after{
+  background:url('./img/blue-silk-sidebar-v14.svg') center /100% 100% no-repeat;
+  filter:brightness(1.75) drop-shadow(0 0 7px rgba(120,244,255,.87));
+  opacity:1;
+  animation:cds-v16-fallback-gloss 5s ease-in-out infinite alternate;
+  pointer-events:none;
+}
+.main .stats-hero-home::after,
+.main .payment-period-toolbar::after{
+  background:url('./img/blue-silk-wide-v14.svg') center /100% 100% no-repeat;
+  filter:brightness(1.75) drop-shadow(0 0 7px rgba(120,244,255,.89));
+  opacity:.98;
+  animation:cds-v16-fallback-gloss 5s ease-in-out infinite alternate;
+  pointer-events:none;
+}
+@keyframes cds-v16-fallback-gloss{
+  from{opacity:.81}
+  to{opacity:1}
+}
+/* Masked travelling highlights, with always-visible silk artwork underneath. */
+@supports ((-webkit-mask-image:url('./img/blue-silk-sidebar-mask-v16.svg')) or
+           (mask-image:url('./img/blue-silk-sidebar-mask-v16.svg'))){
+  .sidebar::after{
+    background-image:
+      linear-gradient(180deg,
+        transparent 5%,rgba(32,192,255,.08) 29%,
+        rgba(100,242,255,.78) 43%,
+        #ffffff 49%,#ffffff 51%,
+        rgba(100,242,255,.78) 57%,transparent 75%),
+      url('./img/blue-silk-sidebar-v14.svg');
+    background-size:100% 225%,100% 100%;
+    background-repeat:no-repeat,no-repeat;
+    background-position:center 132%,center;
+    background-blend-mode:screen;
+    -webkit-mask-image:url('./img/blue-silk-sidebar-mask-v16.svg');
+    mask-image:url('./img/blue-silk-sidebar-mask-v16.svg');
+    -webkit-mask-size:100% 100%;mask-size:100% 100%;
+    -webkit-mask-position:center;mask-position:center;
+    -webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;
+    animation:cds-v16-sidebar-travel 7.2s linear infinite;
+    filter:brightness(1.75) drop-shadow(0 0 8px rgba(117,246,255,.90));
+  }
+  .main .stats-hero-home::after,
+  .main .payment-period-toolbar::after{
+    background-image:
+      linear-gradient(90deg,transparent 3%,
+        rgba(30,191,255,.10) 30%,
+        rgba(85,241,255,.83) 43%,
+        #f4ffff 48%,#ffffff 50%,#f4ffff 52%,
+        rgba(85,241,255,.83) 57%,transparent 77%),
+      url('./img/blue-silk-wide-v14.svg');
+    background-size:235% 100%,100% 100%;
+    background-repeat:no-repeat,no-repeat;
+    background-position:130% center,center;
+    background-blend-mode:screen;
+    -webkit-mask-image:url('./img/blue-silk-hero-path-mask-v15.svg');
+    mask-image:url('./img/blue-silk-hero-path-mask-v15.svg');
+    -webkit-mask-size:100% 100%;mask-size:100% 100%;
+    -webkit-mask-position:center;mask-position:center;
+    -webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;
+    animation:cds-v16-wide-travel 6.4s linear infinite;
+    filter:brightness(1.7) drop-shadow(0 0 8px rgba(116,244,255,.87));
+  }
+  .main .payment-period-toolbar::after{animation-duration:8s;opacity:.88}
+}
+@keyframes cds-v16-sidebar-travel{
+  0%{background-position:center 132%,center}
+  100%{background-position:center -132%,center}
+}
+@keyframes cds-v16-wide-travel{
+  0%{background-position:130% center,center}
+  100%{background-position:-130% center,center}
+}
+@media(max-width:760px){
+  .sidebar::after{opacity:1;filter:brightness(1.65) drop-shadow(0 0 5px rgba(119,244,255,.83))}
+  .main .stats-hero-home::after{opacity:.96;filter:brightness(1.6) drop-shadow(0 0 6px rgba(106,242,255,.78))}
+  .main .payment-period-toolbar::after{opacity:.85}
+}
+@media(prefers-reduced-motion:reduce){
+  .sidebar::after,
+  .main .stats-hero-home::after,.main .payment-period-toolbar::after{
+    animation:none!important;transform:none!important;
+    -webkit-mask-image:none!important;mask-image:none!important;
+    background-position:center!important;
+    background-size:100% 100%!important;
+    filter:none!important;
+    opacity:.73!important;
+  }
+  .sidebar::after{background-image:url('./img/blue-silk-sidebar-v14.svg')!important}
+  .main .stats-hero-home::after,
+  .main .payment-period-toolbar::after{background-image:url('./img/blue-silk-wide-v14.svg')!important}
+}
+@media print{
+  .sidebar::after,.main .stats-hero-home::after,
+  .main .payment-period-toolbar::after{display:none!important}
+}
