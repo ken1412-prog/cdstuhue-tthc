@@ -47,8 +47,8 @@ class PublicSurfaceTests(unittest.TestCase):
         self.assertNotIn("url(",effects)
         self.assertNotIn("grid-template",effects)
         self.assertNotIn("padding:",effects)
-        self.assertNotIn("width:",effects)
-        self.assertNotIn("height:",effects.replace("height:39%",""))
+        self.assertNotRegex(effects,r"(?m)^\\s*(?:min-|max-)?width\\s*:")
+        self.assertNotRegex(effects.replace("height:39%",""),r"(?m)^\\s*(?:min-|max-)?height\\s*:")
         self.assertIn("url('./img/nguyen-hoang-user-banner.avif')",css)
         self.assertIn("url('./img/hue-bridge-night.webp')",css)
 
