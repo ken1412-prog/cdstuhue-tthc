@@ -94,7 +94,7 @@ async function main(){
  assert(src.includes('if(!liveSourceAccepted.qa){'));
  assert(src.includes('if(!liveSourceAccepted.menu)state.menu='));
  assert(src.includes('if(hadError)scheduleDataLoadRecovery();'));
- assert(html.includes('20261101-fast-parallel-first-paint-v9'));
+ assert(html.includes('20261101-qa-loading-v10'));
  assert(headers.includes('/assets/app.js'));
  console.log('Mobile auto-refresh PASS: startup retry, endpoint retry, tab restore and version bust');
 }
