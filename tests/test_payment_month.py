@@ -77,6 +77,9 @@ class FreezePaymentMonthTest(unittest.TestCase):
         self.assertIn("workflow_dispatch:", workflow)
         self.assertNotIn("cron:", workflow)
         self.assertIn("CLOSE_CONFIRMATION", workflow)
+        scheduled = (ROOT / ".github/workflows/deploy.yml").read_text(encoding="utf-8")
+        self.assertIn("7 17 * * *", scheduled)
+        self.assertIn("scripts/rolling_payment_month.py", scheduled)
         script = (ROOT / "scripts/freeze_payment_month.py").read_text(encoding="utf-8")
         self.assertIn("--close-period", script)
         self.assertIn('args.confirm != "CHOT " + args.close_period', script)
@@ -100,6 +103,52 @@ class FreezePaymentMonthTest(unittest.TestCase):
                 self.assertEqual(roll(dt.date(2026, 11, 2), site, invalid), 0)
                 self.assertEqual(closed.read_text(encoding="utf-8"), old)
                 self.assertNotIn("MUST_NOT_PUBLISH", old)
+        finally:
+            sys.path.remove(str(ROOT / "scripts"))
+
+    def test_november_closes_automatically_on_december_2_even_if_not_visited_on_first(self):
+        import sys
+        sys.path.insert(0, str(ROOT / "scripts"))
+        try:
+            from rolling_payment_month import roll
+            with tempfile.TemporaryDirectory() as td:
+                site = Path(td) / "site"
+                november = dict(approved(), period="2026-11", approvedDate="2026-11-30")
+                # Capture an owner-reviewed November source during November.
+                self.assertEqual(roll(dt.date(2026, 11, 30), site, november), 1)
+                working = site / "data/payment-staging/2026-11.json"
+                self.assertTrue(working.is_file())
+                self.assertFalse((site / "data/payment-history/2026-11.json").exists())
+                missing_december = dict(november, reviewed=False)
+                # A late visit is irrelevant: scheduled runner closes it on Dec 2.
+                self.assertEqual(roll(dt.date(2026, 12, 2), site, missing_december), 1)
+                closed = site / "data/payment-history/2026-11.json"
+                saved = closed.read_text(encoding="utf-8")
+                self.assertEqual(json.loads(saved)["period"], "2026-11")
+                self.assertTrue(json.loads(saved)["closed"])
+                self.assertEqual(roll(dt.date(2026, 12, 3), site, missing_december), 0)
+                self.assertEqual(closed.read_text(encoding="utf-8"), saved)
+                self.assertNotIn("MUST_NOT_PUBLISH", saved)
+        finally:
+            sys.path.remove(str(ROOT / "scripts"))
+
+    def test_recovery_if_november_approved_feed_first_available_on_december_2(self):
+        import sys
+        sys.path.insert(0, str(ROOT / "scripts"))
+        try:
+            from rolling_payment_month import roll
+            with tempfile.TemporaryDirectory() as td:
+                site = Path(td) / "site"
+                november = dict(approved(), period="2026-11", approvedDate="2026-11-30")
+                # No prior staging due to an outage; still close a valid
+                # approved November report when it becomes available later.
+                self.assertEqual(roll(dt.date(2026, 12, 2), site, november), 1)
+                self.assertTrue((site / "data/payment-history/2026-11.json").is_file())
+            with tempfile.TemporaryDirectory() as td:
+                site = Path(td) / "site"
+                self.assertEqual(roll(dt.date(2026, 12, 2), site,
+                                      dict(november, reviewed=False)), 0)
+                self.assertFalse((site / "data/payment-history/2026-11.json").exists())
         finally:
             sys.path.remove(str(ROOT / "scripts"))
 

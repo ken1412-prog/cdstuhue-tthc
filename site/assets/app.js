@@ -42,7 +42,7 @@ const MENU_DEFAULTS={'overview':true,'finance':true,'units':false,
  'chinh-thuc':false,'tam-thoi':false,'nhan-xet':false,'dang-phi':false,
  'qa-all':true,'qa-tthc':true,'qa-stdv':true,'qa-csdl':true,
  'resources':false,'reports':false,'guide':false,'assistant':true};
-const state={menu:{...MENU_DEFAULTS},menuReady:false,pendingView:null,qa:[],progress:[],finance:null,stats:null,paymentArchive:null,paymentArchiveAuto:false,paymentHistory:[],paymentQuery:'',paymentStatus:'all',paymentSort:'rank',view:'overview',filter:'',query:'',unitQuery:'',sort:'default',page:0,generatedAt:'',demo:false,local:false,loadError:null};
+const state={menu:{...MENU_DEFAULTS},menuReady:false,pendingView:null,qa:[],progress:[],finance:null,stats:null,paymentArchive:null,paymentHistory:[],paymentQuery:'',paymentStatus:'all',paymentSort:'rank',view:'overview',filter:'',query:'',unitQuery:'',sort:'default',page:0,generatedAt:'',demo:false,local:false,loadError:null};
 const NAV_FALLBACK=['overview','finance','qa-all','qa-tthc','qa-stdv','qa-csdl',
   'resources','reports','guide','units','chinh-thuc','tam-thoi','nhan-xet','dang-phi'];
 function viewAllowed(id){return id==='closed'||(id!=='assistant'&&
@@ -92,6 +92,7 @@ const validProgress = item=>Boolean(item&&item.public===true&&String(item.unit||
 // One startup/retry fetch at a time; mobile reconnects should recover without tapping ↻.
 let dataLoadPromise=null,dataLoadRetryTimer=null,dataLoadRetryAttempts=0;
 let firstPublicSync=true,lastStaticLoadHadError=false,liveRetryScheduled=false;
+let calendarMonthAtLoad='';
 const liveSourceAccepted={stats:false,qa:false,menu:false};
 function loadData(){
  if(dataLoadPromise)return dataLoadPromise;
@@ -139,19 +140,6 @@ async function loadDataCore(){
   state.paymentHistory=idx?.schema===1&&Array.isArray(idx.months)?
    idx.months.filter(x=>x&&/^20\d{2}-(0[1-9]|1[0-2])$/.test(x.period)&&x.closed===true):[];
  }catch(e){state.paymentHistory=[];}
- const closed=state.paymentHistory.slice().sort((a,b)=>b.period.localeCompare(a.period))[0];
- if(closed&&(!state.stats||state.stats.period<=closed.period)&&!state.paymentArchive){
-  try{
-   const r=await fetch('data/payment-history/'+closed.period+'.json',{cache:'no-store'});
-   if(!r.ok)throw Error('Archive unavailable');
-   const data=await r.json();
-   if(data?.schema===1&&data?.public===true&&data?.reviewed===true&&
-      data?.closed===true&&data.period===closed.period&&data.modules?.payment&&
-      Array.isArray(data.modules?.ranking?.records)&&data.modules.ranking.records.length===46){
-    state.paymentArchive=data;state.paymentArchiveAuto=true;
-   }
-  }catch(_){/* An unavailable archive is never replaced with unapproved data. */}
- }
  state.finance=fn;
  if(!liveSourceAccepted.qa)state.qa=qa?qa.items.filter(x=>x&&x.public===true).map(normQA).filter(x=>x.id&&x.question&&x.answer&&GROUPS[x.group]):[];
  // Fail-closed if accidental duplicates/invalid IDs appear in a publication feed.
@@ -160,6 +148,7 @@ async function loadDataCore(){
  if(!liveSourceAccepted.qa)state.generatedAt=qa?.generatedAt||'';
  state.local=false;
  state.loadError=issues.length?issues.join('; '):null;
+ calendarMonthAtLoad=currentReportMonth();
  // Show only explicitly reviewed public JSON immediately. Never block the
  // first paint on a slow Apps Script request (notably on Android Chrome).
  // The approved live source updates asynchronously; once accepted it cannot
@@ -224,10 +213,7 @@ function applyLiveStats(data){
    liveSourceAccepted.stats=true;return true;
   }
   state.stats=data;
-  if(state.paymentArchiveAuto&&state.paymentArchive&&
-     typeof data.period==='string'&&data.period>state.paymentArchive.period){
-   state.paymentArchive=null;state.paymentArchiveAuto=false;
-  }
+
  }
  liveSourceAccepted.stats=true;
  if(!firstPublicSync){updateGlobal();render();}
@@ -266,6 +252,11 @@ function startLiveStats(){
   liveStatsPollInstalled=true;
   setInterval(()=>{
    if(document.visibilityState==='visible'){
+     if(currentReportMonth()!==calendarMonthAtLoad){
+       calendarMonthAtLoad=currentReportMonth();
+       state.paymentArchive=null;
+       loadData();
+     }
      refreshLiveStats();
      refreshLivePublished();
    }
@@ -398,32 +389,45 @@ function paymentPeriod(stats=state.stats){
  const s=String(stats?.period||'').trim(),m=s.match(/^(\d{4})-(\d{1,2})$/);
  return m?'Tháng '+Number(m[2])+'/'+m[1]:(s||'Kỳ chưa cập nhật');
 }
+// Calendar transition uses Vietnam time; the latest approved upload never
+// determines the active calendar month or relabels older numbers.
+function currentReportMonth(date=new Date()){
+ const parts=new Intl.DateTimeFormat('en-US',{
+  timeZone:'Asia/Ho_Chi_Minh',year:'numeric',month:'2-digit'
+ }).formatToParts(date);
+ return parts.find(p=>p.type==='year').value+'-'+parts.find(p=>p.type==='month').value;
+}
 function selectedFinanceStats(){
- // Never inject live bank status into a closed monthly archive.
- return state.paymentArchive||state.stats;
+ if(state.paymentArchive)return state.paymentArchive;
+ return state.stats?.period===currentReportMonth()?state.stats:null;
 }
 function paymentMonths(){
- const months=state.paymentHistory.slice(),active=state.stats?.period;
- if(typeof active==='string'&&/^20\d{2}-(0[1-9]|1[0-2])$/.test(active)&&
-    !months.some(x=>x.period===active))months.push({period:active,closed:false});
+ const current=currentReportMonth(),months=state.paymentHistory
+  .filter(x=>x.period<current&&x.closed===true).slice();
+ months.push({period:current,closed:false,
+  waiting:!(state.stats?.period===current&&state.stats?.public===true&&state.stats?.reviewed===true)});
+ const old=state.stats?.period;
+ if(typeof old==='string'&&/^20\d{2}-(0[1-9]|1[0-2])$/.test(old)&&
+    old<current&&!months.some(x=>x.period===old))
+  months.push({period:old,closed:false,pendingClose:true});
  return months.sort((a,b)=>b.period.localeCompare(a.period));
 }
 function paymentMonthControls(){
  if(state.demo)return '';
- const months=paymentMonths(),current=state.paymentArchive?.period||state.stats?.period;
+ const months=paymentMonths(),current=state.paymentArchive?.period||currentReportMonth();
  if(!months.length)return '';
  return '<section class="payment-period-toolbar"><div class="payment-period-select">'+
  '<span class="payment-period-symbol" aria-hidden="true">▣</span>'+
  '<label for="paymentMonthSelect"><b>THỐNG KÊ ĐẢNG PHÍ THEO THÁNG</b></label>'+
  '<select id="paymentMonthSelect" aria-label="Chọn tháng thu nộp">'+
- months.map(x=>'<option value="'+E(x.period)+'"'+(x.period===current?' selected':'')+'>'+E(paymentPeriod({period:x.period}))+(x.closed?' · Đã chốt':' · Mới nhất')+'</option>').join('')+
+ months.map(x=>'<option value="'+E(x.period)+'"'+(x.period===current?' selected':'')+'>'+E(paymentPeriod({period:x.period}))+(x.closed?' · Đã chốt':x.pendingClose?' · Chờ chốt':x.waiting?' · Chờ duyệt':' · Đang cập nhật')+'</option>').join('')+
  '</select></div>'+
  '</section>';
 }
 async function selectPaymentMonth(month){
  const archived=state.paymentHistory.some(x=>x.period===month&&x.closed===true);
- if(!archived&&month===state.stats?.period){
-  state.paymentArchive=null;state.paymentArchiveAuto=false;
+ if(month===currentReportMonth()){
+  state.paymentArchive=null;
   state.paymentQuery='';state.paymentStatus='all';state.paymentSort='rank';render();return;
  }
  if(!/^20\d{2}-(0[1-9]|1[0-2])$/.test(month)||!archived){
@@ -435,7 +439,7 @@ async function selectPaymentMonth(month){
   if(data?.schema!==1||data?.public!==true||data?.reviewed!==true||data?.closed!==true||
    data.period!==month||!data.modules?.payment||!Array.isArray(data.modules?.ranking?.records)||
    data.modules.ranking.records.length!==46)throw Error('Invalid');
-  state.paymentArchive=data;state.paymentArchiveAuto=false;
+  state.paymentArchive=data;
   state.paymentQuery='';state.paymentStatus='all';state.paymentSort='rank';render();
  }catch(e){toast('Không đọc được bản tháng đã chốt');render();}
 }
@@ -650,7 +654,7 @@ function filingRankingFromApprovedUnits(records){
 }
 function statsDashboard(){
  const stats=state.demo?null:selectedFinanceStats();
- if(!stats||!Object.keys(stats.modules||{}).length)return '<div class="panel stats-notice"><h2>Thống kê theo 4 báo cáo</h2><p>Dữ liệu sẽ xuất hiện sau khi người quản trị duyệt và đồng bộ.</p></div>';
+ if(!stats||!Object.keys(stats.modules||{}).length)return '<div class="panel stats-notice"><h2>Thống kê '+E(paymentPeriod({period:currentReportMonth()}))+'</h2><p>Chờ kiểm tra và duyệt dữ liệu của kỳ mới. Không dùng số liệu tháng trước thay thế.</p></div>';
  const m=stats.modules,amount=n=>typeof n==='number'?pretty.format(n):'—',percent=n=>typeof n==='number'?(n*100).toFixed(1).replace('.',',')+'%':'—';
  let panels='';
 

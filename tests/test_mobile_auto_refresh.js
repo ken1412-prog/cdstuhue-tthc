@@ -77,7 +77,7 @@ async function main(){
  assert(src.includes('if(!liveSourceAccepted.qa)state.qa='));
  assert(src.includes('if(!liveSourceAccepted.menu)state.menu='));
  assert(src.includes('if(lastStaticLoadHadError)scheduleDataLoadRecovery();'));
- assert(html.includes('20261101-immutable-october-v5'));
+ assert(html.includes('20261101-vietnam-month-auto-v6'));
  assert(headers.includes('/assets/app.js'));
  console.log('Mobile auto-refresh PASS: startup retry, endpoint retry, tab restore and version bust');
 }
