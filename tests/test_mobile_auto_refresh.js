@@ -65,6 +65,14 @@ async function main(){
  assert(src.includes("if(lastStaticLoadHadError)loadData();"),
   'Only retry failed static network loads, not correctly empty approved data');
  assert(src.includes('startLiveStats();'));
+ assert(src.includes("refreshLiveStats();\n loadData();}"),
+  'Fetch current approved stats concurrently with static files');
+ assert(src.includes("statsCheck:'checking'"),
+  'A network pending state must not claim approval is missing');
+ assert(src.includes("state.statsCheck='not-approved'"),
+  'Only explicit unapproved response can display not-approved state');
+ assert(!src.includes('Chờ kiểm tra và duyệt dữ liệu của kỳ mới.'),
+  'Never present an unverified loading state as an approval failure');
  const firstPaint=src.slice(src.indexOf('async function loadDataCore(){'),
   src.indexOf('/* Live approved statistics:'));
  assert(firstPaint.includes('firstPublicSync=false;\n updateGlobal();render();\n startLiveStats();'),
@@ -77,7 +85,7 @@ async function main(){
  assert(src.includes('if(!liveSourceAccepted.qa)state.qa='));
  assert(src.includes('if(!liveSourceAccepted.menu)state.menu='));
  assert(src.includes('if(lastStaticLoadHadError)scheduleDataLoadRecovery();'));
- assert(html.includes('20261101-zero-due-safe-v7'));
+ assert(html.includes('20261101-fast-live-first-v8'));
  assert(headers.includes('/assets/app.js'));
  console.log('Mobile auto-refresh PASS: startup retry, endpoint retry, tab restore and version bust');
 }
