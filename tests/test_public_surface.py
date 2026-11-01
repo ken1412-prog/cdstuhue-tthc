@@ -53,7 +53,7 @@ class PublicSurfaceTests(unittest.TestCase):
         css=(SITE/"assets/styles.css").read_text(encoding="utf-8")
         marker="/* CDSTUHUE CRISP MOVING SPARKLES V9"
         self.assertEqual(css.count(marker),1)
-        visual=css.split(marker,1)[1]
+        visual=css.split(marker,1)[1].split("/* CDSTUHUE REAL RECOLORED PHOTO ASSETS V10",1)[0]
         self.assertIn("animation:cds-sparkle-ribbon-v9 14s",visual)
         self.assertIn("animation:cds-sparkle-point-a-v9 10s",visual)
         self.assertIn("animation:cds-sparkle-point-b-v9 13s",visual)
@@ -85,7 +85,7 @@ class PublicSurfaceTests(unittest.TestCase):
         css=(SITE/"assets/styles.css").read_text(encoding="utf-8")
         marker="/* CDSTUHUE TRUE CYAN OVERLAY V8"
         self.assertEqual(css.count(marker),1)
-        overlay=css.split(marker,1)[1]
+        overlay=css.split(marker,1)[1].split("/* CDSTUHUE CRISP MOVING SPARKLES V9",1)[0]
         self.assertIn("mix-blend-mode:screen",overlay)
         self.assertIn("animation:cds-cyan-photo-light 23s",overlay)
         self.assertIn("@keyframes cds-cyan-photo-light",overlay)
@@ -113,7 +113,7 @@ class PublicSurfaceTests(unittest.TestCase):
 
     def test_hero_banner_photograph_not_replaced_by_blue_glass(self):
         css=(SITE/"assets/styles.css").read_text(encoding="utf-8")
-        v6=css.split("/* CDSTUHUE CONTAINED BLUE GLASS V6",1)[1]
+        v6=css.split("/* CDSTUHUE CONTAINED BLUE GLASS V6",1)[1].split("/* CDSTUHUE TRUE CYAN OVERLAY V8",1)[0]
         main_hero=v6.split(".main .hero{",1)[1].split("}",1)[0]
         self.assertNotIn("background:",main_hero)
         self.assertNotIn("background-image:",main_hero)
@@ -129,7 +129,7 @@ class PublicSurfaceTests(unittest.TestCase):
         css=(SITE/"assets/styles.css").read_text(encoding="utf-8")
         marker="/* CDSTUHUE CONTAINED BLUE GLASS V6"
         self.assertEqual(css.count(marker),1)
-        visual=css.split(marker,1)[1]
+        visual=css.split(marker,1)[1].split("/* CDSTUHUE TRUE CYAN OVERLAY V8",1)[0]
         self.assertIn(".sidebar{\n  overflow:hidden;",visual)
         self.assertIn(".sidebar-ambient{",visual)
         self.assertIn("pointer-events:none;",visual)
