@@ -42,7 +42,7 @@ const MENU_DEFAULTS={'overview':true,'finance':true,'units':false,
  'chinh-thuc':false,'tam-thoi':false,'nhan-xet':false,'dang-phi':false,
  'qa-all':true,'qa-tthc':true,'qa-stdv':true,'qa-csdl':true,
  'resources':false,'reports':false,'guide':false,'assistant':true};
-const state={menu:{...MENU_DEFAULTS},menuReady:false,pendingView:null,qa:[],progress:[],finance:null,stats:null,paymentArchive:null,paymentHistory:[],paymentQuery:'',paymentStatus:'all',paymentSort:'rank',view:'overview',filter:'',query:'',unitQuery:'',sort:'default',page:0,generatedAt:'',demo:false,local:false,loadError:null};
+const state={menu:{...MENU_DEFAULTS},menuReady:false,pendingView:null,qa:[],progress:[],finance:null,stats:null,paymentArchive:null,paymentArchiveAuto:false,paymentHistory:[],paymentQuery:'',paymentStatus:'all',paymentSort:'rank',view:'overview',filter:'',query:'',unitQuery:'',sort:'default',page:0,generatedAt:'',demo:false,local:false,loadError:null};
 const NAV_FALLBACK=['overview','finance','qa-all','qa-tthc','qa-stdv','qa-csdl',
   'resources','reports','guide','units','chinh-thuc','tam-thoi','nhan-xet','dang-phi'];
 function viewAllowed(id){return id==='closed'||(id!=='assistant'&&
@@ -132,14 +132,26 @@ async function loadDataCore(){
  try{const r=await fetch('data/finance.json',{cache:'no-store'});if(!r.ok)throw Error('HTTP '+r.status);const f=await r.json();if(f?.schema!==1)throw Error('Invalid finance schema');if(f.public===true&&f.reviewed===true&&Array.isArray(f.bankGroups)&&f.bankGroups.every(v=>typeof v.name==='string'&&Number.isInteger(v.accounts)&&v.accounts>=0)&&[f.reportRecords,f.notDeclared,f.waitingApproval,f.waitingPayment].every(v=>v==null||(Number.isInteger(v)&&v>=0))&&[f.reportRecords,f.notDeclared,f.waitingApproval,f.waitingPayment,...f.bankGroups.map(g=>g.accounts)].some(v=>v!=null)){fn=f;}}
  catch(e){lastStaticLoadHadError=true;issues.push('Không đọc được bản thống kê đảng phí: '+e.message);}
  try{const r=await fetch('data/stats.json',{cache:'no-store'});if(!r.ok)throw Error('HTTP '+r.status);const stats=await r.json();if(!liveSourceAccepted.stats)state.stats=stats?.schema===1&&stats?.public===true&&stats?.reviewed===true&&stats?.modules&&typeof stats.modules==='object'?stats:null;}catch(e){lastStaticLoadHadError=true;if(!liveSourceAccepted.stats)state.stats=null;}
- // Archive index lists only approved, closed public months.
- state.paymentArchive=null;
+ // Closed public periods are loaded directly from their immutable JSON.
  try{
   const r=await fetch('data/payment-history.json',{cache:'no-store'});
   const idx=r.ok?await r.json():null;
   state.paymentHistory=idx?.schema===1&&Array.isArray(idx.months)?
    idx.months.filter(x=>x&&/^20\d{2}-(0[1-9]|1[0-2])$/.test(x.period)&&x.closed===true):[];
  }catch(e){state.paymentHistory=[];}
+ const closed=state.paymentHistory.slice().sort((a,b)=>b.period.localeCompare(a.period))[0];
+ if(closed&&(!state.stats||state.stats.period<=closed.period)&&!state.paymentArchive){
+  try{
+   const r=await fetch('data/payment-history/'+closed.period+'.json',{cache:'no-store'});
+   if(!r.ok)throw Error('Archive unavailable');
+   const data=await r.json();
+   if(data?.schema===1&&data?.public===true&&data?.reviewed===true&&
+      data?.closed===true&&data.period===closed.period&&data.modules?.payment&&
+      Array.isArray(data.modules?.ranking?.records)&&data.modules.ranking.records.length===46){
+    state.paymentArchive=data;state.paymentArchiveAuto=true;
+   }
+  }catch(_){/* An unavailable archive is never replaced with unapproved data. */}
+ }
  state.finance=fn;
  if(!liveSourceAccepted.qa)state.qa=qa?qa.items.filter(x=>x&&x.public===true).map(normQA).filter(x=>x.id&&x.question&&x.answer&&GROUPS[x.group]):[];
  // Fail-closed if accidental duplicates/invalid IDs appear in a publication feed.
@@ -212,6 +224,10 @@ function applyLiveStats(data){
    liveSourceAccepted.stats=true;return true;
   }
   state.stats=data;
+  if(state.paymentArchiveAuto&&state.paymentArchive&&
+     typeof data.period==='string'&&data.period>state.paymentArchive.period){
+   state.paymentArchive=null;state.paymentArchiveAuto=false;
+  }
  }
  liveSourceAccepted.stats=true;
  if(!firstPublicSync){updateGlobal();render();}
@@ -383,31 +399,13 @@ function paymentPeriod(stats=state.stats){
  return m?'Tháng '+Number(m[2])+'/'+m[1]:(s||'Kỳ chưa cập nhật');
 }
 function selectedFinanceStats(){
- if(!state.paymentArchive)return state.stats;
- // Bank registration is a one-time cumulative status. On archived monthly
- // payment views, overlay only the latest separately approved bank counts,
- // without changing that month's saved rankings, rates or filing status.
- const archive=state.paymentArchive;
- const latest=state.stats?.modules?.ranking?.records;
- if(state.stats?.public!==true||state.stats?.reviewed!==true||
-    !Array.isArray(latest)||latest.length!==46)return archive;
- const records=archive.modules?.ranking?.records;
- if(!Array.isArray(records)||records.length!==46)return archive;
- const byName=new Map(latest.map(row=>[fold(row.name),row]));
- return {...archive,modules:{...archive.modules,ranking:{
-  ...archive.modules.ranking,records:records.map(row=>{
-   const bank=byName.get(fold(row.name));
-   return bank&&Number.isInteger(bank.bankDone)&&
-     Number.isInteger(bank.bankTotal)?
-     {...row,bankDone:bank.bankDone,bankTotal:bank.bankTotal}:row;
-  })
- }}};
+ // Never inject live bank status into a closed monthly archive.
+ return state.paymentArchive||state.stats;
 }
 function paymentMonths(){
- const active=state.stats?.period,months=[];
- if(typeof active==='string'&&/^20\d{2}-(0[1-9]|1[0-2])$/.test(active))
-  months.push({period:active,closed:false});
- state.paymentHistory.forEach(x=>{if(!months.some(y=>y.period===x.period))months.push(x);});
+ const months=state.paymentHistory.slice(),active=state.stats?.period;
+ if(typeof active==='string'&&/^20\d{2}-(0[1-9]|1[0-2])$/.test(active)&&
+    !months.some(x=>x.period===active))months.push({period:active,closed:false});
  return months.sort((a,b)=>b.period.localeCompare(a.period));
 }
 function paymentMonthControls(){
@@ -423,10 +421,12 @@ function paymentMonthControls(){
  '</section>';
 }
 async function selectPaymentMonth(month){
- if(month===state.stats?.period){
-  state.paymentArchive=null;state.paymentQuery='';state.paymentStatus='all';state.paymentSort='rank';render();return;
+ const archived=state.paymentHistory.some(x=>x.period===month&&x.closed===true);
+ if(!archived&&month===state.stats?.period){
+  state.paymentArchive=null;state.paymentArchiveAuto=false;
+  state.paymentQuery='';state.paymentStatus='all';state.paymentSort='rank';render();return;
  }
- if(!/^20\d{2}-(0[1-9]|1[0-2])$/.test(month)||!state.paymentHistory.some(x=>x.period===month)){
+ if(!/^20\d{2}-(0[1-9]|1[0-2])$/.test(month)||!archived){
   toast('Tháng chưa có bản lưu đã duyệt');render();return;
  }
  try{
@@ -435,7 +435,8 @@ async function selectPaymentMonth(month){
   if(data?.schema!==1||data?.public!==true||data?.reviewed!==true||data?.closed!==true||
    data.period!==month||!data.modules?.payment||!Array.isArray(data.modules?.ranking?.records)||
    data.modules.ranking.records.length!==46)throw Error('Invalid');
-  state.paymentArchive=data;state.paymentQuery='';state.paymentStatus='all';state.paymentSort='rank';render();
+  state.paymentArchive=data;state.paymentArchiveAuto=false;
+  state.paymentQuery='';state.paymentStatus='all';state.paymentSort='rank';render();
  }catch(e){toast('Không đọc được bản tháng đã chốt');render();}
 }
 function paymentFilteredRecords(records){

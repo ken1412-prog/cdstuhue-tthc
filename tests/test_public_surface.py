@@ -34,7 +34,7 @@ class PublicSurfaceTests(unittest.TestCase):
             self.assertIn('id="lastApprovedDateMobile" aria-live="polite">—</span>',html)
             self.assertIn('id="lastApprovedDate" aria-live="polite">—</span>',html)
             self.assertNotIn('id="lastApprovedDate" aria-live="polite">24/10/2026</span>',html)
-            self.assertIn("assets/app.js?v=20261101-monthly-rollover-v4",html)
+            self.assertIn("assets/app.js?v=20261101-immutable-october-v5",html)
             self.assertIn("assets/styles.css?v=20261027-mobile-update-v1",html)
         self.assertIn("const approvedDate=state.stats?.approvedDate;",js)
         self.assertIn("if(fullDate)fullDate.textContent=approvedFull;",js)
@@ -64,7 +64,7 @@ class PublicSurfaceTests(unittest.TestCase):
             html=(SITE / page).read_text(encoding="utf-8")
             self.assertIn('>Thống kê đảng phí <span>↗</span>',html)
             self.assertNotIn("Khám phá thống kê",html)
-            self.assertIn("assets/app.js?v=20261101-monthly-rollover-v4",html)
+            self.assertIn("assets/app.js?v=20261101-immutable-october-v5",html)
         # The repeated three KPI cards in the detail view are removed.
         self.assertNotIn("const viewCards=",js)
         self.assertNotIn("'+viewCards+'",js)
@@ -165,6 +165,10 @@ class PublicSurfaceTests(unittest.TestCase):
     def test_bright_approved_monthly_finance(self):
         js=(SITE / "assets/app.js").read_text(encoding="utf-8")
         css=(SITE / "assets/styles.css").read_text(encoding="utf-8")
+        self.assertIn("return state.paymentArchive||state.stats;",app)
+        self.assertIn("const months=state.paymentHistory.slice(),active=state.stats?.period;",app)
+        self.assertIn("const archived=state.paymentHistory.some(x=>x.period===month&&x.closed===true);",app)
+        self.assertNotIn("...row,bankDone:bank.bankDone",app)
         for marker in ("paymentMonthControls()", "selectPaymentMonth(", "paymentFilteredRecords(",
                        "exportPaymentMonth()", "data/payment-history.json", "paymentMonthSelect",
                        "paymentStatusFilter", "paymentSort", "paymentSearch"):
@@ -310,7 +314,7 @@ class PublicSurfaceTests(unittest.TestCase):
             self.assertIn('<span>Đang online:</span>', html)
             self.assertNotIn('title="Chưa kết nối được bộ đếm trực tuyến"', html)
             self.assertNotIn('Hoạt động 15 phút (ước tính):', html)
-            self.assertIn("assets/app.js?v=20261101-monthly-rollover-v4", html)
+            self.assertIn("assets/app.js?v=20261101-immutable-october-v5", html)
         self.assertIn(".footer-online{", css)
         self.assertIn('position:fixed!important', css)
         self.assertIn('id="sidebarVisitCount"', (SITE / 'index.html').read_text(encoding='utf-8'))
