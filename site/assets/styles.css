@@ -2727,7 +2727,6 @@ body{
   z-index:1;
   overflow:hidden;
   pointer-events:none;
-  user-select:none;
   background:url('./img/truong-tien-two-spotlights-v19.svg') center /100% 100% no-repeat;
   mix-blend-mode:screen;
   opacity:.94;
