@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 480" preserveAspectRatio="none">
+<!-- CDSTUHUE V14: still translucent cyan-blue silk ribbons; no chasing dots. -->
+<defs>
+ <linearGradient id="lineA" x1="0%" y1="0%" x2="100%" y2="0%">
+  <stop offset="0" stop-color="#00b6ff" stop-opacity="0"/>
+  <stop offset=".17" stop-color="#47e4ff" stop-opacity=".64"/>
+  <stop offset=".49" stop-color="#faffff" stop-opacity=".96"/>
+  <stop offset=".76" stop-color="#5beaff" stop-opacity=".77"/>
+  <stop offset="1" stop-color="#168cff" stop-opacity="0"/>
+ </linearGradient>
+ <linearGradient id="lineB" x1="0%" y1="0%" x2="100%" y2="0%">
+  <stop offset="0" stop-color="#29beff" stop-opacity="0"/>
+  <stop offset=".27" stop-color="#62ecff" stop-opacity=".47"/>
+  <stop offset=".58" stop-color="#efffff" stop-opacity=".89"/>
+  <stop offset=".86" stop-color="#4fceff" stop-opacity=".52"/>
+  <stop offset="1" stop-color="#0b8fff" stop-opacity="0"/>
+ </linearGradient>
+ <filter id="soft" x="-10%" y="-200%" width="120%" height="500%"><feGaussianBlur stdDeviation="7"/></filter>
+ <filter id="haze" x="-10%" y="-400%" width="120%" height="900%"><feGaussianBlur stdDeviation="17"/></filter>
+</defs>
+<g fill="none" stroke-linecap="round">
+ <!-- Broad lower-intensity light follows the same geometry as the crisp core. -->
+ <path d="M-100 136 C142 191 298 235 496 209 S908 99 1162 117 S1500 178 1690 130" stroke="#47daff" stroke-opacity=".20" stroke-width="38" filter="url(#haze)"/>
+ <path d="M-100 136 C142 191 298 235 496 209 S908 99 1162 117 S1500 178 1690 130" stroke="url(#lineA)" stroke-opacity=".32" stroke-width="14" filter="url(#soft)"/>
+ <path d="M-100 136 C142 191 298 235 496 209 S908 99 1162 117 S1500 178 1690 130" stroke="url(#lineA)" stroke-width="3.3"/>
+ <path d="M-100 164 C151 213 298 268 508 235 S905 124 1178 147 S1520 202 1680 162" stroke="url(#lineB)" stroke-opacity=".30" stroke-width="1.6"/>
+ <path d="M-90 375 C163 311 356 408 624 356 S1042 249 1325 282 S1510 352 1700 319" stroke="#44d9ff" stroke-opacity=".15" stroke-width="40" filter="url(#haze)"/>
+ <path d="M-90 375 C163 311 356 408 624 356 S1042 249 1325 282 S1510 352 1700 319" stroke="url(#lineB)" stroke-opacity=".38" stroke-width="13" filter="url(#soft)"/>
+ <path d="M-90 375 C163 311 356 408 624 356 S1042 249 1325 282 S1510 352 1700 319" stroke="url(#lineB)" stroke-width="3"/>
+ <path d="M-90 388 C165 326 366 422 628 371 S1042 263 1324 296 S1520 368 1700 336" stroke="url(#lineA)" stroke-opacity=".25" stroke-width="1.4"/>
+</g>
+</svg>

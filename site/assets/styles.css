@@ -2339,3 +2339,106 @@ body{
     animation:none!important;transform:none!important;filter:none!important;
   }
 }
+
+/* CDSTUHUE BLUE SILK WAVES V14 — visual only, matching the smooth reference.
+   Replace V13 tracer/dash and coarse roaming glow with already smooth SVG art.
+   Preserve both genuine Huế photos and all menu positioning / click targets. */
+.sidebar::after{
+  background:url('./img/blue-silk-sidebar-v14.svg') center / 100% 100% no-repeat;
+  background-blend-mode:normal;
+  filter:none;
+  opacity:.76;
+  transform:translate3d(0,0,0);
+  pointer-events:none;
+  animation:cds-v14-silk-flow 23s ease-in-out infinite alternate;
+}
+.sidebar-ambient::before,.sidebar-ambient::after{
+  opacity:0!important;
+  animation:none!important;
+}
+/* The genuine Trường Tiền arch-light mask stays in its original place. */
+.sidebar-bridge-gleam{opacity:.55;animation-duration:9.5s}
+.main .hero::after,
+.main .stats-hero-home::after,
+.main .payment-period-toolbar::after{
+  background:url('./img/blue-silk-wide-v14.svg') center / 100% 100% no-repeat;
+  background-blend-mode:normal;
+  mix-blend-mode:screen;
+  opacity:.76;
+  filter:none;
+  transform:translate3d(0,0,0);
+  pointer-events:none;
+  animation:cds-v14-silk-flow 19s ease-in-out infinite alternate;
+}
+.main .hero::after{opacity:.72}
+.main .stats-hero-home::after{opacity:.69}
+.main .payment-period-toolbar::after{opacity:.52}
+@keyframes cds-v14-silk-flow{
+  0%{transform:translate3d(-.7%,.15%,0) scale(1.008);opacity:.62}
+  50%{opacity:.83}
+  100%{transform:translate3d(.7%,-.15%,0) scale(1.018);opacity:.72}
+}
+/* Remove the previous full-viewport drifting blobs, retain cobalt canvas. */
+.main::before{opacity:.20;animation:none!important}
+/* Existing KPI and ranking animation is kept, softened, with no row movement.
+   Smooth translucent sweep is limited to the percentage/summary tiles. */
+.main .payment-tracker-totals>div,
+.main .stats-hero-metric:not(.stats-hero-guide),
+.main .stats-payment-leader{animation-duration:6.8s}
+.main .stats-hero-metric:not(.stats-hero-guide)::after,
+.main .stats-kpi::after,
+.main .stats-payment-leader::after,
+.main .payment-tracker-totals>div::after{
+  background:linear-gradient(105deg,
+    transparent 22%,rgba(255,255,255,.05) 37%,
+    rgba(255,255,255,.44) 49%,
+    rgba(133,237,255,.19) 56%,transparent 73%);
+  background-size:270% 100%;
+  animation-duration:8.8s;
+}
+.main .payment-rank-badge.top-1,
+.main .payment-rank-badge.top-2,
+.main .payment-rank-badge.top-3,
+.main .stats-payment-medal{animation-duration:5.6s}
+@media(max-width:760px){
+  .sidebar::after{animation-duration:27s;opacity:.68}
+  .main .hero::after,.main .stats-hero-home::after{animation-duration:24s}
+  .main .payment-period-toolbar::after{animation-duration:24s}
+  .main .payment-tracker-totals>div,
+  .main .stats-hero-metric:not(.stats-hero-guide),
+  .main .stats-payment-leader{animation-duration:7.2s}
+}
+@media(prefers-reduced-motion:reduce){
+  .sidebar::after,.main .hero::after,.main .stats-hero-home::after,
+  .main .payment-period-toolbar::after{
+    animation:none!important;
+    transform:none!important;
+    opacity:.58!important;
+  }
+  .sidebar-bridge-gleam{animation:none!important}
+}
+@media print{
+  .sidebar::after,.main .hero::after,.main .stats-hero-home::after,
+  .main .payment-period-toolbar::after{display:none!important}
+}
+
+/* Informational QA loading skeleton; no animation overlays onto real data. */
+.main .cds-qa-loading{min-height:195px}
+.main .cds-qa-loading p{margin:14px 0 17px;color:#375d7d}
+.main .cds-qa-loading small{display:block;margin-top:12px;color:#57748d}
+.main .cds-qa-skeleton{display:grid;gap:10px;max-width:460px}
+.main .cds-qa-skeleton i{
+  display:block;height:12px;border-radius:12px;
+  background:linear-gradient(100deg,#cce7f8,#f4fcff,#cce7f8);
+  background-size:230% 100%;
+  animation:cds-v14-skeleton 3.4s ease-in-out infinite;
+}
+.main .cds-qa-skeleton i:nth-child(2){width:82%;animation-delay:-.7s}
+.main .cds-qa-skeleton i:nth-child(3){width:64%;animation-delay:-1.4s}
+@keyframes cds-v14-skeleton{
+  0%,100%{background-position:100% 0}
+  50%{background-position:0% 0}
+}
+@media(prefers-reduced-motion:reduce){
+  .main .cds-qa-skeleton i{animation:none!important}
+}
