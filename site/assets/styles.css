@@ -1153,3 +1153,40 @@ body{
  .topbar .announcement-label-mobile{font-size:9px}
  .topbar .announcement-date-short{font-size:10px}
 }
+
+
+/* CDSTUHUE SIDEBAR SCENIC GLOW 2026-11-01
+   Left navigation ONLY. Keep the existing Huế page/hero backgrounds,
+   layout, button appearance, typography and site content untouched. */
+.sidebar{isolation:isolate}
+.sidebar::before{
+  content:"";
+  position:absolute;
+  inset:auto 0 0;
+  height:46%;
+  z-index:0;
+  pointer-events:none;
+  background:
+    linear-gradient(180deg,#122a49 0%,rgba(14,35,63,.92) 18%,
+      rgba(7,27,52,.33) 51%,rgba(6,19,39,.52) 100%),
+    url('./img/hue-bridge-night.webp') center 54% / cover no-repeat;
+}
+.sidebar::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  z-index:0;
+  pointer-events:none;
+  opacity:.78;
+  background:
+    radial-gradient(ellipse 96% 19% at -13% 20%,
+      transparent 75%,rgba(82,213,255,.56) 76%,transparent 78%),
+    radial-gradient(ellipse 125% 20% at 92% 82%,
+      transparent 76%,rgba(40,191,255,.53) 77%,transparent 79%);
+}
+.sidebar>.brand,
+.sidebar>.sidebar-scroll,
+.sidebar>.sidebar-bottom{position:relative;z-index:1}
+@media print{
+  .sidebar::before,.sidebar::after{display:none!important}
+}
