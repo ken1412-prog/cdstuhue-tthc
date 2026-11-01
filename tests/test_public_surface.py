@@ -43,7 +43,7 @@ class PublicSurfaceTests(unittest.TestCase):
         for page in ("index.html","hoi-dap.html"):
             html=(SITE/page).read_text(encoding="utf-8")
             self.assertEqual(html.count('class="sidebar-bridge-gleam" aria-hidden="true"'),1)
-            self.assertIn("assets/styles.css?v=20261101-cobalt-main-aurora-v12",html)
+            self.assertIn("assets/styles.css?v=20261101-gloss-trails-v13",html)
 
 
     def test_menu_has_instant_public_bootstrap_and_async_qa(self):
@@ -115,7 +115,7 @@ class PublicSurfaceTests(unittest.TestCase):
         self.assertIn("animation:cds-border-orbit 3s linear infinite",css)
         for page in ("index.html","hoi-dap.html"):
             html=(SITE/page).read_text(encoding="utf-8")
-            self.assertIn("assets/styles.css?v=20261101-cobalt-main-aurora-v12",html)
+            self.assertIn("assets/styles.css?v=20261101-gloss-trails-v13",html)
         for image in ("neon-ribbons-sidebar.svg","neon-ribbons-wide.svg"):
             path=SITE/"assets/img"/image
             self.assertTrue(path.is_file())
@@ -152,7 +152,7 @@ class PublicSurfaceTests(unittest.TestCase):
         self.assertNotIn("grid-template-columns",overlay)
         for page in ("index.html","hoi-dap.html"):
             html=(SITE/page).read_text(encoding="utf-8")
-            self.assertIn("assets/styles.css?v=20261101-cobalt-main-aurora-v12",html)
+            self.assertIn("assets/styles.css?v=20261101-gloss-trails-v13",html)
 
 
     def test_hero_banner_photograph_not_replaced_by_blue_glass(self):
@@ -166,7 +166,7 @@ class PublicSurfaceTests(unittest.TestCase):
         self.assertNotIn("url('./img/nguyen-hoang-bridge-3840.jpg')",v6)
         for page in ("index.html","hoi-dap.html"):
             html=(SITE/page).read_text(encoding="utf-8")
-            self.assertIn("assets/styles.css?v=20261101-cobalt-main-aurora-v12",html)
+            self.assertIn("assets/styles.css?v=20261101-gloss-trails-v13",html)
 
 
     def test_blue_glass_v6_contained_menu_light_and_blue_main(self):
@@ -196,7 +196,7 @@ class PublicSurfaceTests(unittest.TestCase):
         for page in ("index.html","hoi-dap.html"):
             html=(SITE/page).read_text(encoding="utf-8")
             self.assertEqual(html.count('class="sidebar-ambient" aria-hidden="true"'),1)
-            self.assertIn("assets/styles.css?v=20261101-cobalt-main-aurora-v12",html)
+            self.assertIn("assets/styles.css?v=20261101-gloss-trails-v13",html)
 
 
     def test_cobalt_reference_fast_three_second_ring_and_slow_light(self):
@@ -227,7 +227,7 @@ class PublicSurfaceTests(unittest.TestCase):
         self.assertNotIn("z-index:50",visual)
         for page in ("index.html","hoi-dap.html"):
             html=(SITE/page).read_text(encoding="utf-8")
-            self.assertIn("assets/styles.css?v=20261101-cobalt-main-aurora-v12",html)
+            self.assertIn("assets/styles.css?v=20261101-gloss-trails-v13",html)
 
 
     def test_light_ribbon_art_is_lightweight_responsive_and_accessible(self):
@@ -295,7 +295,7 @@ class PublicSurfaceTests(unittest.TestCase):
             self.assertIn('id="lastApprovedDate" aria-live="polite">—</span>',html)
             self.assertNotIn('id="lastApprovedDate" aria-live="polite">24/10/2026</span>',html)
             self.assertIn("assets/app.js?v=20261101-fast-parallel-first-paint-v9",html)
-            self.assertIn("assets/styles.css?v=20261101-cobalt-main-aurora-v12",html)
+            self.assertIn("assets/styles.css?v=20261101-gloss-trails-v13",html)
         self.assertIn("const approvedDate=state.stats?.period===currentReportMonth()?state.stats.approvedDate:null;",js)
         self.assertIn("if(fullDate)fullDate.textContent=approvedFull;",js)
         self.assertIn("if(shortDate)shortDate.textContent=approvedShort;",js)
@@ -383,7 +383,7 @@ class PublicSurfaceTests(unittest.TestCase):
             html=(SITE / page).read_text(encoding="utf-8")
             self.assertIn('<div class="footer-byline">',html)
             self.assertIn('<span class="footer-copyright">© 2026 CDSTUHUE</span><span class="footer-author">NKien',html)
-            self.assertIn('assets/styles.css?v=20261101-cobalt-main-aurora-v12',html)
+            self.assertIn('assets/styles.css?v=20261101-gloss-trails-v13',html)
             self.assertNotIn('id="navAssistant"',html)
             self.assertIn('id="openAssistant"',html)
             self.assertIn('id="assistantMobileFab"',html)
@@ -606,7 +606,7 @@ class PublicSurfaceTests(unittest.TestCase):
             self.assertIn('class="side-assist-heading"',html)
             self.assertIn('<small>Trong kho câu hỏi</small>',html)
             self.assertNotIn('Trợ lý tra cứu nhanh <small>Không dùng AI bên ngoài</small>',html)
-            self.assertIn('assets/styles.css?v=20261101-cobalt-main-aurora-v12',html)
+            self.assertIn('assets/styles.css?v=20261101-gloss-trails-v13',html)
         self.assertIn('/* Centered quick-search launcher in the sidebar */',css)
         self.assertIn('justify-content:center;',css[css.rfind('/* Centered quick-search launcher in the sidebar */'):])
         self.assertIn('text-align:center;',css[css.rfind('/* Centered quick-search launcher in the sidebar */'):])
@@ -617,7 +617,7 @@ class PublicSurfaceTests(unittest.TestCase):
         css = (SITE / "assets/styles.css").read_text(encoding="utf-8")
         marker = "/* CDSTUHUE MAIN COBALT AURORA V12"
         self.assertEqual(css.count(marker), 1)
-        patch = css.split(marker, 1)[1]
+        patch = css.split(marker, 1)[1].split("/* CDSTUHUE GLOSS TRAILS V13", 1)[0]
         for required in (
             ".main::before{", "pointer-events:none;", "z-index:0;",
             ".main>.content{position:relative;z-index:1}",
@@ -635,7 +635,51 @@ class PublicSurfaceTests(unittest.TestCase):
             self.assertNotIn(forbidden, patch)
         for page in ("index.html", "hoi-dap.html"):
             html = (SITE / page).read_text(encoding="utf-8")
-            self.assertIn("assets/styles.css?v=20261101-cobalt-main-aurora-v12", html)
+            self.assertIn("assets/styles.css?v=20261101-gloss-trails-v13", html)
+            self.assertIn("assets/app.js?v=20261101-fast-parallel-first-paint-v9", html)
+
+    def test_v13_gloss_trails_follow_existing_paths_without_touching_sources(self):
+        import xml.etree.ElementTree as ET
+        css = (SITE / "assets/styles.css").read_text(encoding="utf-8")
+        marker = "/* CDSTUHUE GLOSS TRAILS V13"
+        self.assertEqual(css.count(marker), 1)
+        visual = css.split(marker, 1)[1]
+        original = ET.parse(SITE / "assets/img/neon-ribbons-wide.svg").getroot()
+        chasefile = SITE / "assets/img/neon-ribbons-chase-v13.svg"
+        chase = ET.parse(chasefile).getroot()
+        base_paths = {p.get("d") for p in original.iter() if p.tag.endswith("path")}
+        traced_paths = [p.get("d") for p in chase.iter() if p.tag.endswith("path")]
+        self.assertEqual(len(traced_paths), 4)
+        self.assertTrue(set(traced_paths).issubset(base_paths))
+        svg = chasefile.read_text(encoding="utf-8")
+        self.assertIn('attributeName="stroke-dashoffset"', svg)
+        self.assertIn('repeatCount="indefinite"', svg)
+        self.assertIn("prefers-reduced-motion: reduce", svg)
+        for token in (
+            "url('./img/neon-ribbons-chase-v13.svg')",
+            "url('./img/neon-ribbons-wide.svg')",
+            ".main .stats-hero-metric:not(.stats-hero-guide)::after",
+            ".main .payment-tracker-totals>div::after",
+            ".main .stats-payment-leader::after",
+            ".main .payment-rank-badge.top-1",
+            ".main .payment-rank-badge.top-2",
+            ".main .payment-rank-badge.top-3",
+            "animation:cds-v13-ribbon-breathe",
+            "animation:cds-v13-card-pulse",
+            "animation:cds-v13-percent-sheen",
+            "@media(max-width:760px)",
+            "@media(prefers-reduced-motion:reduce)",
+            "@media print",
+            "pointer-events:none",
+        ):
+            self.assertIn(token, visual)
+        # Critical: the genuine panorama and left drawer must remain untouched.
+        for forbidden in (".sidebar{", ".hero::before{", ".main .hero{",
+                          "site/data/", "user-select:none", "overflow-x:hidden"):
+            self.assertNotIn(forbidden, visual)
+        for page in ("index.html", "hoi-dap.html"):
+            html = (SITE / page).read_text(encoding="utf-8")
+            self.assertIn("assets/styles.css?v=20261101-gloss-trails-v13", html)
             self.assertIn("assets/app.js?v=20261101-fast-parallel-first-paint-v9", html)
 
 if __name__ == "__main__":

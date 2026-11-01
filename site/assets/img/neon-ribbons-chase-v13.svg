@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 410" preserveAspectRatio="none" aria-hidden="true">
+<!-- Two precisely matched tracers follow the EXISTING cobalt ribbon Bezier paths. -->
+<defs>
+ <filter id="glow" x="-30%" y="-300%" width="160%" height="700%">
+  <feGaussianBlur stdDeviation="6"/>
+ </filter>
+</defs>
+<style>@media (prefers-reduced-motion: reduce) { .moving { display:none } }</style>
+<g class="moving" fill="none" stroke-linecap="round">
+ <path d="M-120 164 Q185 210 411 143 T865 73 T1540 75" pathLength="1000"
+       stroke="#74e9ff" stroke-width="20" opacity=".9" filter="url(#glow)"
+       stroke-dasharray="55 945">
+  <animate attributeName="stroke-dashoffset" from="0" to="-1000" dur="6.6s" repeatCount="indefinite"/>
+ </path>
+ <path d="M-120 164 Q185 210 411 143 T865 73 T1540 75" pathLength="1000"
+       stroke="#efffff" stroke-width="3.7" opacity=".96"
+       stroke-dasharray="43 957">
+  <animate attributeName="stroke-dashoffset" from="0" to="-1000" dur="6.6s" repeatCount="indefinite"/>
+ </path>
+ <path d="M-130 372 C228 291 345 432 674 330 S1128 282 1535 326" pathLength="1000"
+       stroke="#47deff" stroke-width="21" opacity=".85" filter="url(#glow)"
+       stroke-dasharray="60 940" stroke-dashoffset="480">
+  <animate attributeName="stroke-dashoffset" from="480" to="-520" dur="8s" repeatCount="indefinite"/>
+ </path>
+ <path d="M-130 372 C228 291 345 432 674 330 S1128 282 1535 326" pathLength="1000"
+       stroke="#ffffff" stroke-width="3.4" opacity=".98"
+       stroke-dasharray="42 958" stroke-dashoffset="480">
+  <animate attributeName="stroke-dashoffset" from="480" to="-520" dur="8s" repeatCount="indefinite"/>
+ </path>
+</g>
+</svg>
