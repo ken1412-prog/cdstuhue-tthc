@@ -74,5 +74,12 @@ assert(client.includes("loadApprovedLiveScript('menu','cdstuhueMenuReceive',appl
 assert(client.includes("refreshLivePublished();"));
 assert(client.includes('selectedFinanceStats()'));
 assert(client.includes('Đã xuất thống kê từ cùng nguồn đã duyệt'));
+assert(code.includes('const missingPeriodMismatch=missingSourcePeriod!==period;'));
+assert(code.includes('if(missingPeriodMismatch)enabled.missing=false;'));
+assert(code.includes("if(size<0||size>100000)"));
+assert(!code.includes('getRange(2,2,size,1)'));
+assert(!code.includes('getRange(2,4,size,1)'));
+assert(code.includes('unitNames.push(...sh.getRange(2+offset,2,count,1).getDisplayValues())'));
+assert(code.includes('parentNames.push(...sh.getRange(2+offset,4,count,1).getDisplayValues())'));
 
 console.log('Live approved stats, QA, menu, and export PASS: fixed callbacks, guarded data, automatic refresh');

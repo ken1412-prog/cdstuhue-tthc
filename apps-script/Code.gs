@@ -528,6 +528,17 @@ function buildStatsFeed_(){
   const keys={payment:'TỔNG HỢP THU NỘP',ranking:'XẾP HẠNG 46 ĐƠN VỊ',
      missing:'CHƯA KHAI BÁO THEO ĐƠN VỊ CHA',banking:'TÀI KHOẢN NGÂN HÀNG'};
   const enabled=Object.fromEntries(Object.entries(keys).map(([k,name])=>[k,!!gates[name]]));
+  // CHUA_KHAI is an outstanding-record LIST FOR THE REPORTING MONTH.
+  // Never show November's missing filings under October's payment period.
+  // NGAN_HANG is a cumulative registration STATUS: its latest approved
+  // snapshot is valid across months, with its own sourceSnapshot metadata.
+  const missingSnapshot=String(src.CHUA_KHAI.snapshot||'').trim();
+  const missingIso=missingSnapshot.match(/^(20\d{2})-(0[1-9]|1[0-2])(?:-\d{2})?$/);
+  const missingVi=missingSnapshot.match(/^\d{2}\/(0[1-9]|1[0-2])\/(20\d{2})$/);
+  const missingSourcePeriod=missingIso?(missingIso[1]+'-'+missingIso[2]):
+    missingVi?(missingVi[2]+'-'+missingVi[1]):'';
+  const missingPeriodMismatch=missingSourcePeriod!==period;
+  if(missingPeriodMismatch)enabled.missing=false;
   const count=Object.values(enabled).filter(Boolean).length;
   if(count===0)return {schema:1,public:false,reviewed:false,period,modules:{},note:'Chưa có phân hệ thống kê được duyệt công khai.'};
   const modules={};let payments=null;
@@ -643,10 +654,15 @@ function buildStatsFeed_(){
     const sh=SpreadsheetApp.openById(src.CHUA_KHAI.id).getSheetByName(src.CHUA_KHAI.tab);
     if(!sh)throw new Error('Missing undeclared records source');
     const size=sh.getLastRow()-1;
-    if(size>25000)throw new Error('Missing records source exceeds safety size limit');
-    // Only organization-name columns B and D. Never read column C (person name).
-    const unitNames=size>0?sh.getRange(2,2,size,1).getDisplayValues():[];
-    const parentNames=size>0?sh.getRange(2,4,size,1).getDisplayValues():[];
+    if(size<0||size>100000)throw new Error('Missing records source exceeds 100000-row safety limit');
+    // Read only organizational columns B and D in bounded blocks.
+    // NEVER request column C, which can hold private individual names.
+    const unitNames=[],parentNames=[];
+    for(let offset=0;offset<size;offset+=1000){
+      const count=Math.min(1000,size-offset);
+      unitNames.push(...sh.getRange(2+offset,2,count,1).getDisplayValues());
+      parentNames.push(...sh.getRange(2+offset,4,count,1).getDisplayValues());
+    }
     const counts={};let n=0;
     missingOrgRows=[];
     for(let i=0;i<size;i++){
@@ -912,7 +928,10 @@ function buildStatsFeed_(){
   return {schema:1,public:true,reviewed:true,period,
     approvedDate:lastApprovedDate,
     generatedAt:new Date().toISOString(),source:'Four owner-managed Google Sheets, approved aggregates only',
-    warning:'Nguồn có phạm vi khác nhau. Không cộng dồn hoặc đồng nhất chỉ tiêu giữa các báo cáo.',
+    warning:missingPeriodMismatch?
+      'Danh sách chưa khai báo không cùng kỳ '+period+
+      '; chưa xuất chỉ tiêu này. Trạng thái tài khoản ngân hàng sử dụng nguồn tích lũy đã duyệt.':
+      'Nguồn có phạm vi khác nhau. Không cộng dồn hoặc đồng nhất chỉ tiêu giữa các báo cáo.',
     modules};
 }
 

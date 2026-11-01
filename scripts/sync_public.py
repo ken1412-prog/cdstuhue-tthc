@@ -290,7 +290,7 @@ def main():
                             'sourceSnapshot':filing['sourceSnapshot']}
             missing=raw.get('missing')
             if isinstance(missing,dict):
-                count=bounded_int(missing.get('rowCount'),30000)
+                count=bounded_int(missing.get('rowCount'),100000)
                 parents=bounded_int(missing.get('distinctParents'),2000)
                 if count is not None and parents is not None and count>=1 and isinstance(missing.get('rowsByParent'),list):
                     rows=[]
@@ -303,11 +303,11 @@ def main():
                     modules['missing']={'rowCount':count,'distinctParents':parents,
                         'rowsByParent':rows,
                         'countType':'Số dòng chưa khai báo theo danh sách riêng, không phải tỷ lệ chưa khai báo trên tổng đảng viên'}
-                    excluded=bounded_int(missing.get('excludedCaQsRows'),30000)
-                    no_parent=bounded_int(missing.get('excludedNoParentRows'),30000)
-                    ambiguous=bounded_int(missing.get('excludedAmbiguousRows'),30000)
-                    incomplete=bounded_int(missing.get('excludedIncompleteRows'),30000)
-                    source_rows=bounded_int(missing.get('sourceRowCount'),30000)
+                    excluded=bounded_int(missing.get('excludedCaQsRows'),100000)
+                    no_parent=bounded_int(missing.get('excludedNoParentRows'),100000)
+                    ambiguous=bounded_int(missing.get('excludedAmbiguousRows'),100000)
+                    incomplete=bounded_int(missing.get('excludedIncompleteRows'),100000)
+                    source_rows=bounded_int(missing.get('sourceRowCount'),100000)
                     if all(x is not None for x in (excluded,no_parent,ambiguous,incomplete,source_rows)):
                         if count+excluded+no_parent+ambiguous+incomplete!=source_rows:
                             modules.pop('missing',None)
@@ -318,15 +318,15 @@ def main():
                                 'excludedNoParentRows':no_parent,
                                 'excludedAmbiguousRows':ambiguous,
                                 'excludedIncompleteRows':incomplete})
-                    elif excluded is not None and excluded+count<=30000:
+                    elif excluded is not None and excluded+count<=100000:
                         # Backward compatibility with the previous Apps Script deployment.
                         modules['missing']['excludedCaQsRows']=excluded
                     verified=approved_missing_level2(missing.get('level2Ranking'),count)
                     if verified is not None and 'missing' in modules:
                         modules['missing']['level2Ranking']=verified
                     # Public only: total unresolved case count and distinct unit-parent pairs.
-                    unlinked=bounded_int(missing.get('unlinkedSourceRows'),30000)
-                    unit_pairs=bounded_int(missing.get('unlinkedUnitPairs'),30000)
+                    unlinked=bounded_int(missing.get('unlinkedSourceRows'),100000)
+                    unit_pairs=bounded_int(missing.get('unlinkedUnitPairs'),100000)
                     if ('missing' in modules and unlinked is not None and unit_pairs is not None
                             and 0<=unit_pairs<=unlinked<=(
                                 modules['missing'].get('sourceRowCount') or count)):
