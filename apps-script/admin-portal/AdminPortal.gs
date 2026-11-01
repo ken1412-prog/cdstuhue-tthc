@@ -660,7 +660,14 @@ function cdstuhueExcelIdentify_(sh) {
 function cdstuhueExcelRead_(sh,desc,field) {
   const col=desc.cols[field];
   if(!col)return Array.from({length:desc.rows},()=>null);
-  return sh.getRange(desc.first,col,desc.rows,1).getValues().map(r=>r[0]);
+  // Chunk large exports: avoid a single 56K-row Apps Script range read.
+  const values=[];
+  for(let offset=0;offset<desc.rows;offset+=1000){
+    const size=Math.min(1000,desc.rows-offset);
+    const block=sh.getRange(desc.first+offset,col,size,1).getValues();
+    for(const row of block)values.push(row[0]);
+  }
+  return values;
 }
 function cdstuhueExcelValidate_(type,sh) {
   const family=type==='THU_NOP'||type==='THU_NOP_CITY'?'payment':
