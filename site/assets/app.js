@@ -42,7 +42,7 @@ const MENU_DEFAULTS={'overview':true,'finance':true,'units':false,
  'chinh-thuc':false,'tam-thoi':false,'nhan-xet':false,'dang-phi':false,
  'qa-all':true,'qa-tthc':true,'qa-stdv':true,'qa-csdl':true,
  'resources':false,'reports':false,'guide':false,'assistant':true};
-const state={menu:{...MENU_DEFAULTS},menuReady:false,pendingView:null,qa:[],progress:[],finance:null,stats:null,statsCheck:'checking',paymentArchive:null,paymentHistory:[],paymentQuery:'',paymentStatus:'all',paymentSort:'rank',view:'overview',filter:'',query:'',unitQuery:'',sort:'default',page:0,generatedAt:'',demo:false,local:false,loadError:null};
+const state={menu:{...MENU_DEFAULTS},menuReady:true,pendingView:null,qa:[],qaLoading:true,qaLoadError:false,progress:[],finance:null,stats:null,statsCheck:'checking',paymentArchive:null,paymentHistory:[],paymentQuery:'',paymentStatus:'all',paymentSort:'rank',view:'overview',filter:'',query:'',unitQuery:'',sort:'default',page:0,generatedAt:'',demo:false,local:false,loadError:null};
 const NAV_FALLBACK=['overview','finance','qa-all','qa-tthc','qa-stdv','qa-csdl',
   'resources','reports','guide','units','chinh-thuc','tam-thoi','nhan-xet','dang-phi'];
 function viewAllowed(id){return id==='closed'||(id!=='assistant'&&
@@ -94,6 +94,7 @@ let dataLoadPromise=null,dataLoadRetryTimer=null,dataLoadRetryAttempts=0;
 let firstPublicSync=true,lastStaticLoadHadError=false,liveRetryScheduled=false;
 let calendarMonthAtLoad='';
 const liveSourceAccepted={stats:false,qa:false,menu:false};
+let pendingQuestionId=null;
 function loadData(){
  if(dataLoadPromise)return dataLoadPromise;
  dataLoadPromise=loadDataCore().finally(()=>{dataLoadPromise=null});
@@ -107,67 +108,119 @@ function scheduleDataLoadRecovery(){
   if(document.visibilityState==='visible'&&lastStaticLoadHadError)loadData();
  },delay);
 }
+/* Public menu defaults are a verified copy of site/data/menu.json.
+   They are only public navigation flags; hidden/private sections stay disabled.
+   This makes the first screen usable without waiting for any network request.
+   The server's reviewed menu immediately wins when it arrives. */
+async function fetchPublishedJson(path){
+ const controller=typeof AbortController!=='undefined'?new AbortController():null;
+ const timeout=setTimeout(()=>{if(controller)controller.abort()},9000);
+ try{
+  const response=await fetch(path,{cache:'no-store',...(controller?{signal:controller.signal}:{})});
+  if(!response.ok)throw Error('HTTP '+response.status);
+  return await response.json();
+ }finally{clearTimeout(timeout)}
+}
 async function loadDataCore(){
- lastStaticLoadHadError=false;
- const hiddenMenu={...MENU_DEFAULTS};
- try{
-  const r=await fetch('data/menu.json',{cache:'no-store'});if(!r.ok)throw Error('Menu unavailable');
-  const payload=await r.json();
-  if(payload.schema===1&&payload.visible&&typeof payload.visible==='object'){
-    for(const id of Object.keys(hiddenMenu))if(typeof payload.visible[id]==='boolean')hiddenMenu[id]=payload.visible[id];
+ // Six independent public files load concurrently. Never make QA wait for
+ // payment-history/statistics, nor force the visible menu to wait for menu.json.
+ let hadError=false;
+ const issues=[];
+ const read=async path=>{
+  try{return await fetchPublishedJson(path)}
+  catch(e){hadError=true;issues.push(path+': '+String(e?.message||e));return null}
+ };
+ const menuTask=read('data/menu.json').then(payload=>{
+  if(payload&&payload.schema===1&&payload.visible&&typeof payload.visible==='object'){
+   const next={...MENU_DEFAULTS};
+   for(const id of Object.keys(next)){
+    if(typeof payload.visible[id]!=='boolean'){
+     hadError=true;issues.push('Invalid public menu visibility');return;
+    }
+    next[id]=payload.visible[id];
+   }
+   if(!liveSourceAccepted.menu)state.menu=next;
+   procedureMenu();
+   if(state.pendingView){const v=state.pendingView;state.pendingView=null;state.view=viewAllowed(v)?v:firstVisibleView();}
+   if(!viewAllowed(state.view))state.view=firstVisibleView();
+   updateGlobal();render();
+  }else if(payload!==null){hadError=true;issues.push('Invalid public menu schema')}
+ });
+ const qaTask=read('data/approved.json').then(payload=>{
+  if(payload!==null&&(payload.schema!==1||!Array.isArray(payload.items))){
+   hadError=true;issues.push('Invalid reviewed QA schema');payload=null;
   }
- }catch(err){lastStaticLoadHadError=true;/* Fail closed: no private administrator settings exposed. */}
- if(!liveSourceAccepted.menu)state.menu=hiddenMenu;state.menuReady=true;
- procedureMenu();
- if(state.pendingView){const requested=state.pendingView;state.pendingView=null;state.view=viewAllowed(requested)?requested:firstVisibleView();}
- if(!viewAllowed(state.view))state.view=firstVisibleView();
- const current=new URL(location.href),given=current.searchParams.get('view');
- if(given&&!viewAllowed(given)){
-  history.replaceState({},'','index.html?view='+encodeURIComponent(state.view));
- }
- let qa=null,pr=null,fn=null,issues=[];
- try{const r=await fetch('data/approved.json',{cache:'no-store'});if(!r.ok)throw Error('HTTP '+r.status);qa=await r.json();if(!qa||qa.schema!==1||!Array.isArray(qa.items))throw Error('Invalid QA schema');}
- catch(e){lastStaticLoadHadError=true;issues.push('Không đọc được bản xuất QA: '+e.message);}
- try{const r=await fetch('data/progress.json',{cache:'no-store'});if(!r.ok)throw Error('HTTP '+r.status);pr=await r.json();if(!pr||pr.schema!==1||!Array.isArray(pr.records))throw Error('Invalid progress schema');}
- catch(e){lastStaticLoadHadError=true;issues.push('Không đọc được tệp tiến độ: '+e.message);}
- try{const r=await fetch('data/finance.json',{cache:'no-store'});if(!r.ok)throw Error('HTTP '+r.status);const f=await r.json();if(f?.schema!==1)throw Error('Invalid finance schema');if(f.public===true&&f.reviewed===true&&Array.isArray(f.bankGroups)&&f.bankGroups.every(v=>typeof v.name==='string'&&Number.isInteger(v.accounts)&&v.accounts>=0)&&[f.reportRecords,f.notDeclared,f.waitingApproval,f.waitingPayment].every(v=>v==null||(Number.isInteger(v)&&v>=0))&&[f.reportRecords,f.notDeclared,f.waitingApproval,f.waitingPayment,...f.bankGroups.map(g=>g.accounts)].some(v=>v!=null)){fn=f;}}
- catch(e){lastStaticLoadHadError=true;issues.push('Không đọc được bản thống kê đảng phí: '+e.message);}
- try{
-  const r=await fetch('data/stats.json',{cache:'no-store'});
-  if(!r.ok)throw Error('HTTP '+r.status);
-  const stats=await r.json();
-  if(!liveSourceAccepted.stats)state.stats=stats?.schema===1&&stats?.public===true&&stats?.reviewed===true&&stats?.modules&&typeof stats.modules==='object'?stats:null;
-  if(state.stats?.period===currentReportMonth()&&state.stats?.public===true&&state.stats?.reviewed===true)state.statsCheck='ready';
- }catch(e){lastStaticLoadHadError=true;if(!liveSourceAccepted.stats)state.stats=null;}
- // Closed public periods are loaded directly from their immutable JSON.
- try{
-  const r=await fetch('data/payment-history.json',{cache:'no-store'});
-  const idx=r.ok?await r.json():null;
-  state.paymentHistory=idx?.schema===1&&Array.isArray(idx.months)?
-   idx.months.filter(x=>x&&/^20\d{2}-(0[1-9]|1[0-2])$/.test(x.period)&&x.closed===true):[];
- }catch(e){state.paymentHistory=[];}
- state.finance=fn;
- if(!liveSourceAccepted.qa)state.qa=qa?qa.items.filter(x=>x&&x.public===true).map(normQA).filter(x=>x.id&&x.question&&x.answer&&GROUPS[x.group]):[];
- // Fail-closed if accidental duplicates/invalid IDs appear in a publication feed.
- const ids=new Set();state.qa=state.qa.filter(x=>{if(ids.has(x.id))return false;ids.add(x.id);return true});
- state.progress=pr?pr.records.filter(validProgress).map(x=>({unit:String(x.unit),procedure:x.procedure,progress:Number(x.progress),received:Number(x.received)||0,completed:Number(x.completed)||0,updated:String(x.updated||'')})):[];
- if(!liveSourceAccepted.qa)state.generatedAt=qa?.generatedAt||'';
+  if(payload&&Array.isArray(payload.items)){
+   const next=payload.items.filter(x=>x&&x.public===true).map(normQA)
+    .filter(x=>x.id&&x.question&&x.answer&&GROUPS[x.group]);
+   const unique=new Set();
+   const filtered=next.filter(x=>{if(unique.has(x.id))return false;unique.add(x.id);return true});
+   if(!liveSourceAccepted.qa){
+    state.qa=filtered;
+    state.generatedAt=String(payload.generatedAt||'');
+   }
+   state.qaLoadError=false;
+  }else{state.qaLoadError=!liveSourceAccepted.qa}
+  state.qaLoading=false;
+  updateGlobal();render();
+  if(pendingQuestionId&&state.qa.some(x=>x.id===pendingQuestionId)){
+   const id=pendingQuestionId;pendingQuestionId=null;openQA(id);
+  }
+ });
+ const progressTask=read('data/progress.json').then(payload=>{
+  if(payload!==null&&(payload.schema!==1||!Array.isArray(payload.records))){
+   hadError=true;issues.push('Invalid progress schema');return;
+  }
+  if(payload){
+   state.progress=payload.records.filter(validProgress).map(x=>({
+    unit:String(x.unit),procedure:x.procedure,progress:Number(x.progress),
+    received:Number(x.received)||0,completed:Number(x.completed)||0,
+    updated:String(x.updated||'')
+   }));
+   if(state.view==='units'||Boolean(PROCEDURES[state.view]))render();
+  }
+ });
+ const financeTask=read('data/finance.json').then(f=>{
+  if(f&&f.schema===1&&f.public===true&&f.reviewed===true&&
+     Array.isArray(f.bankGroups)&&f.bankGroups.every(v=>
+       typeof v.name==='string'&&Number.isInteger(v.accounts)&&v.accounts>=0)&&
+     [f.reportRecords,f.notDeclared,f.waitingApproval,f.waitingPayment].every(v=>
+       v==null||(Number.isInteger(v)&&v>=0))&&
+     [f.reportRecords,f.notDeclared,f.waitingApproval,f.waitingPayment,
+      ...f.bankGroups.map(g=>g.accounts)].some(v=>v!=null)){
+   state.finance=f;
+   if(state.view==='finance')render();
+  }
+ });
+ const statsTask=read('data/stats.json').then(stats=>{
+  if(!liveSourceAccepted.stats){
+   if(stats?.schema===1&&stats?.public===true&&stats?.reviewed===true&&
+       stats?.modules&&typeof stats.modules==='object'&&!Array.isArray(stats.modules)){
+    state.stats=stats;
+    state.statsCheck=stats.period===currentReportMonth()?'ready':'unavailable';
+   }else if(state.statsCheck==='checking')state.statsCheck='unavailable';
+  }
+  updateGlobal();render();
+ });
+ const archiveTask=read('data/payment-history.json').then(idx=>{
+  if(idx?.schema===1&&Array.isArray(idx.months)){
+   state.paymentHistory=idx.months.filter(x=>x&&
+     /^20\\d{2}-(0[1-9]|1[0-2])$/.test(x.period)&&x.closed===true);
+   if(state.view==='finance')render();
+  }
+ });
+ await Promise.all([menuTask,qaTask,progressTask,financeTask,statsTask,archiveTask]);
  state.local=false;
  state.loadError=issues.length?issues.join('; '):null;
+ lastStaticLoadHadError=hadError;
  calendarMonthAtLoad=currentReportMonth();
- // Show only explicitly reviewed public JSON immediately. Never block the
- // first paint on a slow Apps Script request (notably on Android Chrome).
- // The approved live source updates asynchronously; once accepted it cannot
- // be overwritten by a later retry of the fallback JSON.
- firstPublicSync=false;
- updateGlobal();render();
- startLiveStats();
- if(lastStaticLoadHadError)scheduleDataLoadRecovery();
+ if(hadError)scheduleDataLoadRecovery();
  else{
   dataLoadRetryAttempts=0;
-  if(dataLoadRetryTimer){clearTimeout(dataLoadRetryTimer);dataLoadRetryTimer=null;}
+  if(dataLoadRetryTimer){clearTimeout(dataLoadRetryTimer);dataLoadRetryTimer=null}
  }
 }
+
 /* Live approved statistics: public Google Apps Script /exec, no manual CI.
  * GitHub Pages JSON remains fallback when the live feed is temporarily down.
  */
@@ -333,12 +386,13 @@ function applyLiveQA(feed){
  if(next.length!==raw.length)return false;
  const unique=new Set();
  if(next.some(x=>unique.has(x.id)||!unique.add(x.id)))return false;
- if(JSON.stringify(state.qa)===JSON.stringify(next)){liveSourceAccepted.qa=true;return true;}
+ if(JSON.stringify(state.qa)===JSON.stringify(next)){liveSourceAccepted.qa=true;state.qaLoading=false;state.qaLoadError=false;return true;}
  state.qa=next;
- liveSourceAccepted.qa=true;
+ liveSourceAccepted.qa=true;state.qaLoading=false;state.qaLoadError=false;
  state.generatedAt=String(feed.generatedAt||'').slice(0,40);
  state.page=0;
  if(!firstPublicSync){updateGlobal();render();}
+ if(pendingQuestionId&&state.qa.some(x=>x.id===pendingQuestionId)){const id=pendingQuestionId;pendingQuestionId=null;openQA(id)}
  return true;
 }
 function applyLiveMenu(feed){
@@ -363,10 +417,10 @@ function refreshLivePublished(){
   loadApprovedLiveScript('menu','cdstuhueMenuReceive',applyLiveMenu)
  ]);
 }
-function updateGlobal(){const q=published(),by=g=>q.filter(x=>x.group===g).length;$('#qaTotalSide').textContent=q.length;$('#qaTthcSide').textContent=by('tthc');$('#qaStdvSide').textContent=by('stdv');$('#qaCsdlSide').textContent=by('csdl');const approvedDate=state.stats?.period===currentReportMonth()?state.stats.approvedDate:null;
+function updateGlobal(){const q=published(),by=g=>q.filter(x=>x.group===g).length;const qc=state.qaLoading&&!state.demo?'…':null;$('#qaTotalSide').textContent=qc??q.length;$('#qaTthcSide').textContent=qc??by('tthc');$('#qaStdvSide').textContent=qc??by('stdv');$('#qaCsdlSide').textContent=qc??by('csdl');const approvedDate=state.stats?.period===currentReportMonth()?state.stats.approvedDate:null;
  const approvedMatch=typeof approvedDate==='string'?approvedDate.match(/^(\d{4})-(\d{2})-(\d{2})$/):null;
- const approvedFull=approvedMatch?approvedMatch[3]+'/'+approvedMatch[2]+'/'+approvedMatch[1]:'—';
- const approvedShort=approvedMatch?approvedMatch[3]+'/'+approvedMatch[2]:'—';
+ const approvedFull=approvedMatch?approvedMatch[3]+'/'+approvedMatch[2]+'/'+approvedMatch[1]:state.statsCheck==='checking'?'Đang đồng bộ':'—';
+ const approvedShort=approvedMatch?approvedMatch[3]+'/'+approvedMatch[2]:state.statsCheck==='checking'?'…':'—';
  const fullDate=$('#lastApprovedDate'),shortDate=$('#lastApprovedDateMobile');
  if(fullDate)fullDate.textContent=approvedFull;
  if(shortDate)shortDate.textContent=approvedShort;$('#demoBanner').classList.toggle('hidden',!(state.demo||state.local));$('#demoBanner strong').textContent=state.demo?'ĐANG XEM DỮ LIỆU MINH HỌA':'DỮ LIỆU NHẬP CỤC BỘ';$('#demoBanner span').textContent=state.demo?'Không phải số liệu hoặc câu trả lời thực tế.':'Bản ghi từ máy của bạn, chưa xuất bản hoặc lưu vào hệ thống.';$('#endDemo').textContent=state.demo?'Tắt minh họa ×':'Xóa dữ liệu cục bộ ×';const feeBadge=$('#financeNavRate'),feeRate=state.demo?null:selectedFinanceStats()?.modules?.payment?.completionRate;if(feeBadge){feeBadge.hidden=!viewAllowed('finance')||typeof feeRate!=='number';if(typeof feeRate==='number')feeBadge.textContent=(feeRate*100).toFixed(1).replace('.',',')+'%';}}
@@ -792,7 +846,7 @@ function scoreQA(item,q){const f=fold(q).trim();if(!f)return 1;let question=fold
     (words.length>=2&&words.filter(w=>question.includes(w)).length>=2)))score+=12;
  return score}
 function qaCards(items){return `<div class="qa-list">${items.map(x=>`<button type="button" class="qa-item" data-qa="${E(x.id)}"><div class="qa-item-top"><span class="qa-id">${E(x.id)}</span><span class="qa-category">${E(GROUPS[x.group]?.name||'QA')}</span><span class="badge">${E(x.topic||'Hỏi đáp')}</span>${state.demo?'<span class="demo-demo">MINH HỌA</span>':''}</div><h3>${E(x.question)}</h3><p>${E(x.answer)}</p><div class="qa-item-bottom"><span>${E(x.updated||'')} · Được xuất bản theo danh sách duyệt</span><span class="qa-arrow">↗</span></div></button>`).join('')}</div>`}
-function qaView(){const q=published(),group=selectedGroup(),scope=group?q.filter(x=>x.group===group):q;const results=scope.map(x=>({x,s:scoreQA(x,state.query)})).filter(z=>!state.query||z.s>0).sort((a,b)=>b.s-a.s||a.x.id.localeCompare(b.x.id)).map(z=>z.x);const total=results.length,pageSize=10,numPages=Math.max(1,Math.ceil(total/pageSize));state.page=Math.min(Math.max(0,state.page),numPages-1);
+function qaView(){if(state.qaLoading&&!state.demo)return '<section class="panel"><h2>Kho hỏi – đáp kỹ thuật</h2><p>Đang nạp bản câu hỏi đã duyệt. Menu và các chức năng khác vẫn sử dụng được.</p></section>';if(state.qaLoadError&&!state.qa.length&&!state.demo)return '<section class="panel"><h2>Kho hỏi – đáp kỹ thuật</h2><p>Chưa kết nối được dữ liệu công khai. Hệ thống sẽ tự thử lại khi có mạng.</p></section>';const q=published(),group=selectedGroup(),scope=group?q.filter(x=>x.group===group):q;const results=scope.map(x=>({x,s:scoreQA(x,state.query)})).filter(z=>!state.query||z.s>0).sort((a,b)=>b.s-a.s||a.x.id.localeCompare(b.x.id)).map(z=>z.x);const total=results.length,pageSize=10,numPages=Math.max(1,Math.ceil(total/pageSize));state.page=Math.min(Math.max(0,state.page),numPages-1);
 return `<div class="stat-grid">${stat('Công khai',group?GROUPS[group].full:'Các nhóm đang bật',scope.length,'?')}${Object.entries(GROUPS).filter(([k])=>viewAllowed('qa-'+k)).map(([k,v])=>stat(v.full,'QA được duyệt',q.filter(x=>x.group===k).length,v.icon)).join('')}</div><section class="panel"><div class="panel-head"><div><h2>Tra cứu câu hỏi – hướng dẫn xử lý</h2><p>Tìm cả từ khóa không dấu, câu hỏi tương tự và nội dung trả lời</p></div><span class="badge good">Danh sách được duyệt công khai</span></div><div class="toolbar"><div class="search"><input id="qaSearch" type="search" value="${E(state.query)}" placeholder="Nhập lỗi, nghiệp vụ hoặc câu hỏi..." autocomplete="off"></div><select id="qaGroup" class="selector" aria-label="Nhóm câu hỏi">${viewAllowed('qa-all')?`<option value="all" ${!group?'selected':''}>Tất cả hệ thống</option>`:''}${Object.entries(GROUPS).filter(([k])=>viewAllowed('qa-'+k)).map(([k,v])=>`<option value="${k}" ${group===k?'selected':''}>${E(v.full)}</option>`).join('')}</select></div>${scope.length?`${qaCards(results.slice(state.page*pageSize,(state.page+1)*pageSize))}${results.length?`<div class="page-nav"><span>${Math.min(state.page*pageSize+1,total)}–${Math.min((state.page+1)*pageSize,total)} / ${total} kết quả</span><div><button type="button" class="btn" data-action="prev" ${state.page===0?'disabled':''}>‹ Trước</button> <button type="button" class="btn" data-action="next" ${state.page>=numPages-1?'disabled':''}>Sau ›</button></div></div>`:msgEmpty('Không tìm thấy câu hỏi phù hợp')}`:msgEmpty('Chưa xuất bản câu hỏi nào trong nhóm này')}</section>`}
 function resourcesView(){return `<div class="category-grid"><div class="panel"><div class="panel-head"><h2>◈ Kho TTHC</h2><span class="badge">Hỏi – đáp</span></div><p class="small-note">Hướng dẫn thủ tục, vướng mắc thanh toán và phân quyền từ các câu hỏi đã duyệt.</p><button class="btn dark" data-view="qa-tthc">Mở hỏi đáp →</button></div><div class="panel"><div class="panel-head"><h2>◷ Sổ tay Đảng viên</h2><span class="badge">Hỏi – đáp</span></div><p class="small-note">Tra cứu các tình huống sử dụng, tài khoản, sinh hoạt và điểm danh.</p><button class="btn dark" data-view="qa-stdv">Mở hỏi đáp →</button></div><div class="panel"><div class="panel-head"><h2>▥ CSDL 4.0</h2><span class="badge">Hỏi – đáp</span></div><p class="small-note">Tra cứu lỗi dữ liệu, đồng bộ và thông tin tài khoản.</p><button class="btn dark" data-view="qa-csdl">Mở hỏi đáp →</button></div></div><div class="section-heading"><h2>Tài liệu và hệ thống tham khảo</h2></div><section class="panel"><div class="guide-list"><div class="guide-item"><h3>Dịch vụ công của Đảng</h3><p>Truy cập bằng địa chỉ do cơ quan quản lý cung cấp. Website này chỉ hỗ trợ tra cứu, không tiếp nhận hay xử lý hồ sơ.</p></div><div class="guide-item"><h3>Website tham khảo Lào Cai</h3><p><a href="https://laocai-cds.github.io/tthc/" target="_blank" rel="noopener noreferrer">laocai-cds.github.io/tthc/ ↗</a> — giao diện dashboard tham khảo độc lập, số liệu và nghiệp vụ của Lào Cai không được nhập vào bản thống kê này.</p></div><div class="guide-item"><h3>Kho tài liệu địa phương</h3><p>Chưa cấu hình liên kết công khai. Khi có danh mục tài liệu được duyệt, có thể bổ sung ở trang này mà không cần thay các QA gốc.</p></div></div></section>`}
 function guideView(){return `<div class="columns"><section class="panel"><div class="panel-head"><h2>Hướng dẫn sử dụng cho người xem</h2><span class="badge">Tra cứu công khai</span></div><div class="guide-list"><div class="guide-item"><h3>1. Tra cứu thủ tục và thống kê</h3><p>Tra cứu danh mục đang được hiển thị, kho QA công khai và chuyên đề thống kê đã duyệt. Dấu “—” nghĩa là chưa có dữ liệu, không phải số 0.</p></div><div class="guide-item"><h3>2. Tìm câu hỏi</h3><p>Mở Hỏi – đáp, gõ từ khóa có dấu hoặc không dấu. Chọn câu phù hợp để đọc đầy đủ nội dung trả lời.</p></div><div class="guide-item"><h3>3. Dùng trợ lý tra cứu nhanh</h3><p>Bấm nút ở góc menu, nhập vấn đề đang gặp. Công cụ gợi ý kết quả dựa trên tìm kiếm nội bộ; không gửi dữ liệu cho mô hình AI và không suy luận thêm câu trả lời.</p></div><div class="guide-item"><h3>4. In và xuất báo cáo</h3><p>Trong Báo cáo & xuất dữ liệu, chọn tải CSV công khai hoặc in báo cáo. Bảng tiến độ đang thiếu dữ liệu thì báo cáo sẽ ghi rõ tình trạng chưa kết nối.</p></div></div></section><section class="panel"><div class="panel-head"><h2>Hướng dẫn biên tập & xuất bản</h2><span class="badge warn">Dành cho quản trị</span></div><ol class="utility-steps"><li>Chỉnh nội dung gốc trong ba tab <b>QA TTHC</b>, <b>QA STDV</b>, <b>QA CSDL 4.0</b> như bình thường.</li><li>Mở tab <b>WEB_PUBLISH</b>, kiểm tra từng QA và đặt trạng thái <b>ĐÃ DUYỆT</b> nếu đủ điều kiện công khai.</li><li>Nếu nội dung có dữ liệu nhạy cảm, không duyệt trước khi sửa bản gốc hoặc tạo phiên bản công khai an toàn.</li><li>Thiết lập Apps Script và GitHub Actions theo README của gói mã nguồn; khi đó hệ thống mới tự cập nhật.</li><li>Đối với thống kê đảng phí, nhập số liệu đã cho phép công khai vào tab <b>WEB_FINANCE_PUBLIC</b> và xác nhận duyệt qua menu Apps Script. Sau khi đổi trạng thái thành <b>TẠM ẨN</b>, chờ lần xuất bản mới.</li></ol><div class="small-note"><strong>Lưu ý:</strong> Trang này là giao diện tra cứu và báo cáo. Không chứa mật khẩu, mã truy cập hoặc đường dẫn chỉnh sửa nội bộ của Google Sheet.</div><button class="btn" data-action="demo">◈ Thử giao diện với dữ liệu minh họa</button></section></div>`}
@@ -836,7 +890,7 @@ function syncFromUrl(){
   history.replaceState({},'','index.html?view='+encodeURIComponent(state.view));
  render();
  const id=url.searchParams.get('id');
- if(id&&state.menuReady&&state.view.startsWith('qa-'))setTimeout(()=>openQA(id),0);
+ if(id&&state.menuReady&&state.view.startsWith('qa-')){if(state.qaLoading)pendingQuestionId=id;else setTimeout(()=>openQA(id),0)};
 }
 function openQA(id){const x=published().find(x=>x.id===id);if(!x){toast('Không tìm thấy mã QA này trong bản công khai');return}$('#modalTitle').textContent=x.question;$('#modalGroup').textContent=GROUPS[x.group]?.full||x.group;$('#modalId').textContent=x.id+(state.demo?' · MINH HỌA':'');$('#modalBody').innerHTML=`<h3>Trả lời</h3><div class="answer">${E(x.answer)}</div>${x.publicNote?`<div class="small-note">${E(x.publicNote)}</div>`:''}${x.sourceUrl?`<div class="source-label"><b>Nguồn công khai:</b> <a href="${E(x.sourceUrl)}" target="_blank" rel="noopener noreferrer">${E(x.sourceUrl)}</a></div>`:''}`;$('#qaModal').classList.remove('hidden');document.body.style.overflow='hidden';}
 function closeQA(){if($('#qaModal').classList.contains('hidden'))return;$('#qaModal').classList.add('hidden');document.body.style.overflow='';}
@@ -1007,9 +1061,11 @@ function boot(){document.addEventListener('keydown',discourageSourceHotkeys,true
    loadData().then(()=>{refreshLiveStats();refreshLivePublished();});
   }
  });
- // Start the live approved feed concurrently with static data, not after
- // every static file finishes loading. Avoid a false approval-warning flash.
- refreshLiveStats();
+ // Public navigation is already embedded and safe to show immediately.
+ // The data feeds run in parallel; live updates never block initial paint.
+ firstPublicSync=false;
+ updateGlobal();render();
+ startLiveStats();
  loadData();}
 window.CDSTUHUE_TEST={fold,scoreQA,normQA,validProgress};
 boot();

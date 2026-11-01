@@ -25,6 +25,28 @@ ORIGIN_LINK = re.compile(
 
 
 class PublicSurfaceTests(unittest.TestCase):
+    def test_menu_has_instant_public_bootstrap_and_async_qa(self):
+        app=(SITE/"assets/app.js").read_text(encoding="utf-8")
+        import json
+        menu=json.loads((SITE/"data/menu.json").read_text(encoding="utf-8"))["visible"]
+        expected={"overview":True,"finance":True,"units":False,
+                  "chinh-thuc":False,"tam-thoi":False,"nhan-xet":False,
+                  "dang-phi":False,"qa-all":True,"qa-tthc":True,
+                  "qa-stdv":True,"qa-csdl":True,
+                  "resources":False,"reports":False,"guide":False,"assistant":True}
+        self.assertEqual(menu,expected)
+        self.assertIn("menuReady:true",app)
+        self.assertIn("const qaTask=read('data/approved.json')",app)
+        self.assertIn("const menuTask=read('data/menu.json')",app)
+        self.assertIn("await Promise.all([menuTask,qaTask,progressTask,financeTask,statsTask,archiveTask])",app)
+        self.assertIn("if(state.qaLoading&&!state.demo)",app)
+        self.assertIn("controller.abort()",app)
+        self.assertIn("startLiveStats();\\n loadData();}",app)
+        for page in ("index.html","hoi-dap.html"):
+            html=(SITE/page).read_text(encoding="utf-8")
+            self.assertIn("assets/app.js?v=20261101-fast-parallel-first-paint-v9",html)
+
+
     def test_cyan_photos_are_true_recolored_files_not_blue_overlays(self):
         css=(SITE/"assets/styles.css").read_text(encoding="utf-8")
         marker="/* CDSTUHUE REAL RECOLORED PHOTO ASSETS V10"

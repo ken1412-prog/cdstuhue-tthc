@@ -65,8 +65,16 @@ async function main(){
  assert(src.includes("if(lastStaticLoadHadError)loadData();"),
   'Only retry failed static network loads, not correctly empty approved data');
  assert(src.includes('startLiveStats();'));
- assert(src.includes("refreshLiveStats();\n loadData();}"),
-  'Fetch current approved stats concurrently with static files');
+ assert(src.includes("firstPublicSync=false;\n updateGlobal();render();\n startLiveStats();\n loadData();}"),
+  'Render public navigation immediately, then fetch published data');
+ assert(src.includes("menuReady:true"),'Verified public menu bootstraps the first screen');
+ assert(src.includes("const menuTask=read('data/menu.json')"),'Menu refresh runs asynchronously');
+ assert(src.includes("const qaTask=read('data/approved.json')"),'QA refresh runs independently');
+ assert(src.includes("const statsTask=read('data/stats.json')"),'Stats refresh runs independently');
+ assert(src.includes("await Promise.all([menuTask,qaTask,progressTask,financeTask,statsTask,archiveTask])"),
+  'Independent public JSON requests must be concurrent');
+ assert(src.includes("controller.abort()"),'Unresponsive requests must have a timeout');
+ assert(src.includes('Đang nạp bản câu hỏi đã duyệt.'),'QA loading must be explicit, not empty');
  assert(src.includes("statsCheck:'checking'"),
   'A network pending state must not claim approval is missing');
  assert(src.includes("state.statsCheck='not-approved'"),
@@ -75,8 +83,8 @@ async function main(){
   'Never present an unverified loading state as an approval failure');
  const firstPaint=src.slice(src.indexOf('async function loadDataCore(){'),
   src.indexOf('/* Live approved statistics:'));
- assert(firstPaint.includes('firstPublicSync=false;\n updateGlobal();render();\n startLiveStats();'),
-  'Render approved static fallback without waiting on the live source');
+ assert(firstPaint.includes('await Promise.all([menuTask,qaTask,progressTask,financeTask,statsTask,archiveTask])'),
+  'All public JSON sources must run in parallel');
  assert(!firstPaint.includes('await Promise.all([refreshLiveStats()'),
   'A slow public endpoint must never block the first paint');
  assert(!src.includes('Đang kiểm tra dữ liệu công khai mới nhất…'),
@@ -85,7 +93,7 @@ async function main(){
  assert(src.includes('if(!liveSourceAccepted.qa)state.qa='));
  assert(src.includes('if(!liveSourceAccepted.menu)state.menu='));
  assert(src.includes('if(lastStaticLoadHadError)scheduleDataLoadRecovery();'));
- assert(html.includes('20261101-fast-live-first-v8'));
+ assert(html.includes('20261101-fast-parallel-first-paint-v9'));
  assert(headers.includes('/assets/app.js'));
  console.log('Mobile auto-refresh PASS: startup retry, endpoint retry, tab restore and version bust');
 }
