@@ -36,7 +36,7 @@ class PublicSurfaceTests(unittest.TestCase):
             self.assertNotIn('id="lastApprovedDate" aria-live="polite">24/10/2026</span>',html)
             self.assertIn("assets/app.js?v=20261101-fast-live-first-v8",html)
             self.assertIn("assets/styles.css?v=20261027-mobile-update-v1",html)
-        self.assertIn("const approvedDate=state.stats?.approvedDate;",js)
+        self.assertIn("const approvedDate=state.stats?.period===currentReportMonth()?state.stats.approvedDate:null;",js)
         self.assertIn("if(fullDate)fullDate.textContent=approvedFull;",js)
         self.assertIn("if(shortDate)shortDate.textContent=approvedShort;",js)
         self.assertIn(".topbar .announcement{\n  display:inline-flex!important;",css)
