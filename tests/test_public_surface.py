@@ -43,7 +43,7 @@ class PublicSurfaceTests(unittest.TestCase):
         for page in ("index.html","hoi-dap.html"):
             html=(SITE/page).read_text(encoding="utf-8")
             self.assertEqual(html.count('class="sidebar-bridge-gleam" aria-hidden="true"'),1)
-            self.assertIn("assets/styles.css?v=20261101-blue-silk-waves-v14",html)
+            self.assertIn("assets/styles.css?v=20261101-hero-bright-flow-v15",html)
 
 
     def test_menu_has_instant_public_bootstrap_and_async_qa(self):
@@ -115,7 +115,7 @@ class PublicSurfaceTests(unittest.TestCase):
         self.assertIn("animation:cds-border-orbit 3s linear infinite",css)
         for page in ("index.html","hoi-dap.html"):
             html=(SITE/page).read_text(encoding="utf-8")
-            self.assertIn("assets/styles.css?v=20261101-blue-silk-waves-v14",html)
+            self.assertIn("assets/styles.css?v=20261101-hero-bright-flow-v15",html)
         for image in ("neon-ribbons-sidebar.svg","neon-ribbons-wide.svg"):
             path=SITE/"assets/img"/image
             self.assertTrue(path.is_file())
@@ -152,7 +152,7 @@ class PublicSurfaceTests(unittest.TestCase):
         self.assertNotIn("grid-template-columns",overlay)
         for page in ("index.html","hoi-dap.html"):
             html=(SITE/page).read_text(encoding="utf-8")
-            self.assertIn("assets/styles.css?v=20261101-blue-silk-waves-v14",html)
+            self.assertIn("assets/styles.css?v=20261101-hero-bright-flow-v15",html)
 
 
     def test_hero_banner_photograph_not_replaced_by_blue_glass(self):
@@ -166,7 +166,7 @@ class PublicSurfaceTests(unittest.TestCase):
         self.assertNotIn("url('./img/nguyen-hoang-bridge-3840.jpg')",v6)
         for page in ("index.html","hoi-dap.html"):
             html=(SITE/page).read_text(encoding="utf-8")
-            self.assertIn("assets/styles.css?v=20261101-blue-silk-waves-v14",html)
+            self.assertIn("assets/styles.css?v=20261101-hero-bright-flow-v15",html)
 
 
     def test_blue_glass_v6_contained_menu_light_and_blue_main(self):
@@ -196,7 +196,7 @@ class PublicSurfaceTests(unittest.TestCase):
         for page in ("index.html","hoi-dap.html"):
             html=(SITE/page).read_text(encoding="utf-8")
             self.assertEqual(html.count('class="sidebar-ambient" aria-hidden="true"'),1)
-            self.assertIn("assets/styles.css?v=20261101-blue-silk-waves-v14",html)
+            self.assertIn("assets/styles.css?v=20261101-hero-bright-flow-v15",html)
 
 
     def test_cobalt_reference_fast_three_second_ring_and_slow_light(self):
@@ -227,7 +227,7 @@ class PublicSurfaceTests(unittest.TestCase):
         self.assertNotIn("z-index:50",visual)
         for page in ("index.html","hoi-dap.html"):
             html=(SITE/page).read_text(encoding="utf-8")
-            self.assertIn("assets/styles.css?v=20261101-blue-silk-waves-v14",html)
+            self.assertIn("assets/styles.css?v=20261101-hero-bright-flow-v15",html)
 
 
     def test_light_ribbon_art_is_lightweight_responsive_and_accessible(self):
@@ -295,7 +295,7 @@ class PublicSurfaceTests(unittest.TestCase):
             self.assertIn('id="lastApprovedDate" aria-live="polite">—</span>',html)
             self.assertNotIn('id="lastApprovedDate" aria-live="polite">24/10/2026</span>',html)
             self.assertIn("assets/app.js?v=20261101-qa-loading-v10",html)
-            self.assertIn("assets/styles.css?v=20261101-blue-silk-waves-v14",html)
+            self.assertIn("assets/styles.css?v=20261101-hero-bright-flow-v15",html)
         self.assertIn("const approvedDate=state.stats?.period===currentReportMonth()?state.stats.approvedDate:null;",js)
         self.assertIn("if(fullDate)fullDate.textContent=approvedFull;",js)
         self.assertIn("if(shortDate)shortDate.textContent=approvedShort;",js)
@@ -383,7 +383,7 @@ class PublicSurfaceTests(unittest.TestCase):
             html=(SITE / page).read_text(encoding="utf-8")
             self.assertIn('<div class="footer-byline">',html)
             self.assertIn('<span class="footer-copyright">© 2026 CDSTUHUE</span><span class="footer-author">NKien',html)
-            self.assertIn('assets/styles.css?v=20261101-blue-silk-waves-v14',html)
+            self.assertIn('assets/styles.css?v=20261101-hero-bright-flow-v15',html)
             self.assertNotIn('id="navAssistant"',html)
             self.assertIn('id="openAssistant"',html)
             self.assertIn('id="assistantMobileFab"',html)
@@ -606,7 +606,7 @@ class PublicSurfaceTests(unittest.TestCase):
             self.assertIn('class="side-assist-heading"',html)
             self.assertIn('<small>Trong kho câu hỏi</small>',html)
             self.assertNotIn('Trợ lý tra cứu nhanh <small>Không dùng AI bên ngoài</small>',html)
-            self.assertIn('assets/styles.css?v=20261101-blue-silk-waves-v14',html)
+            self.assertIn('assets/styles.css?v=20261101-hero-bright-flow-v15',html)
         self.assertIn('/* Centered quick-search launcher in the sidebar */',css)
         self.assertIn('justify-content:center;',css[css.rfind('/* Centered quick-search launcher in the sidebar */'):])
         self.assertIn('text-align:center;',css[css.rfind('/* Centered quick-search launcher in the sidebar */'):])
@@ -635,7 +635,7 @@ class PublicSurfaceTests(unittest.TestCase):
             self.assertNotIn(forbidden, patch)
         for page in ("index.html", "hoi-dap.html"):
             html = (SITE / page).read_text(encoding="utf-8")
-            self.assertIn("assets/styles.css?v=20261101-blue-silk-waves-v14", html)
+            self.assertIn("assets/styles.css?v=20261101-hero-bright-flow-v15", html)
             self.assertIn("assets/app.js?v=20261101-qa-loading-v10", html)
 
     def test_v13_gloss_trails_follow_existing_paths_without_touching_sources(self):
@@ -679,7 +679,7 @@ class PublicSurfaceTests(unittest.TestCase):
             self.assertNotIn(forbidden, visual)
         for page in ("index.html", "hoi-dap.html"):
             html = (SITE / page).read_text(encoding="utf-8")
-            self.assertIn("assets/styles.css?v=20261101-blue-silk-waves-v14", html)
+            self.assertIn("assets/styles.css?v=20261101-hero-bright-flow-v15", html)
             self.assertIn("assets/app.js?v=20261101-qa-loading-v10", html)
 
     def test_v14_silk_waves_keep_real_photos_and_are_accessible(self):
@@ -714,7 +714,41 @@ class PublicSurfaceTests(unittest.TestCase):
         self.assertIn("applyLiveQA(feed)",js)
         for page in ("index.html","hoi-dap.html"):
             html=(SITE/page).read_text(encoding="utf-8")
-            self.assertIn("assets/styles.css?v=20261101-blue-silk-waves-v14",html)
+            self.assertIn("assets/styles.css?v=20261101-hero-bright-flow-v15",html)
+            self.assertIn("assets/app.js?v=20261101-qa-loading-v10",html)
+
+    def test_v15_panorama_light_is_stronger_and_clipped_to_curves(self):
+        import xml.etree.ElementTree as ET
+        mask_file=SITE/"assets/img/blue-silk-hero-path-mask-v15.svg"
+        self.assertTrue(mask_file.is_file())
+        mask=ET.parse(mask_file).getroot()
+        waves=ET.parse(SITE/"assets/img/blue-silk-wide-v14.svg").getroot()
+        reference_paths={x.get("d") for x in waves.iter() if x.tag.endswith("path")}
+        drawn_paths=[x.get("d") for x in mask.iter() if x.tag.endswith("path")]
+        self.assertEqual(len(drawn_paths),6)
+        self.assertTrue(set(drawn_paths).issubset(reference_paths))
+        css=(SITE/"assets/styles.css").read_text(encoding="utf-8")
+        patch=css.split("/* CDSTUHUE HERO BRIGHT FLOW V15",1)[1]
+        for required in (
+            ".main .hero>.hero-silk-runner{",
+            "pointer-events:none",
+            "blue-silk-hero-path-mask-v15.svg",
+            "mask-image:url(",
+            "-webkit-mask-image:url(",
+            "cds-v15-hero-travel 6.3s",
+            ".main .hero>.hero-copy,",
+            "z-index:2",
+            "prefers-reduced-motion:reduce",
+            "@media print"
+        ):
+            self.assertIn(required,patch)
+        for forbidden in (".sidebar{",".sidebar::after{",".hero::before{",
+                          "site/data/","neon-ribbons-chase-v13.svg"):
+            self.assertNotIn(forbidden,patch)
+        for page in ("index.html","hoi-dap.html"):
+            html=(SITE/page).read_text(encoding="utf-8")
+            self.assertEqual(html.count('class="hero-silk-runner" aria-hidden="true"'),1)
+            self.assertIn("assets/styles.css?v=20261101-hero-bright-flow-v15",html)
             self.assertIn("assets/app.js?v=20261101-qa-loading-v10",html)
 
 if __name__ == "__main__":

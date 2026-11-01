@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 480" preserveAspectRatio="none">
+<!-- Transparent alpha mask: the travelling light stays ON the approved V14 wave geometry. -->
+<defs>
+ <filter id="halo" x="-20%" y="-300%" width="140%" height="700%">
+  <feGaussianBlur stdDeviation="6"/>
+ </filter>
+</defs>
+<g fill="none" stroke="#fff" stroke-linecap="round">
+ <path d="M-100 136 C142 191 298 235 496 209 S908 99 1162 117 S1500 178 1690 130" stroke-width="24" opacity=".42" filter="url(#halo)"/>
+ <path d="M-100 136 C142 191 298 235 496 209 S908 99 1162 117 S1500 178 1690 130" stroke-width="7" opacity="1"/>
+ <path d="M-100 164 C151 213 298 268 508 235 S905 124 1178 147 S1520 202 1680 162" stroke-width="3" opacity=".63"/>
+ <path d="M-90 375 C163 311 356 408 624 356 S1042 249 1325 282 S1510 352 1700 319" stroke-width="26" opacity=".42" filter="url(#halo)"/>
+ <path d="M-90 375 C163 311 356 408 624 356 S1042 249 1325 282 S1510 352 1700 319" stroke-width="7" opacity="1"/>
+ <path d="M-90 388 C165 326 366 422 628 371 S1042 263 1324 296 S1520 368 1700 336" stroke-width="3" opacity=".60"/>
+</g>
+</svg>

@@ -2442,3 +2442,88 @@ body{
 @media(prefers-reduced-motion:reduce){
   .main .cds-qa-skeleton i{animation:none!important}
 }
+
+/* CDSTUHUE HERO BRIGHT FLOW V15 — only the existing panoramic hero banner.
+   Animated cyan-white sheen follows V14 ribbon curves through a fixed path mask.
+   No full-card flashlight, no moving dots, no changes to the Huế photograph. */
+.main .hero{
+  isolation:isolate;
+  overflow:hidden;
+}
+.main .hero::after{
+  opacity:.88;
+  animation:cds-v15-hero-ribbon 9s ease-in-out infinite alternate;
+}
+@keyframes cds-v15-hero-ribbon{
+  0%{transform:translate3d(-.9%,.12%,0);opacity:.73}
+  50%{opacity:.94}
+  100%{transform:translate3d(.9%,-.12%,0);opacity:.81}
+}
+/* Decorative span is beneath copy/buttons and never catches touch. */
+.main .hero>.hero-silk-runner{
+  display:block;
+  position:absolute;
+  inset:0;
+  z-index:1;
+  padding:0;
+  margin:0;
+  border:0;
+  border-radius:inherit;
+  overflow:hidden;
+  pointer-events:none;
+  user-select:auto;
+}
+.main .hero>.hero-copy,
+.main .hero>.hero-art{position:relative;z-index:2}
+.main .hero>.hero-silk-runner::before,
+.main .hero>.hero-silk-runner::after{
+  content:"";
+  display:block;
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  border-radius:inherit;
+  -webkit-mask-image:url('./img/blue-silk-hero-path-mask-v15.svg');
+  mask-image:url('./img/blue-silk-hero-path-mask-v15.svg');
+  -webkit-mask-size:100% 100%;
+  mask-size:100% 100%;
+  -webkit-mask-position:center;
+  mask-position:center;
+  -webkit-mask-repeat:no-repeat;
+  mask-repeat:no-repeat;
+  background:linear-gradient(94deg,
+    transparent 15%,rgba(118,240,255,.09) 30%,
+    rgba(150,244,255,.50) 41%,
+    rgba(255,255,255,1) 49%,
+    rgba(171,250,255,.92) 53%,
+    rgba(31,195,255,.27) 63%,
+    transparent 77%);
+  background-size:245% 100%;
+  background-position:132% 0;
+  animation:cds-v15-hero-travel 6.3s ease-in-out infinite;
+}
+.main .hero>.hero-silk-runner::before{
+  opacity:.75;
+  filter:blur(5px);
+}
+.main .hero>.hero-silk-runner::after{
+  opacity:1;
+  filter:drop-shadow(0 0 3px rgba(162,249,255,.82));
+}
+@keyframes cds-v15-hero-travel{
+  0%,7%{background-position:132% 0}
+  61%,100%{background-position:-110% 0}
+}
+@media(max-width:760px){
+  .main .hero::after{animation-duration:11s}
+  .main .hero>.hero-silk-runner::before,
+  .main .hero>.hero-silk-runner::after{animation-duration:5.8s}
+  .main .hero>.hero-silk-runner::before{opacity:.61}
+}
+@media(prefers-reduced-motion:reduce){
+  .main .hero::after{animation:none!important;transform:none!important;opacity:.77!important}
+  .main .hero>.hero-silk-runner{display:none!important}
+}
+@media print{
+  .main .hero>.hero-silk-runner{display:none!important}
+}
