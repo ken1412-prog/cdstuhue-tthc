@@ -25,6 +25,27 @@ ORIGIN_LINK = re.compile(
 
 
 class PublicSurfaceTests(unittest.TestCase):
+    def test_real_truong_tien_photo_mask_and_mobile_chase(self):
+        css=(SITE/"assets/styles.css").read_text(encoding="utf-8")
+        part=css.split("/* CDSTUHUE REAL TRƯỜNG TIỀN NIGHT PHOTO V11",1)[1]
+        self.assertIn("url('./img/truong-tien-real-neon.webp')",part)
+        self.assertIn("url('./img/truong-tien-arc-light.webp')",part)
+        self.assertIn("-webkit-mask-image:",part)
+        self.assertIn("animation:cds-real-arch-chase 5.5s linear infinite",part)
+        self.assertIn("@media screen and (max-width:760px)",part)
+        self.assertIn("@media(prefers-reduced-motion:reduce)",part)
+        self.assertIn("overflow:hidden",part)
+        self.assertNotIn("width:440px",part)
+        for img in ("truong-tien-real-neon.webp","truong-tien-arc-light.webp"):
+            p=SITE/"assets/img"/img
+            self.assertTrue(p.is_file(),img)
+            self.assertLess(p.stat().st_size,850000,img)
+        for page in ("index.html","hoi-dap.html"):
+            html=(SITE/page).read_text(encoding="utf-8")
+            self.assertEqual(html.count('class="sidebar-bridge-gleam" aria-hidden="true"'),1)
+            self.assertIn("assets/styles.css?v=20261101-real-truong-tien-arch-v11",html)
+
+
     def test_menu_has_instant_public_bootstrap_and_async_qa(self):
         app=(SITE/"assets/app.js").read_text(encoding="utf-8")
         import json
@@ -94,7 +115,7 @@ class PublicSurfaceTests(unittest.TestCase):
         self.assertIn("animation:cds-border-orbit 3s linear infinite",css)
         for page in ("index.html","hoi-dap.html"):
             html=(SITE/page).read_text(encoding="utf-8")
-            self.assertIn("assets/styles.css?v=20261101-native-photo-cyan-v10",html)
+            self.assertIn("assets/styles.css?v=20261101-real-truong-tien-arch-v11",html)
         for image in ("neon-ribbons-sidebar.svg","neon-ribbons-wide.svg"):
             path=SITE/"assets/img"/image
             self.assertTrue(path.is_file())
@@ -131,7 +152,7 @@ class PublicSurfaceTests(unittest.TestCase):
         self.assertNotIn("grid-template-columns",overlay)
         for page in ("index.html","hoi-dap.html"):
             html=(SITE/page).read_text(encoding="utf-8")
-            self.assertIn("assets/styles.css?v=20261101-native-photo-cyan-v10",html)
+            self.assertIn("assets/styles.css?v=20261101-real-truong-tien-arch-v11",html)
 
 
     def test_hero_banner_photograph_not_replaced_by_blue_glass(self):
@@ -145,7 +166,7 @@ class PublicSurfaceTests(unittest.TestCase):
         self.assertNotIn("url('./img/nguyen-hoang-bridge-3840.jpg')",v6)
         for page in ("index.html","hoi-dap.html"):
             html=(SITE/page).read_text(encoding="utf-8")
-            self.assertIn("assets/styles.css?v=20261101-native-photo-cyan-v10",html)
+            self.assertIn("assets/styles.css?v=20261101-real-truong-tien-arch-v11",html)
 
 
     def test_blue_glass_v6_contained_menu_light_and_blue_main(self):
@@ -175,7 +196,7 @@ class PublicSurfaceTests(unittest.TestCase):
         for page in ("index.html","hoi-dap.html"):
             html=(SITE/page).read_text(encoding="utf-8")
             self.assertEqual(html.count('class="sidebar-ambient" aria-hidden="true"'),1)
-            self.assertIn("assets/styles.css?v=20261101-native-photo-cyan-v10",html)
+            self.assertIn("assets/styles.css?v=20261101-real-truong-tien-arch-v11",html)
 
 
     def test_cobalt_reference_fast_three_second_ring_and_slow_light(self):
@@ -204,7 +225,7 @@ class PublicSurfaceTests(unittest.TestCase):
         self.assertNotIn("z-index:50",visual)
         for page in ("index.html","hoi-dap.html"):
             html=(SITE/page).read_text(encoding="utf-8")
-            self.assertIn("assets/styles.css?v=20261101-native-photo-cyan-v10",html)
+            self.assertIn("assets/styles.css?v=20261101-real-truong-tien-arch-v11",html)
 
 
     def test_light_ribbon_art_is_lightweight_responsive_and_accessible(self):
@@ -272,7 +293,7 @@ class PublicSurfaceTests(unittest.TestCase):
             self.assertIn('id="lastApprovedDate" aria-live="polite">—</span>',html)
             self.assertNotIn('id="lastApprovedDate" aria-live="polite">24/10/2026</span>',html)
             self.assertIn("assets/app.js?v=20261101-fast-parallel-first-paint-v9",html)
-            self.assertIn("assets/styles.css?v=20261101-native-photo-cyan-v10",html)
+            self.assertIn("assets/styles.css?v=20261101-real-truong-tien-arch-v11",html)
         self.assertIn("const approvedDate=state.stats?.period===currentReportMonth()?state.stats.approvedDate:null;",js)
         self.assertIn("if(fullDate)fullDate.textContent=approvedFull;",js)
         self.assertIn("if(shortDate)shortDate.textContent=approvedShort;",js)
@@ -360,7 +381,7 @@ class PublicSurfaceTests(unittest.TestCase):
             html=(SITE / page).read_text(encoding="utf-8")
             self.assertIn('<div class="footer-byline">',html)
             self.assertIn('<span class="footer-copyright">© 2026 CDSTUHUE</span><span class="footer-author">NKien',html)
-            self.assertIn('assets/styles.css?v=20261101-native-photo-cyan-v10',html)
+            self.assertIn('assets/styles.css?v=20261101-real-truong-tien-arch-v11',html)
             self.assertNotIn('id="navAssistant"',html)
             self.assertIn('id="openAssistant"',html)
             self.assertIn('id="assistantMobileFab"',html)
@@ -583,7 +604,7 @@ class PublicSurfaceTests(unittest.TestCase):
             self.assertIn('class="side-assist-heading"',html)
             self.assertIn('<small>Trong kho câu hỏi</small>',html)
             self.assertNotIn('Trợ lý tra cứu nhanh <small>Không dùng AI bên ngoài</small>',html)
-            self.assertIn('assets/styles.css?v=20261101-native-photo-cyan-v10',html)
+            self.assertIn('assets/styles.css?v=20261101-real-truong-tien-arch-v11',html)
         self.assertIn('/* Centered quick-search launcher in the sidebar */',css)
         self.assertIn('justify-content:center;',css[css.rfind('/* Centered quick-search launcher in the sidebar */'):])
         self.assertIn('text-align:center;',css[css.rfind('/* Centered quick-search launcher in the sidebar */'):])

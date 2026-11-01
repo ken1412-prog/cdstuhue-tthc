@@ -87,6 +87,23 @@ jobs:
             git commit -m 'Generate optimized cobalt-cyan versions of original Huế photos'
             git push origin HEAD:main
           fi
+      - name: Prepare real Trường Tiền photo and actual-light shimmer
+        run: |
+          set -euo pipefail
+          curl --fail --location --silent --show-error --retry 3 --retry-delay 3 \
+            --connect-timeout 20 --max-time 90 \
+            --user-agent 'CDSTUHUE/1.0 (Wikimedia Commons public domain photography)' \
+            'https://upload.wikimedia.org/wikipedia/commons/c/c2/Cau_Trang_tien_ve_dem.jpg' \
+            --output /tmp/cdstuhue-truong-tien-real.jpg
+          file --mime-type /tmp/cdstuhue-truong-tien-real.jpg | grep -q image/jpeg
+          python scripts/prepare_truong_tien.py --source /tmp/cdstuhue-truong-tien-real.jpg
+          git add site/assets/img/truong-tien-real-neon.webp site/assets/img/truong-tien-arc-light.webp
+          if ! git diff --cached --quiet; then
+            git config user.name 'github-actions[bot]'
+            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+            git commit -m 'Add real public domain Trường Tiền bridge photo and light mask'
+            git push origin HEAD:main
+          fi
       - name: Export reviewed public Q&A from Google Sheets
         env:
           QA_PUBLIC_ENDPOINT: ${{ secrets.QA_PUBLIC_ENDPOINT }}

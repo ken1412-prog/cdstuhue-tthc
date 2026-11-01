@@ -1981,3 +1981,70 @@ body{
   .hero{background:#fff!important}
   .hero::before{display:none!important}
 }
+
+
+/* CDSTUHUE REAL TRƯỜNG TIỀN NIGHT PHOTO V11
+   The bottom of the left drawer now uses a genuine, public-domain photo,
+   not a generated bridge. Keep the exact menu layout and existing neon blues.
+   Only real captured lamp pixels are highlighted by a moving light sweep. */
+.sidebar{
+  background:
+    radial-gradient(ellipse 115% 42% at 75% 24%,rgba(7,213,255,.40),transparent 72%),
+    radial-gradient(ellipse 100% 29% at 5% 73%,rgba(15,175,255,.32),transparent 73%),
+    linear-gradient(175deg,#032b73 0%,#064fba 31%,#037ed0 65%,#053581 100%);
+}
+.sidebar::before{
+  inset:auto 0 0;
+  height:46%;
+  background:url('./img/truong-tien-real-neon.webp') center 58% /cover no-repeat;
+  background-blend-mode:normal;
+  filter:none;
+  opacity:1;
+}
+.sidebar-bridge-gleam{
+  position:absolute;
+  left:0;right:0;bottom:0;
+  height:46%;
+  z-index:0;
+  pointer-events:none;
+  background-image:linear-gradient(105deg,
+    transparent 18%,rgba(255,180,73,.04) 32%,
+    rgba(255,215,112,.65) 43%,rgba(255,255,219,1) 50%,
+    rgba(255,139,62,.60) 56%,transparent 74%);
+  background-size:240% 100%;
+  background-position:-125% 0;
+  mix-blend-mode:screen;
+  -webkit-mask-image:url('./img/truong-tien-arc-light.webp');
+  mask-image:url('./img/truong-tien-arc-light.webp');
+  -webkit-mask-size:cover;mask-size:cover;
+  -webkit-mask-position:center 58%;mask-position:center 58%;
+  -webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;
+  animation:cds-real-arch-chase 5.5s linear infinite;
+}
+@keyframes cds-real-arch-chase{
+  0%{background-position:-125% 0;opacity:.32}
+  40%{opacity:1}
+  100%{background-position:115% 0;opacity:.55}
+}
+.sidebar .nav-link{
+  border-color:rgba(111,233,255,.84);
+  box-shadow:inset 0 1px rgba(255,255,255,.27),0 0 10px rgba(64,209,255,.22);
+}
+.sidebar .nav-link.active{
+  border-color:rgba(255,234,242,.95);
+  box-shadow:inset 0 1px rgba(255,255,255,.38),0 0 17px rgba(255,216,93,.50),
+    0 0 21px rgba(255,56,144,.58);
+}
+/* Highlight is exactly co-located with the photo and remains clipped inside
+   the drawer: no overflow beyond the sidebar edge, including Android. */
+.sidebar,.sidebar-ambient{overflow:hidden}
+@media screen and (max-width:760px){
+  .sidebar::before,.sidebar-bridge-gleam{height:44%}
+  .sidebar-bridge-gleam{animation-duration:6.3s}
+}
+@media(prefers-reduced-motion:reduce){
+  .sidebar-bridge-gleam{animation:none!important;opacity:.38!important}
+}
+@media print{
+  .sidebar-bridge-gleam{display:none!important}
+}
