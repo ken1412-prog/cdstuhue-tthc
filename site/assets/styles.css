@@ -1854,3 +1854,81 @@ body{
 @media print{
   .main .hero::after,.main .stats-hero-home::after{display:none!important}
 }
+
+
+/* CDSTUHUE CRISP MOVING SPARKLES V9
+   Faster, sharper glints only. Original Hue panoramas, cobalt palette,
+   responsive layout and the 3-second selected-border orbit are untouched. */
+.sidebar{overflow:hidden;isolation:isolate}
+.sidebar::after{
+  inset:0;
+  opacity:.95;
+  filter:saturate(1.2) brightness(1.16) drop-shadow(0 0 3px rgba(101,241,255,.40));
+  animation:cds-sparkle-ribbon-v9 14s ease-in-out infinite alternate;
+}
+@keyframes cds-sparkle-ribbon-v9{
+  0%{transform:translate3d(-1.8%,.6%,0) scale(1.012);opacity:.79}
+  40%{opacity:1}
+  100%{transform:translate3d(1.8%,-1.2%,0) scale(1.025);opacity:.93}
+}
+.sidebar-ambient{overflow:hidden}
+.sidebar-ambient::before{
+  background:radial-gradient(ellipse at 50% 50%,
+    rgba(255,255,255,.91) 0%,rgba(153,249,255,.69) 7%,
+    rgba(51,218,255,.27) 23%,rgba(13,167,252,.10) 41%,transparent 69%);
+  opacity:.92;
+  animation:cds-sparkle-point-a-v9 10s ease-in-out infinite alternate;
+}
+.sidebar-ambient::after{
+  background:radial-gradient(ellipse at 53% 50%,
+    rgba(255,255,255,.88) 0%,rgba(147,238,255,.60) 10%,
+    rgba(43,208,255,.26) 25%,rgba(11,148,251,.09) 43%,transparent 70%);
+  opacity:.83;
+  animation:cds-sparkle-point-b-v9 13s ease-in-out infinite alternate;
+}
+@keyframes cds-sparkle-point-a-v9{
+  0%{transform:translate3d(-22%,-16%,0) rotate(-9deg);opacity:.37}
+  45%{opacity:1}
+  100%{transform:translate3d(32%,61%,0) rotate(-9deg);opacity:.72}
+}
+@keyframes cds-sparkle-point-b-v9{
+  0%{transform:translate3d(-18%,32%,0) rotate(7deg);opacity:.31}
+  50%{opacity:.98}
+  100%{transform:translate3d(32%,-27%,0) rotate(7deg);opacity:.68}
+}
+/* Brighter line highlights over the EXISTING photographic hero, never a
+   replacement photo. Both decoration layers stay inside clipped cards. */
+.main .hero::after,
+.main .stats-hero-home::after{
+  animation:cds-sparkle-photo-v9 16s ease-in-out infinite alternate;
+}
+@keyframes cds-sparkle-photo-v9{
+  0%{transform:translate3d(-1.7%,.3%,0);opacity:.84}
+  45%{opacity:1}
+  100%{transform:translate3d(1.7%,-.9%,0);opacity:.93}
+}
+.main .payment-period-toolbar::after{
+  animation:cds-sparkle-photo-v9 16s ease-in-out infinite alternate;
+}
+@media screen and (max-width:760px){
+  .sidebar::after{animation-duration:15s;filter:saturate(1.12) brightness(1.1)}
+  .sidebar-ambient::before{animation-duration:11s}
+  .sidebar-ambient::after{animation-duration:14s}
+  .main .hero::after,.main .stats-hero-home::after{
+    animation-duration:17s;
+  }
+  .main .payment-period-toolbar::after{animation-duration:17s}
+}
+/* Respect accessibility and battery preferences; never animate printed art. */
+@media (prefers-reduced-motion:reduce){
+  .sidebar::after,.sidebar-ambient::before,.sidebar-ambient::after,
+  .main .hero::after,.main .stats-hero-home::after,
+  .main .payment-period-toolbar::after{
+    animation:none!important;will-change:auto!important;transform:none!important;
+  }
+}
+@media print{
+  .sidebar::after,.sidebar-ambient::before,.sidebar-ambient::after,
+  .main .hero::after,.main .stats-hero-home::after,
+  .main .payment-period-toolbar::after{display:none!important}
+}

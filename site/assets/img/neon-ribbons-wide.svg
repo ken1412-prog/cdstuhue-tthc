@@ -9,8 +9,13 @@
 <g fill="none" stroke="url(#w)" stroke-linecap="round">
 <path d="M-120 164 Q185 210 411 143 T865 73 T1540 75" stroke-width="26" opacity=".13"/>
 <path d="M-120 164 Q185 210 411 143 T865 73 T1540 75" stroke-width="6" opacity=".34"/>
-<path d="M-120 164 Q185 210 411 143 T865 73 T1540 75" stroke-width="1.7" opacity=".88"/>
+<path d="M-120 164 Q185 210 411 143 T865 73 T1540 75" stroke-width="2.5" opacity="1"/>
 <path d="M-130 372 C228 291 345 432 674 330 S1128 282 1535 326" stroke-width="18" opacity=".11"/>
-<path d="M-130 372 C228 291 345 432 674 330 S1128 282 1535 326" stroke-width="1.5" opacity=".78"/>
+<path d="M-130 372 C228 291 345 432 674 330 S1128 282 1535 326" stroke-width="2.2" opacity=".97"/>
+</g>
+<g fill="#efffff">
+ <circle cx="411" cy="143" r="3.5" opacity=".94"/>
+ <circle cx="867" cy="73" r="3.3" opacity=".91"/>
+ <circle cx="676" cy="332" r="3.1" opacity=".89"/>
 </g>
 </svg>

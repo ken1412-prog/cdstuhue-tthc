@@ -25,6 +25,38 @@ ORIGIN_LINK = re.compile(
 
 
 class PublicSurfaceTests(unittest.TestCase):
+    def test_crisp_fast_background_sparkles_keep_original_photos(self):
+        css=(SITE/"assets/styles.css").read_text(encoding="utf-8")
+        marker="/* CDSTUHUE CRISP MOVING SPARKLES V9"
+        self.assertEqual(css.count(marker),1)
+        visual=css.split(marker,1)[1]
+        self.assertIn("animation:cds-sparkle-ribbon-v9 14s",visual)
+        self.assertIn("animation:cds-sparkle-point-a-v9 10s",visual)
+        self.assertIn("animation:cds-sparkle-point-b-v9 13s",visual)
+        self.assertIn("animation:cds-sparkle-photo-v9 16s",visual)
+        self.assertIn("animation-duration:15s",visual)
+        self.assertIn("animation-duration:17s",visual)
+        self.assertIn("@media (prefers-reduced-motion:reduce)",visual)
+        self.assertIn("@media print",visual)
+        self.assertNotIn("nguyen-hoang-bridge-3840.jpg",visual)
+        self.assertNotIn("nguyen-hoang-user-banner.avif",visual)
+        self.assertNotIn("grid-template",visual)
+        self.assertNotIn("padding:",visual)
+        self.assertIn("url('./img/nguyen-hoang-user-banner.avif') right center / auto 100% no-repeat",css)
+        self.assertIn("url('./img/nguyen-hoang-user-banner.avif') center top /100% auto no-repeat",css)
+        self.assertIn("animation:cds-border-orbit 3s linear infinite",css)
+        for page in ("index.html","hoi-dap.html"):
+            html=(SITE/page).read_text(encoding="utf-8")
+            self.assertIn("assets/styles.css?v=20261101-crisp-moving-sparkles-v9",html)
+        for image in ("neon-ribbons-sidebar.svg","neon-ribbons-wide.svg"):
+            path=SITE/"assets/img"/image
+            self.assertTrue(path.is_file())
+            self.assertLess(path.stat().st_size,5000)
+            svg=path.read_text(encoding="utf-8")
+            self.assertNotIn("<script",svg)
+            self.assertIn('fill="#efffff"',svg)
+
+
     def test_strong_cyan_photo_overlay_preserves_exact_panorama(self):
         css=(SITE/"assets/styles.css").read_text(encoding="utf-8")
         marker="/* CDSTUHUE TRUE CYAN OVERLAY V8"
@@ -52,7 +84,7 @@ class PublicSurfaceTests(unittest.TestCase):
         self.assertNotIn("grid-template-columns",overlay)
         for page in ("index.html","hoi-dap.html"):
             html=(SITE/page).read_text(encoding="utf-8")
-            self.assertIn("assets/styles.css?v=20261101-true-cyan-photo-overlay-v8",html)
+            self.assertIn("assets/styles.css?v=20261101-crisp-moving-sparkles-v9",html)
 
 
     def test_hero_banner_photograph_not_replaced_by_blue_glass(self):
@@ -66,7 +98,7 @@ class PublicSurfaceTests(unittest.TestCase):
         self.assertNotIn("url('./img/nguyen-hoang-bridge-3840.jpg')",v6)
         for page in ("index.html","hoi-dap.html"):
             html=(SITE/page).read_text(encoding="utf-8")
-            self.assertIn("assets/styles.css?v=20261101-true-cyan-photo-overlay-v8",html)
+            self.assertIn("assets/styles.css?v=20261101-crisp-moving-sparkles-v9",html)
 
 
     def test_blue_glass_v6_contained_menu_light_and_blue_main(self):
@@ -96,7 +128,7 @@ class PublicSurfaceTests(unittest.TestCase):
         for page in ("index.html","hoi-dap.html"):
             html=(SITE/page).read_text(encoding="utf-8")
             self.assertEqual(html.count('class="sidebar-ambient" aria-hidden="true"'),1)
-            self.assertIn("assets/styles.css?v=20261101-true-cyan-photo-overlay-v8",html)
+            self.assertIn("assets/styles.css?v=20261101-crisp-moving-sparkles-v9",html)
 
 
     def test_cobalt_reference_fast_three_second_ring_and_slow_light(self):
@@ -125,7 +157,7 @@ class PublicSurfaceTests(unittest.TestCase):
         self.assertNotIn("z-index:50",visual)
         for page in ("index.html","hoi-dap.html"):
             html=(SITE/page).read_text(encoding="utf-8")
-            self.assertIn("assets/styles.css?v=20261101-true-cyan-photo-overlay-v8",html)
+            self.assertIn("assets/styles.css?v=20261101-crisp-moving-sparkles-v9",html)
 
 
     def test_light_ribbon_art_is_lightweight_responsive_and_accessible(self):
@@ -193,7 +225,7 @@ class PublicSurfaceTests(unittest.TestCase):
             self.assertIn('id="lastApprovedDate" aria-live="polite">—</span>',html)
             self.assertNotIn('id="lastApprovedDate" aria-live="polite">24/10/2026</span>',html)
             self.assertIn("assets/app.js?v=20261101-fast-live-first-v8",html)
-            self.assertIn("assets/styles.css?v=20261101-true-cyan-photo-overlay-v8",html)
+            self.assertIn("assets/styles.css?v=20261101-crisp-moving-sparkles-v9",html)
         self.assertIn("const approvedDate=state.stats?.period===currentReportMonth()?state.stats.approvedDate:null;",js)
         self.assertIn("if(fullDate)fullDate.textContent=approvedFull;",js)
         self.assertIn("if(shortDate)shortDate.textContent=approvedShort;",js)
@@ -281,7 +313,7 @@ class PublicSurfaceTests(unittest.TestCase):
             html=(SITE / page).read_text(encoding="utf-8")
             self.assertIn('<div class="footer-byline">',html)
             self.assertIn('<span class="footer-copyright">© 2026 CDSTUHUE</span><span class="footer-author">NKien',html)
-            self.assertIn('assets/styles.css?v=20261101-true-cyan-photo-overlay-v8',html)
+            self.assertIn('assets/styles.css?v=20261101-crisp-moving-sparkles-v9',html)
             self.assertNotIn('id="navAssistant"',html)
             self.assertIn('id="openAssistant"',html)
             self.assertIn('id="assistantMobileFab"',html)
@@ -504,7 +536,7 @@ class PublicSurfaceTests(unittest.TestCase):
             self.assertIn('class="side-assist-heading"',html)
             self.assertIn('<small>Trong kho câu hỏi</small>',html)
             self.assertNotIn('Trợ lý tra cứu nhanh <small>Không dùng AI bên ngoài</small>',html)
-            self.assertIn('assets/styles.css?v=20261101-true-cyan-photo-overlay-v8',html)
+            self.assertIn('assets/styles.css?v=20261101-crisp-moving-sparkles-v9',html)
         self.assertIn('/* Centered quick-search launcher in the sidebar */',css)
         self.assertIn('justify-content:center;',css[css.rfind('/* Centered quick-search launcher in the sidebar */'):])
         self.assertIn('text-align:center;',css[css.rfind('/* Centered quick-search launcher in the sidebar */'):])
