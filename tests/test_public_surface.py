@@ -25,6 +25,36 @@ ORIGIN_LINK = re.compile(
 
 
 class PublicSurfaceTests(unittest.TestCase):
+    def test_strong_cyan_photo_overlay_preserves_exact_panorama(self):
+        css=(SITE/"assets/styles.css").read_text(encoding="utf-8")
+        marker="/* CDSTUHUE TRUE CYAN OVERLAY V8"
+        self.assertEqual(css.count(marker),1)
+        overlay=css.split(marker,1)[1]
+        self.assertIn("mix-blend-mode:screen",overlay)
+        self.assertIn("animation:cds-cyan-photo-light 23s",overlay)
+        self.assertIn("@keyframes cds-cyan-photo-light",overlay)
+        self.assertIn("opacity:.76",overlay)
+        self.assertIn("opacity:.96",overlay)
+        self.assertIn("opacity:.82",overlay)
+        self.assertIn("background-blend-mode:screen,normal",overlay)
+        self.assertIn("url('./img/hue-bridge-night.webp')",overlay)
+        self.assertIn(".main .hero::after",overlay)
+        self.assertIn(".main .stats-hero-home::after",overlay)
+        self.assertIn(".main .payment-tracker-panel,",overlay)
+        self.assertIn("linear-gradient(135deg,#f6fcff",overlay)
+        self.assertIn("@media screen and (max-width:760px)",overlay)
+        self.assertIn("@media(prefers-reduced-motion:reduce)",overlay)
+        # No replacement of user-provided panorama or its desktop/mobile framing.
+        self.assertNotIn("nguyen-hoang-bridge-3840.jpg",overlay)
+        self.assertNotIn("nguyen-hoang-user-banner.avif",overlay)
+        self.assertIn("url('./img/nguyen-hoang-user-banner.avif') center top /100% auto no-repeat",css)
+        self.assertIn("url('./img/nguyen-hoang-user-banner.avif') right center / auto 100% no-repeat",css)
+        self.assertNotIn("grid-template-columns",overlay)
+        for page in ("index.html","hoi-dap.html"):
+            html=(SITE/page).read_text(encoding="utf-8")
+            self.assertIn("assets/styles.css?v=20261101-true-cyan-photo-overlay-v8",html)
+
+
     def test_hero_banner_photograph_not_replaced_by_blue_glass(self):
         css=(SITE/"assets/styles.css").read_text(encoding="utf-8")
         v6=css.split("/* CDSTUHUE CONTAINED BLUE GLASS V6",1)[1]
@@ -36,7 +66,7 @@ class PublicSurfaceTests(unittest.TestCase):
         self.assertNotIn("url('./img/nguyen-hoang-bridge-3840.jpg')",v6)
         for page in ("index.html","hoi-dap.html"):
             html=(SITE/page).read_text(encoding="utf-8")
-            self.assertIn("assets/styles.css?v=20261101-preserve-hero-banner-v7",html)
+            self.assertIn("assets/styles.css?v=20261101-true-cyan-photo-overlay-v8",html)
 
 
     def test_blue_glass_v6_contained_menu_light_and_blue_main(self):
@@ -66,7 +96,7 @@ class PublicSurfaceTests(unittest.TestCase):
         for page in ("index.html","hoi-dap.html"):
             html=(SITE/page).read_text(encoding="utf-8")
             self.assertEqual(html.count('class="sidebar-ambient" aria-hidden="true"'),1)
-            self.assertIn("assets/styles.css?v=20261101-preserve-hero-banner-v7",html)
+            self.assertIn("assets/styles.css?v=20261101-true-cyan-photo-overlay-v8",html)
 
 
     def test_cobalt_reference_fast_three_second_ring_and_slow_light(self):
@@ -95,7 +125,7 @@ class PublicSurfaceTests(unittest.TestCase):
         self.assertNotIn("z-index:50",visual)
         for page in ("index.html","hoi-dap.html"):
             html=(SITE/page).read_text(encoding="utf-8")
-            self.assertIn("assets/styles.css?v=20261101-preserve-hero-banner-v7",html)
+            self.assertIn("assets/styles.css?v=20261101-true-cyan-photo-overlay-v8",html)
 
 
     def test_light_ribbon_art_is_lightweight_responsive_and_accessible(self):
@@ -163,7 +193,7 @@ class PublicSurfaceTests(unittest.TestCase):
             self.assertIn('id="lastApprovedDate" aria-live="polite">—</span>',html)
             self.assertNotIn('id="lastApprovedDate" aria-live="polite">24/10/2026</span>',html)
             self.assertIn("assets/app.js?v=20261101-fast-live-first-v8",html)
-            self.assertIn("assets/styles.css?v=20261101-preserve-hero-banner-v7",html)
+            self.assertIn("assets/styles.css?v=20261101-true-cyan-photo-overlay-v8",html)
         self.assertIn("const approvedDate=state.stats?.period===currentReportMonth()?state.stats.approvedDate:null;",js)
         self.assertIn("if(fullDate)fullDate.textContent=approvedFull;",js)
         self.assertIn("if(shortDate)shortDate.textContent=approvedShort;",js)
@@ -251,7 +281,7 @@ class PublicSurfaceTests(unittest.TestCase):
             html=(SITE / page).read_text(encoding="utf-8")
             self.assertIn('<div class="footer-byline">',html)
             self.assertIn('<span class="footer-copyright">© 2026 CDSTUHUE</span><span class="footer-author">NKien',html)
-            self.assertIn('assets/styles.css?v=20261101-preserve-hero-banner-v7',html)
+            self.assertIn('assets/styles.css?v=20261101-true-cyan-photo-overlay-v8',html)
             self.assertNotIn('id="navAssistant"',html)
             self.assertIn('id="openAssistant"',html)
             self.assertIn('id="assistantMobileFab"',html)
@@ -474,7 +504,7 @@ class PublicSurfaceTests(unittest.TestCase):
             self.assertIn('class="side-assist-heading"',html)
             self.assertIn('<small>Trong kho câu hỏi</small>',html)
             self.assertNotIn('Trợ lý tra cứu nhanh <small>Không dùng AI bên ngoài</small>',html)
-            self.assertIn('assets/styles.css?v=20261101-preserve-hero-banner-v7',html)
+            self.assertIn('assets/styles.css?v=20261101-true-cyan-photo-overlay-v8',html)
         self.assertIn('/* Centered quick-search launcher in the sidebar */',css)
         self.assertIn('justify-content:center;',css[css.rfind('/* Centered quick-search launcher in the sidebar */'):])
         self.assertIn('text-align:center;',css[css.rfind('/* Centered quick-search launcher in the sidebar */'):])

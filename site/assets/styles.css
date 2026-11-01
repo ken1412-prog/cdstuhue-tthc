@@ -1760,3 +1760,97 @@ body{
   .main .hero::after,.main .stats-hero-home::after,
   .main .payment-period-toolbar::after{display:none!important}
 }
+
+
+/* CDSTUHUE TRUE CYAN OVERLAY V8 — PHOTO-LOCKED
+   The original Nguyen Hoang panorama and the night bridge photo are immutable.
+   This changes only light, saturation and blue-glass presentation. Earlier
+   animated opacity (.20-.46) made the requested blue almost invisible. */
+.sidebar{
+  background:
+    radial-gradient(ellipse 95% 49% at 80% 17%,rgba(62,220,255,.43) 0%,transparent 72%),
+    radial-gradient(ellipse 110% 58% at 8% 75%,rgba(25,202,250,.42) 0%,transparent 72%),
+    linear-gradient(173deg,#0756b6 0%,#0879d0 29%,#087ccf 58%,#0556ad 100%);
+}
+.sidebar::before{
+  background:
+    linear-gradient(180deg,rgba(12,126,248,.26) 0%,rgba(19,173,251,.46) 38%,
+      rgba(20,171,255,.52) 69%,rgba(4,91,196,.45) 100%),
+    url('./img/hue-bridge-night.webp') center 72% / cover no-repeat;
+  background-blend-mode:screen,normal;
+  filter:saturate(1.2) brightness(1.09);
+}
+/* The moving ribbon stays completely inside the navigation drawer. */
+.sidebar::after{inset:0;filter:none;overflow:hidden}
+
+/* Transparent SCREEN composite is an additive blue light, not a replacement
+   background image. ::before still owns the original panoramic photograph. */
+.main .hero,
+.main .stats-hero-home{isolation:isolate;overflow:hidden}
+.main .hero::after,
+.main .stats-hero-home::after{
+  background:
+    radial-gradient(ellipse 65% 70% at 85% 36%,
+      rgba(86,218,255,.53) 0%,rgba(23,139,244,.31) 48%,transparent 85%),
+    linear-gradient(107deg,
+      rgba(4,78,191,.78) 0%,rgba(5,121,223,.73) 41%,
+      rgba(15,192,249,.60) 79%,rgba(11,145,234,.49) 100%),
+    url('./img/neon-ribbons-wide.svg') center /100% 100% no-repeat;
+  background-blend-mode:screen,screen,normal;
+  mix-blend-mode:screen;
+  inset:0;
+  border-radius:inherit;
+  pointer-events:none;
+  z-index:0;
+  animation:cds-cyan-photo-light 23s ease-in-out infinite alternate;
+  will-change:transform,opacity;
+}
+@keyframes cds-cyan-photo-light{
+  0%{transform:translate3d(-1%,.25%,0);opacity:.76}
+  45%{opacity:.96}
+  100%{transform:translate3d(1%,-.6%,0);opacity:.82}
+}
+.main .hero>*,
+.main .stats-hero-home>*{position:relative;z-index:1}
+
+/* Brighter cyan-blue glass instead of old grey-white panels. Preserve text
+   and all card geometry. */
+.main .payment-period-toolbar{
+  background:linear-gradient(115deg,#cdefff 0%,#e8faff 48%,#bce8fd 100%);
+  border-color:#87d3f5;border-top-color:#bb1b2d;
+}
+.main .payment-tracker-panel,
+.main .stats-dashboard-grid>.stats-panel-wide,
+.main .panel,
+.main .stats-kpi,
+.main .stat-card,
+.main .category-card{
+  background:linear-gradient(135deg,#f6fcff 0%,#def5ff 52%,#c9edff 100%);
+  border-color:rgba(100,192,240,.64);
+}
+.main .stats-hero-metric,
+.main .stats-breakdown-item,
+.main .payment-tracker-totals>div,
+.main .mini-card,
+.main .small-note{
+  background:linear-gradient(140deg,#f7fdff,#d4f1ff 65%,#c0e6ff);
+  border-color:rgba(104,189,237,.61);
+}
+/* Mobile is still visibly cyan. Do not reduce it to the old near-zero
+   opacity; slow ambient light remains distinct from 3-second active rings. */
+@media screen and (max-width:760px){
+  .main .hero::after,.main .stats-hero-home::after{
+    animation-duration:24s;
+    opacity:.85;
+  }
+  .sidebar::before{filter:saturate(1.19) brightness(1.07)}
+}
+@media(prefers-reduced-motion:reduce){
+  .main .hero::after,.main .stats-hero-home::after{
+    animation:none!important;transform:none!important;opacity:.88!important;
+    will-change:auto!important;
+  }
+}
+@media print{
+  .main .hero::after,.main .stats-hero-home::after{display:none!important}
+}
