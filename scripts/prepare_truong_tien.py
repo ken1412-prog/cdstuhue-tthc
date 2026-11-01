@@ -52,11 +52,13 @@ def create(source):
     h,w=lum.shape
     ys=np.arange(h,dtype=np.float32)[:,None]/h
     xs=np.arange(w,dtype=np.float32)[None,:]/w
-    arch_band=np.clip((ys-.39)*35,0,1)*np.clip((.605-ys)*32,0,1)
-    bright=np.clip((mx-.22)*2.5,0,1)
-    chroma=np.clip((contrast-.035)*5.0,0,1)
-    truss=np.clip(arch_band * bright * np.maximum(chroma,.45) * 1.35,0,.96)
-    truss=truss * np.clip((.93-xs)*5,0,1)
+    # Trusses in the photographed frame occupy a narrow line near y=.50.
+    # An absolute intensity threshold prevents the dusk sky being painted gold.
+    arch_band=np.clip((ys-.443)*80,0,1)*np.clip((.595-ys)*63,0,1)
+    bright=np.clip((mx-.59)*5.0,0,1)
+    chroma=np.clip((contrast-.065)*4.0,0,1)
+    truss=np.clip(arch_band * bright * np.maximum(chroma,.57) * 1.18,0,.95)
+    truss=truss * np.clip((.94-xs)*8,0,1)
     amber_green=np.clip(.28+.66*xs, .28, .85)
     warm_tone=np.stack([
         np.broadcast_to(np.full_like(amber_green,.99),color.shape[:2]),
@@ -79,7 +81,7 @@ def create(source):
     yy=np.arange(h,dtype=np.float32)[:,None]/h
     band=np.clip((yy-.15)*23,0,1)*np.clip((.72-yy)*14,0,1)
     colorful=np.clip((contrast-.035)*3.0,0,1)
-    highlight=np.clip((mx-.21)*2.3,0,1)
+    highlight=np.clip((mx-.45)*3.0,0,1)
     luminous=np.maximum(np.maximum(warm,gold),colorful*.48)*highlight
     # Bright whites of the real metal rails also receive a little sheen.
     luminous=np.maximum(luminous,np.clip((lum-.58)*2.2,0,1)*.46)
