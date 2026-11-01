@@ -1677,12 +1677,10 @@ body{
   background:linear-gradient(145deg,rgba(42,170,247,.11),
     rgba(155,237,255,.13) 49%,rgba(49,158,240,.09));
 }
+/* Do not set background here: the original Nguyen Hoang user banner
+   and its mobile/desktop framing are declared above and are authoritative.
+   Blue tint belongs only to ::after, never to the photograph layers. */
 .main .hero{
-  background:
-    linear-gradient(105deg,rgba(3,30,91,.96) 0%,
-      rgba(2,58,143,.86) 48%,rgba(3,101,191,.50) 80%,
-      rgba(2,115,192,.31) 100%),
-    url('./img/nguyen-hoang-bridge-3840.jpg') center 52% / cover no-repeat!important;
   border-color:rgba(122,221,255,.53);
   box-shadow:0 12px 29px rgba(4,51,113,.22),
     0 0 19px rgba(65,207,255,.20),inset 0 1px rgba(188,248,255,.28);
@@ -1690,7 +1688,9 @@ body{
 .main .hero::after,
 .main .stats-hero-home::after,
 .main .payment-period-toolbar::after{
-  background:url('./img/neon-ribbons-wide.svg') center / 100% 100% no-repeat;
+  background:
+    linear-gradient(105deg,rgba(4,81,170,.20),rgba(34,176,239,.21) 52%,rgba(10,123,220,.18)),
+    url('./img/neon-ribbons-wide.svg') center / 100% 100% no-repeat;
   animation:cds-blue-wide-current 22s ease-in-out infinite alternate;
 }
 .main .hero::after{opacity:.43}
