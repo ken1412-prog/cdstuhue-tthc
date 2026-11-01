@@ -1,0 +1,480 @@
+{
+  "schema": 1,
+  "public": true,
+  "reviewed": true,
+  "closed": false,
+  "period": "2026-11",
+  "approvedDate": "2026-11-01",
+  "generatedAt": "",
+  "source": "Immutable approved public payment snapshot",
+  "modules": {
+    "payment": {
+      "completionRate": 0.0
+    },
+    "ranking": {
+      "eligibleUnits": 46,
+      "records": [
+        {
+          "rank": 1,
+          "name": "Đảng bộ Đại học Huế",
+          "rate": 0.0,
+          "filedRate": 0.00310647,
+          "filedDone": 11,
+          "filedTotal": 3541,
+          "bankDone": 133,
+          "bankTotal": 161
+        },
+        {
+          "rank": 2,
+          "name": "Đảng bộ phường An Cựu",
+          "rate": 0.0,
+          "filedRate": 0.00199501,
+          "filedDone": 4,
+          "filedTotal": 2005,
+          "bankDone": 74,
+          "bankTotal": 75
+        },
+        {
+          "rank": 3,
+          "name": "Đảng bộ phường Hóa Châu",
+          "rate": 0.0,
+          "filedRate": 0.00137741,
+          "filedDone": 1,
+          "filedTotal": 726,
+          "bankDone": 39,
+          "bankTotal": 40
+        },
+        {
+          "rank": 4,
+          "name": "Đảng bộ phường Hương An",
+          "rate": 0.0,
+          "filedRate": 0.00105485,
+          "filedDone": 1,
+          "filedTotal": 948,
+          "bankDone": 24,
+          "bankTotal": 62
+        },
+        {
+          "rank": 5,
+          "name": "Đảng bộ phường Hương Thuỷ",
+          "rate": 0.0,
+          "filedRate": 0.00098425,
+          "filedDone": 1,
+          "filedTotal": 1016,
+          "bankDone": 65,
+          "bankTotal": 66
+        },
+        {
+          "rank": 6,
+          "name": "Đảng bộ phường Kim Long",
+          "rate": 0.0,
+          "filedRate": 0.01486014,
+          "filedDone": 17,
+          "filedTotal": 1144,
+          "bankDone": 54,
+          "bankTotal": 54
+        },
+        {
+          "rank": 7,
+          "name": "Đảng bộ phường Mỹ Thượng",
+          "rate": 0.0,
+          "filedRate": 0.00092764,
+          "filedDone": 1,
+          "filedTotal": 1078,
+          "bankDone": 34,
+          "bankTotal": 34
+        },
+        {
+          "rank": 8,
+          "name": "Đảng bộ phường Phong Dinh",
+          "rate": 0.0,
+          "filedRate": 0.00121803,
+          "filedDone": 1,
+          "filedTotal": 821,
+          "bankDone": 28,
+          "bankTotal": 28
+        },
+        {
+          "rank": 9,
+          "name": "Đảng bộ phường Phú Bài",
+          "rate": 0.0,
+          "filedRate": 0.00176783,
+          "filedDone": 3,
+          "filedTotal": 1697,
+          "bankDone": 69,
+          "bankTotal": 73
+        },
+        {
+          "rank": 10,
+          "name": "Đảng bộ phường Phú Xuân",
+          "rate": 0.0,
+          "filedRate": 0.00159617,
+          "filedDone": 6,
+          "filedTotal": 3759,
+          "bankDone": 116,
+          "bankTotal": 140
+        },
+        {
+          "rank": 11,
+          "name": "Đảng bộ phường Thuận Hóa",
+          "rate": 0.0,
+          "filedRate": 0.00083029,
+          "filedDone": 5,
+          "filedTotal": 6022,
+          "bankDone": 172,
+          "bankTotal": 273
+        },
+        {
+          "rank": 12,
+          "name": "Đảng bộ xã Phú Vang",
+          "rate": 0.0,
+          "filedRate": 0.00097087,
+          "filedDone": 1,
+          "filedTotal": 1030,
+          "bankDone": 66,
+          "bankTotal": 66
+        },
+        {
+          "rank": 13,
+          "name": "Đảng bộ xã Quảng Điền",
+          "rate": 0.0,
+          "filedRate": 0.00075815,
+          "filedDone": 1,
+          "filedTotal": 1319,
+          "bankDone": 59,
+          "bankTotal": 59
+        },
+        {
+          "rank": 14,
+          "name": "Đảng bộ bệnh viện TW Huế",
+          "rate": null,
+          "filedRate": 0.0,
+          "filedDone": 0,
+          "filedTotal": 1103,
+          "bankDone": 41,
+          "bankTotal": 42
+        },
+        {
+          "rank": 15,
+          "name": "Đảng bộ Các cơ quan Đảng thành phố Huế",
+          "rate": null,
+          "filedRate": 0.0,
+          "filedDone": 0,
+          "filedTotal": 588,
+          "bankDone": 42,
+          "bankTotal": 49
+        },
+        {
+          "rank": 16,
+          "name": "Đảng bộ Hội đồng nhân dân thành phố Huế",
+          "rate": null,
+          "filedRate": 0.0,
+          "filedDone": 0,
+          "filedTotal": 34,
+          "bankDone": 6,
+          "bankTotal": 6
+        },
+        {
+          "rank": 17,
+          "name": "Đảng bộ Mặt trận Tổ quốc, các đoàn thể thành phố Huế",
+          "rate": null,
+          "filedRate": 0.0,
+          "filedDone": 0,
+          "filedTotal": 168,
+          "bankDone": 0,
+          "bankTotal": 15
+        },
+        {
+          "rank": 18,
+          "name": "Đảng bộ phường Dương Nỗ",
+          "rate": null,
+          "filedRate": 0.0,
+          "filedDone": 0,
+          "filedTotal": 545,
+          "bankDone": 37,
+          "bankTotal": 37
+        },
+        {
+          "rank": 19,
+          "name": "Đảng bộ phường Hương Trà",
+          "rate": null,
+          "filedRate": 0.0,
+          "filedDone": 0,
+          "filedTotal": 1098,
+          "bankDone": 67,
+          "bankTotal": 68
+        },
+        {
+          "rank": 20,
+          "name": "Đảng bộ phường Kim Trà",
+          "rate": null,
+          "filedRate": 0.0,
+          "filedDone": 0,
+          "filedTotal": 842,
+          "bankDone": 43,
+          "bankTotal": 56
+        },
+        {
+          "rank": 21,
+          "name": "Đảng bộ phường Phong Điền",
+          "rate": null,
+          "filedRate": 0.0,
+          "filedDone": 0,
+          "filedTotal": 1210,
+          "bankDone": 70,
+          "bankTotal": 70
+        },
+        {
+          "rank": 22,
+          "name": "Đảng bộ phường Phong Phú",
+          "rate": null,
+          "filedRate": 0.0,
+          "filedDone": 0,
+          "filedTotal": 516,
+          "bankDone": 27,
+          "bankTotal": 27
+        },
+        {
+          "rank": 23,
+          "name": "Đảng bộ phường Phong Quảng",
+          "rate": null,
+          "filedRate": 0.0,
+          "filedDone": 0,
+          "filedTotal": 570,
+          "bankDone": 32,
+          "bankTotal": 32
+        },
+        {
+          "rank": 24,
+          "name": "Đảng bộ phường Phong Thái",
+          "rate": null,
+          "filedRate": 0.0,
+          "filedDone": 0,
+          "filedTotal": 1008,
+          "bankDone": 34,
+          "bankTotal": 34
+        },
+        {
+          "rank": 25,
+          "name": "Đảng bộ phường Thanh Thủy",
+          "rate": null,
+          "filedRate": 0.0,
+          "filedDone": 0,
+          "filedTotal": 1694,
+          "bankDone": 63,
+          "bankTotal": 91
+        },
+        {
+          "rank": 26,
+          "name": "Đảng bộ phường Thuận An",
+          "rate": null,
+          "filedRate": 0.0,
+          "filedDone": 0,
+          "filedTotal": 624,
+          "bankDone": 41,
+          "bankTotal": 41
+        },
+        {
+          "rank": 27,
+          "name": "Đảng bộ phường Thủy Xuân",
+          "rate": null,
+          "filedRate": 0.0,
+          "filedDone": 0,
+          "filedTotal": 1228,
+          "bankDone": 48,
+          "bankTotal": 60
+        },
+        {
+          "rank": 28,
+          "name": "Đảng bộ phường Vỹ Dạ",
+          "rate": null,
+          "filedRate": 0.0,
+          "filedDone": 0,
+          "filedTotal": 1894,
+          "bankDone": 67,
+          "bankTotal": 81
+        },
+        {
+          "rank": 29,
+          "name": "Đảng bộ Ủy ban nhân dân thành phố Huế",
+          "rate": null,
+          "filedRate": 0.0,
+          "filedDone": 0,
+          "filedTotal": 3524,
+          "bankDone": 263,
+          "bankTotal": 273
+        },
+        {
+          "rank": 30,
+          "name": "Đảng bộ xã A Lưới 1",
+          "rate": null,
+          "filedRate": 0.0,
+          "filedDone": 0,
+          "filedTotal": 1079,
+          "bankDone": 18,
+          "bankTotal": 28
+        },
+        {
+          "rank": 31,
+          "name": "Đảng bộ xã A Lưới 2",
+          "rate": null,
+          "filedRate": 0.0,
+          "filedDone": 0,
+          "filedTotal": 1830,
+          "bankDone": 41,
+          "bankTotal": 41
+        },
+        {
+          "rank": 32,
+          "name": "Đảng bộ xã A Lưới 3",
+          "rate": null,
+          "filedRate": 0.0,
+          "filedDone": 0,
+          "filedTotal": 852,
+          "bankDone": 30,
+          "bankTotal": 30
+        },
+        {
+          "rank": 33,
+          "name": "Đảng bộ xã A Lưới 4",
+          "rate": null,
+          "filedRate": 0.0,
+          "filedDone": 0,
+          "filedTotal": 1045,
+          "bankDone": 30,
+          "bankTotal": 30
+        },
+        {
+          "rank": 34,
+          "name": "Đảng bộ xã A Lưới 5",
+          "rate": null,
+          "filedRate": 0.0,
+          "filedDone": 0,
+          "filedTotal": 366,
+          "bankDone": 15,
+          "bankTotal": 23
+        },
+        {
+          "rank": 35,
+          "name": "Đảng bộ xã Bình Điền",
+          "rate": null,
+          "filedRate": 0.0,
+          "filedDone": 0,
+          "filedTotal": 679,
+          "bankDone": 30,
+          "bankTotal": 30
+        },
+        {
+          "rank": 36,
+          "name": "Đảng bộ xã Chân Mây - Lăng Cô",
+          "rate": null,
+          "filedRate": 0.0,
+          "filedDone": 0,
+          "filedTotal": 814,
+          "bankDone": 48,
+          "bankTotal": 49
+        },
+        {
+          "rank": 37,
+          "name": "Đảng bộ xã Đan Điền",
+          "rate": null,
+          "filedRate": 0.0,
+          "filedDone": 0,
+          "filedTotal": 971,
+          "bankDone": 37,
+          "bankTotal": 37
+        },
+        {
+          "rank": 38,
+          "name": "Đảng bộ xã Hưng Lộc",
+          "rate": null,
+          "filedRate": 0.0,
+          "filedDone": 0,
+          "filedTotal": 502,
+          "bankDone": 32,
+          "bankTotal": 32
+        },
+        {
+          "rank": 39,
+          "name": "Đảng bộ xã Khe Tre",
+          "rate": null,
+          "filedRate": 0.0,
+          "filedDone": 0,
+          "filedTotal": 717,
+          "bankDone": 43,
+          "bankTotal": 52
+        },
+        {
+          "rank": 40,
+          "name": "Đảng bộ xã Long Quảng",
+          "rate": null,
+          "filedRate": 0.0,
+          "filedDone": 0,
+          "filedTotal": 669,
+          "bankDone": 25,
+          "bankTotal": 27
+        },
+        {
+          "rank": 41,
+          "name": "Đảng bộ xã Lộc An",
+          "rate": null,
+          "filedRate": 0.0,
+          "filedDone": 0,
+          "filedTotal": 833,
+          "bankDone": 47,
+          "bankTotal": 51
+        },
+        {
+          "rank": 42,
+          "name": "Đảng bộ xã Nam Đông",
+          "rate": null,
+          "filedRate": 0.0,
+          "filedDone": 0,
+          "filedTotal": 626,
+          "bankDone": 30,
+          "bankTotal": 34
+        },
+        {
+          "rank": 43,
+          "name": "Đảng bộ xã Phú Hồ",
+          "rate": null,
+          "filedRate": 0.0,
+          "filedDone": 0,
+          "filedTotal": 622,
+          "bankDone": 37,
+          "bankTotal": 37
+        },
+        {
+          "rank": 44,
+          "name": "Đảng bộ xã Phú Lộc",
+          "rate": null,
+          "filedRate": 0.0,
+          "filedDone": 0,
+          "filedTotal": 1208,
+          "bankDone": 41,
+          "bankTotal": 54
+        },
+        {
+          "rank": 45,
+          "name": "Đảng bộ xã Phú Vinh",
+          "rate": null,
+          "filedRate": 0.0,
+          "filedDone": 0,
+          "filedTotal": 595,
+          "bankDone": 45,
+          "bankTotal": 45
+        },
+        {
+          "rank": 46,
+          "name": "Đảng bộ xã Vinh Lộc",
+          "rate": null,
+          "filedRate": 0.0,
+          "filedDone": 0,
+          "filedTotal": 721,
+          "bankDone": 49,
+          "bankTotal": 58
+        }
+      ]
+    }
+  }
+}
