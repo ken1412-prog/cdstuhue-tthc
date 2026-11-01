@@ -1285,3 +1285,155 @@ body{
     box-shadow:none!important;background-image:none!important;
   }
 }
+
+
+/* CDSTUHUE LIGHT RIBBONS MOTION V4
+   Two local transparent SVG assets (under 4 KB total) supply the light trails.
+   Existing Huế photos, layout, text, links, red/gold buttons and page logic
+   remain unchanged. Motion runs only on three small visual surfaces. */
+
+/* Scenic sidebar: preserve the actual bridge photo in ::before.
+   Only the transparent decorative art above it drifts slowly. */
+.sidebar::after{
+  inset:-4% -6%;
+  opacity:.72;
+  filter:none;
+  background:url('./img/neon-ribbons-sidebar.svg') center center / 100% 100% no-repeat;
+  animation:cds-ribbons-drift 19s ease-in-out infinite alternate;
+  transform:translate3d(0,0,0);
+  will-change:transform,opacity;
+}
+@keyframes cds-ribbons-drift{
+  0%{transform:translate3d(-1.2%,0,0) scale(1);opacity:.62}
+  50%{opacity:.79}
+  100%{transform:translate3d(1.2%,-1.1%,0) scale(1.015);opacity:.7}
+}
+
+/* Hero photographs remain exactly as they were, with a transparent wave
+   superimposed; content is always on top and overlays never accept taps. */
+.main .hero,
+.main .stats-hero-home,
+.main .payment-period-toolbar{position:relative;isolation:isolate}
+.main .hero::after,
+.main .stats-hero-home::after,
+.main .payment-period-toolbar::after{
+  content:"";
+  display:block;
+  position:absolute;
+  inset:0;
+  right:0;bottom:0;
+  width:auto;height:auto;
+  z-index:0;
+  pointer-events:none;
+  border:0;
+  border-radius:inherit;
+  background:url('./img/neon-ribbons-wide.svg') center / 110% 110% no-repeat;
+  opacity:.28;
+  animation:cds-wide-shimmer 22s ease-in-out infinite alternate;
+  transform:translate3d(0,0,0);
+  will-change:transform,opacity;
+}
+.main .stats-hero-home::after{opacity:.16;animation-duration:26s}
+.main .payment-period-toolbar::after{opacity:.10;animation-duration:29s}
+.main .hero>*,
+.main .stats-hero-home>*,
+.main .payment-period-toolbar>*{position:relative;z-index:1}
+@keyframes cds-wide-shimmer{
+  0%{transform:translate3d(-1.4%,0,0);opacity:.16}
+  50%{opacity:.31}
+  100%{transform:translate3d(1.4%,-1%,0);opacity:.2}
+}
+
+/* One thin light bead follows the border of the SELECTED menu item.
+   FAQ cards glow while pressed/focused; an opened FAQ or unit detail dialog
+   gets a single small orbit. No timer and no JavaScript animation. */
+.sidebar .nav-link.active,
+.qa-item:is(:active,:focus-visible),
+.assistant-ask-toggle[aria-expanded="true"],
+.qa-dialog,
+.payment-detail-dialog{
+  position:relative;
+  isolation:isolate;
+}
+.sidebar .nav-link.active{
+  border-color:rgba(117,219,255,.5);
+  box-shadow:inset 4px 0 #f2ca63,0 0 18px rgba(43,202,250,.24),
+    0 5px 17px rgba(5,18,45,.20);
+}
+.qa-item:is(:active,:focus-visible),
+.assistant-ask-toggle[aria-expanded="true"]{
+  box-shadow:0 0 0 1px rgba(71,184,249,.52),0 0 16px rgba(62,184,250,.17);
+}
+.qa-dialog,
+.payment-detail-dialog{
+  box-shadow:0 25px 65px rgba(5,21,46,.3),0 0 23px rgba(48,184,241,.21);
+}
+
+/* Masking the interior leaves only a thin perimeter. CSS custom property
+   animates on at most a menu item + one focused/modal card. Other browsers
+   retain the subtle static shadow instead of showing a filled gradient. */
+@property --cds-border-angle{
+  syntax:"<angle>";
+  initial-value:0deg;
+  inherits:false;
+}
+@supports ((-webkit-mask-composite:xor) or (mask-composite:exclude)){
+  .sidebar .nav-link.active::after,
+  .qa-item:is(:active,:focus-visible)::after,
+  .assistant-ask-toggle[aria-expanded="true"]::after,
+  .dialog-backdrop:not(.hidden) .qa-dialog::after,
+  .dialog-backdrop:not(.hidden) .payment-detail-dialog::after{
+    content:"";
+    position:absolute;
+    inset:0;
+    border-radius:inherit;
+    padding:2px;
+    pointer-events:none;
+    z-index:2;
+    background:conic-gradient(from var(--cds-border-angle),
+      transparent 0deg,transparent 266deg,
+      rgba(27,181,255,.12) 285deg,
+      rgba(86,222,255,.82) 313deg,
+      #efffff 334deg,
+      rgba(72,204,255,.72) 347deg,
+      transparent 360deg);
+    -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+    -webkit-mask-composite:xor;
+    mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+    mask-composite:exclude;
+    animation:cds-border-orbit 7.5s linear infinite;
+  }
+  .qa-item:is(:active,:focus-visible)::after,
+  .assistant-ask-toggle[aria-expanded="true"]::after{
+    animation-duration:1.35s;animation-iteration-count:1;
+  }
+  .dialog-backdrop:not(.hidden) .qa-dialog::after,
+  .dialog-backdrop:not(.hidden) .payment-detail-dialog::after{
+    animation-duration:9s;
+  }
+}
+@keyframes cds-border-orbit{
+  to{--cds-border-angle:360deg}
+}
+
+/* Low-power mobile: fewer bright pixels, slower orbits; maintain original
+   drawer width, scrollbar, hit targets and overlay click behavior. */
+@media(max-width:760px){
+  .sidebar::after{opacity:.55;animation-duration:24s}
+  .main .hero::after{opacity:.17;animation-duration:29s}
+  .main .stats-hero-home::after{opacity:.10}
+  .main .payment-period-toolbar::after{opacity:.06}
+  .sidebar .nav-link.active::after{animation-duration:11s}
+}
+@media(prefers-reduced-motion:reduce),print{
+  .sidebar::after,.main .hero::after,.main .stats-hero-home::after,
+  .main .payment-period-toolbar::after,
+  .sidebar .nav-link.active::after,.qa-item::after,
+  .assistant-ask-toggle::after,.qa-dialog::after,.payment-detail-dialog::after{
+    animation:none!important;will-change:auto!important;
+  }
+}
+@media print{
+  .sidebar::after,.main .hero::after,.main .stats-hero-home::after,
+  .main .payment-period-toolbar::after{display:none!important}
+}

@@ -25,6 +25,33 @@ ORIGIN_LINK = re.compile(
 
 
 class PublicSurfaceTests(unittest.TestCase):
+    def test_light_ribbon_art_is_lightweight_responsive_and_accessible(self):
+        css=(SITE / "assets/styles.css").read_text(encoding="utf-8")
+        self.assertIn("CDSTUHUE LIGHT RIBBONS MOTION V4",css)
+        self.assertIn("neon-ribbons-sidebar.svg",css)
+        self.assertIn("neon-ribbons-wide.svg",css)
+        self.assertIn("@keyframes cds-ribbons-drift",css)
+        self.assertIn("@keyframes cds-wide-shimmer",css)
+        self.assertIn("@keyframes cds-border-orbit",css)
+        self.assertIn(".sidebar .nav-link.active::after",css)
+        self.assertIn(".qa-item:is(:active,:focus-visible)::after",css)
+        self.assertIn(".payment-detail-dialog::after",css)
+        self.assertIn("@media(prefers-reduced-motion:reduce),print",css)
+        self.assertIn("@media(max-width:760px)",css)
+        self.assertIn("pointer-events:none",css)
+        for image in ("neon-ribbons-sidebar.svg","neon-ribbons-wide.svg"):
+            path=SITE / "assets/img" / image
+            self.assertTrue(path.is_file(),image)
+            self.assertLess(path.stat().st_size,5000,image)
+            art=path.read_text(encoding="utf-8")
+            self.assertIn("<svg ",art)
+            self.assertNotIn("<script",art)
+            self.assertNotIn("href=",art)
+        # Existing background and photo are untouched.
+        self.assertIn("url('./img/hue-bridge-night.webp')",css)
+        self.assertIn("url('./img/nguyen-hoang-bridge-3840.jpg')",css)
+
+
     def test_soft_bubble_glow_scoped_to_sidebar_and_middle_desktop_mobile(self):
         css=(SITE / "assets/styles.css").read_text(encoding="utf-8")
         marker="/* CDSTUHUE SOFT BUBBLE GLOW V3"
@@ -63,7 +90,7 @@ class PublicSurfaceTests(unittest.TestCase):
             self.assertIn('id="lastApprovedDate" aria-live="polite">—</span>',html)
             self.assertNotIn('id="lastApprovedDate" aria-live="polite">24/10/2026</span>',html)
             self.assertIn("assets/app.js?v=20261101-fast-live-first-v8",html)
-            self.assertIn("assets/styles.css?v=20261101-bubble-glow-v3",html)
+            self.assertIn("assets/styles.css?v=20261101-light-ribbons-motion-v4",html)
         self.assertIn("const approvedDate=state.stats?.period===currentReportMonth()?state.stats.approvedDate:null;",js)
         self.assertIn("if(fullDate)fullDate.textContent=approvedFull;",js)
         self.assertIn("if(shortDate)shortDate.textContent=approvedShort;",js)
@@ -151,7 +178,7 @@ class PublicSurfaceTests(unittest.TestCase):
             html=(SITE / page).read_text(encoding="utf-8")
             self.assertIn('<div class="footer-byline">',html)
             self.assertIn('<span class="footer-copyright">© 2026 CDSTUHUE</span><span class="footer-author">NKien',html)
-            self.assertIn('assets/styles.css?v=20261101-bubble-glow-v3',html)
+            self.assertIn('assets/styles.css?v=20261101-light-ribbons-motion-v4',html)
             self.assertNotIn('id="navAssistant"',html)
             self.assertIn('id="openAssistant"',html)
             self.assertIn('id="assistantMobileFab"',html)
@@ -374,7 +401,7 @@ class PublicSurfaceTests(unittest.TestCase):
             self.assertIn('class="side-assist-heading"',html)
             self.assertIn('<small>Trong kho câu hỏi</small>',html)
             self.assertNotIn('Trợ lý tra cứu nhanh <small>Không dùng AI bên ngoài</small>',html)
-            self.assertIn('assets/styles.css?v=20261101-bubble-glow-v3',html)
+            self.assertIn('assets/styles.css?v=20261101-light-ribbons-motion-v4',html)
         self.assertIn('/* Centered quick-search launcher in the sidebar */',css)
         self.assertIn('justify-content:center;',css[css.rfind('/* Centered quick-search launcher in the sidebar */'):])
         self.assertIn('text-align:center;',css[css.rfind('/* Centered quick-search launcher in the sidebar */'):])

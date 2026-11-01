@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 1050" preserveAspectRatio="none">
+<defs>
+  <linearGradient id="beam" x1="0" y1="0" x2="1" y2=".26">
+    <stop stop-color="#1e74ff" stop-opacity="0"/>
+    <stop offset=".27" stop-color="#14c9ff" stop-opacity=".82"/>
+    <stop offset=".56" stop-color="#e8ffff"/>
+    <stop offset=".78" stop-color="#31dbff" stop-opacity=".88"/>
+    <stop offset="1" stop-color="#1c6def" stop-opacity="0"/>
+  </linearGradient>
+  <radialGradient id="aura"><stop stop-color="#5cf6ff" stop-opacity=".26"/><stop offset="1" stop-color="#19a6ff" stop-opacity="0"/></radialGradient>
+</defs>
+<ellipse cx="270" cy="190" rx="174" ry="110" fill="url(#aura)"/>
+<ellipse cx="80" cy="647" rx="166" ry="130" fill="url(#aura)" opacity=".7"/>
+<ellipse cx="208" cy="973" rx="194" ry="120" fill="url(#aura)"/>
+<g fill="none" stroke="url(#beam)" stroke-linecap="round">
+<path d="M-78 266 C57 280 123 194 207 163 S360 110 446 126" stroke-width="25" opacity=".14"/>
+<path d="M-78 266 C57 280 123 194 207 163 S360 110 446 126" stroke-width="7" opacity=".36"/>
+<path d="M-78 266 C57 280 123 194 207 163 S360 110 446 126" stroke-width="1.8" opacity=".9"/>
+<path d="M-90 539 C39 482 126 537 216 481 S359 423 449 431" stroke-width="18" opacity=".12"/>
+<path d="M-90 539 C39 482 126 537 216 481 S359 423 449 431" stroke-width="2" opacity=".76"/>
+<path d="M-62 843 C34 878 121 820 208 799 S349 744 442 786" stroke-width="23" opacity=".12"/>
+<path d="M-62 843 C34 878 121 820 208 799 S349 744 442 786" stroke-width="5" opacity=".32"/>
+<path d="M-62 843 C34 878 121 820 208 799 S349 744 442 786" stroke-width="1.5" opacity=".88"/>
+<path d="M-63 1009 C82 961 155 1039 258 999 S378 950 448 984" stroke-width="15" opacity=".12"/>
+<path d="M-63 1009 C82 961 155 1039 258 999 S378 950 448 984" stroke-width="1.4" opacity=".7"/>
+</g>
+</svg>
