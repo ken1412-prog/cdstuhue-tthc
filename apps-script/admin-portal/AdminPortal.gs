@@ -21,6 +21,18 @@ const CDS_ADMIN_MODULE_KEYS_=[
  'CHƯA KHAI BÁO THEO ĐƠN VỊ CHA','TÀI KHOẢN NGÂN HÀNG'
 ];
 const CDS_ADMIN_SOURCE_KEYS_=['THU_NOP','THU_NOP_CITY','CHUA_KHAI','NGAN_HANG'];
+// No manual KY_BAO_CAO switch: use the review date of the current Excel batch.
+function cdsAdminCurrentMonth_(){
+ return Utilities.formatDate(new Date(),'Asia/Ho_Chi_Minh','yyyy-MM').slice(0,7);
+}
+function cdsAdminGuardMonth_(candidate,live){
+ const now=cdsAdminCurrentMonth_();
+ if(!/^20\d{2}-(0[1-9]|1[0-2])$/.test(candidate)||candidate>now)
+  throw Error('Kỳ '+candidate+' chưa đến hoặc không hợp lệ; hiện tại '+now);
+ if(/^20\d{2}-(0[1-9]|1[0-2])$/.test(live)&&candidate<live)
+  throw Error('Không được thay nguồn kỳ '+live+' bằng dữ liệu kỳ cũ '+candidate);
+ return now;
+}
 const CDS_ADMIN_TTL_=1500; // 25 minutes, nothing persisted in browser
 function cdsAdminProps_(){return PropertiesService.getScriptProperties();}
 function cdsAdminHash_(s){
@@ -147,9 +159,7 @@ function cdsAdminGetSnapshot(token){
  const live=current?current.getRange(2,1,4,4).getDisplayValues():[];
  const stageRows=staging?staging.getRange(2,1,4,9).getDisplayValues():[];
  const period=staged.length===4?String(staged[0].snapshot||'').slice(0,7):'';
- const currentPeriodSheet=hub.getSheetByName('KY_BAO_CAO');
- const currentPeriod=currentPeriodSheet?
-   String(currentPeriodSheet.getRange('B2').getDisplayValue()||'').trim():'2026-10';
+ const currentPeriod=cdsAdminCurrentMonth_();
  const complete=CDS_ADMIN_SOURCE_KEYS_.every(k=>staged.some(r=>r.code===k&&
    r.status==='ĐÃ DUYỆT'&&r.snapshot.slice(0,7)===period));
  const alreadyLive=CDS_ADMIN_SOURCE_KEYS_.every(k=>{
@@ -169,7 +179,7 @@ function cdsAdminGetSnapshot(token){
  const suggestedSnapshot=cdsAdminSuggestedStageDate_(stageRows);
  const promotion={period,currentPeriod,warning:pendingWarning,
    ready:!!(complete&&/^20\d{2}-(0[1-9]|1[0-2])$/.test(period)&&
-     period===currentPeriod&&!alreadyLive),
+     period<=currentPeriod&&!alreadyLive),
    completed:!!alreadyLive};
  return {nav,modules,staged,promotion,suggestedSnapshot,serverTime:new Date().toISOString(),
    links:{hub:hub.getUrl(),
@@ -280,10 +290,10 @@ function cdsAdminApproveStagedBatch(token,reportDate){
    if(autoDate&&autoDate!==date)
      throw Error('Ngày nhập '+date+' không trùng ngày xuất báo cáo '+autoDate+
        '. Vui lòng kiểm tra lại hai Excel thu nộp.');
-   const currentMonthSheet=hub.getSheetByName('KY_BAO_CAO');
-   const openPeriod=currentMonthSheet?String(currentMonthSheet.getRange('B2').getDisplayValue()||'').trim():'2026-10';
-   if(date.slice(0,7)!==openPeriod)
-     throw Error('Kỳ '+date.slice(0,7)+' chưa được mở; kỳ hiện tại '+openPeriod);
+   const activeRegistry=hub.getSheetByName('NGUON_4_FILE');
+   const liveRows=activeRegistry?activeRegistry.getRange(2,1,4,8).getDisplayValues():[];
+   const oldPayment=liveRows.find(r=>r[0]==='THU_NOP');
+   cdsAdminGuardMonth_(date.slice(0,7),String(oldPayment?.[5]||'').slice(0,7));
    const pendingRaw=cdsAdminProps_().getProperty('CDSTUHUE_PENDING_STAGE_JSON');
    if(!pendingRaw)throw Error('Không có bản kiểm tra Excel đang chờ. Cần tạo nháp lại.');
    let pending;
@@ -413,11 +423,8 @@ function cdsAdminPromoteStaged(token,confirmation,acceptMissingDrift){
     const period=snapshots.THU_NOP.slice(0,7);
     if(CDS_ADMIN_SOURCE_KEYS_.some(key=>snapshots[key].slice(0,7)!==period))
       throw Error('Bốn nguồn không thuộc cùng kỳ; chưa chuyển');
-    const month=hub.getSheetByName('KY_BAO_CAO');
-    const effectiveMonth=month?String(month.getRange('B2').getDisplayValue()||'').trim():'2026-10';
-    if(period!==effectiveMonth)
-      throw Error('Kỳ nhập '+period+' khác kỳ đang mở '+effectiveMonth+
-        '. Cần chốt và chuyển kỳ trước khi nhập');
+    const oldPayment=active.find(r=>String(r[0]).trim()==='THU_NOP');
+    cdsAdminGuardMonth_(period,String(oldPayment?.[5]||'').slice(0,7));
     if(typeof confirmation!=='string'||confirmation.trim()!=='DUYET '+period)
       throw Error('Xác nhận sai. Hãy nhập chính xác DUYET '+period);
     // Reject changed input files if the set is still available. For earlier

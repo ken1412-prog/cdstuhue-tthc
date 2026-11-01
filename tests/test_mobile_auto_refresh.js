@@ -77,7 +77,7 @@ async function main(){
  assert(src.includes('if(!liveSourceAccepted.qa)state.qa='));
  assert(src.includes('if(!liveSourceAccepted.menu)state.menu='));
  assert(src.includes('if(lastStaticLoadHadError)scheduleDataLoadRecovery();'));
- assert(html.includes('20261031-approved-fast-open-v3'));
+ assert(html.includes('20261101-monthly-rollover-v4'));
  assert(headers.includes('/assets/app.js'));
  console.log('Mobile auto-refresh PASS: startup retry, endpoint retry, tab restore and version bust');
 }

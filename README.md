@@ -328,3 +328,12 @@ Website đã có client gọi trực tiếp ba endpoint **chỉ chứa nội dun
 - Hai trang công khai hiển thị ngắn gọn **Đang online**, không có chú thích rê chuột; máy chủ vẫn dùng cửa sổ hoạt động 15 phút. Đây không phải số người đang nhìn trang đồng thời hay số người duy nhất.
 - Bộ đếm **Tổng lượt truy cập** khởi tạo 123, lưu qua `CDSTUHUE_TOTAL_VISITS_V1`, **không thay đổi**.
 - Muốn thông số 15 phút hoạt động trên Web App công khai, cần **Deploy → Manage deployments → Edit → New version → Deploy** đúng dự án đang dùng; giữ URL `/exec`. Chỉ cập nhật GitHub không tự cập nhật bản Apps Script `/exec`.
+
+## Chuyển kỳ tự động từ 11/2026 (không đổi kỳ thủ công)
+
+- Kỳ hiển thị trên website lấy từ **THU_NOP đã duyệt** (ngày của báo cáo thật), không tự gắn nhãn tháng 11 cho số liệu tháng 10; không cần sửa `KY_BAO_CAO!B2` mỗi lần sang tháng.
+- Tại quản trị, sau khi có đủ bốn Excel cùng đợt, đối chiếu và duyệt, kỳ mới tự nhận từ ngày báo cáo hai file thu nộp. Chặn kỳ tương lai hoặc quay ngược kỳ, giữ xác nhận chủ sở hữu `DUYET YYYY-MM`.
+- `CHUA_KHAI` là số liệu **theo kỳ**; `NGAN_HANG` là **trạng thái đăng ký một lần/tích lũy** và có ngày nguồn riêng. Không cộng lại lượt ngân hàng mỗi tháng.
+- GitHub Actions lưu bản tổng hợp thanh toán công khai **đã duyệt** đang hoạt động trong `site/data/payment-staging/`. Sang tháng kế tiếp, bản này được chốt vào `site/data/payment-history/` và không bị tự ghi đè. Không lưu số tiền, tên cá nhân, mã định danh hay tài khoản ngân hàng.
+- Đã lưu tháng 10 từ STATS HUB đã duyệt ngày 30/10 vào lịch sử. Mọi cập nhật tháng 11 chỉ hiển thị khi bốn nguồn tháng 11 đã qua kiểm tra và duyệt; không hồi tố thay bản tháng 10.
+- **Triển khai riêng**: đổi mã GitHub không đồng nghĩa cập nhật Apps Script WEB_PUBLIC hay ADMIN; cần triển khai phiên bản Apps Script mới khi thay mã máy chủ. Từ các tháng sau, không cần đổi mã hay mở tháng thủ công.

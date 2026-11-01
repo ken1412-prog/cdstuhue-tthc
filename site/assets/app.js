@@ -382,7 +382,27 @@ function paymentPeriod(stats=state.stats){
  const s=String(stats?.period||'').trim(),m=s.match(/^(\d{4})-(\d{1,2})$/);
  return m?'Tháng '+Number(m[2])+'/'+m[1]:(s||'Kỳ chưa cập nhật');
 }
-function selectedFinanceStats(){return state.paymentArchive||state.stats;}
+function selectedFinanceStats(){
+ if(!state.paymentArchive)return state.stats;
+ // Bank registration is a one-time cumulative status. On archived monthly
+ // payment views, overlay only the latest separately approved bank counts,
+ // without changing that month's saved rankings, rates or filing status.
+ const archive=state.paymentArchive;
+ const latest=state.stats?.modules?.ranking?.records;
+ if(state.stats?.public!==true||state.stats?.reviewed!==true||
+    !Array.isArray(latest)||latest.length!==46)return archive;
+ const records=archive.modules?.ranking?.records;
+ if(!Array.isArray(records)||records.length!==46)return archive;
+ const byName=new Map(latest.map(row=>[fold(row.name),row]));
+ return {...archive,modules:{...archive.modules,ranking:{
+  ...archive.modules.ranking,records:records.map(row=>{
+   const bank=byName.get(fold(row.name));
+   return bank&&Number.isInteger(bank.bankDone)&&
+     Number.isInteger(bank.bankTotal)?
+     {...row,bankDone:bank.bankDone,bankTotal:bank.bankTotal}:row;
+  })
+ }}};
+}
 function paymentMonths(){
  const active=state.stats?.period,months=[];
  if(typeof active==='string'&&/^20\d{2}-(0[1-9]|1[0-2])$/.test(active))

@@ -81,6 +81,28 @@ class FreezePaymentMonthTest(unittest.TestCase):
         self.assertIn("--close-period", script)
         self.assertIn('args.confirm != "CHOT " + args.close_period', script)
 
+    def test_auto_rollover_saves_only_approved_previous_month(self):
+        import sys
+        sys.path.insert(0, str(ROOT / "scripts"))
+        try:
+            from rolling_payment_month import roll
+            with tempfile.TemporaryDirectory() as td:
+                site = Path(td) / "site"
+                self.assertEqual(roll(dt.date(2026, 10, 31), site, approved()), 1)
+                staged = site / "data" / "payment-staging" / "2026-10.json"
+                closed = site / "data" / "payment-history" / "2026-10.json"
+                self.assertTrue(staged.is_file())
+                self.assertFalse(closed.exists())
+                invalid = dict(approved(), period="2026-11", reviewed=False)
+                self.assertEqual(roll(dt.date(2026, 11, 1), site, invalid), 1)
+                self.assertTrue(closed.is_file())
+                old = closed.read_text(encoding="utf-8")
+                self.assertEqual(roll(dt.date(2026, 11, 2), site, invalid), 0)
+                self.assertEqual(closed.read_text(encoding="utf-8"), old)
+                self.assertNotIn("MUST_NOT_PUBLISH", old)
+        finally:
+            sys.path.remove(str(ROOT / "scripts"))
+
     def test_incomplete_bad_rates_and_dates_rejected(self):
         base = approved()
         base["modules"]["ranking"]["records"].pop()

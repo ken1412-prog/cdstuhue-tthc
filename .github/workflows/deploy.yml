@@ -84,6 +84,16 @@ jobs:
           else
             echo "QA_PUBLIC_ENDPOINT not configured: publishing empty approved.json placeholder"
           fi
+      - name: Auto-save owner-approved monthly aggregate and close past months
+        run: |
+          python scripts/rolling_payment_month.py
+          if [ -n "$(git status --porcelain -- site/data/payment-history.json site/data/payment-history/ site/data/payment-staging/)" ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add site/data/payment-history.json site/data/payment-history/ site/data/payment-staging/
+            git commit -m "Store approved monthly reporting snapshot"
+            git push origin HEAD:main
+          fi
       - name: Configure anonymous online counter
         env:
           QA_PUBLIC_ENDPOINT: ${{ secrets.QA_PUBLIC_ENDPOINT }}

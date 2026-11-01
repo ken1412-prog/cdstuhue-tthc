@@ -511,22 +511,20 @@ function buildStatsFeed_(){
   if(!src.THU_NOP||!src.CHUA_KHAI||!src.NGAN_HANG)
     throw new Error('Incomplete private source configuration');
   if(Object.keys(src).length>4)throw new Error('Too many source configurations');
-  // Period is owner-controlled in the private STATS HUB. Never infer a new month
-  // from today's date, because the underlying upload may still be from last month.
-  // For backward compatibility the missing KY_BAO_CAO tab means October 2026.
-  const monthSheet=hub.getSheetByName('KY_BAO_CAO');
-  const period=monthSheet?String(monthSheet.getRange('B2').getDisplayValue()||'').trim():'2026-10';
-  if(!/^20\d{2}-(0[1-9]|1[0-2])$/.test(period))
-    throw new Error('Invalid private KY_BAO_CAO!B2. Expected YYYY-MM.');
+  // Use only the owner-approved monthly payment snapshot to determine period.
+  // Never relabel an October report as November merely because the date rolled.
+  // Bank account registration is a separate cumulative source.
   const periodSource=String(src.THU_NOP.snapshot||'').trim();
   const dateIso=periodSource.match(/^(20\d{2})-(0[1-9]|1[0-2])(?:-\d{2})?$/);
   const dateVi=periodSource.match(/^\d{2}\/(0[1-9]|1[0-2])\/(20\d{2})$/);
   const sourcePeriod=dateIso?(dateIso[1]+'-'+dateIso[2]):dateVi?(dateVi[2]+'-'+dateVi[1]):'';
-  if(sourcePeriod&&sourcePeriod!==period)
-    return {schema:1,public:false,reviewed:false,period,modules:{},
-      note:'Kỳ báo cáo không trùng mốc nguồn THU_NOP, chờ đối chiếu và duyệt lại.'};
-  // A new month must be explicitly reapproved after that month starts.
-  if(period!=='2026-10'&&(!lastApprovedDate||lastApprovedDate.slice(0,7)<period))
+  const period=sourcePeriod;
+  const todayMonth=Utilities.formatDate(new Date(),'Asia/Ho_Chi_Minh','yyyy-MM').slice(0,7);
+  if(!/^20\d{2}-(0[1-9]|1[0-2])$/.test(period)||period>todayMonth)
+    return {schema:1,public:false,reviewed:false,period:period||'',modules:{},
+      note:'Nguồn thu nộp chưa có kỳ hợp lệ hoặc kỳ nằm trong tương lai.'};
+  // Every new reporting month requires an approved snapshot.
+  if(!lastApprovedDate||lastApprovedDate.slice(0,7)<period)
     return {schema:1,public:false,reviewed:false,period,modules:{},
       note:'Chưa có xác nhận duyệt của kỳ báo cáo mới.'};
   const keys={payment:'TỔNG HỢP THU NỘP',ranking:'XẾP HẠNG 46 ĐƠN VỊ',
@@ -1466,11 +1464,16 @@ function cdstuhueApproveStagedBatch() {
     });
     if(snapshots.THU_NOP.slice(0,7)!==snapshots.THU_NOP_CITY.slice(0,7))
       throw Error('46 Đảng bộ và báo cáo thành phố phải cùng kỳ');
-    // Do not let this handler close/open a reporting month automatically.
-    const monthSheet=hub.getSheetByName('KY_BAO_CAO');
-    const period=monthSheet?String(monthSheet.getRange('B2').getDisplayValue()||'').trim():'2026-10';
-    if(snapshots.THU_NOP.slice(0,7)!==period)
-      throw Error('Kỳ Excel khác KY_BAO_CAO; cần chốt và chuyển kỳ đúng quy trình trước');
+    // A reviewed new-month batch opens its own reporting period. It never
+    // relabels an older source and can never backdate the official registry.
+    const period=snapshots.THU_NOP.slice(0,7);
+    const currentMonth=Utilities.formatDate(new Date(),'Asia/Ho_Chi_Minh','yyyy-MM').slice(0,7);
+    const activeEntries=registry.getRange(2,1,4,8).getDisplayValues();
+    const oldPayment=activeEntries.find(r=>r[0]==='THU_NOP');
+    const oldPeriod=String(oldPayment?.[5]||'').slice(0,7);
+    if(!/^20\d{2}-(0[1-9]|1[0-2])$/.test(period)||period>currentMonth||
+       (/^20\d{2}-(0[1-9]|1[0-2])$/.test(oldPeriod)&&period<oldPeriod))
+      throw Error('Kỳ nguồn Excel không hợp lệ, ở tương lai hoặc cũ hơn nguồn hiện hành');
     const prompt=ui.prompt(
       'Xác nhận chuyển nguồn chính thức',
       'Bốn nguồn đã duyệt, kỳ '+period+'. Chỉ cập nhật dữ liệu tổng hợp và xuất theo phạm vi đã duyệt. Nhập chính xác: DUYET '+period,
