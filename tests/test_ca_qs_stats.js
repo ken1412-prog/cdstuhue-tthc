@@ -144,4 +144,16 @@ assert.equal(missingResult.level2Ranking.matchedRows,3);
 assert.equal(missingResult.level2Ranking.unmatchedRows,0);
 const mappedTotal=feed.modules.ranking.records.reduce((sum,r)=>sum+(r.bankTotal||0),0);
 assert.equal(mappedTotal,47);
-console.log('CA/QS exclusions passed: 108 organizations, 1 city root, member records safely filtered.');
+// New reporting month: keep all 46 names; no fake 0% for 0/0.
+for(let i=0;i<46;i++){
+ payments[i][11]=i<35?0:100;
+ payments[i][12]=0;
+}
+const fresh=context.buildStatsFeed_();
+assert.equal(fresh.modules.ranking.records.length,46);
+assert.equal(fresh.modules.ranking.records.filter(x=>x.rate===null).length,35);
+assert.equal(fresh.modules.ranking.records.filter(x=>x.rate===0).length,11);
+assert(fresh.modules.ranking.records.slice(0,11).every(x=>x.rate===0));
+assert(fresh.modules.ranking.records.slice(11).every(x=>x.rate===null));
+assert.equal(fresh.modules.payment.completionRate,0);
+console.log('CA/QS exclusions + 46-unit zero-due month PASS.');

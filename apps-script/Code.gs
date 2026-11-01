@@ -635,8 +635,11 @@ function buildStatsFeed_(){
       sourceSnapshot:src.THU_NOP.snapshot
     };
     if(enabled.ranking){
-      const ranked=payments.filter(x=>x.required>0)
-        .sort((a,b)=>(b.rate||0)-(a.rate||0)||a.name.localeCompare(b.name,'vi'))
+      // Include every reporting organization, even when no fees are due yet.
+      // Only positive-denominator organizations have a numeric rate.
+      const ranked=payments.slice()
+        .sort((a,b)=>Number(b.required>0)-Number(a.required>0)||
+          (a.required>0?b.rate-a.rate:0)||a.name.localeCompare(b.name,'vi'))
         .map((x,i)=>({rank:i+1,name:x.name,rate:x.rate,
           ...((filedRateApproved||filedXYApproved)&&x.filedRate!==null?{filedRate:x.filedRate}:{}),
           ...(filedXYApproved&&x.filedDone!==null&&x.filedTotal!==null?

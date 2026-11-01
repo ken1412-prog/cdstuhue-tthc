@@ -483,13 +483,18 @@ function cdsAdminPromoteStaged(token,confirmation,acceptMissingDrift){
       paid:toInt(row[12]),noFile:toInt(row[10]),pending:toInt(row[7]),
       paidFiled:toInt(row[9])
     }));
-    if(ranking.length!==46||ranking.some(r=>!r.name||!r.due||
-      r.paid>r.due||!Number.isFinite(r.paid/r.due)))
-      throw Error('Không thể tạo xếp hạng 46 Đảng bộ');
-    ranking.sort((a,b)=>(b.paid/b.due)-(a.paid/a.due)||
-      a.name.localeCompare(b.name,'vi'));
+    // At the beginning of a month a unit can have 0 due and 0 paid.
+    // That is "not yet incurred", NOT a rate of 0% or 100%.
+    // Keep all 46 organizations; zero-due units sort after rate-eligible
+    // units and have a blank percentage in the private snapshot.
+    if(ranking.length!==46||ranking.some(r=>!r.name||r.paid>r.due||
+      (r.due===0&&r.paid!==0)))
+      throw Error('Dữ liệu xếp hạng không hợp lệ: kiểm tra tên, số phải thu/đã thu của 46 Đảng bộ');
+    const rate=r=>r.due>0?r.paid/r.due:null;
+    ranking.sort((a,b)=>Number(b.due>0)-Number(a.due>0)||
+      (a.due>0?rate(b)-rate(a):0)||a.name.localeCompare(b.name,'vi'));
     const displayRank=ranking.map((r,i)=>[
-      i+1,r.name,r.members,r.due,r.paid,r.paid/r.due,
+      i+1,r.name,r.members,r.due,r.paid,rate(r),
       r.noFile,r.pending,r.paidFiled,r.members>=100?'ĐỦ':'KHÔNG'
     ]);
     const previousPolicy=policy.getRange(2,1,5,5).getValues();
@@ -520,7 +525,7 @@ function cdsAdminPromoteStaged(token,confirmation,acceptMissingDrift){
       registry.getRange(2,1,4,8).setValues(registryNew);
       overview.getRange('B1').setValue('SỐ LIỆU '+snapshots.THU_NOP.split('-').reverse().join('/'));
       overview.getRange('B2:B9').setValues([
-        [46],[totalMembers],[totalDue],[totalPaid],[totalPaid/totalDue],
+        [46],[totalMembers],[totalDue],[totalPaid],[totalDue>0?totalPaid/totalDue:null],
         [totalMissing],[summaries.CHUA_KHAI.rows],
         [summaries.CHUA_KHAI.rows-totalMissing]
       ]);
@@ -529,7 +534,7 @@ function cdsAdminPromoteStaged(token,confirmation,acceptMissingDrift){
         [summaries.NGAN_HANG.registered],[summaries.NGAN_HANG.notRegistered],
         [summaries.NGAN_HANG.registered/summaries.NGAN_HANG.rows],
         [cityMembers],[cityMissing],[cityMembers-totalMembers],
-        [cityPaid/cityDue]
+        [cityDue>0?cityPaid/cityDue:null]
       ]);
       rank.getRange('A2:J47').setValues(displayRank);
       policy.getRange(2,1,5,5).setValues(refreshed);

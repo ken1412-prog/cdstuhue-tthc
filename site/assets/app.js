@@ -483,7 +483,7 @@ function paymentRate(record){
 }
 function paymentPercent(record){
  const n=paymentRate(record);
- if(n===null)return '—';
+ if(n===null)return 'Chưa phát sinh';
  return (n>=1?100:Math.min(99.9,n*100)).toFixed(1).replace('.',',')+'%';
 }
 function paymentCompleted(record){return paymentRate(record)!==null&&paymentRate(record)>=1;}
@@ -555,7 +555,7 @@ function openPaymentDetail(index){
   '<span class="payment-state '+(done?'is-complete':'is-active')+'">'+(done?'Hoàn thành':'Đang triển khai')+'</span></div>'+
   '<div class="payment-detail-rate">'+E(pct)+'</div>'+
   '<div class="payment-detail-caption">Tỷ lệ thu nộp đảng phí · '+E(paymentPeriod(stats))+'</div>'+
-  '<div class="payment-detail-track" role="progressbar" aria-label="Tỷ lệ thu nộp" aria-valuenow="'+(paymentRate(row)*100).toFixed(1)+'" aria-valuemin="0" aria-valuemax="100"><i style="width:'+paymentProgressWidth(row)+'%"></i></div>'+
+  '<div class="payment-detail-track" role="'+(paymentRate(row)===null?'img':'progressbar')+'" aria-label="'+(paymentRate(row)===null?'Chưa phát sinh phải thu':'Tỷ lệ thu nộp')+'"'+(paymentRate(row)===null?'':' aria-valuenow="'+(paymentRate(row)*100).toFixed(1)+'" aria-valuemin="0" aria-valuemax="100"')+'><i style="width:'+paymentProgressWidth(row)+'%"></i></div>'+
   '<div class="payment-detail-extra"><div><small>Đơn vị đã có TK NH / tổng đơn vị</small><strong>'+E(paymentCountPair(row.bankDone,row.bankTotal))+'</strong></div><div><small>Hồ sơ đã khai báo / tổng ĐV</small><strong>'+E(paymentFiledText(row))+'</strong></div></div>'+
   '<div class="payment-unit-findings"><h3>'+(bankIsComplete&&filedIsComplete?
     'Tình trạng khai báo cấp con':'Đơn vị cấp con cần xử lý')+'</h3>'+
@@ -600,7 +600,7 @@ function statsFinanceHero({compact=false}={}){
   (x[0]==='Đăng ký tài khoản'&&bankExclusionNote(m.banking)?
   '<span class="stats-context-line">'+E(bankExclusionNote(m.banking))+'</span>':'')+'</small><strong>'+E(x[1])+'</strong></div>').join('')+
   '<div class="stats-hero-metric stats-hero-guide"><small>Tài liệu hướng dẫn</small><strong>Đang cập nhật</strong></div></div>'+
-  (compact&&top.length?'<div class="stats-hero-ranking"><div class="stats-hero-rank-title"><b>🏆 Top 03 thu nộp · '+E(paymentPeriod(stats))+'</b><span>Bấm Đảng bộ để xem chi tiết</span></div>'+paymentTop3Cards(rec)+'</div>':'')+
+  (compact&&top.some(x=>(paymentRate(x)??0)>0)?'<div class="stats-hero-ranking"><div class="stats-hero-rank-title"><b>🏆 Top 03 thu nộp · '+E(paymentPeriod(stats))+'</b><span>Bấm Đảng bộ để xem chi tiết</span></div>'+paymentTop3Cards(rec)+'</div>':'')+
   '</section>';
 }
 function financeCards({compact=false}={}){
@@ -616,7 +616,7 @@ function financeCards({compact=false}={}){
 
 function paymentTop3Cards(records){
  const top=Array.isArray(records)?records.slice(0,3):[];
- if(!top.length)return '';
+ if(!top.length||!top.some(x=>(paymentRate(x)??0)>0))return '';
  return '<div class="stats-payment-top3" aria-label="Top 3 Đảng bộ dẫn đầu thu nộp">'+
   top.map((x,i)=>'<button type="button" class="stats-payment-leader leader-'+(i+1)+'" data-payment-index="'+i+'" aria-label="Xem chi tiết '+E(x.name)+'">'+
    '<div class="stats-payment-leader-top"><span class="stats-payment-medal" aria-hidden="true">'+(i+1)+'</span>'+
@@ -662,6 +662,7 @@ function statsDashboard(){
   const rec=m.ranking.records;
   const filtered=paymentFilteredRecords(rec);
   const complete=rec.filter(paymentCompleted).length;
+  const notIncurred=rec.filter(x=>paymentRate(x)===null).length;
   const period=paymentPeriod(stats);
   const rows=filtered.map(({x,i})=>{
    const done=paymentCompleted(x);
@@ -674,8 +675,8 @@ function statsDashboard(){
     '<td><button type="button" class="payment-unit-button" data-payment-index="'+i+'" aria-label="Xem đơn vị cấp con cần xử lý của '+E(x.name)+'">'+E(x.name)+' <span class="payment-unit-more" aria-hidden="true">›</span></button></td>'+
     '<td class="payment-account-cell" title="Đã có TK NH / Tổng tổ chức có trạng thái hợp lệ">'+E(bankLabel)+'</td>'+
     '<td class="payment-filing-cell">'+E(filed)+'</td>'+
-    '<td class="payment-rate-cell"><div class="payment-rate-inline"><div class="payment-table-meter" role="progressbar" aria-label="Thu đảng phí '+E(x.name)+'" aria-valuenow="'+(paymentRate(x)===null?0:(paymentRate(x)*100).toFixed(1))+'" aria-valuemin="0" aria-valuemax="100"><i style="width:'+paymentProgressWidth(x)+'%"></i></div><b>'+E(paymentPercent(x))+'</b></div></td>'+
-    '<td><span class="payment-state '+(done?'is-complete':'is-active')+'">'+(done?'Hoàn thành':'Đang triển khai')+'</span></td>'+
+    '<td class="payment-rate-cell"><div class="payment-rate-inline"><div class="payment-table-meter" role="'+(paymentRate(x)===null?'img':'progressbar')+'" aria-label="'+(paymentRate(x)===null?'Chưa phát sinh phải thu':'Thu đảng phí '+E(x.name))+'"'+(paymentRate(x)===null?'':' aria-valuenow="'+(paymentRate(x)*100).toFixed(1)+'" aria-valuemin="0" aria-valuemax="100"')+'><i style="width:'+paymentProgressWidth(x)+'%"></i></div><b>'+E(paymentPercent(x))+'</b></div></td>'+
+    '<td><span class="payment-state '+(done?'is-complete':'is-active')+'">'+(done?'Hoàn thành':paymentRate(x)===null?'Chưa phát sinh':'Đang triển khai')+'</span></td>'+
     '<td><button type="button" class="payment-table-open" data-payment-index="'+i+'" aria-label="Chi tiết '+E(x.name)+'">Xem ›</button></td></tr>';
   }).join('');
   panels+='<section class="panel stats-panel stats-panel-wide stats-payment-panel payment-tracker-panel">'+
@@ -683,7 +684,8 @@ function statsDashboard(){
    '<h2>Bảng xếp hạng theo 46 Đảng bộ</h2></div>'+
    '<div class="payment-tracker-totals"><div><b>'+pretty.format(rec.length)+'</b><small>Đảng bộ</small></div>'+
    '<div><b>'+pretty.format(complete)+'</b><small>Hoàn thành 100%</small></div>'+
-   '<div><b>'+pretty.format(rec.length-complete)+'</b><small>Đang triển khai</small></div></div></div>'+
+   '<div><b>'+pretty.format(rec.length-complete-notIncurred)+'</b><small>Đang triển khai</small></div>'+
+   '<div><b>'+pretty.format(notIncurred)+'</b><small>Chưa phát sinh</small></div></div></div>'+
    '<div class="payment-table-tools">'+
  '<label class="payment-search-label"><span>⌕</span><input type="search" id="paymentSearch" aria-label="Tìm Đảng bộ" placeholder="Tìm trong 46 Đảng bộ…" value="'+E(state.paymentQuery)+'"></label>'+
  '<select id="paymentStatusFilter" aria-label="Lọc trạng thái"><option value="all"'+(state.paymentStatus==='all'?' selected':'')+'>Tất cả</option><option value="complete"'+(state.paymentStatus==='complete'?' selected':'')+'>Hoàn thành 100%</option><option value="active"'+(state.paymentStatus==='active'?' selected':'')+'>Đang triển khai</option></select>'+

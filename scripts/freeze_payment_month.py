@@ -62,10 +62,15 @@ def select_payment_snapshot(raw, month, closed_on):
         if not (r.get("rank") == i and type(r.get("rank")) is int and
                 isinstance(name, str) and 2 <= len(name.strip()) <= 190 and
                 NAME.search(name.strip()) and name.strip().casefold() not in names and
-                safe_rate(r.get("rate"))):
+                ("rate" in r and
+                 (safe_rate(r["rate"]) or r["rate"] is None))):
             raise ValueError("Unapproved rank, unit, or rate")
-        if safe and safe[-1]["rate"] < r["rate"]:
-            raise ValueError("Ranking must be sorted by descending rate")
+        if safe:
+            previous = safe[-1]["rate"]
+            current = r["rate"]
+            if (previous is None and current is not None or
+                previous is not None and current is not None and previous < current):
+                raise ValueError("Ranking must be sorted by descending rate, with not-incurred last")
         names.add(name.strip().casefold())
         row = {"rank": i, "name": name.strip(), "rate": r["rate"]}
         if safe_rate(r.get("filedRate")):

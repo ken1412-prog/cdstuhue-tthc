@@ -152,6 +152,22 @@ class FreezePaymentMonthTest(unittest.TestCase):
         finally:
             sys.path.remove(str(ROOT / "scripts"))
 
+    def test_closed_report_can_preserve_explicit_nonincurred_rates(self):
+        data = approved()
+        for i in range(11, 46):
+            data["modules"]["ranking"]["records"][i]["rate"] = None
+        result = freeze_module.select_payment_snapshot(
+            data, "2026-10", dt.date(2026, 11, 1))
+        self.assertEqual(len(result["modules"]["ranking"]["records"]), 46)
+        self.assertEqual(sum(x["rate"] is None
+                             for x in result["modules"]["ranking"]["records"]), 35)
+        self.assertEqual(result["modules"]["ranking"]["records"][-1]["rate"], None)
+        invalid = approved()
+        invalid["modules"]["ranking"]["records"][0]["rate"] = None
+        with self.assertRaisesRegex(ValueError, "sorted"):
+            freeze_module.select_payment_snapshot(
+                invalid, "2026-10", dt.date(2026, 11, 1))
+
     def test_incomplete_bad_rates_and_dates_rejected(self):
         base = approved()
         base["modules"]["ranking"]["records"].pop()

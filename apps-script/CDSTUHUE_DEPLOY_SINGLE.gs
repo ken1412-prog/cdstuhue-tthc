@@ -639,8 +639,11 @@ function buildStatsFeed_(){
       sourceSnapshot:src.THU_NOP.snapshot
     };
     if(enabled.ranking){
-      const ranked=payments.filter(x=>x.required>0)
-        .sort((a,b)=>(b.rate||0)-(a.rate||0)||a.name.localeCompare(b.name,'vi'))
+      // Include every reporting organization, even when no fees are due yet.
+      // Only positive-denominator organizations have a numeric rate.
+      const ranked=payments.slice()
+        .sort((a,b)=>Number(b.required>0)-Number(a.required>0)||
+          (a.required>0?b.rate-a.rate:0)||a.name.localeCompare(b.name,'vi'))
         .map((x,i)=>({rank:i+1,name:x.name,rate:x.rate,
           ...((filedRateApproved||filedXYApproved)&&x.filedRate!==null?{filedRate:x.filedRate}:{}),
           ...(filedXYApproved&&x.filedDone!==null&&x.filedTotal!==null?
@@ -1514,15 +1517,19 @@ function cdstuhueApproveStagedBatch() {
        cityPeople<people||cityDue<due||bank.registered+bank.notRegistered!==bank.rows)
       throw Error('Reconciliation changed after review; no publication');
     const missingWarning=cdstuhueMissingCountReconcile_(cityMissing,missing.rows);
-    const ranking=payment.map(r=>({
+    const normalized=payment.map(r=>({
       name:String(r[1]||'').trim(),members:number(r[2]),due:number(r[11]),
       paid:number(r[12]),noFile:number(r[10]),pending:number(r[7]),
-      paidFiled:number(r[9])})).sort((a,b)=>
-        (b.paid/b.due)-(a.paid/a.due)||a.name.localeCompare(b.name,'vi'))
-      .map((r,i)=>[i+1,r.name,r.members,r.due,r.paid,r.paid/r.due,
-        r.noFile,r.pending,r.paidFiled,r.members>=100?'ĐỦ':'KHÔNG']);
-    if(ranking.length!==46||ranking.some(r=>!Number.isFinite(r[5])))
-      throw Error('Không thể xếp hạng từ nguồn vừa duyệt');
+      paidFiled:number(r[9])}));
+    if(normalized.length!==46||normalized.some(r=>!r.name||
+       r.paid>r.due||(r.due===0&&r.paid!==0)))
+      throw Error('Dữ liệu xếp hạng không hợp lệ; không thay dữ liệu chính thức');
+    const rate=r=>r.due>0?r.paid/r.due:null;
+    normalized.sort((a,b)=>Number(b.due>0)-Number(a.due>0)||
+      (a.due>0?rate(b)-rate(a):0)||a.name.localeCompare(b.name,'vi'));
+    const ranking=normalized.map((r,i)=>[i+1,r.name,r.members,
+      r.due,r.paid,rate(r),r.noFile,r.pending,r.paidFiled,
+      r.members>=100?'ĐỦ':'KHÔNG']);
     const overview=hub.getSheetByName('TONG_QUAN'),
       rankings=hub.getSheetByName('XEP_HANG_SNAPSHOT');
     if(!overview||!rankings)throw Error('Thiếu tab tổng hợp của STATS HUB');
@@ -1536,12 +1543,12 @@ function cdstuhueApproveStagedBatch() {
     try {
       registry.getRange(2,1,4,8).setValues(newRegistry);
       overview.getRange('B2:B9').setValues([
-        [46],[people],[due],[paid],[paid/due],[noFile],[missing.rows],[missing.rows-noFile]]);
+        [46],[people],[due],[paid],[due>0?paid/due:null],[noFile],[missing.rows],[missing.rows-noFile]]);
       // PHAN_BO retired. Remove legacy display fields, not the archived source.
       overview.getRange('A10:E12').clearContent();
       overview.getRange('B13:B19').setValues([
         [bank.registered],[bank.notRegistered],[bank.registered/bank.rows],
-        [cityPeople],[cityMissing],[cityPeople-people],[cityPaid/cityDue]]);
+        [cityPeople],[cityMissing],[cityPeople-people],[cityDue>0?cityPaid/cityDue:null]]);
       rankings.getRange('A2:J47').setValues(ranking);
       // Explicit batch approval renews the existing public scopes, never adds scopes.
       const stamp=Utilities.formatDate(new Date(),'Asia/Bangkok','yyyy-MM-dd');

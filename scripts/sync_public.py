@@ -235,7 +235,11 @@ def main():
                     n=bounded_int(item.get('rank'),100)
                     label=item.get('name')
                     pct=bounded_rate(item.get('rate'))
-                    if n is not None and n>=1 and isinstance(label,str) and 2<=len(label.strip())<=190 and pct is not None:
+                    # Null is a valid explicitly approved "no fees incurred yet"
+                    # marker, not a numeric zero or missing/invalid percentage.
+                    valid_rate=('rate' in item and
+                                (pct is not None or item['rate'] is None))
+                    if n is not None and n>=1 and isinstance(label,str) and 2<=len(label.strip())<=190 and valid_rate:
                         row={'rank':n,'name':label.strip(),'rate':pct}
                         if filing_ok:
                             value=bounded_rate(item.get('filedRate'))

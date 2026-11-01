@@ -124,4 +124,20 @@ assert(stage.cells.slice(1,5).every(r=>r[7]==='ĐÃ CHUYỂN NGUỒN'));
 assert(values.has('CDSTUHUE_PREVIOUS_CONFIG_JSON'));
 assert(policy.cells.slice(1,6).every(r=>r[4]==='allowed-scope'));
 assert.throws(()=>context.cdsAdminPromoteStaged('VALID','DUYET 2026-10'),/đã được chuyển/);
-console.log('Owner promotion PASS: authenticated, approved, explicit period, validated and non-replay');
+// Start-of-month batch: 35 organizations have no amount due and 11 have
+// a positive amount due but none paid. No 0/0 must be published as 0%.
+for(let i=0;i<46;i++){payments[i][11]=i<35?0:100;payments[i][12]=0;}
+city[0][11]=1100;city[0][12]=0;
+summary.THU_NOP.required=1100;summary.THU_NOP.received=0;
+summary.THU_NOP_CITY.required=1100;summary.THU_NOP_CITY.received=0;
+JSON.parse(initial).forEach((row,i)=>{registry.cells[i+1]=row;});
+stage.cells.slice(1,5).forEach(r=>{r[7]='ĐÃ DUYỆT';});
+const novemberLike=context.cdsAdminPromoteStaged('VALID','DUYET 2026-10',true);
+assert.equal(novemberLike.promoted,true);
+const rankRates=ranking.cells.slice(1,47).map(row=>row[5]);
+assert.equal(rankRates.filter(rate=>rate===null).length,35);
+assert.equal(rankRates.filter(rate=>rate===0).length,11);
+assert(rankRates.slice(0,11).every(rate=>rate===0));
+assert(rankRates.slice(11).every(rate=>rate===null));
+assert.equal(overview.cells[5][1],0,'0 paid divided by positive due = 0%');
+console.log('Owner promotion PASS: 35 zero-due entries remain null, 11 valid rates 0%.');
