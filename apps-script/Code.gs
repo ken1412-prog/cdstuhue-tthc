@@ -515,7 +515,11 @@ function buildStatsFeed_(){
   const dateVi=periodSource.match(/^\d{2}\/(0[1-9]|1[0-2])\/(20\d{2})$/);
   const sourcePeriod=dateIso?(dateIso[1]+'-'+dateIso[2]):dateVi?(dateVi[2]+'-'+dateVi[1]):'';
   const period=sourcePeriod;
-  const todayMonth=Utilities.formatDate(new Date(),'Asia/Ho_Chi_Minh','yyyy-MM').slice(0,7);
+  const vnParts=new Intl.DateTimeFormat('en-US',{
+    timeZone:'Asia/Ho_Chi_Minh',year:'numeric',month:'2-digit'
+  }).formatToParts(new Date());
+  const todayMonth=vnParts.find(p=>p.type==='year').value+'-'+
+    vnParts.find(p=>p.type==='month').value;
   if(!/^20\d{2}-(0[1-9]|1[0-2])$/.test(period)||period>todayMonth)
     return {schema:1,public:false,reviewed:false,period:period||'',modules:{},
       note:'Nguồn thu nộp chưa có kỳ hợp lệ hoặc kỳ nằm trong tương lai.'};
