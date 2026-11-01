@@ -2048,3 +2048,140 @@ body{
 @media print{
   .sidebar-bridge-gleam{display:none!important}
 }
+
+/* CDSTUHUE MAIN COBALT AURORA V12 — presentation-only enhancement.
+   Carry the approved sidebar's cobalt/cyan palette into the main dashboard.
+   Do not recolor/replace the real Huế hero photographs, change navigation,
+   enlarge cards, or overlay any buttons, datasets, tables or dialogs. */
+.main{
+  position:relative;
+  isolation:isolate;
+  background:linear-gradient(157deg,#06377d 0%,#0756a6 22%,
+    #0678c0 48%,#0756a3 75%,#062f74 100%);
+}
+/* Fixed viewport-sized light layer: more efficient on tall monthly reports
+   than animating a thousands-of-pixels-high background on mobile. */
+.main::before{
+  content:"";
+  position:fixed;
+  inset:0 0 0 258px;
+  z-index:0;
+  pointer-events:none;
+  background:
+    radial-gradient(ellipse 79% 40% at 6% 15%,rgba(112,245,255,.44),rgba(60,208,255,.13) 45%,transparent 76%),
+    radial-gradient(ellipse 75% 35% at 94% 48%,rgba(119,244,255,.32),rgba(14,145,236,.13) 51%,transparent 79%),
+    radial-gradient(ellipse 92% 31% at 26% 95%,rgba(87,232,255,.27),transparent 74%),
+    linear-gradient(118deg,transparent 31%,rgba(185,252,255,.09) 47%,transparent 60%);
+  opacity:.85;
+  transform:translate3d(0,0,0);
+  animation:cds-main-aurora-v12 18s ease-in-out infinite alternate;
+}
+@keyframes cds-main-aurora-v12{
+  0%{transform:translate3d(-1%,.6%,0) scale(1.01);opacity:.66}
+  50%{opacity:.97}
+  100%{transform:translate3d(1%,-.7%,0) scale(1.025);opacity:.81}
+}
+/* Put all usable content above the light layer; do not change layout. */
+.main>.content{position:relative;z-index:1}
+.main>.topbar{z-index:10}
+/* Bright cyan glass reconciles the light data tables with dark-cobalt space.
+   Opaque-enough cards keep navy labels, red headings and figures readable. */
+.main .payment-period-toolbar{
+  background:linear-gradient(125deg,rgba(155,226,255,.97) 0%,
+    rgba(225,250,255,.98) 49%,rgba(130,208,250,.97) 100%);
+  border-color:rgba(146,230,255,.88);
+  border-top-color:#bd1b35;
+  box-shadow:0 11px 29px rgba(2,35,93,.28),
+    0 0 19px rgba(81,229,255,.35),inset 0 1px rgba(255,255,255,.92);
+}
+.main .payment-tracker-panel,
+.main .stats-dashboard-grid>.stats-panel-wide,
+.main .panel,
+.main .stats-kpi,
+.main .stat-card,
+.main .category-card{
+  background:linear-gradient(145deg,rgba(246,253,255,.98),
+    rgba(215,243,255,.98) 59%,rgba(195,232,251,.97));
+  border-color:rgba(122,215,251,.82);
+  box-shadow:0 11px 28px rgba(1,36,90,.24),
+    0 0 18px rgba(70,221,255,.20),inset 0 1px rgba(255,255,255,.95);
+}
+.main .stats-hero-metric,
+.main .payment-tracker-totals>div,
+.main .stats-breakdown-item,
+.main .mini-card,
+.main .small-note{
+  background:linear-gradient(140deg,#f9feff 0%,#d9f5ff 63%,#b9e6ff 100%);
+  border-color:rgba(104,197,242,.78);
+  box-shadow:0 5px 16px rgba(5,67,134,.14),inset 0 1px rgba(255,255,255,.94);
+}
+/* The existing monthly-selector ribbon becomes visible, without tinting the
+   photograph on the main hero or capturing touch events. */
+.main .payment-period-toolbar::after{
+  background:url('./img/neon-ribbons-wide.svg') center /105% 105% no-repeat;
+  mix-blend-mode:screen;
+  animation:cds-main-selector-wave-v12 13s ease-in-out infinite alternate;
+}
+@keyframes cds-main-selector-wave-v12{
+  0%{transform:translate3d(-1.2%,.3%,0);opacity:.38}
+  50%{opacity:.73}
+  100%{transform:translate3d(1.2%,-.6%,0);opacity:.52}
+}
+/* Gentle travelling reflection across KPI chips (never over the text). */
+.main .payment-tracker-totals>div{
+  position:relative;
+  overflow:hidden;
+}
+.main .payment-tracker-totals>div>*{position:relative;z-index:1}
+.main .payment-tracker-totals>div::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  z-index:0;
+  pointer-events:none;
+  background:linear-gradient(108deg,transparent 28%,
+    rgba(255,255,255,.48) 48%,transparent 67%);
+  transform:translate3d(-105%,0,0);
+  animation:cds-main-tile-glint-v12 13s ease-in-out infinite;
+}
+@keyframes cds-main-tile-glint-v12{
+  0%,28%{transform:translate3d(-105%,0,0)}
+  56%,100%{transform:translate3d(105%,0,0)}
+}
+@media(hover:hover) and (pointer:fine){
+  .main .payment-tracker-totals>div,
+  .main .stat-card,.main .category-card{
+    transition:transform .22s ease,box-shadow .22s ease,border-color .22s ease;
+  }
+  .main .payment-tracker-totals>div:hover,
+  .main .stat-card:hover,.main .category-card:hover{
+    transform:translateY(-2px);
+    border-color:rgba(141,242,255,.96);
+    box-shadow:0 13px 29px rgba(2,48,108,.23),0 0 21px rgba(94,236,255,.32);
+  }
+}
+@media(max-width:1060px) and (min-width:761px){
+  .main::before{left:226px}
+}
+@media(max-width:760px){
+  .main::before{left:0;opacity:.64;animation-duration:23s}
+  .main .payment-period-toolbar::after{animation-duration:17s}
+  .main .payment-tracker-totals>div::after{animation-duration:16s}
+}
+@media(prefers-reduced-motion:reduce){
+  .main::before,.main .payment-period-toolbar::after,
+  .main .payment-tracker-totals>div::after{
+    animation:none!important;
+    transform:none!important;
+  }
+  .main .payment-tracker-totals>div::after{display:none!important}
+}
+@media print{
+  .main{background:#fff!important}
+  .main::before,.main .payment-tracker-totals>div::after{display:none!important}
+  .main .payment-period-toolbar,.main .payment-tracker-panel,
+  .main .stats-dashboard-grid>.stats-panel-wide,.main .panel{
+    background:#fff!important;
+    box-shadow:none!important;
+  }
+}
