@@ -2837,3 +2837,84 @@ body{
 @media print{
   .sidebar>.sidebar-twin-spotlights{display:none!important}
 }
+
+/* CDSTUHUE CONTENT NO-FLASH V21 — prevent visual "page reloading" illusion.
+   Root cause: independently pulsing opacity/scale and bright sweep gradients
+   overlapped the banner, monthly selector and KPI panels every few seconds.
+   Preserve the cobalt/cyan glass, genuine panoramic photo, data and layout.
+   Leave independent Trường Tiền spotlights in the SIDEBAR unchanged. */
+
+/* The photo and elegant silk contours remain visible, but no full-card
+   opacity pulse, large masked highlight or abrupt background reset. */
+.main .hero::after,
+.main .stats-hero-home::after,
+.main .payment-period-toolbar::after{
+  background-image:url('./img/blue-silk-wide-v14.svg')!important;
+  background-size:100% 100%!important;
+  background-position:center!important;
+  background-repeat:no-repeat!important;
+  background-blend-mode:normal!important;
+  -webkit-mask-image:none!important;
+  mask-image:none!important;
+  animation:none!important;
+  transform:none!important;
+  filter:none!important;
+  pointer-events:none;
+}
+.main .hero::after{opacity:.60!important}
+.main .stats-hero-home::after{opacity:.56!important}
+.main .payment-period-toolbar::after{opacity:.43!important}
+
+/* The second, very bright masked travelling band caused a momentary white
+   flare whenever it crossed the banner text. Keep the static silk wave above. */
+.main .hero>.hero-silk-runner{
+  display:none!important;
+}
+
+/* Make KPI cards, numeric ranks and percentages visually stable. The original
+   glass borders and colored values stay intact; only flashing is removed. */
+.main .payment-tracker-totals>div,
+.main .stats-hero-metric:not(.stats-hero-guide),
+.main .stats-payment-leader,
+.main .payment-rank-badge.top-1,
+.main .payment-rank-badge.top-2,
+.main .payment-rank-badge.top-3,
+.main .stats-payment-medal{
+  animation:none!important;
+  transform:none;
+  filter:none;
+}
+
+/* Suppress repeated 0 -> bright -> 0 full-width reflections on pale cards.
+   These were visually read as content refreshing, especially on Android. */
+.main .stats-hero-metric:not(.stats-hero-guide)::after,
+.main .stats-kpi::after,
+.main .stats-payment-leader::after,
+.main .payment-tracker-totals>div::after{
+  animation:none!important;
+  display:none!important;
+}
+
+/* One stable ambient canvas on mobile; unchanged color and spacing. */
+.main::before{
+  animation:none!important;
+  transform:none!important;
+}
+@media(max-width:760px){
+  .main .hero::after{opacity:.55!important}
+  .main .stats-hero-home::after{opacity:.50!important}
+  .main .payment-period-toolbar::after{opacity:.39!important}
+}
+@media(prefers-reduced-motion:reduce){
+  .main .hero::after,
+  .main .stats-hero-home::after,
+  .main .payment-period-toolbar::after{
+    animation:none!important;
+    transform:none!important;
+  }
+}
+@media print{
+  .main .hero::after,
+  .main .stats-hero-home::after,
+  .main .payment-period-toolbar::after{display:none!important}
+}
