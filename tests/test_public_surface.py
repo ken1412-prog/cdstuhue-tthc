@@ -56,7 +56,7 @@ class PublicSurfaceTests(unittest.TestCase):
         js=(SITE / "assets/app.js").read_text(encoding="utf-8")
         # Preserve homepage Top 3, but omit it from detailed finance hero.
         self.assertIn("financeCards({compact:true})",js)
-        self.assertIn("compact&&top.length",js)
+        self.assertIn("compact&&top.some(x=>(paymentRate(x)??0)>0)",js)
         self.assertIn("function financeView(){return paymentMonthControls()+statsDashboard()}",js)
         self.assertNotIn("function financeView(){return paymentMonthControls()+financeCards()+statsDashboard()}",js)
         # The home hero remains, but the finance category must not repeat it.
