@@ -168,7 +168,7 @@ class PublicSurfaceTests(unittest.TestCase):
         self.assertIn("return state.stats?.period===currentReportMonth()?state.stats:null;",js)
         self.assertIn("function currentReportMonth(date=new Date())",js)
         self.assertIn("x.pendingClose?' · Chờ chốt'",js)
-        self.assertIn("const months=state.paymentHistory.slice(),active=state.stats?.period;",js)
+        self.assertIn("const current=currentReportMonth(),months=state.paymentHistory",js)
         self.assertIn("const archived=state.paymentHistory.some(x=>x.period===month&&x.closed===true);",js)
         self.assertNotIn("...row,bankDone:bank.bankDone",js)
         for marker in ("paymentMonthControls()", "selectPaymentMonth(", "paymentFilteredRecords(",
