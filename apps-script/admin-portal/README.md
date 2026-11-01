@@ -66,3 +66,10 @@ Mở **trực tiếp URL `/exec` của Web App `CDSTUHUE_ADMIN_PRIVATE`** đã l
 - Website sẽ gọi Web App QA/stats công khai với `kind=stats-live`; Apps Script chỉ trả các chỉ số/tên đơn vị đã qua cổng `DUYET_WEBSITE`. Không có mật khẩu GitHub, không cần API token, không đưa dữ liệu cá nhân hay IDs nguồn vào HTML.
 - **Kích hoạt một lần sau nâng cấp:** triển khai **phiên bản mới** của Web App QA công khai bằng `apps-script/Code.gs` mới (hoặc một file `apps-script/CDSTUHUE_DEPLOY_SINGLE.gs`, theo cách dự án đang cài). Không tạo deployment mới, giữ nguyên URL `/exec`. GitHub Pages sẽ tự build giao diện mới sau commit của repo.
 - Từ đợt Excel tiếp theo: chỉ nhập 4 Excel vào Drive, kiểm tra, tạo nháp, duyệt, bấm **Chuyển nguồn chính thức**. Không chạy Apps Script editor hoặc GitHub Actions nữa. Nếu trực tiếp tạm lỗi, website giữ bản JSON đã duyệt gần nhất và thử lại khi mở/tải lại; GitHub Actions theo lịch vẫn đồng bộ dự phòng.
+
+### Bản vá 01/11/2026 — Excel CHUA_KHAI trên 25.000 dòng
+
+- File CHUA_KHAI ngày 01/11/2026 đã kiểm tra cấu trúc: 56.730 dòng dữ liệu, còn mã Admin trước đây giới hạn 25.000 dòng. Bản nguồn mới cho phép đến 100.000 dòng **chỉ với CHUA_KHAI**; các nguồn khác vẫn giữ ngưỡng kiểm tra cũ, cột bắt buộc, điều kiện đối chiếu số lượng và quy tắc bảo mật.
+- Để sử dụng bản vá trên nút **Kiểm tra 4 Excel / Tạo bản nháp**, phải cập nhật toàn bộ `apps-script/admin-portal/AdminPortal.gs` trong **dự án Google Apps Script quản trị riêng đang chạy**. Lưu và thực hiện **Deploy → Manage deployments → Edit → New version → Deploy**. GitHub Actions thành công **không** tự cập nhật Web App quản trị.
+- Sau khi triển khai, bấm **1. Kiểm tra 4 Excel** trước; chỉ khi báo cáo hợp lệ mới bấm **2. Tạo bản nháp**. Không tự động chuyển nguồn hoặc thay trạng thái duyệt. Giữ nguyên các Script Properties hiện tại và không chạy lại bootstrap.
+- Tạo bản nháp có nhiều dòng có thể chịu hạn mức thực thi Apps Script; nếu báo lỗi thời gian chạy, xử lý theo quy trình chia phiên có trạng thái thay vì bỏ kiểm tra dữ liệu. Không chuyển nháp thiếu dòng thành nguồn chính thức.

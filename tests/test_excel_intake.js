@@ -106,6 +106,26 @@ assert.equal(validate('CHUA_KHAI',privateMissing).rows,1);
 standardize('CHUA_KHAI',privateMissing);
 assert.equal(privateMissing.getWritten()[1][2],'');
 assert.equal(privateMissing.getReads().filter(read=>read.r>1&&read.c===4).length,0);
+
+// Large 01/11-style unfiled export: 56,730 real rows are valid, but
+// identifiers/names of individuals are never copied to canonical column C.
+const largeRows=[['TÊN ĐƠN VỊ','ĐƠN VỊ CHA'],...Array.from({length:56730},
+  ()=>['Chi bộ thử nghiệm','Đảng bộ thử nghiệm'])];
+const largeMissing=fake(largeRows);
+assert.equal(validate('CHUA_KHAI',largeMissing).rows,56730);
+assert.equal(standardize('CHUA_KHAI',largeMissing),'CDSTUHUE_CHUAN');
+assert.equal(largeMissing.getWritten().length,56731);
+assert.equal(largeMissing.getWritten()[56730][0],56730);
+assert.equal(largeMissing.getWritten()[56730][2],'');
+assert(largeMissing.getReads().every(x=>x.n<=1000),
+  'Only bounded column reads allowed in a large staged export');
+const tooMany=fake([['TÊN ĐƠN VỊ','ĐƠN VỊ CHA'],
+  ...Array.from({length:100001},()=>['Chi bộ thử nghiệm','Đảng bộ thử nghiệm'])]);
+assert.throws(()=>validate('CHUA_KHAI',tooMany),/tối đa 100000/);
+const admin=fs.readFileSync(path.join(__dirname,
+  '../apps-script/admin-portal/AdminPortal.gs'),'utf8');
+assert(admin.includes("const maxRows=type==='CHUA_KHAI'?100000:25000;"),
+  'Owner-only admin must use the same row safety ceiling');
 // Bank status can be anywhere, and optional date/account-related columns can vanish.
 const bank=fake([
  ['Trạng thái đăng ký TKNH','Tên cơ quan cha','Mã đơn vị','Tên đơn vị','Mã cơ quan cha'],

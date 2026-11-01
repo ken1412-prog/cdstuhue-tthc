@@ -667,7 +667,10 @@ function cdstuhueExcelValidate_(type,sh) {
     type==='CHUA_KHAI'?'missing':'banking';
   const desc=cdstuhueExcelDescribe_(sh,family),n=desc.rows;
   cdstuhueExcelRequired_(type==='THU_NOP_CITY'?'paymentCity':family,desc.cols);
-  if(n<1||n>25000)throw Error(type+': số dòng vượt giới hạn');
+  // The verified missing-filing export can exceed 56K organizational rows.
+  // Keep a firm 100K ceiling only for CHUA_KHAI; other sources retain 25K.
+  const maxRows=type==='CHUA_KHAI'?100000:25000;
+  if(n<1||n>maxRows)throw Error(type+': số dòng vượt giới hạn ('+n+'; tối đa '+maxRows+')');
   if(family==='payment'){
     if(n!==(type==='THU_NOP'?46:1))
       throw Error(type+': phải đúng '+(type==='THU_NOP'?46:1)+' dòng báo cáo');
@@ -773,9 +776,11 @@ function cdstuhueNormalizeStagedSheet_(type,sh) {
       10:'noFile',11:'due',12:'paid'}:
     family==='missing'?{1:'unit',3:'parent',4:'period',5:'code'}:
       {1:'code',2:'name',3:'parentCode',4:'parentName',5:'status',7:'status'};
-  // Small chunks avoid Apps Script memory/time spikes with ~15K rows.
-  for(let begin=0;begin<n;begin+=400){
-    const count=Math.min(400,n-begin),data={};
+  // Batch only approved organizational columns; never read personal names.
+  // 1,000 rows for a large missing-filing export reduces Sheets API calls.
+  const chunkSize=family==='missing'?1000:400;
+  for(let begin=0;begin<n;begin+=chunkSize){
+    const count=Math.min(chunkSize,n-begin),data={};
     Object.keys(maps).forEach(index=>{
       const field=maps[index],col=desc.cols[field];
       if(col&&!data[field])
