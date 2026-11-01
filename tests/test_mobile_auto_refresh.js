@@ -89,10 +89,10 @@ async function main(){
   'A slow public endpoint must never block the first paint');
  assert(!src.includes('Đang kiểm tra dữ liệu công khai mới nhất…'),
   'Do not insert a blocking full-page loading card');
- assert(src.includes('if(!liveSourceAccepted.stats)state.stats='));
- assert(src.includes('if(!liveSourceAccepted.qa)state.qa='));
+ assert(src.includes('if(!liveSourceAccepted.stats){'));
+ assert(src.includes('if(!liveSourceAccepted.qa){'));
  assert(src.includes('if(!liveSourceAccepted.menu)state.menu='));
- assert(src.includes('if(lastStaticLoadHadError)scheduleDataLoadRecovery();'));
+ assert(src.includes('if(hadError)scheduleDataLoadRecovery();'));
  assert(html.includes('20261101-fast-parallel-first-paint-v9'));
  assert(headers.includes('/assets/app.js'));
  console.log('Mobile auto-refresh PASS: startup retry, endpoint retry, tab restore and version bust');
