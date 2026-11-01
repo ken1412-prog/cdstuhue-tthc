@@ -25,6 +25,31 @@ ORIGIN_LINK = re.compile(
 
 
 class PublicSurfaceTests(unittest.TestCase):
+    def test_blue_glass_v6_contained_menu_light_and_blue_main(self):
+        css=(SITE/"assets/styles.css").read_text(encoding="utf-8")
+        marker="/* CDSTUHUE CONTAINED BLUE GLASS V6"
+        self.assertEqual(css.count(marker),1)
+        visual=css.split(marker,1)[1]
+        self.assertIn(".sidebar{\n  overflow:hidden;",visual)
+        self.assertIn(".sidebar-ambient{",visual)
+        self.assertIn("pointer-events:none;",visual)
+        self.assertIn("@keyframes cds-aurora-sheen-a",visual)
+        self.assertIn("@keyframes cds-aurora-sheen-b",visual)
+        self.assertIn("background-blend-mode:color,normal",visual)
+        self.assertIn("url('./img/hue-bridge-night.webp')",visual)
+        self.assertIn("url('./img/nguyen-hoang-bridge-3840.jpg')",visual)
+        self.assertIn(".main .payment-period-toolbar{",visual)
+        self.assertIn(".main .payment-tracker-panel,",visual)
+        self.assertIn(".main .qa-list .qa-item,",visual)
+        self.assertIn("@media screen and (max-width:760px)",visual)
+        self.assertIn("@media(prefers-reduced-motion:reduce)",visual)
+        self.assertNotIn("grid-template-columns",visual)
+        for page in ("index.html","hoi-dap.html"):
+            html=(SITE/page).read_text(encoding="utf-8")
+            self.assertEqual(html.count('class="sidebar-ambient" aria-hidden="true"'),1)
+            self.assertIn("assets/styles.css?v=20261101-contained-blue-glass-v6",html)
+
+
     def test_cobalt_reference_fast_three_second_ring_and_slow_light(self):
         css=(SITE/"assets/styles.css").read_text(encoding="utf-8")
         marker="/* CDSTUHUE REFERENCE COBALT NEON V5"
@@ -51,7 +76,7 @@ class PublicSurfaceTests(unittest.TestCase):
         self.assertNotIn("z-index:50",visual)
         for page in ("index.html","hoi-dap.html"):
             html=(SITE/page).read_text(encoding="utf-8")
-            self.assertIn("assets/styles.css?v=20261101-cobalt-neon-fast-ring-v5",html)
+            self.assertIn("assets/styles.css?v=20261101-contained-blue-glass-v6",html)
 
 
     def test_light_ribbon_art_is_lightweight_responsive_and_accessible(self):
@@ -119,7 +144,7 @@ class PublicSurfaceTests(unittest.TestCase):
             self.assertIn('id="lastApprovedDate" aria-live="polite">—</span>',html)
             self.assertNotIn('id="lastApprovedDate" aria-live="polite">24/10/2026</span>',html)
             self.assertIn("assets/app.js?v=20261101-fast-live-first-v8",html)
-            self.assertIn("assets/styles.css?v=20261101-cobalt-neon-fast-ring-v5",html)
+            self.assertIn("assets/styles.css?v=20261101-contained-blue-glass-v6",html)
         self.assertIn("const approvedDate=state.stats?.period===currentReportMonth()?state.stats.approvedDate:null;",js)
         self.assertIn("if(fullDate)fullDate.textContent=approvedFull;",js)
         self.assertIn("if(shortDate)shortDate.textContent=approvedShort;",js)
@@ -207,7 +232,7 @@ class PublicSurfaceTests(unittest.TestCase):
             html=(SITE / page).read_text(encoding="utf-8")
             self.assertIn('<div class="footer-byline">',html)
             self.assertIn('<span class="footer-copyright">© 2026 CDSTUHUE</span><span class="footer-author">NKien',html)
-            self.assertIn('assets/styles.css?v=20261101-cobalt-neon-fast-ring-v5',html)
+            self.assertIn('assets/styles.css?v=20261101-contained-blue-glass-v6',html)
             self.assertNotIn('id="navAssistant"',html)
             self.assertIn('id="openAssistant"',html)
             self.assertIn('id="assistantMobileFab"',html)
@@ -430,7 +455,7 @@ class PublicSurfaceTests(unittest.TestCase):
             self.assertIn('class="side-assist-heading"',html)
             self.assertIn('<small>Trong kho câu hỏi</small>',html)
             self.assertNotIn('Trợ lý tra cứu nhanh <small>Không dùng AI bên ngoài</small>',html)
-            self.assertIn('assets/styles.css?v=20261101-cobalt-neon-fast-ring-v5',html)
+            self.assertIn('assets/styles.css?v=20261101-contained-blue-glass-v6',html)
         self.assertIn('/* Centered quick-search launcher in the sidebar */',css)
         self.assertIn('justify-content:center;',css[css.rfind('/* Centered quick-search launcher in the sidebar */'):])
         self.assertIn('text-align:center;',css[css.rfind('/* Centered quick-search launcher in the sidebar */'):])
