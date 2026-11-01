@@ -2627,3 +2627,50 @@ body{
   .sidebar::after,.main .stats-hero-home::after,
   .main .payment-period-toolbar::after{display:none!important}
 }
+
+/* CDSTUHUE SOFT FLOW TIMING V17 — slow, natural cyan-white light.
+   Keep V15/V16 brightness, geometry, real photos and navigation exactly as is.
+   A highlight makes a full pass before repeating; nothing strobes or jumps. */
+@keyframes cds-v17-hero-light-pass{
+  0%{background-position:132% 0}
+  100%{background-position:-110% 0}
+}
+.main .hero>.hero-silk-runner::before,
+.main .hero>.hero-silk-runner::after{
+  animation:cds-v17-hero-light-pass 21s linear infinite;
+}
+.main .hero::after{animation-duration:28s}
+/* Same bright running light, around three times slower than before. */
+.sidebar::after{animation-duration:23s}
+.main .stats-hero-home::after{animation-duration:22s}
+.main .payment-period-toolbar::after{animation-duration:25s}
+/* The actual Trường Tiền arch light moves slowly, not in quick bursts. */
+.sidebar-bridge-gleam{animation-duration:19s}
+/* KPI/reflection motion stays gentle and readable on touch screens. */
+.main .payment-tracker-totals>div,
+.main .stats-hero-metric:not(.stats-hero-guide),
+.main .stats-payment-leader{animation-duration:9s}
+.main .stats-hero-metric:not(.stats-hero-guide)::after,
+.main .stats-kpi::after,
+.main .stats-payment-leader::after,
+.main .payment-tracker-totals>div::after{animation-duration:13s}
+@media(max-width:760px){
+  .main .hero>.hero-silk-runner::before,
+  .main .hero>.hero-silk-runner::after{animation-duration:24s}
+  .main .hero::after{animation-duration:30s}
+  .sidebar::after{animation-duration:26s}
+  .main .stats-hero-home::after{animation-duration:25s}
+  .main .payment-period-toolbar::after{animation-duration:28s}
+  .sidebar-bridge-gleam{animation-duration:22s}
+}
+@media(prefers-reduced-motion:reduce){
+  .main .hero>.hero-silk-runner::before,
+  .main .hero>.hero-silk-runner::after,
+  .main .hero::after,
+  .sidebar::after,
+  .main .stats-hero-home::after,
+  .main .payment-period-toolbar::after,
+  .sidebar-bridge-gleam{
+    animation:none!important;
+  }
+}
