@@ -165,10 +165,10 @@ class PublicSurfaceTests(unittest.TestCase):
     def test_bright_approved_monthly_finance(self):
         js=(SITE / "assets/app.js").read_text(encoding="utf-8")
         css=(SITE / "assets/styles.css").read_text(encoding="utf-8")
-        self.assertIn("return state.paymentArchive||state.stats;",app)
-        self.assertIn("const months=state.paymentHistory.slice(),active=state.stats?.period;",app)
-        self.assertIn("const archived=state.paymentHistory.some(x=>x.period===month&&x.closed===true);",app)
-        self.assertNotIn("...row,bankDone:bank.bankDone",app)
+        self.assertIn("return state.paymentArchive||state.stats;",js)
+        self.assertIn("const months=state.paymentHistory.slice(),active=state.stats?.period;",js)
+        self.assertIn("const archived=state.paymentHistory.some(x=>x.period===month&&x.closed===true);",js)
+        self.assertNotIn("...row,bankDone:bank.bankDone",js)
         for marker in ("paymentMonthControls()", "selectPaymentMonth(", "paymentFilteredRecords(",
                        "exportPaymentMonth()", "data/payment-history.json", "paymentMonthSelect",
                        "paymentStatusFilter", "paymentSort", "paymentSearch"):
