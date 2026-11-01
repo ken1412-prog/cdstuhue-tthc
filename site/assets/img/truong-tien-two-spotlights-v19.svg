@@ -1,5 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 440 680" preserveAspectRatio="none">
-<!-- V19: two separate diffused spotlights rise from Trường Tiền bridge.
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 100 440 680" preserveAspectRatio="none">
+<!-- V19: two separate diffused spotlights rise from Trường Tiền bridge, aligned to the visible bridge deck.
      Transparent artwork; photo and navigation always remain visible. -->
 <defs>
  <linearGradient id="leftCone" x1="0" y1="1" x2=".32" y2="0">
