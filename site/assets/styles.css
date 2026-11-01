@@ -2715,3 +2715,52 @@ body{
   .sidebar::after{animation:none!important;transform:none!important;opacity:.55!important}
 }
 @media print{.sidebar::after{display:none!important}}
+
+/* CDSTUHUE TRUONG TIEN TWO SPOTLIGHTS V19
+   Two soft blue-white spotlights project upward from the genuine bridge.
+   Separate decoration: the approved bridge photo remains untouched.
+   All beams sit BELOW brand, menu text, badges and quick-assistant button. */
+.sidebar>.sidebar-twin-spotlights{
+  position:absolute;
+  left:0;right:0;bottom:0;
+  height:46%;
+  z-index:1;
+  overflow:hidden;
+  pointer-events:none;
+  user-select:none;
+  background:url('./img/truong-tien-two-spotlights-v19.svg') center /100% 100% no-repeat;
+  mix-blend-mode:screen;
+  opacity:.94;
+  transform-origin:50% 78%;
+  animation:cds-v19-twin-light 18s ease-in-out infinite alternate;
+}
+@keyframes cds-v19-twin-light{
+  0%{opacity:.76;transform:translate3d(-.4%,0,0) scale(1)}
+  50%{opacity:1;transform:translate3d(0,-.2%,0) scale(1.008)}
+  100%{opacity:.86;transform:translate3d(.5%,0,0) scale(1.004)}
+}
+.sidebar>.brand,
+.sidebar>.sidebar-scroll,
+.sidebar>.sidebar-bottom{
+  position:relative;
+  z-index:3!important;
+}
+/* The exact same bridge area is displayed on mobile; the artwork stays
+   clipped within that lower panel instead of flooding the navigation. */
+@media screen and (max-width:760px){
+  .sidebar>.sidebar-twin-spotlights{
+    height:44%;
+    animation-duration:22s;
+    opacity:.94;
+  }
+}
+@media(prefers-reduced-motion:reduce){
+  .sidebar>.sidebar-twin-spotlights{
+    animation:none!important;
+    transform:none!important;
+    opacity:.82;
+  }
+}
+@media print{
+  .sidebar>.sidebar-twin-spotlights{display:none!important}
+}
