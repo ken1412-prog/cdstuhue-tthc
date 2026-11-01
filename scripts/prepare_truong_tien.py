@@ -45,6 +45,27 @@ def create(source):
     ],axis=2)
     mix=np.clip(warm*.82,0,.85)
     color=cool*(1-mix[...,None])+hot*mix[...,None]
+
+    # The real long-exposure image has blue/purple lamps. Select only its
+    # existing bright truss pixels, then grade those captured lamps through
+    # warm red -> orange -> gold along the actual bridge. No painted arches.
+    h,w=lum.shape
+    ys=np.arange(h,dtype=np.float32)[:,None]/h
+    xs=np.arange(w,dtype=np.float32)[None,:]/w
+    arch_band=np.clip((ys-.39)*35,0,1)*np.clip((.605-ys)*32,0,1)
+    bright=np.clip((mx-.22)*2.5,0,1)
+    chroma=np.clip((contrast-.035)*5.0,0,1)
+    truss=np.clip(arch_band * bright * np.maximum(chroma,.45) * 1.35,0,.96)
+    truss=truss * np.clip((.93-xs)*5,0,1)
+    amber_green=np.clip(.28+.66*xs, .28, .85)
+    warm_tone=np.stack([
+        np.broadcast_to(np.full_like(amber_green,.99),color.shape[:2]),
+        np.broadcast_to(amber_green,color.shape[:2]),
+        np.broadcast_to(np.full_like(amber_green,.10),color.shape[:2])
+    ],axis=-1)
+    # Preserve captured metalwork contrast, not a solid line drawn over it.
+    graded=warm_tone*(.50+.50*mx[...,None])
+    color=color*(1-truss[...,None])+graded*truss[...,None]
     output=Image.fromarray(np.uint8(np.clip(color*255+.5,0,255)),"RGB")
     output=ImageEnhance.Contrast(output).enhance(1.11)
     output=ImageEnhance.Sharpness(output).enhance(1.23)
@@ -67,12 +88,12 @@ def create(source):
     rgba=Image.new("RGBA",img.size,(255,239,200,0))
     rgba.putalpha(matte)
     mask=ROOT/"truong-tien-arc-light.webp"
-    rgba.save(mask,"WEBP",lossless=True,method=6)
+    rgba.save(mask,"WEBP",quality=78,alpha_quality=78,method=6)
 
     details={"original":src_size,"output":img.size,
       "photo_bytes":name.stat().st_size,"light_mask_bytes":mask.stat().st_size,
       "source":"Real photo by Lưu Ly, public domain, Wikimedia Commons"}
-    if name.stat().st_size>850000 or mask.stat().st_size>350000:
+    if name.stat().st_size>850000 or mask.stat().st_size>220000:
         raise RuntimeError("Real bridge assets exceed optimization limits "+repr(details))
     print("REAL_TRUONG_TIEN_READY "+json.dumps(details,ensure_ascii=False))
 
