@@ -1932,3 +1932,52 @@ body{
   .main .hero::after,.main .stats-hero-home::after,
   .main .payment-period-toolbar::after{display:none!important}
 }
+
+
+/* CDSTUHUE REAL RECOLORED PHOTO ASSETS V10 — NO TINT OVERLAY
+   Images themselves are recolored from the existing source photos at build
+   time and saved as small WebP files. The ORIGINAL photo composition, aspect
+   ratio, positions, and all text / interactive elements stay the same. */
+.sidebar::before{
+  background:url('./img/hue-bridge-night-cyan.webp') center 72% / cover no-repeat;
+  background-blend-mode:normal;
+  filter:none;
+}
+/* No blue rectangle on top of the photo; only the transparent light trails. */
+.main .hero::after,.main .stats-hero-home::after{
+  background:url('./img/neon-ribbons-wide.svg') center /100% 100% no-repeat;
+  background-blend-mode:normal;
+  mix-blend-mode:screen;
+  animation:cds-sparkle-photo-v9 16s ease-in-out infinite alternate;
+}
+/* Preserve the exact original panorama framing and feathered edge. */
+@media screen and (min-width:761px){
+  .hero::before{
+    background:
+      url('./img/nguyen-hoang-user-banner-cyan.webp') right center / auto 100% no-repeat,
+      url('./img/nguyen-hoang-bridge-3840.jpg') right center / auto 100% no-repeat;
+  }
+}
+/* Preserve the same center-top placement and native mobile scale. */
+@media screen and (max-width:760px){
+  .hero{
+    background:
+      linear-gradient(180deg,rgba(7,24,44,.42) 0%,rgba(8,27,49,.66) 42%,#0b2949 78%),
+      url('./img/nguyen-hoang-user-banner-cyan.webp') center top /100% auto no-repeat,
+      url('./img/nguyen-hoang-bridge-3840.jpg') center top /100% auto no-repeat,
+      #0d2b4b!important;
+  }
+  .main .hero::after,.main .stats-hero-home::after{
+    animation-duration:17s;
+  }
+}
+@media(prefers-reduced-motion:reduce){
+  .main .hero::after,.main .stats-hero-home::after{
+    animation:none!important;opacity:.62!important;transform:none!important;
+  }
+}
+@media print{
+  .main .hero::after,.main .stats-hero-home::after{display:none!important}
+  .hero{background:#fff!important}
+  .hero::before{display:none!important}
+}
