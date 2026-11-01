@@ -56,7 +56,7 @@ class PublicSurfaceTests(unittest.TestCase):
         css=(SITE / "assets/styles.css").read_text(encoding="utf-8")
         marker="/* CDSTUHUE SOFT BUBBLE GLOW V3"
         self.assertEqual(css.count(marker),1)
-        effects=css.split(marker,1)[1]
+        effects=css.split(marker,1)[1].split("/* CDSTUHUE LIGHT RIBBONS MOTION V4",1)[0]
         self.assertIn(".sidebar::after{",effects)
         self.assertIn("radial-gradient(circle at 18% 12%",effects)
         self.assertIn(".sidebar .nav-link.active{",effects)
