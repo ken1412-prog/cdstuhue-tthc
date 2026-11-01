@@ -1190,3 +1190,98 @@ body{
 @media print{
   .sidebar::before,.sidebar::after{display:none!important}
 }
+
+
+/* CDSTUHUE SOFT BUBBLE GLOW V3 — navigation and finance presentation ONLY.
+   Keep the original Huế body/hero imagery, HTML, layout, copy and buttons. */
+/* Scenic photo from the prior sidebar version remains unchanged. Replace its
+   sharp elliptical line effect with softened, overlapping light orbs. */
+.sidebar{
+  box-shadow:6px 0 29px rgba(8,27,53,.25),inset -1px 0 rgba(136,218,255,.14);
+}
+.sidebar::after{
+  opacity:.85;
+  filter:blur(8px) saturate(1.13);
+  background:
+    radial-gradient(circle at 18% 12%,rgba(145,241,255,.31) 0%,rgba(80,190,247,.11) 12%,transparent 30%),
+    radial-gradient(circle at 88% 30%,rgba(72,204,255,.23) 0%,rgba(59,139,245,.09) 14%,transparent 32%),
+    radial-gradient(circle at 15% 56%,rgba(84,252,214,.18) 0%,rgba(36,186,195,.06) 16%,transparent 36%),
+    radial-gradient(circle at 86% 78%,rgba(99,189,255,.25) 0%,rgba(66,150,237,.07) 18%,transparent 38%),
+    radial-gradient(ellipse 90% 29% at 30% 105%,rgba(78,210,255,.23) 0%,rgba(78,210,255,.05) 30%,transparent 75%);
+}
+.sidebar .brand{position:relative}
+.sidebar .brand::after{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(111deg,transparent 6%,rgba(255,255,255,.025) 37%,rgba(167,239,255,.10) 54%,transparent 76%);
+}
+.sidebar .nav-link:hover{
+  box-shadow:0 0 14px rgba(74,196,249,.10),inset 0 0 0 1px rgba(186,235,255,.10);
+}
+.sidebar .nav-link.active{
+  box-shadow:inset 4px 0 #f2ca63,0 0 19px rgba(63,206,255,.17),0 6px 18px rgba(7,23,45,.17);
+}
+
+/* The middle of the site: give the existing photo hero, monthly selector
+   and finance cards a glassy glint WITHOUT replacing any hero/background image. */
+.main .hero{
+  box-shadow:0 16px 33px rgba(11,35,65,.22),0 0 19px rgba(84,202,255,.14),inset 0 1px rgba(216,247,255,.22);
+}
+.main .stats-hero-home{
+  box-shadow:0 14px 30px rgba(17,48,83,.17),0 0 21px rgba(83,199,244,.15),inset 0 1px rgba(255,255,255,.34);
+}
+.main .payment-period-toolbar{
+  background-image:
+    radial-gradient(circle at 10% 7%,rgba(255,255,255,.96),transparent 35%),
+    radial-gradient(circle at 86% 82%,rgba(147,229,255,.22),transparent 43%),
+    linear-gradient(110deg,#fff,#f2f5fb);
+  box-shadow:0 8px 23px rgba(21,57,91,.12),0 0 17px rgba(79,203,245,.12),inset 0 1px rgba(255,255,255,.85);
+}
+.main .payment-tracker-panel,
+.main .stats-dashboard-grid>.stats-panel-wide{
+  background-image:
+    radial-gradient(circle at 4% 6%,rgba(215,245,255,.16),transparent 30%),
+    radial-gradient(circle at 96% 94%,rgba(148,218,255,.10),transparent 34%);
+  box-shadow:0 11px 28px rgba(24,53,82,.10),0 0 18px rgba(82,205,244,.09),inset 0 1px rgba(255,255,255,.94);
+}
+.main .stats-kpi,
+.main .stats-hero-metric,
+.main .payment-tracker-totals>div{
+  background-image:
+    radial-gradient(circle at 14% 10%,rgba(255,255,255,.76),transparent 38%),
+    radial-gradient(circle at 88% 84%,rgba(134,223,255,.15),transparent 42%);
+  box-shadow:0 6px 18px rgba(28,62,90,.09),inset 0 1px rgba(255,255,255,.83);
+}
+.main .topbar .announcement{
+  background-image:
+    radial-gradient(circle at 21% 45%,rgba(255,255,255,.15),transparent 38%),
+    radial-gradient(circle at 82% 45%,rgba(129,213,255,.12),transparent 37%);
+  box-shadow:inset 0 1px rgba(255,255,255,.25),0 0 13px rgba(87,187,239,.10);
+}
+
+/* Mobile: same content and drawer behavior; less glow to keep all labels
+   readable and reduce compositing on small screens. */
+@media screen and (max-width:760px){
+  .sidebar::before{height:39%}
+  .sidebar::after{opacity:.70;filter:blur(6px) saturate(1.06)}
+  .sidebar .nav-link.active{
+    box-shadow:inset 4px 0 #f2ca63,0 0 13px rgba(63,206,255,.13);
+  }
+  .main .hero,.main .stats-hero-home{
+    box-shadow:0 10px 23px rgba(9,34,63,.18),0 0 13px rgba(83,199,244,.10);
+  }
+  .main .payment-period-toolbar,
+  .main .payment-tracker-panel,
+  .main .stats-dashboard-grid>.stats-panel-wide{
+    box-shadow:0 7px 19px rgba(24,53,82,.09),0 0 10px rgba(82,205,244,.07);
+  }
+  .main .stats-kpi,.main .stats-hero-metric,.main .payment-tracker-totals>div{
+    box-shadow:0 5px 15px rgba(28,62,90,.07),inset 0 1px rgba(255,255,255,.8);
+  }
+}
+@media print{
+  .sidebar .brand::after{display:none!important}
+  .main .hero,.main .stats-hero-home,.main .payment-period-toolbar,
+  .main .payment-tracker-panel,.main .stats-dashboard-grid>.stats-panel-wide{
+    box-shadow:none!important;background-image:none!important;
+  }
+}

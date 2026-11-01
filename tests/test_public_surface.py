@@ -25,6 +25,34 @@ ORIGIN_LINK = re.compile(
 
 
 class PublicSurfaceTests(unittest.TestCase):
+    def test_soft_bubble_glow_scoped_to_sidebar_and_middle_desktop_mobile(self):
+        css=(SITE / "assets/styles.css").read_text(encoding="utf-8")
+        marker="/* CDSTUHUE SOFT BUBBLE GLOW V3"
+        self.assertEqual(css.count(marker),1)
+        effects=css.split(marker,1)[1]
+        self.assertIn(".sidebar::after{",effects)
+        self.assertIn("radial-gradient(circle at 18% 12%",effects)
+        self.assertIn(".sidebar .nav-link.active{",effects)
+        self.assertIn(".main .hero{",effects)
+        self.assertIn(".main .stats-hero-home{",effects)
+        self.assertIn(".main .payment-period-toolbar{",effects)
+        self.assertIn(".main .payment-tracker-panel,",effects)
+        self.assertIn(".main .stats-dashboard-grid>.stats-panel-wide{",effects)
+        self.assertIn(".main .topbar .announcement{",effects)
+        self.assertIn("@media screen and (max-width:760px)",effects)
+        self.assertIn("@media print{",effects)
+        # Never replace the existing Huế body/hero photos, or alter
+        # sizing, layout, labels and click targets in this visual-only patch.
+        self.assertNotIn("body{",effects)
+        self.assertNotIn("url(",effects)
+        self.assertNotIn("grid-template",effects)
+        self.assertNotIn("padding:",effects)
+        self.assertNotIn("width:",effects)
+        self.assertNotIn("height:",effects.replace("height:39%",""))
+        self.assertIn("url('./img/nguyen-hoang-user-banner.avif')",css)
+        self.assertIn("url('./img/hue-bridge-night.webp')",css)
+
+
     def test_last_approved_date_visible_and_compact_on_mobile(self):
         js=(SITE / "assets/app.js").read_text(encoding="utf-8")
         css=(SITE / "assets/styles.css").read_text(encoding="utf-8")
@@ -35,7 +63,7 @@ class PublicSurfaceTests(unittest.TestCase):
             self.assertIn('id="lastApprovedDate" aria-live="polite">—</span>',html)
             self.assertNotIn('id="lastApprovedDate" aria-live="polite">24/10/2026</span>',html)
             self.assertIn("assets/app.js?v=20261101-fast-live-first-v8",html)
-            self.assertIn("assets/styles.css?v=20261101-sidebar-scenic-v2",html)
+            self.assertIn("assets/styles.css?v=20261101-bubble-glow-v3",html)
         self.assertIn("const approvedDate=state.stats?.period===currentReportMonth()?state.stats.approvedDate:null;",js)
         self.assertIn("if(fullDate)fullDate.textContent=approvedFull;",js)
         self.assertIn("if(shortDate)shortDate.textContent=approvedShort;",js)
@@ -123,7 +151,7 @@ class PublicSurfaceTests(unittest.TestCase):
             html=(SITE / page).read_text(encoding="utf-8")
             self.assertIn('<div class="footer-byline">',html)
             self.assertIn('<span class="footer-copyright">© 2026 CDSTUHUE</span><span class="footer-author">NKien',html)
-            self.assertIn('assets/styles.css?v=20261101-sidebar-scenic-v2',html)
+            self.assertIn('assets/styles.css?v=20261101-bubble-glow-v3',html)
             self.assertNotIn('id="navAssistant"',html)
             self.assertIn('id="openAssistant"',html)
             self.assertIn('id="assistantMobileFab"',html)
@@ -346,7 +374,7 @@ class PublicSurfaceTests(unittest.TestCase):
             self.assertIn('class="side-assist-heading"',html)
             self.assertIn('<small>Trong kho câu hỏi</small>',html)
             self.assertNotIn('Trợ lý tra cứu nhanh <small>Không dùng AI bên ngoài</small>',html)
-            self.assertIn('assets/styles.css?v=20261101-sidebar-scenic-v2',html)
+            self.assertIn('assets/styles.css?v=20261101-bubble-glow-v3',html)
         self.assertIn('/* Centered quick-search launcher in the sidebar */',css)
         self.assertIn('justify-content:center;',css[css.rfind('/* Centered quick-search launcher in the sidebar */'):])
         self.assertIn('text-align:center;',css[css.rfind('/* Centered quick-search launcher in the sidebar */'):])
