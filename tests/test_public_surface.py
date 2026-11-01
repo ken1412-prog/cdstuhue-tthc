@@ -203,7 +203,9 @@ class PublicSurfaceTests(unittest.TestCase):
         css=(SITE/"assets/styles.css").read_text(encoding="utf-8")
         marker="/* CDSTUHUE REFERENCE COBALT NEON V5"
         self.assertEqual(css.count(marker),1)
-        visual=css.split(marker,1)[1]
+        # Scope the historical V5 assertions to the V5 section only.
+        # Later main-canvas enhancements legitimately use fixed light layers.
+        visual=css.split(marker,1)[1].split("/* CDSTUHUE CONTAINED BLUE GLASS V6",1)[0]
         self.assertIn("linear-gradient(176deg,#072b65",visual)
         self.assertIn("linear-gradient(100deg,#f6405c",visual)
         self.assertIn("url('./img/hue-bridge-night.webp')",visual)
