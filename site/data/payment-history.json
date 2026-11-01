@@ -1,4 +1,9 @@
 {
   "schema": 1,
-  "months": []
+  "months": [
+    {
+      "period": "2026-10",
+      "closed": true
+    }
+  ]
 }

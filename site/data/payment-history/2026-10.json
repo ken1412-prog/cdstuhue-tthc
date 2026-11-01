@@ -1,0 +1,250 @@
+{
+  "schema": 1,
+  "public": true,
+  "reviewed": true,
+  "closed": true,
+  "period": "2026-10",
+  "approvedDate": "2026-10-30",
+  "closedOn": "2026-11-01",
+  "source": "Reviewed public aggregate (STATS HUB, snapshot 2026-10-30); no private identifiers or monetary amounts",
+  "modules": {
+    "payment": {
+      "completionRate": 0.9629855462008368
+    },
+    "ranking": {
+      "eligibleUnits": 46,
+      "records": [
+        {
+          "rank": 1,
+          "name": "Đảng bộ Hội đồng nhân dân thành phố Huế",
+          "rate": 1
+        },
+        {
+          "rank": 2,
+          "name": "Đảng bộ phường Hương Thuỷ",
+          "rate": 1
+        },
+        {
+          "rank": 3,
+          "name": "Đảng bộ phường Hương Trà",
+          "rate": 1
+        },
+        {
+          "rank": 4,
+          "name": "Đảng bộ phường Kim Long",
+          "rate": 1
+        },
+        {
+          "rank": 5,
+          "name": "Đảng bộ phường Mỹ Thượng",
+          "rate": 1
+        },
+        {
+          "rank": 6,
+          "name": "Đảng bộ phường Phong Dinh",
+          "rate": 1
+        },
+        {
+          "rank": 7,
+          "name": "Đảng bộ phường Phong Điền",
+          "rate": 1
+        },
+        {
+          "rank": 8,
+          "name": "Đảng bộ phường Phong Phú",
+          "rate": 1
+        },
+        {
+          "rank": 9,
+          "name": "Đảng bộ phường Phong Quảng",
+          "rate": 1
+        },
+        {
+          "rank": 10,
+          "name": "Đảng bộ phường Phong Thái",
+          "rate": 1
+        },
+        {
+          "rank": 11,
+          "name": "Đảng bộ phường Thuận An",
+          "rate": 1
+        },
+        {
+          "rank": 12,
+          "name": "Đảng bộ xã A Lưới 3",
+          "rate": 1
+        },
+        {
+          "rank": 13,
+          "name": "Đảng bộ xã Chân Mây - Lăng Cô",
+          "rate": 1
+        },
+        {
+          "rank": 14,
+          "name": "Đảng bộ xã Đan Điền",
+          "rate": 1
+        },
+        {
+          "rank": 15,
+          "name": "Đảng bộ xã Hưng Lộc",
+          "rate": 1
+        },
+        {
+          "rank": 16,
+          "name": "Đảng bộ xã Khe Tre",
+          "rate": 1
+        },
+        {
+          "rank": 17,
+          "name": "Đảng bộ xã Long Quảng",
+          "rate": 1
+        },
+        {
+          "rank": 18,
+          "name": "Đảng bộ xã Lộc An",
+          "rate": 1
+        },
+        {
+          "rank": 19,
+          "name": "Đảng bộ xã Phú Vang",
+          "rate": 1
+        },
+        {
+          "rank": 20,
+          "name": "Đảng bộ xã Phú Vinh",
+          "rate": 1
+        },
+        {
+          "rank": 21,
+          "name": "Đảng bộ xã Quảng Điền",
+          "rate": 1
+        },
+        {
+          "rank": 22,
+          "name": "Đảng bộ xã Phú Hồ",
+          "rate": 0.9986661435857199
+        },
+        {
+          "rank": 23,
+          "name": "Đảng bộ xã Nam Đông",
+          "rate": 0.9986312134039694
+        },
+        {
+          "rank": 24,
+          "name": "Đảng bộ phường Kim Trà",
+          "rate": 0.9984317201643285
+        },
+        {
+          "rank": 25,
+          "name": "Đảng bộ xã Vinh Lộc",
+          "rate": 0.998331703388368
+        },
+        {
+          "rank": 26,
+          "name": "Đảng bộ phường Thủy Xuân",
+          "rate": 0.9982721141519425
+        },
+        {
+          "rank": 27,
+          "name": "Đảng bộ phường Vỹ Dạ",
+          "rate": 0.9979592530866297
+        },
+        {
+          "rank": 28,
+          "name": "Đảng bộ xã A Lưới 4",
+          "rate": 0.9919011573062145
+        },
+        {
+          "rank": 29,
+          "name": "Đảng bộ phường Dương Nỗ",
+          "rate": 0.9876683294440044
+        },
+        {
+          "rank": 30,
+          "name": "Đảng bộ phường Thanh Thủy",
+          "rate": 0.9865063568059964
+        },
+        {
+          "rank": 31,
+          "name": "Đảng bộ Các cơ quan Đảng thành phố Huế",
+          "rate": 0.9838257090642223
+        },
+        {
+          "rank": 32,
+          "name": "Đảng bộ Ủy ban nhân dân thành phố Huế",
+          "rate": 0.9768790706823447
+        },
+        {
+          "rank": 33,
+          "name": "Đảng bộ xã Phú Lộc",
+          "rate": 0.9611830724442006
+        },
+        {
+          "rank": 34,
+          "name": "Đảng bộ xã Bình Điền",
+          "rate": 0.9599169892272537
+        },
+        {
+          "rank": 35,
+          "name": "Đảng bộ phường Hương An",
+          "rate": 0.9575238223509209
+        },
+        {
+          "rank": 36,
+          "name": "Đảng bộ xã A Lưới 2",
+          "rate": 0.9511641243261842
+        },
+        {
+          "rank": 37,
+          "name": "Đảng bộ phường Hóa Châu",
+          "rate": 0.9478240672311493
+        },
+        {
+          "rank": 38,
+          "name": "Đảng bộ xã A Lưới 1",
+          "rate": 0.9477106642995747
+        },
+        {
+          "rank": 39,
+          "name": "Đảng bộ phường Thuận Hóa",
+          "rate": 0.9404725936281031
+        },
+        {
+          "rank": 40,
+          "name": "Đảng bộ phường Phú Bài",
+          "rate": 0.9274595123934111
+        },
+        {
+          "rank": 41,
+          "name": "Đảng bộ bệnh viện TW Huế",
+          "rate": 0.925959297200948
+        },
+        {
+          "rank": 42,
+          "name": "Đảng bộ phường An Cựu",
+          "rate": 0.9248832028275726
+        },
+        {
+          "rank": 43,
+          "name": "Đảng bộ xã A Lưới 5",
+          "rate": 0.882799719560645
+        },
+        {
+          "rank": 44,
+          "name": "Đảng bộ phường Phú Xuân",
+          "rate": 0.8682969240301401
+        },
+        {
+          "rank": 45,
+          "name": "Đảng bộ Đại học Huế",
+          "rate": 0.850981754995656
+        },
+        {
+          "rank": 46,
+          "name": "Đảng bộ Mặt trận Tổ quốc, các đoàn thể thành phố Huế",
+          "rate": 0
+        }
+      ]
+    }
+  }
+}
