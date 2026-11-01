@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 100 440 680" preserveAspectRatio="none">
+<!-- CDSTUHUE V20 left searchlight; transparent independent layer, pivot at original bridge lamp. -->
+<defs>
+ <linearGradient id="leftCone" x1="0" y1="1" x2=".32" y2="0">
+  <stop offset="0" stop-color="#efffff" stop-opacity=".78"/>
+  <stop offset=".17" stop-color="#c4f6ff" stop-opacity=".49"/>
+  <stop offset=".46" stop-color="#6bddff" stop-opacity=".23"/>
+  <stop offset=".82" stop-color="#4bbdff" stop-opacity=".06"/>
+  <stop offset="1" stop-color="#58dfff" stop-opacity="0"/>
+ </linearGradient>
+ <linearGradient id="rightCone" x1=".65" y1="1" x2=".78" y2="0">
+  <stop offset="0" stop-color="#f5ffff" stop-opacity=".77"/>
+  <stop offset=".17" stop-color="#c7f8ff" stop-opacity=".47"/>
+  <stop offset=".48" stop-color="#70e5ff" stop-opacity=".22"/>
+  <stop offset=".82" stop-color="#47baff" stop-opacity=".05"/>
+  <stop offset="1" stop-color="#52dfff" stop-opacity="0"/>
+ </linearGradient>
+ <radialGradient id="lens">
+  <stop offset="0" stop-color="#ffffff" stop-opacity=".95"/>
+  <stop offset=".22" stop-color="#f0ffff" stop-opacity=".89"/>
+  <stop offset=".48" stop-color="#a3ecff" stop-opacity=".52"/>
+  <stop offset="1" stop-color="#45c6ff" stop-opacity="0"/>
+ </radialGradient>
+ <radialGradient id="beamFog">
+  <stop offset="0" stop-color="#e0ffff" stop-opacity=".44"/>
+  <stop offset=".4" stop-color="#76deff" stop-opacity=".15"/>
+  <stop offset="1" stop-color="#54bcff" stop-opacity="0"/>
+ </radialGradient>
+ <filter id="blurGlow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="17"/></filter>
+ <filter id="blurSoft" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="7"/></filter>
+</defs>
+<g><path d="M103 535 C76 350 13 139 -48 30 C36 47 143 70 199 26 C168 210 136 396 119 535 Z"
+       fill="url(#leftCone)" opacity=".88" filter="url(#blurGlow)"/>
+<path d="M103 535 C76 350 13 139 -48 30 C36 47 143 70 199 26 C168 210 136 396 119 535 Z"
+       fill="url(#leftCone)" opacity=".67"/>
+<ellipse cx="104" cy="398" rx="61" ry="165" fill="url(#beamFog)" opacity=".57" filter="url(#blurSoft)"/>
+<ellipse cx="109" cy="537" rx="45" ry="24" fill="url(#lens)" opacity=".96"/></g>
+</svg>
