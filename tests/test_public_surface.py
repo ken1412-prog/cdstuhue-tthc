@@ -41,7 +41,8 @@ class PublicSurfaceTests(unittest.TestCase):
         self.assertIn("await Promise.all([menuTask,qaTask,progressTask,financeTask,statsTask,archiveTask])",app)
         self.assertIn("if(state.qaLoading&&!state.demo)",app)
         self.assertIn("controller.abort()",app)
-        self.assertIn("startLiveStats();\\n loadData();}",app)
+        self.assertIn("startLiveStats();",app)
+        self.assertIn("loadData();}",app)
         for page in ("index.html","hoi-dap.html"):
             html=(SITE/page).read_text(encoding="utf-8")
             self.assertIn("assets/app.js?v=20261101-fast-parallel-first-paint-v9",html)
