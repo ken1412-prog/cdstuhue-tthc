@@ -1437,3 +1437,157 @@ body{
   .sidebar::after,.main .hero::after,.main .stats-hero-home::after,
   .main .payment-period-toolbar::after{display:none!important}
 }
+
+
+/* CDSTUHUE REFERENCE COBALT NEON V5
+   Match the requested Huế-blue/cyan navigation reference: bright cobalt glass,
+   rose-magenta selected buttons, luminous blue ribbons and scenic bridge photo.
+   No changes to page content, button action, dimensions, data or base body photo.
+   Blue ribbons drift slowly (20–24s), active perimeter travels every 3s. */
+.sidebar{
+  background:
+    radial-gradient(ellipse 105% 41% at 92% 53%,rgba(36,215,255,.37),transparent 70%),
+    radial-gradient(ellipse 88% 35% at -12% 92%,rgba(17,184,255,.22),transparent 70%),
+    linear-gradient(176deg,#072b65 0%,#09499d 26%,#086dc7 55%,#0759b4 74%,#06468f 100%);
+  border-right:1px solid rgba(125,226,255,.58);
+  box-shadow:6px 0 28px rgba(0,27,91,.28),inset -1px 0 rgba(165,240,255,.26);
+}
+.sidebar::before{
+  height:47%;
+  background:
+    linear-gradient(180deg,rgba(3,80,162,0) 0%,rgba(4,85,166,.06) 15%,
+      rgba(6,57,143,.04) 57%,rgba(3,32,89,.41) 100%),
+    url('./img/hue-bridge-night.webp') center 73% / cover no-repeat;
+}
+.sidebar::after{
+  inset:-2% -5%;
+  opacity:.89;
+  background:
+    url('./img/neon-ribbons-sidebar.svg') center center /100% 100% no-repeat;
+  filter:drop-shadow(0 0 5px rgba(39,226,255,.24));
+  animation:cds-cobalt-drift 22s ease-in-out infinite alternate;
+}
+@keyframes cds-cobalt-drift{
+  0%{transform:translate3d(-1%,.2%,0) scale(1.005);opacity:.72}
+  50%{opacity:.96}
+  100%{transform:translate3d(1.1%,-.9%,0) scale(1.016);opacity:.80}
+}
+.sidebar .brand{border-color:rgba(145,238,255,.26)}
+.sidebar .brand b{color:#fff;text-shadow:0 0 11px rgba(85,217,255,.18)}
+.sidebar .menu-group{
+  position:relative;color:#f4fbff;
+  text-shadow:0 0 8px rgba(85,217,255,.24);
+}
+.sidebar .menu-group::before{
+  content:"";position:absolute;left:-8px;top:1px;bottom:1px;width:3px;
+  border-radius:5px;background:#ff4266;box-shadow:0 0 9px rgba(255,83,142,.46);
+}
+.sidebar .nav-link{
+  color:#f2fbff;
+  background:linear-gradient(110deg,rgba(79,182,246,.28),rgba(30,128,219,.23));
+  border:1px solid rgba(155,234,255,.44);
+  box-shadow:inset 0 1px rgba(255,255,255,.17),0 0 10px rgba(15,174,245,.07);
+}
+.sidebar .nav-link:hover{
+  background:linear-gradient(110deg,rgba(104,201,255,.37),rgba(47,155,234,.34));
+  border-color:rgba(190,250,255,.72);
+  box-shadow:0 0 16px rgba(45,216,255,.2),inset 0 1px rgba(255,255,255,.26);
+}
+.sidebar .nav-link.active{
+  color:#fff;
+  background:linear-gradient(100deg,#f6405c 0%,#d61b59 49%,#a91675 100%);
+  border:1px solid rgba(255,209,221,.76);
+  box-shadow:inset 0 1px rgba(255,255,255,.38),
+    0 0 9px rgba(255,218,91,.56),0 0 17px rgba(255,81,136,.48),
+    0 5px 16px rgba(0,24,79,.26);
+}
+.sidebar .nav-ico,.sidebar .nav-link.active .nav-ico{color:#fff}
+.sidebar .nav-count{
+  background:linear-gradient(160deg,#e6faff,#adddff);
+  color:#133d77;border:1px solid rgba(255,255,255,.82);
+  box-shadow:inset 0 1px rgba(255,255,255,.75);
+}
+.sidebar .sidebar-bottom{
+  background:linear-gradient(180deg,rgba(4,69,146,.10),rgba(4,46,112,.66));
+  border-top-color:rgba(99,230,255,.32);
+}
+.sidebar .side-assist,.side-assist{
+  background:linear-gradient(105deg,#fa3753 0%,#db1249 58%,#b7145b 100%);
+  border-color:rgba(255,206,228,.85);
+  box-shadow:0 0 13px rgba(255,79,120,.22),inset 0 1px rgba(255,255,255,.35);
+}
+.sidebar .side-assist .side-assist-icon{color:#fff}
+
+/* Existing photographic hero remains unchanged. Only the translucent
+   local SVG ribbons are brighter and drift over its surface. */
+.main .hero::after,.main .stats-hero-home::after,
+.main .payment-period-toolbar::after{
+  background:url('./img/neon-ribbons-wide.svg') center / 110% 110% no-repeat;
+  animation:cds-cobalt-wide 24s ease-in-out infinite alternate;
+}
+.main .hero::after{opacity:.42}
+.main .stats-hero-home::after{opacity:.28;animation-duration:23s}
+.main .payment-period-toolbar::after{opacity:.19;animation-duration:24s}
+@keyframes cds-cobalt-wide{
+  0%{transform:translate3d(-1%,0,0);opacity:.26}
+  50%{opacity:.45}
+  100%{transform:translate3d(1%,-.65%,0);opacity:.32}
+}
+
+/* Selected menu, opened FAQ, open organization detail: fast 3s orbit.
+   Restrict to active surfaces, retain a shadow-only fallback if masks lack
+   browser support. This overrides the older 7.5/9/11 second rotations. */
+.sidebar .nav-link.active{
+  box-shadow:inset 0 1px rgba(255,255,255,.38),
+    0 0 9px rgba(255,218,91,.56),0 0 17px rgba(255,81,136,.48),
+    0 5px 16px rgba(0,24,79,.26);
+}
+.qa-item:is(:active,:focus,:focus-visible){
+  box-shadow:0 0 0 1px rgba(69,219,255,.75),0 0 16px rgba(41,200,255,.21);
+}
+@supports ((-webkit-mask-composite:xor) or (mask-composite:exclude)){
+  .sidebar .nav-link.active::after,
+  .qa-item:is(:active,:focus,:focus-visible)::after,
+  .assistant-ask-toggle[aria-expanded="true"]::after,
+  .dialog-backdrop:not(.hidden) .qa-dialog::after,
+  .dialog-backdrop:not(.hidden) .payment-detail-dialog::after{
+    background:conic-gradient(from var(--cds-border-angle),
+      transparent 0deg,transparent 251deg,
+      rgba(65,204,255,.15) 274deg,#63e9ff 306deg,#fff 328deg,
+      #ffd67b 340deg,rgba(54,216,255,.74) 350deg,transparent 360deg);
+    animation:cds-border-orbit 3s linear infinite;
+    animation-duration:3s;
+    animation-iteration-count:infinite;
+  }
+}
+
+/* Mobile: same palette and photo, weaker ambient overlays; the active ring
+   still completes exactly one lap every 3 seconds. No width/height changes. */
+@media screen and (max-width:760px){
+  .sidebar::before{height:43%}
+  .sidebar::after{opacity:.7;animation-duration:24s;filter:none}
+  .main .hero::after{opacity:.25;animation-duration:24s}
+  .main .stats-hero-home::after{opacity:.17;animation-duration:24s}
+  .main .payment-period-toolbar::after{opacity:.12;animation-duration:24s}
+  .sidebar .nav-link.active::after,
+  .qa-item:is(:active,:focus,:focus-visible)::after,
+  .assistant-ask-toggle[aria-expanded="true"]::after,
+  .dialog-backdrop:not(.hidden) .qa-dialog::after,
+  .dialog-backdrop:not(.hidden) .payment-detail-dialog::after{
+    animation-duration:3s;
+  }
+}
+@media(prefers-reduced-motion:reduce){
+  .sidebar::after,.main .hero::after,.main .stats-hero-home::after,
+  .main .payment-period-toolbar::after,
+  .sidebar .nav-link.active::after,
+  .qa-item::after,.assistant-ask-toggle::after,
+  .qa-dialog::after,.payment-detail-dialog::after{
+    animation:none!important;
+    will-change:auto!important;
+  }
+}
+@media print{
+  .sidebar::after,.main .hero::after,.main .stats-hero-home::after,
+  .main .payment-period-toolbar::after{display:none!important}
+}
