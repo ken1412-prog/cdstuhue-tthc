@@ -2674,3 +2674,44 @@ body{
     animation:none!important;
   }
 }
+
+/* CDSTUHUE SIDEBAR UNDER-TEXT SILK V18 — replace over-bright white X.
+   The existing real Trường Tiền photo remains on .sidebar::before.
+   Soft blue image and a very slow drift are BEHIND the legible navigation. */
+.sidebar{isolation:isolate;overflow:hidden}
+.sidebar::after{
+  content:"";position:absolute;inset:0;
+  z-index:0!important;pointer-events:none;
+  background:url('./img/sidebar-soft-blue-ribbons-v18.svg') center / 100% 100% no-repeat!important;
+  background-blend-mode:normal!important;
+  -webkit-mask-image:none!important;mask-image:none!important;
+  mix-blend-mode:normal;
+  opacity:.67!important;filter:none!important;
+  animation:cds-v18-silk-drift 35s ease-in-out infinite alternate!important;
+}
+@keyframes cds-v18-silk-drift{
+  0%{transform:translate3d(-.65%,.15%,0) scale(1.006)}
+  100%{transform:translate3d(.65%,-.15%,0) scale(1.013)}
+}
+.sidebar>.sidebar-ambient,.sidebar>.sidebar-bridge-gleam{
+  z-index:0!important;pointer-events:none;
+}
+.sidebar>.brand,.sidebar>.sidebar-scroll,.sidebar>.sidebar-bottom{
+  position:relative;z-index:3!important;
+}
+.sidebar .nav-link{position:relative;z-index:1}
+.sidebar .nav-link:not(.active){
+  background:linear-gradient(110deg,rgba(5,64,141,.84),rgba(8,90,178,.81));
+}
+.sidebar .nav-link:hover:not(.active){
+  background:linear-gradient(110deg,rgba(12,89,175,.94),rgba(16,112,198,.91));
+}
+.sidebar .menu-group,.sidebar .nav-link{text-shadow:0 1px 3px rgba(1,22,63,.58)}
+.sidebar .nav-link.active{
+  background:linear-gradient(100deg,#f6405c 0%,#d61b59 49%,#a91675 100%);
+  text-shadow:0 1px 2px rgba(70,0,34,.4);
+}
+@media(prefers-reduced-motion:reduce){
+  .sidebar::after{animation:none!important;transform:none!important;opacity:.55!important}
+}
+@media print{.sidebar::after{display:none!important}}
