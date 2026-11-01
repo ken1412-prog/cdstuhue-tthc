@@ -57,7 +57,12 @@ def create(source):
     arch_band=np.clip((ys-.443)*80,0,1)*np.clip((.595-ys)*63,0,1)
     bright=np.clip((mx-.59)*5.0,0,1)
     chroma=np.clip((contrast-.065)*4.0,0,1)
-    truss=np.clip(arch_band * bright * np.maximum(chroma,.57) * 1.18,0,.95)
+    # A smooth sky has almost no positive local detail. Steel rails and lamps
+    # are narrow luminous structures, so detect their local bright edges.
+    local_gray=Image.fromarray(np.uint8(np.clip(mx*255,0,255)),"L")
+    local_blur=np.asarray(local_gray.filter(ImageFilter.GaussianBlur(6)),dtype=np.float32)/255.
+    structure=np.clip((mx-local_blur-.018)*18,0,1)
+    truss=np.clip(arch_band * bright * np.maximum(chroma,.57) * structure * 1.5,0,.96)
     truss=truss * np.clip((.94-xs)*8,0,1)
     amber_green=np.clip(.28+.66*xs, .28, .85)
     warm_tone=np.stack([
