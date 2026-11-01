@@ -74,7 +74,8 @@ async function main(){
  assert(src.includes("await Promise.all([menuTask,qaTask,progressTask,financeTask,statsTask,archiveTask])"),
   'Independent public JSON requests must be concurrent');
  assert(src.includes("controller.abort()"),'Unresponsive requests must have a timeout');
- assert(src.includes('Đang nạp bản câu hỏi đã duyệt.'),'QA loading must be explicit, not empty');
+ assert(src.includes('Đang kiểm tra danh sách câu hỏi đã duyệt công khai…'),'QA loading must be explicit, not empty');
+ assert(src.includes('class="panel cds-qa-loading" aria-busy="true"'),'QA loading must be accessible and non-blocking');
  assert(src.includes("statsCheck:'checking'"),
   'A network pending state must not claim approval is missing');
  assert(src.includes("state.statsCheck='not-approved'"),
