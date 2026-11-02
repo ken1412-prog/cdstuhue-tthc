@@ -3242,3 +3242,87 @@ body{
 @media print{
   .main .hero{background:#fff!important}
 }
+
+/* CDSTUHUE V28 — NGỌ MÔN FLOWING LIGHT
+   Two clearly distinguishable white-cyan light peaks run continuously along
+   the existing curved silk silhouette over the approved Ngọ Môn night photo.
+   Repeated tiles have matching endpoints: no dark pause or flash between loops.
+   Static photo, text, cards, CTA and menus remain unaffected. */
+.main .hero>.hero-silk-runner{
+  position:absolute;inset:0;z-index:1;display:block!important;
+  pointer-events:none;overflow:hidden;mix-blend-mode:screen;
+}
+.main .hero>.hero-silk-runner::before,
+.main .hero>.hero-silk-runner::after{
+  content:"";display:block;position:absolute;inset:0;
+  pointer-events:none;transform:none!important;opacity:1!important;
+  -webkit-mask-image:url('./img/blue-silk-hero-path-mask-v15.svg');
+  mask-image:url('./img/blue-silk-hero-path-mask-v15.svg');
+  -webkit-mask-size:100% 100%;mask-size:100% 100%;
+  -webkit-mask-position:center;mask-position:center;
+  -webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;mask-mode:alpha;
+  background-image:linear-gradient(90deg,
+    rgba(8,98,153,.08) 0%,
+    rgba(30,167,220,.15) 16%,
+    rgba(59,215,250,.42) 31%,
+    rgba(147,246,255,.91) 43%,
+    #ffffff 49%,#ffffff 51%,
+    rgba(147,246,255,.91) 57%,
+    rgba(59,215,250,.42) 69%,
+    rgba(30,167,220,.15) 84%,
+    rgba(8,98,153,.08) 100%)!important;
+  background-repeat:repeat-x!important;
+}
+.main .hero>.hero-silk-runner::before{
+  filter:blur(3px) drop-shadow(0 0 8px rgba(101,234,255,.80))!important;
+}
+.main .hero>.hero-silk-runner::after{
+  filter:drop-shadow(0 0 7px rgba(199,252,255,.94))!important;
+}
+@media screen and (min-width:761px){
+  .main .hero>.hero-silk-runner::before,
+  .main .hero>.hero-silk-runner::after{background-size:340px 100%!important}
+  .main .hero>.hero-silk-runner::before{
+    animation:cds-v28-desktop-leading 7s linear infinite!important;
+  }
+  .main .hero>.hero-silk-runner::after{
+    animation:cds-v28-desktop-following 7s linear infinite!important;
+  }
+}
+@keyframes cds-v28-desktop-leading{
+  from{background-position:0px center}
+  to{background-position:-340px center}
+}
+@keyframes cds-v28-desktop-following{
+  from{background-position:-170px center}
+  to{background-position:-510px center}
+}
+@media screen and (max-width:760px){
+  .main .hero>.hero-silk-runner::before,
+  .main .hero>.hero-silk-runner::after{background-size:220px 100%!important}
+  .main .hero>.hero-silk-runner::before{
+    animation:cds-v28-mobile-leading 8s linear infinite!important;
+  }
+  .main .hero>.hero-silk-runner::after{
+    animation:cds-v28-mobile-following 8s linear infinite!important;
+  }
+}
+@keyframes cds-v28-mobile-leading{
+  from{background-position:0px center}
+  to{background-position:-220px center}
+}
+@keyframes cds-v28-mobile-following{
+  from{background-position:-110px center}
+  to{background-position:-330px center}
+}
+/* Keep content readable and steady while only wave highlights move. */
+.main .hero::after{animation:none!important}
+.main .hero>.hero-copy,.main .hero>.hero-art{
+  position:relative;z-index:2;
+}
+@media(prefers-reduced-motion:reduce){
+  .main .hero>.hero-silk-runner{display:none!important}
+}
+@media print{
+  .main .hero>.hero-silk-runner{display:none!important}
+}
