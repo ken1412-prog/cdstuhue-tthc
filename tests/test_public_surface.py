@@ -1102,7 +1102,7 @@ class PublicSurfaceTests(unittest.TestCase):
         css=(SITE/"assets/styles.css").read_text(encoding="utf-8")
         marker="/* CDSTUHUE V27 — NGỌ MÔN HERO BRIGHTNESS"
         self.assertEqual(css.count(marker),1)
-        visual=css.split(marker,1)[1].split("/* CDSTUHUE V28 — NGỌ MÔN FLOWING LIGHT",1)[0]
+        visual=css.split(marker,1)[1].split("/* CDSTUHUE V29 — NGỌ MÔN GOLDEN FLOWING LIGHT",1)[0].split("/* CDSTUHUE V28 — NGỌ MÔN FLOWING LIGHT",1)[0]
         for token in (
             "@media screen{",
             ".main .hero{",
