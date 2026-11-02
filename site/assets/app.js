@@ -205,7 +205,7 @@ async function loadDataCore(){
  const archiveTask=read('data/payment-history.json').then(idx=>{
   if(idx?.schema===1&&Array.isArray(idx.months)){
    state.paymentHistory=idx.months.filter(x=>x&&
-     /^20\\d{2}-(0[1-9]|1[0-2])$/.test(x.period)&&x.closed===true);
+     /^20\d{2}-(0[1-9]|1[0-2])$/.test(x.period)&&x.closed===true);
    if(state.view==='finance')render();
   }
  });
