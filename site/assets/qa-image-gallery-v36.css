@@ -1,0 +1,12 @@
+/* V36: optional verified images beside, never replacing, reviewed QA text. */
+.qa-media-gallery{margin:20px 0 0;padding:14px;background:#f3f8fd;border:1px solid #c5d9e8;border-radius:14px;color:#173653}
+.qa-media-heading{font-size:17px;margin:0 0 6px}
+.qa-media-info{font-size:12px;line-height:1.6;margin:0 0 14px;color:#4d6880}
+.qa-media-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(230px,100%),1fr));gap:13px}
+.qa-media-card{margin:0;padding:8px;border:1px solid #cfdeeb;background:white;border-radius:10px}
+.qa-media-link{display:block;line-height:0;border-radius:8px;overflow:hidden}
+.qa-media-link:focus-visible{outline:3px solid #d19b2f;outline-offset:3px}
+.qa-media-card img{width:100%;max-height:340px;object-fit:contain;background:#eaf1f7;display:block}
+.qa-media-card figcaption{font-size:12px;color:#36536a;line-height:1.6;margin:9px 4px 2px;overflow-wrap:anywhere}
+@media(max-width:760px){.qa-media-gallery{padding:10px}.qa-media-grid{grid-template-columns:1fr}}
+@media print{.qa-media-card img{max-height:260px}}

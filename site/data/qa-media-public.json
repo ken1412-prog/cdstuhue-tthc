@@ -1,0 +1,6 @@
+{
+  "schema": 1,
+  "status": "awaiting_original_attachments",
+  "description": "Only reviewed, explicitly approved image assets may be listed. Empty until real source images from Zalo/Android uploads can be recovered, matched to a reviewed QA and redacted.",
+  "items": []
+}
