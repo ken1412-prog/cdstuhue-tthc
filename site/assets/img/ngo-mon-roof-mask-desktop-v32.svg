@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 600" preserveAspectRatio="none">
+<!-- Ngọ Môn V32 roof-only light contour. Geometry approximate to the currently published photograph's roof area; original photo is not replaced. -->
+<defs><filter id="soft"><feGaussianBlur stdDeviation="11"/></filter></defs>
+<g transform="translate(0,-88) scale(1,1.13)" filter="url(#soft)" opacity=".65">
+
+ <g fill="#ffffff" stroke="none">
+  <!-- Soft roof tile regions: upper pavilion pair and main sweeping roof, not walls. -->
+  <path d="M57 184 L96 143 L135 128 L175 143 L212 184 L236 194 L232 224 L57 224 Z" opacity=".80"/>
+  <path d="M788 180 L827 144 L874 128 L913 143 L960 183 L967 224 L787 224 Z" opacity=".80"/>
+  <path d="M194 197 L268 181 L329 195 L388 167 L449 182 L504 164 L557 185 L626 165 L690 185 L751 184 L817 199 L830 237 L180 237 Z" opacity=".78"/>
+  <path d="M69 243 L168 223 L250 252 L757 252 L849 225 L955 245 L971 293 L53 293 Z" opacity=".74"/>
+  <!-- Roof ridge ornaments and gilded upturned corners. -->
+  <path d="M48 186 L92 149 L134 132 L175 152 L220 188 L245 197 L316 191 L389 168 L450 179 L504 163 L560 178 L623 164 L690 183 L771 186 L810 195 L829 145 L877 130 L918 148 L966 185" stroke="#ffffff" stroke-width="17" stroke-linecap="round" stroke-linejoin="round" fill="none" opacity=".90"/>
+  <path d="M48 245 L157 223 L249 250 L753 250 L850 224 L967 244" stroke="#ffffff" stroke-width="12" stroke-linecap="round" stroke-linejoin="round" fill="none" opacity=".85"/>
+ </g>
+</g>
+<g transform="translate(0,-88) scale(1,1.13)">
+
+ <g fill="#ffffff" stroke="none">
+  <!-- Soft roof tile regions: upper pavilion pair and main sweeping roof, not walls. -->
+  <path d="M57 184 L96 143 L135 128 L175 143 L212 184 L236 194 L232 224 L57 224 Z" opacity=".80"/>
+  <path d="M788 180 L827 144 L874 128 L913 143 L960 183 L967 224 L787 224 Z" opacity=".80"/>
+  <path d="M194 197 L268 181 L329 195 L388 167 L449 182 L504 164 L557 185 L626 165 L690 185 L751 184 L817 199 L830 237 L180 237 Z" opacity=".78"/>
+  <path d="M69 243 L168 223 L250 252 L757 252 L849 225 L955 245 L971 293 L53 293 Z" opacity=".74"/>
+  <!-- Roof ridge ornaments and gilded upturned corners. -->
+  <path d="M48 186 L92 149 L134 132 L175 152 L220 188 L245 197 L316 191 L389 168 L450 179 L504 163 L560 178 L623 164 L690 183 L771 186 L810 195 L829 145 L877 130 L918 148 L966 185" stroke="#ffffff" stroke-width="17" stroke-linecap="round" stroke-linejoin="round" fill="none" opacity=".90"/>
+  <path d="M48 245 L157 223 L249 250 L753 250 L850 224 L967 244" stroke="#ffffff" stroke-width="12" stroke-linecap="round" stroke-linejoin="round" fill="none" opacity=".85"/>
+ </g>
+</g>
+</svg>

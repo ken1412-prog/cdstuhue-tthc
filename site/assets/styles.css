@@ -3446,3 +3446,111 @@ body{
 @media print{
   .main .hero>.hero-silk-runner{display:none!important}
 }
+
+/* CDSTUHUE V32 — NGỌ MÔN ROOF-ONLY GOLDEN LANTERN SHIMMER.
+   User-approved site photograph stays unchanged: deliberately REMOVE both
+   moving light streams AND their static crossing-wave underlay.
+   Two soft independent warm roof glows cycle in-place, with matching initial
+   and final keyframes. Only the roof is masked; walls/text never flicker.
+   Applies to desktop and mobile, respects reduce-motion and print. */
+.main .hero::after{
+  display:none!important;
+  content:none!important;
+  background-image:none!important;
+  animation:none!important;
+}
+.main .hero>.hero-silk-runner{
+  display:none!important;
+  animation:none!important;
+}
+.main .hero>.hero-silk-runner::before,
+.main .hero>.hero-silk-runner::after{
+  display:none!important;
+  content:none!important;
+  animation:none!important;
+}
+.main .hero>.hero-roof-glow{
+  display:block;
+  position:absolute!important;
+  inset:0;
+  z-index:1!important;
+  padding:0;
+  margin:0;
+  pointer-events:none;
+  overflow:hidden;
+  border-radius:inherit;
+  mix-blend-mode:screen;
+  animation:none!important;
+}
+.main .hero>.hero-roof-glow::before,
+.main .hero>.hero-roof-glow::after{
+  content:"";
+  display:block;
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  border-radius:inherit;
+  -webkit-mask-image:url('./img/ngo-mon-roof-mask-mobile-v32.svg');
+  mask-image:url('./img/ngo-mon-roof-mask-mobile-v32.svg');
+  -webkit-mask-size:100% 100%;
+  mask-size:100% 100%;
+  -webkit-mask-position:center;
+  mask-position:center;
+  -webkit-mask-repeat:no-repeat;
+  mask-repeat:no-repeat;
+  mask-mode:alpha;
+  background-repeat:no-repeat;
+}
+/* Low-frequency warm-gold breathing only ON the lit eaves and ridge. */
+.main .hero>.hero-roof-glow::before{
+  background:
+    radial-gradient(ellipse 42% 42% at 18% 35%,rgba(255,211,81,.83),transparent 85%),
+    radial-gradient(ellipse 53% 44% at 50% 34%,rgba(255,201,45,.68),transparent 87%),
+    radial-gradient(ellipse 42% 42% at 83% 34%,rgba(255,222,96,.79),transparent 85%),
+    linear-gradient(105deg,rgba(241,163,31,.26),rgba(255,222,98,.55),rgba(245,163,31,.26));
+  opacity:.63;
+  animation:cds-v32-roof-amber-breathe 8.4s ease-in-out infinite!important;
+}
+/* A second softer white-gold flicker at different roof points, no sweep. */
+.main .hero>.hero-roof-glow::after{
+  background:
+    radial-gradient(ellipse 17% 24% at 12% 32%,rgba(255,254,228,.87),transparent 90%),
+    radial-gradient(ellipse 24% 24% at 37% 37%,rgba(255,246,181,.72),transparent 92%),
+    radial-gradient(ellipse 25% 28% at 56% 30%,rgba(255,253,230,.84),transparent 92%),
+    radial-gradient(ellipse 25% 28% at 80% 35%,rgba(255,248,185,.74),transparent 90%),
+    radial-gradient(ellipse 16% 28% at 92% 34%,rgba(255,250,198,.84),transparent 90%);
+  opacity:.54;
+  animation:cds-v32-roof-ivory-twinkle 10.1s ease-in-out infinite!important;
+}
+@keyframes cds-v32-roof-amber-breathe{
+  0%,100%{opacity:.60;filter:brightness(.99) saturate(1.04) hue-rotate(0deg)}
+  24%{opacity:.79;filter:brightness(1.15) saturate(1.13) hue-rotate(-5deg)}
+  51%{opacity:.68;filter:brightness(1.07) saturate(1.03) hue-rotate(3deg)}
+  78%{opacity:.86;filter:brightness(1.21) saturate(1.16) hue-rotate(-3deg)}
+}
+@keyframes cds-v32-roof-ivory-twinkle{
+  0%,100%{opacity:.51;filter:brightness(.98) saturate(.97)}
+  27%{opacity:.73;filter:brightness(1.14) saturate(1.02)}
+  56%{opacity:.58;filter:brightness(1.04) saturate(.99)}
+  81%{opacity:.77;filter:brightness(1.20) saturate(1.04)}
+}
+@media screen and (min-width:761px){
+  .main .hero>.hero-roof-glow::before,
+  .main .hero>.hero-roof-glow::after{
+    -webkit-mask-image:url('./img/ngo-mon-roof-mask-desktop-v32.svg');
+    mask-image:url('./img/ngo-mon-roof-mask-desktop-v32.svg');
+  }
+}
+@media screen and (max-width:760px){
+  .main .hero>.hero-roof-glow::before{animation-duration:9.1s!important}
+  .main .hero>.hero-roof-glow::after{animation-duration:10.8s!important}
+}
+.main .hero>.hero-copy,
+.main .hero>.hero-art{position:relative;z-index:2}
+@media(prefers-reduced-motion:reduce){
+  .main .hero>.hero-roof-glow::before,
+  .main .hero>.hero-roof-glow::after{animation:none!important;opacity:.53!important;filter:none!important}
+}
+@media print{
+  .main .hero>.hero-roof-glow{display:none!important}
+}
