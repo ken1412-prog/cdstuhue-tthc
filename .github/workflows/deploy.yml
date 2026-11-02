@@ -171,6 +171,7 @@ jobs:
           node tests/test_payment_popup.js
           python -m unittest discover -s tests -p 'test_public_surface.py' -v
           python -m unittest discover -s tests -p 'test_payment_month.py' -v
+          python -m unittest discover -s tests -p 'test_public_qa_fallback.py' -v
           test -s site/index.html
           test -s site/hoi-dap.html
           test -s site/assets/app.js

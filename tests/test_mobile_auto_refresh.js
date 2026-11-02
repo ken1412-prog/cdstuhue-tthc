@@ -65,7 +65,7 @@ async function main(){
  assert(src.includes("if(lastStaticLoadHadError)loadData();"),
   'Only retry failed static network loads, not correctly empty approved data');
  assert(src.includes('startLiveStats();'));
- assert(src.includes("firstPublicSync=false;\n updateGlobal();render();\n startLiveStats();\n loadData();}"),
+ assert(src.includes("firstPublicSync=false;\n updateGlobal();render();\n setTimeout(finalizeQaLoadFromTimeout,12000);\n startLiveStats();\n loadData();}"),
   'Render public navigation immediately, then fetch published data');
  assert(src.includes("menuReady:true"),'Verified public menu bootstraps the first screen');
  assert(src.includes("const menuTask=read('data/menu.json')"),'Menu refresh runs asynchronously');
