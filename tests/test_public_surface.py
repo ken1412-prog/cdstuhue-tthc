@@ -1250,7 +1250,7 @@ class PublicSurfaceTests(unittest.TestCase):
             "state.qaLoading=false;",
             "state.qaLoadError=state.qa.length===0;",
             "setTimeout(finalizeQaLoadFromTimeout,12000)",
-            "data-action=\\"retry-qa\\"",
+            'data-action="retry-qa"',
             "if(a==='retry-qa')",
             "loadData().then(()=>refreshLivePublished())",
         ):
@@ -1259,7 +1259,7 @@ class PublicSurfaceTests(unittest.TestCase):
         self.assertIn("git add site/data/approved.json",deploy)
         self.assertIn("if ! git diff --quiet -- site/data/approved.json",deploy)
         self.assertIn("PUBLIC_FIELDS",script)
-        self.assertIn("entry.get(\\"public\\") is not True",script)
+        self.assertIn('entry.get("public") is not True',script)
         self.assertIn("preserve_if_unchanged",script)
         for page in ("index.html","hoi-dap.html"):
             html=(SITE/page).read_text(encoding="utf-8")
