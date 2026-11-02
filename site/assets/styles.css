@@ -3012,60 +3012,91 @@ body{
   .assistant-mobile-fab{animation:none!important}
 }
 
-/* CDSTUHUE V23 CONTINUOUS TWIN HERO LIGHT — no blank travel interval.
-   V22 moved one masked gradient entirely off-screen and paused visually.
-   Here each track is one SEAMLESS, repeating cyan-white light pattern.
-   Two independently moving masked tracks are offset by half a wavelength:
-   there is always a lit segment on Nguyễn Hoàng's existing ribbon paths.
-   The photo, menu, KPI cards, stats, and QA behavior remain untouched. */
+/* CDSTUHUE V24 DESKTOP HERO LIGHT VISIBLE — explicitly supported positions.
+   Avoid V23 variable arithmetic inside keyframes; light remains ON ribbon curves.
+   Two half-tile-offset beams chase continuously without card/banner flashing. */
 .main .hero>.hero-silk-runner{
-  --cds-v23-track:240px;
   display:block!important;
+  mix-blend-mode:screen;
   pointer-events:none;
+  overflow:hidden;
 }
 .main .hero>.hero-silk-runner::before,
 .main .hero>.hero-silk-runner::after{
+  content:"";
+  display:block;
   background-image:linear-gradient(90deg,
-    rgba(58,207,249,.19) 0%,
-    rgba(80,228,255,.31) 23%,
-    rgba(155,247,255,.65) 38%,
-    rgba(248,255,255,.98) 49%,
-    rgba(255,255,255,1) 51%,
-    rgba(155,247,255,.65) 63%,
-    rgba(80,228,255,.31) 78%,
-    rgba(58,207,249,.19) 100%)!important;
-  background-size:var(--cds-v23-track) 100%!important;
+    rgba(63,206,249,.32) 0%,
+    rgba(100,231,255,.53) 24%,
+    rgba(207,253,255,.92) 44%,
+    #ffffff 50%,
+    rgba(207,253,255,.92) 56%,
+    rgba(100,231,255,.53) 76%,
+    rgba(63,206,249,.32) 100%)!important;
   background-repeat:repeat-x!important;
-  transform:none!important;
+  -webkit-mask-image:url('./img/blue-silk-hero-path-mask-v15.svg');
+  mask-image:url('./img/blue-silk-hero-path-mask-v15.svg');
+  -webkit-mask-size:100% 100%;
+  mask-size:100% 100%;
+  -webkit-mask-repeat:no-repeat;
+  mask-repeat:no-repeat;
+  -webkit-mask-position:center;
+  mask-position:center;
+  mask-mode:alpha;
   pointer-events:none;
-  opacity:.86!important;
+  opacity:.96!important;
 }
 .main .hero>.hero-silk-runner::before{
-  animation:cds-v23-first-band 10.5s linear infinite!important;
   filter:blur(4px)!important;
 }
 .main .hero>.hero-silk-runner::after{
-  animation:cds-v23-following-band 10.5s linear infinite!important;
-  filter:drop-shadow(0 0 5px rgba(160,247,255,.80))!important;
+  filter:drop-shadow(0 0 7px rgba(175,249,255,.94))!important;
 }
-/* An entire CSS background tile advances per cycle. The two edges of the
-   tile have identical colors, so the next cycle has no visible reset. */
-@keyframes cds-v23-first-band{
-  from{background-position:0 0}
-  to{background-position:calc(-1 * var(--cds-v23-track)) 0}
-}
-@keyframes cds-v23-following-band{
-  from{background-position:calc(-.5 * var(--cds-v23-track)) 0}
-  to{background-position:calc(-1.5 * var(--cds-v23-track)) 0}
-}
-/* No whole-banner flashing; the stat cards and monthly selector remain
-   static per V21. Nothing here animates their opacity, size or position. */
-.main .hero::after{animation:none!important}
-@media(max-width:760px){
-  .main .hero>.hero-silk-runner{--cds-v23-track:190px}
+/* Desktop: 320px tile, move exactly 320px each cycle (browser-safe).
+   The other beam remains half a tile ahead, with no dark pause. */
+@media screen and (min-width:761px){
   .main .hero>.hero-silk-runner::before,
-  .main .hero>.hero-silk-runner::after{animation-duration:12s!important}
+  .main .hero>.hero-silk-runner::after{
+    background-size:320px 100%!important;
+  }
+  .main .hero>.hero-silk-runner::before{
+    animation:cds-v24-desktop-one 8s linear infinite!important;
+  }
+  .main .hero>.hero-silk-runner::after{
+    animation:cds-v24-desktop-two 8s linear infinite!important;
+  }
 }
+@keyframes cds-v24-desktop-one{
+  from{background-position:0px 0px}
+  to{background-position:-320px 0px}
+}
+@keyframes cds-v24-desktop-two{
+  from{background-position:-160px 0px}
+  to{background-position:-480px 0px}
+}
+/* Mobile: same visual result at slower previously approved 12s pace. */
+@media(max-width:760px){
+  .main .hero>.hero-silk-runner::before,
+  .main .hero>.hero-silk-runner::after{
+    background-size:190px 100%!important;
+  }
+  .main .hero>.hero-silk-runner::before{
+    animation:cds-v24-mobile-one 12s linear infinite!important;
+  }
+  .main .hero>.hero-silk-runner::after{
+    animation:cds-v24-mobile-two 12s linear infinite!important;
+  }
+}
+@keyframes cds-v24-mobile-one{
+  from{background-position:0px 0px}
+  to{background-position:-190px 0px}
+}
+@keyframes cds-v24-mobile-two{
+  from{background-position:-95px 0px}
+  to{background-position:-285px 0px}
+}
+/* Stable background and static KPI cards per V21. */
+.main .hero::after{animation:none!important}
 @media(prefers-reduced-motion:reduce){
   .main .hero>.hero-silk-runner{display:none!important}
 }

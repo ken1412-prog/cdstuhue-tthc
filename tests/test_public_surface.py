@@ -43,7 +43,7 @@ class PublicSurfaceTests(unittest.TestCase):
         for page in ("index.html","hoi-dap.html"):
             html=(SITE/page).read_text(encoding="utf-8")
             self.assertEqual(html.count('class="sidebar-bridge-gleam" aria-hidden="true"'),1)
-            self.assertIn("assets/styles.css?v=20261102-continuous-twin-hero-v23",html)
+            self.assertIn("assets/styles.css?v=20261102-desktop-hero-visible-v24",html)
 
 
     def test_menu_has_instant_public_bootstrap_and_async_qa(self):
@@ -115,7 +115,7 @@ class PublicSurfaceTests(unittest.TestCase):
         self.assertIn("animation:cds-border-orbit 3s linear infinite",css)
         for page in ("index.html","hoi-dap.html"):
             html=(SITE/page).read_text(encoding="utf-8")
-            self.assertIn("assets/styles.css?v=20261102-continuous-twin-hero-v23",html)
+            self.assertIn("assets/styles.css?v=20261102-desktop-hero-visible-v24",html)
         for image in ("neon-ribbons-sidebar.svg","neon-ribbons-wide.svg"):
             path=SITE/"assets/img"/image
             self.assertTrue(path.is_file())
@@ -152,7 +152,7 @@ class PublicSurfaceTests(unittest.TestCase):
         self.assertNotIn("grid-template-columns",overlay)
         for page in ("index.html","hoi-dap.html"):
             html=(SITE/page).read_text(encoding="utf-8")
-            self.assertIn("assets/styles.css?v=20261102-continuous-twin-hero-v23",html)
+            self.assertIn("assets/styles.css?v=20261102-desktop-hero-visible-v24",html)
 
 
     def test_hero_banner_photograph_not_replaced_by_blue_glass(self):
@@ -166,7 +166,7 @@ class PublicSurfaceTests(unittest.TestCase):
         self.assertNotIn("url('./img/nguyen-hoang-bridge-3840.jpg')",v6)
         for page in ("index.html","hoi-dap.html"):
             html=(SITE/page).read_text(encoding="utf-8")
-            self.assertIn("assets/styles.css?v=20261102-continuous-twin-hero-v23",html)
+            self.assertIn("assets/styles.css?v=20261102-desktop-hero-visible-v24",html)
 
 
     def test_blue_glass_v6_contained_menu_light_and_blue_main(self):
@@ -196,7 +196,7 @@ class PublicSurfaceTests(unittest.TestCase):
         for page in ("index.html","hoi-dap.html"):
             html=(SITE/page).read_text(encoding="utf-8")
             self.assertEqual(html.count('class="sidebar-ambient" aria-hidden="true"'),1)
-            self.assertIn("assets/styles.css?v=20261102-continuous-twin-hero-v23",html)
+            self.assertIn("assets/styles.css?v=20261102-desktop-hero-visible-v24",html)
 
 
     def test_cobalt_reference_fast_three_second_ring_and_slow_light(self):
@@ -227,7 +227,7 @@ class PublicSurfaceTests(unittest.TestCase):
         self.assertNotIn("z-index:50",visual)
         for page in ("index.html","hoi-dap.html"):
             html=(SITE/page).read_text(encoding="utf-8")
-            self.assertIn("assets/styles.css?v=20261102-continuous-twin-hero-v23",html)
+            self.assertIn("assets/styles.css?v=20261102-desktop-hero-visible-v24",html)
 
 
     def test_light_ribbon_art_is_lightweight_responsive_and_accessible(self):
@@ -295,7 +295,7 @@ class PublicSurfaceTests(unittest.TestCase):
             self.assertIn('id="lastApprovedDate" aria-live="polite">—</span>',html)
             self.assertNotIn('id="lastApprovedDate" aria-live="polite">24/10/2026</span>',html)
             self.assertIn("assets/app.js?v=20261101-qa-loading-v10",html)
-            self.assertIn("assets/styles.css?v=20261102-continuous-twin-hero-v23",html)
+            self.assertIn("assets/styles.css?v=20261102-desktop-hero-visible-v24",html)
         self.assertIn("const approvedDate=state.stats?.period===currentReportMonth()?state.stats.approvedDate:null;",js)
         self.assertIn("if(fullDate)fullDate.textContent=approvedFull;",js)
         self.assertIn("if(shortDate)shortDate.textContent=approvedShort;",js)
@@ -383,7 +383,7 @@ class PublicSurfaceTests(unittest.TestCase):
             html=(SITE / page).read_text(encoding="utf-8")
             self.assertIn('<div class="footer-byline">',html)
             self.assertIn('<span class="footer-copyright">© 2026 CDSTUHUE</span><span class="footer-author">NKien',html)
-            self.assertIn('assets/styles.css?v=20261102-continuous-twin-hero-v23',html)
+            self.assertIn('assets/styles.css?v=20261102-desktop-hero-visible-v24',html)
             self.assertNotIn('id="navAssistant"',html)
             self.assertIn('id="openAssistant"',html)
             self.assertIn('id="assistantMobileFab"',html)
@@ -606,7 +606,7 @@ class PublicSurfaceTests(unittest.TestCase):
             self.assertIn('class="side-assist-heading"',html)
             self.assertIn('<small>Trong kho câu hỏi</small>',html)
             self.assertNotIn('Trợ lý tra cứu nhanh <small>Không dùng AI bên ngoài</small>',html)
-            self.assertIn('assets/styles.css?v=20261102-continuous-twin-hero-v23',html)
+            self.assertIn('assets/styles.css?v=20261102-desktop-hero-visible-v24',html)
         self.assertIn('/* Centered quick-search launcher in the sidebar */',css)
         self.assertIn('justify-content:center;',css[css.rfind('/* Centered quick-search launcher in the sidebar */'):])
         self.assertIn('text-align:center;',css[css.rfind('/* Centered quick-search launcher in the sidebar */'):])
@@ -635,7 +635,7 @@ class PublicSurfaceTests(unittest.TestCase):
             self.assertNotIn(forbidden, patch)
         for page in ("index.html", "hoi-dap.html"):
             html = (SITE / page).read_text(encoding="utf-8")
-            self.assertIn("assets/styles.css?v=20261102-continuous-twin-hero-v23", html)
+            self.assertIn("assets/styles.css?v=20261102-desktop-hero-visible-v24", html)
             self.assertIn("assets/app.js?v=20261101-qa-loading-v10", html)
 
     def test_v13_gloss_trails_follow_existing_paths_without_touching_sources(self):
@@ -679,7 +679,7 @@ class PublicSurfaceTests(unittest.TestCase):
             self.assertNotIn(forbidden, visual)
         for page in ("index.html", "hoi-dap.html"):
             html = (SITE / page).read_text(encoding="utf-8")
-            self.assertIn("assets/styles.css?v=20261102-continuous-twin-hero-v23", html)
+            self.assertIn("assets/styles.css?v=20261102-desktop-hero-visible-v24", html)
             self.assertIn("assets/app.js?v=20261101-qa-loading-v10", html)
 
     def test_v14_silk_waves_keep_real_photos_and_are_accessible(self):
@@ -714,7 +714,7 @@ class PublicSurfaceTests(unittest.TestCase):
         self.assertIn("applyLiveQA(feed)",js)
         for page in ("index.html","hoi-dap.html"):
             html=(SITE/page).read_text(encoding="utf-8")
-            self.assertIn("assets/styles.css?v=20261102-continuous-twin-hero-v23",html)
+            self.assertIn("assets/styles.css?v=20261102-desktop-hero-visible-v24",html)
             self.assertIn("assets/app.js?v=20261101-qa-loading-v10",html)
 
     def test_v15_panorama_light_is_stronger_and_clipped_to_curves(self):
@@ -748,7 +748,7 @@ class PublicSurfaceTests(unittest.TestCase):
         for page in ("index.html","hoi-dap.html"):
             html=(SITE/page).read_text(encoding="utf-8")
             self.assertEqual(html.count('class="hero-silk-runner" aria-hidden="true"'),1)
-            self.assertIn("assets/styles.css?v=20261102-continuous-twin-hero-v23",html)
+            self.assertIn("assets/styles.css?v=20261102-desktop-hero-visible-v24",html)
             self.assertIn("assets/app.js?v=20261101-qa-loading-v10",html)
 
     def test_v16_sidebar_and_stats_strong_silk_light_travel(self):
@@ -781,7 +781,7 @@ class PublicSurfaceTests(unittest.TestCase):
             self.assertNotIn(forbidden,part)
         for page in ("index.html","hoi-dap.html"):
             html=(SITE/page).read_text(encoding="utf-8")
-            self.assertIn("assets/styles.css?v=20261102-continuous-twin-hero-v23",html)
+            self.assertIn("assets/styles.css?v=20261102-desktop-hero-visible-v24",html)
             self.assertEqual(html.count('class="hero-silk-runner" aria-hidden="true"'),1)
 
     def test_v17_soft_flow_reduces_speed_without_changing_light_or_data(self):
@@ -810,7 +810,7 @@ class PublicSurfaceTests(unittest.TestCase):
             self.assertNotIn(forbidden,visual)
         for page in ("index.html","hoi-dap.html"):
             html=(SITE/page).read_text(encoding="utf-8")
-            self.assertIn("assets/styles.css?v=20261102-continuous-twin-hero-v23",html)
+            self.assertIn("assets/styles.css?v=20261102-desktop-hero-visible-v24",html)
             self.assertIn("assets/app.js?v=20261101-qa-loading-v10",html)
             self.assertEqual(html.count('class="hero-silk-runner" aria-hidden="true"'),1)
 
@@ -837,7 +837,7 @@ class PublicSurfaceTests(unittest.TestCase):
             self.assertNotIn(forbidden,part)
         for p in ("index.html","hoi-dap.html"):
             html=(SITE/p).read_text(encoding="utf-8")
-            self.assertIn("assets/styles.css?v=20261102-continuous-twin-hero-v23",html)
+            self.assertIn("assets/styles.css?v=20261102-desktop-hero-visible-v24",html)
             self.assertIn("assets/app.js?v=20261101-qa-loading-v10",html)
             self.assertIn('class="sidebar-bridge-gleam" aria-hidden="true"',html)
 
@@ -872,7 +872,7 @@ class PublicSurfaceTests(unittest.TestCase):
         for page in ("index.html","hoi-dap.html"):
             html=(SITE/page).read_text(encoding="utf-8")
             self.assertEqual(html.count('class="sidebar-twin-spotlights" aria-hidden="true"'),1)
-            self.assertIn("assets/styles.css?v=20261102-continuous-twin-hero-v23",html)
+            self.assertIn("assets/styles.css?v=20261102-desktop-hero-visible-v24",html)
             self.assertIn("assets/app.js?v=20261101-qa-loading-v10",html)
             self.assertEqual(html.count('class="sidebar-bridge-gleam" aria-hidden="true"'),1)
 
@@ -917,7 +917,7 @@ class PublicSurfaceTests(unittest.TestCase):
             self.assertNotIn(forbidden,patch)
         for name in ("index.html","hoi-dap.html"):
             html=(SITE/name).read_text(encoding="utf-8")
-            self.assertIn("assets/styles.css?v=20261102-continuous-twin-hero-v23",html)
+            self.assertIn("assets/styles.css?v=20261102-desktop-hero-visible-v24",html)
             self.assertEqual(html.count('class="sidebar-twin-spotlights" aria-hidden="true"'),1)
             self.assertIn("assets/app.js?v=20261101-qa-loading-v10",html)
 
@@ -954,7 +954,7 @@ class PublicSurfaceTests(unittest.TestCase):
             self.assertNotIn(forbidden,v21)
         for page in ("index.html","hoi-dap.html"):
             html=(SITE/page).read_text(encoding="utf-8")
-            self.assertIn("assets/styles.css?v=20261102-continuous-twin-hero-v23",html)
+            self.assertIn("assets/styles.css?v=20261102-desktop-hero-visible-v24",html)
             self.assertIn("assets/app.js?v=20261101-qa-loading-v10",html)
             self.assertEqual(html.count('class="sidebar-twin-spotlights" aria-hidden="true"'),1)
             self.assertEqual(html.count('class="hero-silk-runner" aria-hidden="true"'),1)
@@ -993,51 +993,49 @@ class PublicSurfaceTests(unittest.TestCase):
             self.assertNotIn(forbidden,patch)
         for page in ("index.html","hoi-dap.html"):
             html=(SITE/page).read_text(encoding="utf-8")
-            self.assertIn("assets/styles.css?v=20261102-continuous-twin-hero-v23",html)
+            self.assertIn("assets/styles.css?v=20261102-desktop-hero-visible-v24",html)
             self.assertIn("assets/app.js?v=20261101-qa-loading-v10",html)
             self.assertEqual(html.count('class="side-assist"'),1)
             self.assertEqual(html.count('class="assistant-mobile-fab"'),1)
             self.assertEqual(html.count('class="hero-silk-runner" aria-hidden="true"'),1)
 
-    def test_v23_hero_has_two_seamless_continuously_following_lights(self):
+    def test_v24_visible_desktop_hero_two_seamless_tracks(self):
         css=(SITE/"assets/styles.css").read_text(encoding="utf-8")
-        marker="/* CDSTUHUE V23 CONTINUOUS TWIN HERO LIGHT"
+        marker="/* CDSTUHUE V24 DESKTOP HERO LIGHT VISIBLE"
         self.assertEqual(css.count(marker),1)
-        part=css.split(marker,1)[1]
+        chunk=css.split(marker,1)[1]
         for token in (
             ".main .hero>.hero-silk-runner{",
-            "--cds-v23-track:240px",
-            ".main .hero>.hero-silk-runner::before,",
-            ".main .hero>.hero-silk-runner::after{",
+            "display:block!important",
+            "mix-blend-mode:screen",
+            "blue-silk-hero-path-mask-v15.svg",
             "background-repeat:repeat-x!important",
-            "background-size:var(--cds-v23-track) 100%!important",
-            "rgba(58,207,249,.19) 0%",
-            "rgba(58,207,249,.19) 100%",
-            "animation:cds-v23-first-band 10.5s linear infinite!important",
-            "animation:cds-v23-following-band 10.5s linear infinite!important",
-            "@keyframes cds-v23-first-band",
-            "@keyframes cds-v23-following-band",
-            "background-position:0 0",
-            "background-position:calc(-1 * var(--cds-v23-track)) 0",
-            "background-position:calc(-.5 * var(--cds-v23-track)) 0",
-            "background-position:calc(-1.5 * var(--cds-v23-track)) 0",
+            "opacity:.96!important",
+            "mask-mode:alpha",
+            "@media screen and (min-width:761px)",
+            "background-size:320px 100%!important",
+            "animation:cds-v24-desktop-one 8s linear infinite!important",
+            "animation:cds-v24-desktop-two 8s linear infinite!important",
+            "to{background-position:-320px 0px}",
+            "from{background-position:-160px 0px}",
+            "to{background-position:-480px 0px}",
+            "background-size:190px 100%!important",
+            "animation:cds-v24-mobile-one 12s linear infinite!important",
+            "animation:cds-v24-mobile-two 12s linear infinite!important",
+            "to{background-position:-190px 0px}",
+            "to{background-position:-285px 0px}",
             ".main .hero::after{animation:none!important}",
-            "--cds-v23-track:190px",
-            "animation-duration:12s!important",
-            "@media(prefers-reduced-motion:reduce)",
-            "@media print",
+            "@media(prefers-reduced-motion:reduce)", "@media print",
         ):
-            self.assertIn(token,part)
-        for forbidden in (".sidebar::before{",".sidebar::after{",
-                          ".main::before{",".main .payment-period-toolbar::after{",
-                          ".main .stats-kpi::after{","site/data/","user-select:none"):
-            self.assertNotIn(forbidden,part)
+            self.assertIn(token,chunk)
+        for forbidden in ("calc(", ".sidebar::after{", ".main::before{",
+                          ".main .stats-kpi::after{", "site/data/"):
+            self.assertNotIn(forbidden,chunk)
         for page in ("index.html","hoi-dap.html"):
             html=(SITE/page).read_text(encoding="utf-8")
-            self.assertIn("assets/styles.css?v=20261102-continuous-twin-hero-v23",html)
+            self.assertIn("assets/styles.css?v=20261102-desktop-hero-visible-v24",html)
             self.assertIn("assets/app.js?v=20261101-qa-loading-v10",html)
             self.assertEqual(html.count('class="hero-silk-runner" aria-hidden="true"'),1)
-            self.assertEqual(html.count('class="sidebar-twin-spotlights" aria-hidden="true"'),1)
 
 if __name__ == "__main__":
     unittest.main()
