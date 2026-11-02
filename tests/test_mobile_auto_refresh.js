@@ -94,7 +94,22 @@ async function main(){
  assert(src.includes('if(!liveSourceAccepted.qa){'));
  assert(src.includes('if(!liveSourceAccepted.menu)state.menu='));
  assert(src.includes('if(hadError)scheduleDataLoadRecovery();'));
- assert(html.includes('20261102-october-history-fix-v11'));
+ assert(html.includes('20261102-qa-retry-fallback-v12'));
+ const qaGuard=between('function finalizeQaLoadFromTimeout(){','\nfunction boot(){');
+ const guarded={state:{qaLoading:true,demo:false,qa:[],qaLoadError:false},
+   updateGlobal:()=>{},render:()=>{}};
+ vm.createContext(guarded);
+ vm.runInContext(qaGuard+'\nthis.finalizeQa=finalizeQaLoadFromTimeout;',guarded);
+ guarded.finalizeQa();
+ assert.equal(guarded.state.qaLoading,false);
+ assert.equal(guarded.state.qaLoadError,true,
+   'Mobile QA spinner must stop if the feed hangs past twelve seconds');
+ guarded.state.qa=[{id:'PUBLIC001'}];guarded.state.qaLoading=true;
+ guarded.finalizeQa();
+ assert.equal(guarded.state.qaLoadError,false,
+   'Approved QA kept when a late network request stalls');
+ assert(src.includes('data-action="retry-qa"'),
+   'QA error screen must offer manual retry');
  assert(headers.includes('/assets/app.js'));
  console.log('Mobile auto-refresh PASS: startup retry, endpoint retry, tab restore and version bust');
 }

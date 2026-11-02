@@ -116,6 +116,22 @@ jobs:
           else
             echo "QA_PUBLIC_ENDPOINT not configured: publishing empty approved.json placeholder"
           fi
+      - name: Preserve reviewed public QA snapshot for Netlify and GitHub Pages
+        env:
+          QA_PUBLIC_ENDPOINT: ${{ secrets.QA_PUBLIC_ENDPOINT }}
+        run: |
+          if [ -z "$QA_PUBLIC_ENDPOINT" ]; then
+            echo "Approved QA feed not configured; preserving existing public fallback"
+            exit 0
+          fi
+          python scripts/persist_public_qa.py
+          if ! git diff --quiet -- site/data/approved.json; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add site/data/approved.json
+            git commit -m "Refresh validated public Q&A fallback"
+            git push origin HEAD:main
+          fi
       - name: Auto-save owner-approved monthly aggregate and close past months
         run: |
           python scripts/rolling_payment_month.py
