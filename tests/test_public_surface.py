@@ -43,7 +43,7 @@ class PublicSurfaceTests(unittest.TestCase):
         for page in ("index.html","hoi-dap.html"):
             html=(SITE/page).read_text(encoding="utf-8")
             self.assertEqual(html.count('class="sidebar-bridge-gleam" aria-hidden="true"'),1)
-            self.assertIn("assets/styles.css?v=20261101-content-stability-v21",html)
+            self.assertIn("assets/styles.css?v=20261102-nguyen-hoang-flow-qa-v22",html)
 
 
     def test_menu_has_instant_public_bootstrap_and_async_qa(self):
@@ -115,7 +115,7 @@ class PublicSurfaceTests(unittest.TestCase):
         self.assertIn("animation:cds-border-orbit 3s linear infinite",css)
         for page in ("index.html","hoi-dap.html"):
             html=(SITE/page).read_text(encoding="utf-8")
-            self.assertIn("assets/styles.css?v=20261101-content-stability-v21",html)
+            self.assertIn("assets/styles.css?v=20261102-nguyen-hoang-flow-qa-v22",html)
         for image in ("neon-ribbons-sidebar.svg","neon-ribbons-wide.svg"):
             path=SITE/"assets/img"/image
             self.assertTrue(path.is_file())
@@ -152,7 +152,7 @@ class PublicSurfaceTests(unittest.TestCase):
         self.assertNotIn("grid-template-columns",overlay)
         for page in ("index.html","hoi-dap.html"):
             html=(SITE/page).read_text(encoding="utf-8")
-            self.assertIn("assets/styles.css?v=20261101-content-stability-v21",html)
+            self.assertIn("assets/styles.css?v=20261102-nguyen-hoang-flow-qa-v22",html)
 
 
     def test_hero_banner_photograph_not_replaced_by_blue_glass(self):
@@ -166,7 +166,7 @@ class PublicSurfaceTests(unittest.TestCase):
         self.assertNotIn("url('./img/nguyen-hoang-bridge-3840.jpg')",v6)
         for page in ("index.html","hoi-dap.html"):
             html=(SITE/page).read_text(encoding="utf-8")
-            self.assertIn("assets/styles.css?v=20261101-content-stability-v21",html)
+            self.assertIn("assets/styles.css?v=20261102-nguyen-hoang-flow-qa-v22",html)
 
 
     def test_blue_glass_v6_contained_menu_light_and_blue_main(self):
@@ -196,7 +196,7 @@ class PublicSurfaceTests(unittest.TestCase):
         for page in ("index.html","hoi-dap.html"):
             html=(SITE/page).read_text(encoding="utf-8")
             self.assertEqual(html.count('class="sidebar-ambient" aria-hidden="true"'),1)
-            self.assertIn("assets/styles.css?v=20261101-content-stability-v21",html)
+            self.assertIn("assets/styles.css?v=20261102-nguyen-hoang-flow-qa-v22",html)
 
 
     def test_cobalt_reference_fast_three_second_ring_and_slow_light(self):
@@ -227,7 +227,7 @@ class PublicSurfaceTests(unittest.TestCase):
         self.assertNotIn("z-index:50",visual)
         for page in ("index.html","hoi-dap.html"):
             html=(SITE/page).read_text(encoding="utf-8")
-            self.assertIn("assets/styles.css?v=20261101-content-stability-v21",html)
+            self.assertIn("assets/styles.css?v=20261102-nguyen-hoang-flow-qa-v22",html)
 
 
     def test_light_ribbon_art_is_lightweight_responsive_and_accessible(self):
@@ -295,7 +295,7 @@ class PublicSurfaceTests(unittest.TestCase):
             self.assertIn('id="lastApprovedDate" aria-live="polite">—</span>',html)
             self.assertNotIn('id="lastApprovedDate" aria-live="polite">24/10/2026</span>',html)
             self.assertIn("assets/app.js?v=20261101-qa-loading-v10",html)
-            self.assertIn("assets/styles.css?v=20261101-content-stability-v21",html)
+            self.assertIn("assets/styles.css?v=20261102-nguyen-hoang-flow-qa-v22",html)
         self.assertIn("const approvedDate=state.stats?.period===currentReportMonth()?state.stats.approvedDate:null;",js)
         self.assertIn("if(fullDate)fullDate.textContent=approvedFull;",js)
         self.assertIn("if(shortDate)shortDate.textContent=approvedShort;",js)
@@ -383,7 +383,7 @@ class PublicSurfaceTests(unittest.TestCase):
             html=(SITE / page).read_text(encoding="utf-8")
             self.assertIn('<div class="footer-byline">',html)
             self.assertIn('<span class="footer-copyright">© 2026 CDSTUHUE</span><span class="footer-author">NKien',html)
-            self.assertIn('assets/styles.css?v=20261101-content-stability-v21',html)
+            self.assertIn('assets/styles.css?v=20261102-nguyen-hoang-flow-qa-v22',html)
             self.assertNotIn('id="navAssistant"',html)
             self.assertIn('id="openAssistant"',html)
             self.assertIn('id="assistantMobileFab"',html)
@@ -606,7 +606,7 @@ class PublicSurfaceTests(unittest.TestCase):
             self.assertIn('class="side-assist-heading"',html)
             self.assertIn('<small>Trong kho câu hỏi</small>',html)
             self.assertNotIn('Trợ lý tra cứu nhanh <small>Không dùng AI bên ngoài</small>',html)
-            self.assertIn('assets/styles.css?v=20261101-content-stability-v21',html)
+            self.assertIn('assets/styles.css?v=20261102-nguyen-hoang-flow-qa-v22',html)
         self.assertIn('/* Centered quick-search launcher in the sidebar */',css)
         self.assertIn('justify-content:center;',css[css.rfind('/* Centered quick-search launcher in the sidebar */'):])
         self.assertIn('text-align:center;',css[css.rfind('/* Centered quick-search launcher in the sidebar */'):])
@@ -635,7 +635,7 @@ class PublicSurfaceTests(unittest.TestCase):
             self.assertNotIn(forbidden, patch)
         for page in ("index.html", "hoi-dap.html"):
             html = (SITE / page).read_text(encoding="utf-8")
-            self.assertIn("assets/styles.css?v=20261101-content-stability-v21", html)
+            self.assertIn("assets/styles.css?v=20261102-nguyen-hoang-flow-qa-v22", html)
             self.assertIn("assets/app.js?v=20261101-qa-loading-v10", html)
 
     def test_v13_gloss_trails_follow_existing_paths_without_touching_sources(self):
@@ -679,7 +679,7 @@ class PublicSurfaceTests(unittest.TestCase):
             self.assertNotIn(forbidden, visual)
         for page in ("index.html", "hoi-dap.html"):
             html = (SITE / page).read_text(encoding="utf-8")
-            self.assertIn("assets/styles.css?v=20261101-content-stability-v21", html)
+            self.assertIn("assets/styles.css?v=20261102-nguyen-hoang-flow-qa-v22", html)
             self.assertIn("assets/app.js?v=20261101-qa-loading-v10", html)
 
     def test_v14_silk_waves_keep_real_photos_and_are_accessible(self):
@@ -714,7 +714,7 @@ class PublicSurfaceTests(unittest.TestCase):
         self.assertIn("applyLiveQA(feed)",js)
         for page in ("index.html","hoi-dap.html"):
             html=(SITE/page).read_text(encoding="utf-8")
-            self.assertIn("assets/styles.css?v=20261101-content-stability-v21",html)
+            self.assertIn("assets/styles.css?v=20261102-nguyen-hoang-flow-qa-v22",html)
             self.assertIn("assets/app.js?v=20261101-qa-loading-v10",html)
 
     def test_v15_panorama_light_is_stronger_and_clipped_to_curves(self):
@@ -748,7 +748,7 @@ class PublicSurfaceTests(unittest.TestCase):
         for page in ("index.html","hoi-dap.html"):
             html=(SITE/page).read_text(encoding="utf-8")
             self.assertEqual(html.count('class="hero-silk-runner" aria-hidden="true"'),1)
-            self.assertIn("assets/styles.css?v=20261101-content-stability-v21",html)
+            self.assertIn("assets/styles.css?v=20261102-nguyen-hoang-flow-qa-v22",html)
             self.assertIn("assets/app.js?v=20261101-qa-loading-v10",html)
 
     def test_v16_sidebar_and_stats_strong_silk_light_travel(self):
@@ -781,7 +781,7 @@ class PublicSurfaceTests(unittest.TestCase):
             self.assertNotIn(forbidden,part)
         for page in ("index.html","hoi-dap.html"):
             html=(SITE/page).read_text(encoding="utf-8")
-            self.assertIn("assets/styles.css?v=20261101-content-stability-v21",html)
+            self.assertIn("assets/styles.css?v=20261102-nguyen-hoang-flow-qa-v22",html)
             self.assertEqual(html.count('class="hero-silk-runner" aria-hidden="true"'),1)
 
     def test_v17_soft_flow_reduces_speed_without_changing_light_or_data(self):
@@ -810,7 +810,7 @@ class PublicSurfaceTests(unittest.TestCase):
             self.assertNotIn(forbidden,visual)
         for page in ("index.html","hoi-dap.html"):
             html=(SITE/page).read_text(encoding="utf-8")
-            self.assertIn("assets/styles.css?v=20261101-content-stability-v21",html)
+            self.assertIn("assets/styles.css?v=20261102-nguyen-hoang-flow-qa-v22",html)
             self.assertIn("assets/app.js?v=20261101-qa-loading-v10",html)
             self.assertEqual(html.count('class="hero-silk-runner" aria-hidden="true"'),1)
 
@@ -837,7 +837,7 @@ class PublicSurfaceTests(unittest.TestCase):
             self.assertNotIn(forbidden,part)
         for p in ("index.html","hoi-dap.html"):
             html=(SITE/p).read_text(encoding="utf-8")
-            self.assertIn("assets/styles.css?v=20261101-content-stability-v21",html)
+            self.assertIn("assets/styles.css?v=20261102-nguyen-hoang-flow-qa-v22",html)
             self.assertIn("assets/app.js?v=20261101-qa-loading-v10",html)
             self.assertIn('class="sidebar-bridge-gleam" aria-hidden="true"',html)
 
@@ -872,7 +872,7 @@ class PublicSurfaceTests(unittest.TestCase):
         for page in ("index.html","hoi-dap.html"):
             html=(SITE/page).read_text(encoding="utf-8")
             self.assertEqual(html.count('class="sidebar-twin-spotlights" aria-hidden="true"'),1)
-            self.assertIn("assets/styles.css?v=20261101-content-stability-v21",html)
+            self.assertIn("assets/styles.css?v=20261102-nguyen-hoang-flow-qa-v22",html)
             self.assertIn("assets/app.js?v=20261101-qa-loading-v10",html)
             self.assertEqual(html.count('class="sidebar-bridge-gleam" aria-hidden="true"'),1)
 
@@ -917,7 +917,7 @@ class PublicSurfaceTests(unittest.TestCase):
             self.assertNotIn(forbidden,patch)
         for name in ("index.html","hoi-dap.html"):
             html=(SITE/name).read_text(encoding="utf-8")
-            self.assertIn("assets/styles.css?v=20261101-content-stability-v21",html)
+            self.assertIn("assets/styles.css?v=20261102-nguyen-hoang-flow-qa-v22",html)
             self.assertEqual(html.count('class="sidebar-twin-spotlights" aria-hidden="true"'),1)
             self.assertIn("assets/app.js?v=20261101-qa-loading-v10",html)
 
@@ -925,7 +925,7 @@ class PublicSurfaceTests(unittest.TestCase):
         css=(SITE/"assets/styles.css").read_text(encoding="utf-8")
         marker="/* CDSTUHUE CONTENT NO-FLASH V21"
         self.assertEqual(css.count(marker),1)
-        v21=css.split(marker,1)[1]
+        v21=css.split(marker,1)[1].split("/* CDSTUHUE V22 —",1)[0]
         required=(
             ".main .hero::after,",
             ".main .stats-hero-home::after,",
@@ -954,9 +954,49 @@ class PublicSurfaceTests(unittest.TestCase):
             self.assertNotIn(forbidden,v21)
         for page in ("index.html","hoi-dap.html"):
             html=(SITE/page).read_text(encoding="utf-8")
-            self.assertIn("assets/styles.css?v=20261101-content-stability-v21",html)
+            self.assertIn("assets/styles.css?v=20261102-nguyen-hoang-flow-qa-v22",html)
             self.assertIn("assets/app.js?v=20261101-qa-loading-v10",html)
             self.assertEqual(html.count('class="sidebar-twin-spotlights" aria-hidden="true"'),1)
+            self.assertEqual(html.count('class="hero-silk-runner" aria-hidden="true"'),1)
+
+    def test_v22_bridge_double_speed_hero_path_and_qa_buttons_without_page_flash(self):
+        css=(SITE/"assets/styles.css").read_text(encoding="utf-8")
+        marker="/* CDSTUHUE V22 —"
+        self.assertEqual(css.count(marker),1)
+        patch=css.split(marker,1)[1]
+        for item in (
+            ".sidebar>.sidebar-twin-spotlights::before{",
+            "animation-duration:8s!important",
+            ".sidebar>.sidebar-twin-spotlights::after{",
+            "animation-duration:9.5s!important",
+            ".main .hero>.hero-silk-runner{",
+            "display:block!important",
+            ".main .hero>.hero-silk-runner::before,",
+            "animation:cds-v22-hero-path-run 10.5s linear infinite!important",
+            "background-position:132% 0",
+            "background-position:-110% 0",
+            ".main .hero::after{animation:none!important}",
+            ".sidebar .side-assist,",
+            ".assistant-mobile-fab:not([hidden]){",
+            "animation:cds-v22-qa-breathe 4.8s ease-in-out infinite",
+            "filter:brightness(1.065)",
+            "animation-duration:9s!important",
+            "animation-duration:10.5s!important",
+            "animation-duration:12s!important",
+            "@media(prefers-reduced-motion:reduce)",
+            "@media print",
+        ):
+            self.assertIn(item,patch)
+        for forbidden in (".main::before{",".main .stats-kpi::after{",
+                          ".main .payment-period-toolbar::after{",
+                          "site/data/","user-select:none"):
+            self.assertNotIn(forbidden,patch)
+        for page in ("index.html","hoi-dap.html"):
+            html=(SITE/page).read_text(encoding="utf-8")
+            self.assertIn("assets/styles.css?v=20261102-nguyen-hoang-flow-qa-v22",html)
+            self.assertIn("assets/app.js?v=20261101-qa-loading-v10",html)
+            self.assertEqual(html.count('class="side-assist"'),1)
+            self.assertEqual(html.count('class="assistant-mobile-fab"'),1)
             self.assertEqual(html.count('class="hero-silk-runner" aria-hidden="true"'),1)
 
 if __name__ == "__main__":

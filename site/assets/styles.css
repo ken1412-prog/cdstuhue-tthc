@@ -2918,3 +2918,96 @@ body{
   .main .stats-hero-home::after,
   .main .payment-period-toolbar::after{display:none!important}
 }
+
+/* CDSTUHUE V22 — 2x bridge searchlight speed; stronger Nguyen Hoang
+   ribbon flow; soft QA-button glint. This is presentation-only.
+   Never flash the main canvas, monthly selector or KPI cards again. */
+
+/* Two independent Trường Tiền headlights: exactly twice the V20 speed. */
+.sidebar>.sidebar-twin-spotlights::before{
+  animation-duration:8s!important;
+}
+.sidebar>.sidebar-twin-spotlights::after{
+  animation-duration:9.5s!important;
+}
+
+/* Bring back motion ONLY inside the masked curves on the Nguyễn Hoàng photo.
+   Constant opacity + a narrow moving beam avoids the V20 page-reload flash. */
+.main .hero>.hero-silk-runner{
+  display:block!important;
+  pointer-events:none;
+}
+.main .hero>.hero-silk-runner::before,
+.main .hero>.hero-silk-runner::after{
+  background:linear-gradient(94deg,
+    transparent 17%,
+    rgba(57,203,247,.08) 32%,
+    rgba(91,231,255,.38) 42%,
+    rgba(188,249,255,.86) 47%,
+    rgba(245,255,255,1) 50%,
+    rgba(169,250,255,.87) 53%,
+    rgba(71,216,255,.37) 59%,
+    transparent 74%);
+  background-size:245% 100%;
+  background-position:132% 0;
+  animation:cds-v22-hero-path-run 10.5s linear infinite!important;
+  transform:none!important;
+  pointer-events:none;
+}
+.main .hero>.hero-silk-runner::before{
+  opacity:.72!important;
+  filter:blur(4px)!important;
+}
+.main .hero>.hero-silk-runner::after{
+  opacity:.94!important;
+  filter:drop-shadow(0 0 5px rgba(165,249,255,.82))!important;
+}
+@keyframes cds-v22-hero-path-run{
+  0%{background-position:132% 0}
+  100%{background-position:-110% 0}
+}
+/* The natural fixed-color silk artwork stays in place, so the whole
+   banner doesn't brighten and dim as the highlight crosses. */
+.main .hero::after{animation:none!important}
+
+/* Side-menu assistant and mobile main-content FAQ launcher:
+   a gentle glow without scaling, blinking text or moving any buttons. */
+.sidebar .side-assist,
+.assistant-mobile-fab:not([hidden]){
+  animation:cds-v22-qa-breathe 4.8s ease-in-out infinite;
+}
+@keyframes cds-v22-qa-breathe{
+  0%,100%{
+    filter:brightness(1);
+    box-shadow:0 8px 20px rgba(52,24,55,.23),0 0 8px rgba(249,102,146,.16);
+  }
+  50%{
+    filter:brightness(1.065);
+    box-shadow:0 8px 22px rgba(52,24,55,.25),0 0 14px rgba(255,171,196,.37);
+  }
+}
+
+/* Original mobile timing /2 too: bridge L/R 18s -> 9s, 21s -> 10.5s,
+   and the banner's 24s -> 12s. */
+@media(max-width:760px){
+  .sidebar>.sidebar-twin-spotlights::before{animation-duration:9s!important}
+  .sidebar>.sidebar-twin-spotlights::after{animation-duration:10.5s!important}
+  .main .hero>.hero-silk-runner::before,
+  .main .hero>.hero-silk-runner::after{animation-duration:12s!important}
+  .assistant-mobile-fab:not([hidden]){animation-duration:5.2s}
+}
+@media(prefers-reduced-motion:reduce){
+  .sidebar>.sidebar-twin-spotlights::before,
+  .sidebar>.sidebar-twin-spotlights::after,
+  .sidebar .side-assist,
+  .assistant-mobile-fab:not([hidden]){
+    animation:none!important;
+    filter:none!important;
+  }
+  .main .hero>.hero-silk-runner{display:none!important}
+}
+@media print{
+  .main .hero>.hero-silk-runner{display:none!important}
+  .sidebar .side-assist,
+  .assistant-mobile-fab{animation:none!important}
+}
