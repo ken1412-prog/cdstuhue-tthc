@@ -88,6 +88,9 @@ jobs:
             git push origin HEAD:main
           fi
       - name: Prepare real Trường Tiền photo and actual-light shimmer
+        # Both approved WebP assets are version-controlled. Do not let an
+        # unnecessary remote JPG download block unrelated site deployments.
+        if: ${{ hashFiles('site/assets/img/truong-tien-real-neon.webp') == '' || hashFiles('site/assets/img/truong-tien-arc-light.webp') == '' }}
         run: |
           set -euo pipefail
           curl --fail --location --silent --show-error --retry 3 --retry-delay 3 \
