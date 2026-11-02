@@ -3203,3 +3203,42 @@ body{
 @media print {
   .main .hero{background:#fff!important}
 }
+
+/* CDSTUHUE V27 — NGỌ MÔN HERO BRIGHTNESS
+   Remove excessive navy shading that hid the illuminated gate at night.
+   Preserve the photo, soft running light trails and readable white title.
+   Scoped to the TOP hero only; all payment/QA data and other images intact. */
+@media screen{
+  .main .hero{
+    background:
+      linear-gradient(96deg,
+        rgba(5,22,44,.58) 0%,
+        rgba(6,27,49,.43) 38%,
+        rgba(4,28,54,.25) 71%,
+        rgba(4,30,55,.12) 100%),
+      url('https://images.pexels.com/photos/14021268/pexels-photo-14021268.jpeg?auto=compress&cs=tinysrgb&w=1800') 53% 48% /cover no-repeat,
+      linear-gradient(115deg,#0a2d52,#102d4c)!important;
+  }
+}
+/* Mobile: the prior overlay reached fully opaque navy at the bottom and
+   made the façade invisible. Keep a soft dark edge for CTA readability. */
+@media screen and (max-width:760px){
+  .main .hero{
+    background:
+      linear-gradient(180deg,
+        rgba(6,23,45,.23) 0%,
+        rgba(7,28,53,.33) 42%,
+        rgba(5,27,51,.53) 82%,
+        rgba(5,28,53,.69) 100%),
+      url('https://images.pexels.com/photos/14021268/pexels-photo-14021268.jpeg?auto=compress&cs=tinysrgb&w=1800') center 42% /cover no-repeat,
+      #0b2949!important;
+  }
+}
+/* White heading remains legible against illuminated details. */
+.main .hero h1,
+.main .hero .eyebrow{
+  text-shadow:0 2px 5px rgba(2,13,30,.90),0 0 12px rgba(2,13,30,.55);
+}
+@media print{
+  .main .hero{background:#fff!important}
+}
