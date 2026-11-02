@@ -3161,3 +3161,45 @@ body{
   .sidebar .side-assist,
   .assistant-mobile-fab{animation:none!important}
 }
+
+/* CDSTUHUE V26 — NGỌ MÔN NIGHT HERO, NO FLAG IN THE BANNER COMPOSITION.
+   Source: Quang Nguyen Vinh / Pexels, photo #14021268 (free-use photo).
+   https://www.pexels.com/photo/entrance-to-the-imperial-city-of-hue-in-vietnam-during-night-time-14021268/
+   Replace ONLY the main top hero photo; keep the bridge photo in the
+   sidebar and all monthly-report backgrounds, controls, data and motion.
+   Photo is a nighttime illuminated view, not a flag tower. */
+@media screen {
+  .main .hero {
+    background:
+      linear-gradient(96deg,
+        rgba(5,22,44,.94) 0%,
+        rgba(6,27,49,.79) 38%,
+        rgba(4,28,54,.51) 71%,
+        rgba(4,30,55,.26) 100%),
+      url('https://images.pexels.com/photos/14021268/pexels-photo-14021268.jpeg?auto=compress&cs=tinysrgb&w=1800') 53% 48% /cover no-repeat,
+      linear-gradient(115deg,#0a2d52,#102d4c) !important;
+    background-color:#0b2d50 !important;
+  }
+  /* The older desktop ::before was another image of Nguyễn Hoàng; if left
+     active, it will cover the new Ngọ Môn photograph on the right half. */
+  .main .hero::before {
+    display:none!important;
+  }
+}
+@media screen and (max-width:760px) {
+  .main .hero {
+    background:
+      linear-gradient(180deg,
+        rgba(6,23,45,.52) 0%,
+        rgba(7,28,53,.64) 42%,
+        rgba(5,27,51,.87) 82%,
+        #0b2949 100%),
+      url('https://images.pexels.com/photos/14021268/pexels-photo-14021268.jpeg?auto=compress&cs=tinysrgb&w=1800') center 42% /cover no-repeat,
+      #0b2949 !important;
+  }
+}
+/* Preserve clear white title and gold/red CTA buttons over the image. */
+.main .hero>.hero-copy{position:relative;z-index:2}
+@media print {
+  .main .hero{background:#fff!important}
+}

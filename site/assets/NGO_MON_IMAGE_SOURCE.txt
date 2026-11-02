@@ -1,0 +1,7 @@
+Ngọ Môn, Imperial City of Huế — nighttime illuminated gate (main hero only)
+Photographer: Quang Nguyen Vinh
+Source: https://www.pexels.com/photo/entrance-to-the-imperial-city-of-hue-in-vietnam-during-night-time-14021268/
+Pexels License: https://www.pexels.com/license/
+Image delivery: https://images.pexels.com/photos/14021268/pexels-photo-14021268.jpeg?auto=compress&cs=tinysrgb&w=1800
+Rationale: night-lit imperial gate without a flag tower; hero background only.
+Note: external image URL; if it is unavailable, a solid navy fallback remains.
