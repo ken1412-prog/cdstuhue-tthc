@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 480" preserveAspectRatio="none">
+<!-- CDSTUHUE V30 lower lane, right-to-left glow: soft alpha envelope + precise core around one wide flowing wave. -->
+<defs>
+ <filter id="aura" x="-22%" y="-250%" width="144%" height="600%"><feGaussianBlur stdDeviation="20"/></filter>
+ <filter id="halo" x="-22%" y="-250%" width="144%" height="600%"><feGaussianBlur stdDeviation="8"/></filter>
+</defs>
+<g fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round">
+ <path d="M-110 215 C250 358 454 427 728 349 C946 241 1038 120 1170 172 C1400 263 1540 335 1750 300" stroke-width="108" opacity=".36" filter="url(#aura)"/>
+ <path d="M-110 215 C250 358 454 427 728 349 C946 241 1038 120 1170 172 C1400 263 1540 335 1750 300" stroke-width="34" opacity=".72" filter="url(#halo)"/>
+ <path d="M-110 215 C250 358 454 427 728 349 C946 241 1038 120 1170 172 C1400 263 1540 335 1750 300" stroke-width="11" opacity="1"/>
+</g>
+</svg>

@@ -43,7 +43,7 @@ class PublicSurfaceTests(unittest.TestCase):
         for page in ("index.html","hoi-dap.html"):
             html=(SITE/page).read_text(encoding="utf-8")
             self.assertEqual(html.count('class="sidebar-bridge-gleam" aria-hidden="true"'),1)
-            self.assertIn("assets/styles.css?v=20261102-ngo-mon-golden-light-v29",html)
+            self.assertIn("assets/styles.css?v=20261102-ngo-mon-white-gold-crossflow-v30",html)
 
 
     def test_menu_has_instant_public_bootstrap_and_async_qa(self):
@@ -115,7 +115,7 @@ class PublicSurfaceTests(unittest.TestCase):
         self.assertIn("animation:cds-border-orbit 3s linear infinite",css)
         for page in ("index.html","hoi-dap.html"):
             html=(SITE/page).read_text(encoding="utf-8")
-            self.assertIn("assets/styles.css?v=20261102-ngo-mon-golden-light-v29",html)
+            self.assertIn("assets/styles.css?v=20261102-ngo-mon-white-gold-crossflow-v30",html)
         for image in ("neon-ribbons-sidebar.svg","neon-ribbons-wide.svg"):
             path=SITE/"assets/img"/image
             self.assertTrue(path.is_file())
@@ -152,7 +152,7 @@ class PublicSurfaceTests(unittest.TestCase):
         self.assertNotIn("grid-template-columns",overlay)
         for page in ("index.html","hoi-dap.html"):
             html=(SITE/page).read_text(encoding="utf-8")
-            self.assertIn("assets/styles.css?v=20261102-ngo-mon-golden-light-v29",html)
+            self.assertIn("assets/styles.css?v=20261102-ngo-mon-white-gold-crossflow-v30",html)
 
 
     def test_hero_banner_photograph_not_replaced_by_blue_glass(self):
@@ -166,7 +166,7 @@ class PublicSurfaceTests(unittest.TestCase):
         self.assertNotIn("url('./img/nguyen-hoang-bridge-3840.jpg')",v6)
         for page in ("index.html","hoi-dap.html"):
             html=(SITE/page).read_text(encoding="utf-8")
-            self.assertIn("assets/styles.css?v=20261102-ngo-mon-golden-light-v29",html)
+            self.assertIn("assets/styles.css?v=20261102-ngo-mon-white-gold-crossflow-v30",html)
 
 
     def test_blue_glass_v6_contained_menu_light_and_blue_main(self):
@@ -196,7 +196,7 @@ class PublicSurfaceTests(unittest.TestCase):
         for page in ("index.html","hoi-dap.html"):
             html=(SITE/page).read_text(encoding="utf-8")
             self.assertEqual(html.count('class="sidebar-ambient" aria-hidden="true"'),1)
-            self.assertIn("assets/styles.css?v=20261102-ngo-mon-golden-light-v29",html)
+            self.assertIn("assets/styles.css?v=20261102-ngo-mon-white-gold-crossflow-v30",html)
 
 
     def test_cobalt_reference_fast_three_second_ring_and_slow_light(self):
@@ -227,7 +227,7 @@ class PublicSurfaceTests(unittest.TestCase):
         self.assertNotIn("z-index:50",visual)
         for page in ("index.html","hoi-dap.html"):
             html=(SITE/page).read_text(encoding="utf-8")
-            self.assertIn("assets/styles.css?v=20261102-ngo-mon-golden-light-v29",html)
+            self.assertIn("assets/styles.css?v=20261102-ngo-mon-white-gold-crossflow-v30",html)
 
 
     def test_light_ribbon_art_is_lightweight_responsive_and_accessible(self):
@@ -295,7 +295,7 @@ class PublicSurfaceTests(unittest.TestCase):
             self.assertIn('id="lastApprovedDate" aria-live="polite">—</span>',html)
             self.assertNotIn('id="lastApprovedDate" aria-live="polite">24/10/2026</span>',html)
             self.assertIn("assets/app.js?v=20261102-october-history-fix-v11",html)
-            self.assertIn("assets/styles.css?v=20261102-ngo-mon-golden-light-v29",html)
+            self.assertIn("assets/styles.css?v=20261102-ngo-mon-white-gold-crossflow-v30",html)
         self.assertIn("const approvedDate=state.stats?.period===currentReportMonth()?state.stats.approvedDate:null;",js)
         self.assertIn("if(fullDate)fullDate.textContent=approvedFull;",js)
         self.assertIn("if(shortDate)shortDate.textContent=approvedShort;",js)
@@ -383,7 +383,7 @@ class PublicSurfaceTests(unittest.TestCase):
             html=(SITE / page).read_text(encoding="utf-8")
             self.assertIn('<div class="footer-byline">',html)
             self.assertIn('<span class="footer-copyright">© 2026 CDSTUHUE</span><span class="footer-author">NKien',html)
-            self.assertIn('assets/styles.css?v=20261102-ngo-mon-golden-light-v29',html)
+            self.assertIn('assets/styles.css?v=20261102-ngo-mon-white-gold-crossflow-v30',html)
             self.assertNotIn('id="navAssistant"',html)
             self.assertIn('id="openAssistant"',html)
             self.assertIn('id="assistantMobileFab"',html)
@@ -606,7 +606,7 @@ class PublicSurfaceTests(unittest.TestCase):
             self.assertIn('class="side-assist-heading"',html)
             self.assertIn('<small>Trong kho câu hỏi</small>',html)
             self.assertNotIn('Trợ lý tra cứu nhanh <small>Không dùng AI bên ngoài</small>',html)
-            self.assertIn('assets/styles.css?v=20261102-ngo-mon-golden-light-v29',html)
+            self.assertIn('assets/styles.css?v=20261102-ngo-mon-white-gold-crossflow-v30',html)
         self.assertIn('/* Centered quick-search launcher in the sidebar */',css)
         self.assertIn('justify-content:center;',css[css.rfind('/* Centered quick-search launcher in the sidebar */'):])
         self.assertIn('text-align:center;',css[css.rfind('/* Centered quick-search launcher in the sidebar */'):])
@@ -635,7 +635,7 @@ class PublicSurfaceTests(unittest.TestCase):
             self.assertNotIn(forbidden, patch)
         for page in ("index.html", "hoi-dap.html"):
             html = (SITE / page).read_text(encoding="utf-8")
-            self.assertIn("assets/styles.css?v=20261102-ngo-mon-golden-light-v29", html)
+            self.assertIn("assets/styles.css?v=20261102-ngo-mon-white-gold-crossflow-v30", html)
             self.assertIn("assets/app.js?v=20261102-october-history-fix-v11", html)
 
     def test_v13_gloss_trails_follow_existing_paths_without_touching_sources(self):
@@ -679,7 +679,7 @@ class PublicSurfaceTests(unittest.TestCase):
             self.assertNotIn(forbidden, visual)
         for page in ("index.html", "hoi-dap.html"):
             html = (SITE / page).read_text(encoding="utf-8")
-            self.assertIn("assets/styles.css?v=20261102-ngo-mon-golden-light-v29", html)
+            self.assertIn("assets/styles.css?v=20261102-ngo-mon-white-gold-crossflow-v30", html)
             self.assertIn("assets/app.js?v=20261102-october-history-fix-v11", html)
 
     def test_v14_silk_waves_keep_real_photos_and_are_accessible(self):
@@ -714,7 +714,7 @@ class PublicSurfaceTests(unittest.TestCase):
         self.assertIn("applyLiveQA(feed)",js)
         for page in ("index.html","hoi-dap.html"):
             html=(SITE/page).read_text(encoding="utf-8")
-            self.assertIn("assets/styles.css?v=20261102-ngo-mon-golden-light-v29",html)
+            self.assertIn("assets/styles.css?v=20261102-ngo-mon-white-gold-crossflow-v30",html)
             self.assertIn("assets/app.js?v=20261102-october-history-fix-v11",html)
 
     def test_v15_panorama_light_is_stronger_and_clipped_to_curves(self):
@@ -748,7 +748,7 @@ class PublicSurfaceTests(unittest.TestCase):
         for page in ("index.html","hoi-dap.html"):
             html=(SITE/page).read_text(encoding="utf-8")
             self.assertEqual(html.count('class="hero-silk-runner" aria-hidden="true"'),1)
-            self.assertIn("assets/styles.css?v=20261102-ngo-mon-golden-light-v29",html)
+            self.assertIn("assets/styles.css?v=20261102-ngo-mon-white-gold-crossflow-v30",html)
             self.assertIn("assets/app.js?v=20261102-october-history-fix-v11",html)
 
     def test_v16_sidebar_and_stats_strong_silk_light_travel(self):
@@ -781,7 +781,7 @@ class PublicSurfaceTests(unittest.TestCase):
             self.assertNotIn(forbidden,part)
         for page in ("index.html","hoi-dap.html"):
             html=(SITE/page).read_text(encoding="utf-8")
-            self.assertIn("assets/styles.css?v=20261102-ngo-mon-golden-light-v29",html)
+            self.assertIn("assets/styles.css?v=20261102-ngo-mon-white-gold-crossflow-v30",html)
             self.assertEqual(html.count('class="hero-silk-runner" aria-hidden="true"'),1)
 
     def test_v17_soft_flow_reduces_speed_without_changing_light_or_data(self):
@@ -810,7 +810,7 @@ class PublicSurfaceTests(unittest.TestCase):
             self.assertNotIn(forbidden,visual)
         for page in ("index.html","hoi-dap.html"):
             html=(SITE/page).read_text(encoding="utf-8")
-            self.assertIn("assets/styles.css?v=20261102-ngo-mon-golden-light-v29",html)
+            self.assertIn("assets/styles.css?v=20261102-ngo-mon-white-gold-crossflow-v30",html)
             self.assertIn("assets/app.js?v=20261102-october-history-fix-v11",html)
             self.assertEqual(html.count('class="hero-silk-runner" aria-hidden="true"'),1)
 
@@ -837,7 +837,7 @@ class PublicSurfaceTests(unittest.TestCase):
             self.assertNotIn(forbidden,part)
         for p in ("index.html","hoi-dap.html"):
             html=(SITE/p).read_text(encoding="utf-8")
-            self.assertIn("assets/styles.css?v=20261102-ngo-mon-golden-light-v29",html)
+            self.assertIn("assets/styles.css?v=20261102-ngo-mon-white-gold-crossflow-v30",html)
             self.assertIn("assets/app.js?v=20261102-october-history-fix-v11",html)
             self.assertIn('class="sidebar-bridge-gleam" aria-hidden="true"',html)
 
@@ -872,7 +872,7 @@ class PublicSurfaceTests(unittest.TestCase):
         for page in ("index.html","hoi-dap.html"):
             html=(SITE/page).read_text(encoding="utf-8")
             self.assertEqual(html.count('class="sidebar-twin-spotlights" aria-hidden="true"'),1)
-            self.assertIn("assets/styles.css?v=20261102-ngo-mon-golden-light-v29",html)
+            self.assertIn("assets/styles.css?v=20261102-ngo-mon-white-gold-crossflow-v30",html)
             self.assertIn("assets/app.js?v=20261102-october-history-fix-v11",html)
             self.assertEqual(html.count('class="sidebar-bridge-gleam" aria-hidden="true"'),1)
 
@@ -917,7 +917,7 @@ class PublicSurfaceTests(unittest.TestCase):
             self.assertNotIn(forbidden,patch)
         for name in ("index.html","hoi-dap.html"):
             html=(SITE/name).read_text(encoding="utf-8")
-            self.assertIn("assets/styles.css?v=20261102-ngo-mon-golden-light-v29",html)
+            self.assertIn("assets/styles.css?v=20261102-ngo-mon-white-gold-crossflow-v30",html)
             self.assertEqual(html.count('class="sidebar-twin-spotlights" aria-hidden="true"'),1)
             self.assertIn("assets/app.js?v=20261102-october-history-fix-v11",html)
 
@@ -954,7 +954,7 @@ class PublicSurfaceTests(unittest.TestCase):
             self.assertNotIn(forbidden,v21)
         for page in ("index.html","hoi-dap.html"):
             html=(SITE/page).read_text(encoding="utf-8")
-            self.assertIn("assets/styles.css?v=20261102-ngo-mon-golden-light-v29",html)
+            self.assertIn("assets/styles.css?v=20261102-ngo-mon-white-gold-crossflow-v30",html)
             self.assertIn("assets/app.js?v=20261102-october-history-fix-v11",html)
             self.assertEqual(html.count('class="sidebar-twin-spotlights" aria-hidden="true"'),1)
             self.assertEqual(html.count('class="hero-silk-runner" aria-hidden="true"'),1)
@@ -993,7 +993,7 @@ class PublicSurfaceTests(unittest.TestCase):
             self.assertNotIn(forbidden,patch)
         for page in ("index.html","hoi-dap.html"):
             html=(SITE/page).read_text(encoding="utf-8")
-            self.assertIn("assets/styles.css?v=20261102-ngo-mon-golden-light-v29",html)
+            self.assertIn("assets/styles.css?v=20261102-ngo-mon-white-gold-crossflow-v30",html)
             self.assertIn("assets/app.js?v=20261102-october-history-fix-v11",html)
             self.assertEqual(html.count('class="side-assist"'),1)
             self.assertEqual(html.count('class="assistant-mobile-fab"'),1)
@@ -1033,7 +1033,7 @@ class PublicSurfaceTests(unittest.TestCase):
             self.assertNotIn(forbidden,chunk)
         for page in ("index.html","hoi-dap.html"):
             html=(SITE/page).read_text(encoding="utf-8")
-            self.assertIn("assets/styles.css?v=20261102-ngo-mon-golden-light-v29",html)
+            self.assertIn("assets/styles.css?v=20261102-ngo-mon-white-gold-crossflow-v30",html)
             self.assertIn("assets/app.js?v=20261102-october-history-fix-v11",html)
             self.assertEqual(html.count('class="hero-silk-runner" aria-hidden="true"'),1)
 
@@ -1064,7 +1064,7 @@ class PublicSurfaceTests(unittest.TestCase):
             self.assertNotIn(forbidden,block)
         for page in ("index.html","hoi-dap.html"):
             html=(SITE/page).read_text(encoding="utf-8")
-            self.assertIn("assets/styles.css?v=20261102-ngo-mon-golden-light-v29",html)
+            self.assertIn("assets/styles.css?v=20261102-ngo-mon-white-gold-crossflow-v30",html)
             self.assertEqual(html.count('class="side-assist"'),1)
             self.assertEqual(html.count('class="assistant-mobile-fab"'),1)
             self.assertIn("assets/app.js?v=20261102-october-history-fix-v11",html)
@@ -1094,7 +1094,7 @@ class PublicSurfaceTests(unittest.TestCase):
             self.assertNotIn(forbidden,part)
         for page in ("index.html","hoi-dap.html"):
             html=(SITE/page).read_text(encoding="utf-8")
-            self.assertIn("assets/styles.css?v=20261102-ngo-mon-golden-light-v29",html)
+            self.assertIn("assets/styles.css?v=20261102-ngo-mon-white-gold-crossflow-v30",html)
             self.assertIn("assets/app.js?v=20261102-october-history-fix-v11",html)
             self.assertEqual(html.count('class="hero-silk-runner" aria-hidden="true"'),1)
 
@@ -1127,7 +1127,7 @@ class PublicSurfaceTests(unittest.TestCase):
             self.assertNotIn(forbidden,visual)
         for page in ("index.html","hoi-dap.html"):
             html=(SITE/page).read_text(encoding="utf-8")
-            self.assertIn("assets/styles.css?v=20261102-ngo-mon-golden-light-v29",html)
+            self.assertIn("assets/styles.css?v=20261102-ngo-mon-white-gold-crossflow-v30",html)
             self.assertIn("assets/app.js?v=20261102-october-history-fix-v11",html)
             self.assertEqual(html.count('class="hero-silk-runner" aria-hidden="true"'),1)
 
@@ -1152,7 +1152,7 @@ class PublicSurfaceTests(unittest.TestCase):
         css=(SITE/"assets/styles.css").read_text(encoding="utf-8")
         marker="/* CDSTUHUE V29 — NGỌ MÔN GOLDEN FLOWING LIGHT"
         self.assertEqual(css.count(marker),1)
-        block=css.split(marker,1)[1]
+        block=css.split(marker,1)[1].split("/* CDSTUHUE V30 — REFERENCE SHAPED TWO-WAY WHITE GOLD STREAMS",1)[0]
         for required in (
             ".main .hero>.hero-silk-runner{",
             "display:block!important",
@@ -1184,7 +1184,59 @@ class PublicSurfaceTests(unittest.TestCase):
             self.assertNotIn(forbidden,block)
         for page in ("index.html","hoi-dap.html"):
             html=(SITE/page).read_text(encoding="utf-8")
-            self.assertIn("assets/styles.css?v=20261102-ngo-mon-golden-light-v29",html)
+            self.assertIn("assets/styles.css?v=20261102-ngo-mon-white-gold-crossflow-v30",html)
+            self.assertIn("assets/app.js?v=20261102-october-history-fix-v11",html)
+            self.assertEqual(html.count('class="hero-silk-runner" aria-hidden="true"'),1)
+
+    def test_v30_two_reference_shaped_gold_ribbons_run_opposite_and_seamlessly(self):
+        import xml.etree.ElementTree as ET
+        css=(SITE/"assets/styles.css").read_text(encoding="utf-8")
+        marker="/* CDSTUHUE V30 — REFERENCE SHAPED TWO-WAY WHITE GOLD STREAMS"
+        self.assertEqual(css.count(marker),1)
+        block=css.split(marker,1)[1]
+        upper=(SITE/"assets/img/ngo-mon-upper-flow-mask-v30.svg")
+        lower=(SITE/"assets/img/ngo-mon-lower-flow-mask-v30.svg")
+        base=(SITE/"assets/img/ngo-mon-two-wide-gold-waves-v30.svg")
+        ns={"s":"http://www.w3.org/2000/svg"}
+        static_paths=ET.parse(base).findall(".//s:path",ns)
+        upper_paths=ET.parse(upper).findall(".//s:path",ns)
+        lower_paths=ET.parse(lower).findall(".//s:path",ns)
+        self.assertEqual(len(static_paths),8)
+        self.assertEqual(len(upper_paths),3)
+        self.assertEqual(len(lower_paths),3)
+        self.assertEqual(len(set(x.attrib["d"] for x in static_paths)),2)
+        self.assertEqual({x.attrib["d"] for x in upper_paths},{static_paths[0].attrib["d"]})
+        self.assertEqual({x.attrib["d"] for x in lower_paths},{static_paths[4].attrib["d"]})
+        self.assertNotEqual(static_paths[0].attrib["d"],static_paths[4].attrib["d"])
+        for token in (
+            "ngo-mon-two-wide-gold-waves-v30.svg",
+            "ngo-mon-upper-flow-mask-v30.svg",
+            "ngo-mon-lower-flow-mask-v30.svg",
+            "#ffffff 47%",
+            "#ffffff 53%",
+            "animation:cds-v30-gold-right-desk 7.4s linear infinite!important",
+            "animation:cds-v30-gold-left-desk 8.2s linear infinite!important",
+            "background-size:660px 100%!important",
+            "to{background-position:660px center}",
+            "to{background-position:-660px center}",
+            "animation:cds-v30-gold-right-mobile 8s linear infinite!important",
+            "animation:cds-v30-gold-left-mobile 8.8s linear infinite!important",
+            "background-size:440px 100%!important",
+            "to{background-position:440px center}",
+            "to{background-position:-440px center}",
+            "background-repeat:repeat-x!important",
+            "opacity:1!important",
+            "animation:none!important",
+            "z-index:2",
+            "prefers-reduced-motion:reduce",
+        ):
+            self.assertIn(token,block)
+        for forbidden in (".main::before{",".sidebar::after{",".stats-hero-home{",
+                          "site/data/","scale(","user-select:none"):
+            self.assertNotIn(forbidden,block)
+        for page in ("index.html","hoi-dap.html"):
+            html=(SITE/page).read_text(encoding="utf-8")
+            self.assertIn("assets/styles.css?v=20261102-ngo-mon-white-gold-crossflow-v30",html)
             self.assertIn("assets/app.js?v=20261102-october-history-fix-v11",html)
             self.assertEqual(html.count('class="hero-silk-runner" aria-hidden="true"'),1)
 

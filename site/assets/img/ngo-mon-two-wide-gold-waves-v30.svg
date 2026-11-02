@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 480" preserveAspectRatio="none">
+<!-- CDSTUHUE V30: exactly two wide, flowing silk curves, shaped like the user-supplied reference. -->
+<defs>
+ <filter id="haze" x="-18%" y="-130%" width="136%" height="360%"><feGaussianBlur stdDeviation="21"/></filter>
+ <filter id="soft" x="-18%" y="-130%" width="136%" height="360%"><feGaussianBlur stdDeviation="8"/></filter>
+</defs>
+<g fill="none" stroke-linecap="round" stroke-linejoin="round">
+ <path d="M-110 78 C210 205 350 352 660 328 C960 302 1110 91 1410 110 C1580 120 1640 154 1740 163" stroke="#ffcf58" stroke-width="110" opacity=".29" filter="url(#haze)"/>
+ <path d="M-110 78 C210 205 350 352 660 328 C960 302 1110 91 1410 110 C1580 120 1640 154 1740 163" stroke="#ffdf7e" stroke-width="34" opacity=".62" filter="url(#soft)"/>
+ <path d="M-110 78 C210 205 350 352 660 328 C960 302 1110 91 1410 110 C1580 120 1640 154 1740 163" stroke="#fff2bf" stroke-width="10" opacity=".25" filter="url(#soft)"/>
+ <path d="M-110 78 C210 205 350 352 660 328 C960 302 1110 91 1410 110 C1580 120 1640 154 1740 163" stroke="#fff7de" stroke-width="4.6" opacity=".67"/>
+ <path d="M-110 215 C250 358 454 427 728 349 C946 241 1038 120 1170 172 C1400 263 1540 335 1750 300" stroke="#ffcf58" stroke-width="110" opacity=".26" filter="url(#haze)"/>
+ <path d="M-110 215 C250 358 454 427 728 349 C946 241 1038 120 1170 172 C1400 263 1540 335 1750 300" stroke="#ffdf7e" stroke-width="34" opacity=".58" filter="url(#soft)"/>
+ <path d="M-110 215 C250 358 454 427 728 349 C946 241 1038 120 1170 172 C1400 263 1540 335 1750 300" stroke="#fff2bf" stroke-width="10" opacity=".25" filter="url(#soft)"/>
+ <path d="M-110 215 C250 358 454 427 728 349 C946 241 1038 120 1170 172 C1400 263 1540 335 1750 300" stroke="#fff7de" stroke-width="4.6" opacity=".65"/>
+</g>
+</svg>
