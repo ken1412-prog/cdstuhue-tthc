@@ -3448,11 +3448,12 @@ body{
 }
 
 
-/* CDSTUHUE V33 — ROOF LIGHTS FROM REAL PHOTO, NO COLOR PAINT.
+/* CDSTUHUE V34 — BRIGHTER REAL ROOF LAMPS WITH VISIBLE SMOOTH FLICKER.
    Critical: keep the live Ngọ Môn JPG UNCHANGED; do not draw golden blobs.
    The overlay is a duplicate of exactly that JPG, color-corrected by
-   brightness only and narrowly feather-masked to the ALREADY LIT eaves.
-   Two roof groups breathe independently; first/last frames match exactly.
+   brightness and modest contrast, feather-masked to the ALREADY LIT eaves.
+   Give the existing lamp-lit tiles a brighter steady baseline, then stronger
+   staggered smooth brightness peaks; first/last frames match exactly.
    Desktop/mobile image and masks use matching cover-position coordinates.
    Prior silk runners/static waves must remain entirely invisible. */
 .main .hero::after,
@@ -3498,26 +3499,29 @@ body{
 .main .hero>.hero-roof-glow::before{
   -webkit-mask-image:url('./img/ngo-mon-roof-west-photo-mask-v33.svg')!important;
   mask-image:url('./img/ngo-mon-roof-west-photo-mask-v33.svg')!important;
-  animation:cds-v33-west-roof-brightness 7.6s ease-in-out infinite!important;
+  animation:cds-v34-west-roof-brightness 5.8s ease-in-out infinite!important;
 }
 .main .hero>.hero-roof-glow::after{
   -webkit-mask-image:url('./img/ngo-mon-roof-east-photo-mask-v33.svg')!important;
   mask-image:url('./img/ngo-mon-roof-east-photo-mask-v33.svg')!important;
-  animation:cds-v33-east-roof-brightness 9.3s ease-in-out infinite!important;
+  animation:cds-v34-east-roof-brightness 6.9s ease-in-out infinite!important;
 }
-/* Smooth natural fluctuation in existing roof lamps, not flashing/repainting
-   the building. Never go fully dark: the original photograph stays visible. */
-@keyframes cds-v33-west-roof-brightness{
-  0%,100%{opacity:.20;filter:brightness(1.16) saturate(1.06)}
-  28%{opacity:.55;filter:brightness(1.31) saturate(1.11)}
-  54%{opacity:.32;filter:brightness(1.22) saturate(1.08)}
-  79%{opacity:.63;filter:brightness(1.35) saturate(1.13)}
+/* The visible light is REAL roof image luminance, not gold paint or animated
+   wave streaks. Stronger constant lift: opacity never falls below .48;
+   clear highlights reach .96 and the next loop begins at the same values. */
+@keyframes cds-v34-west-roof-brightness{
+  0%,100%{opacity:.48;filter:brightness(1.50) contrast(1.08) saturate(1.06)}
+  18%{opacity:.91;filter:brightness(2.10) contrast(1.17) saturate(1.12)}
+  37%{opacity:.57;filter:brightness(1.63) contrast(1.11) saturate(1.07)}
+  60%{opacity:.98;filter:brightness(2.27) contrast(1.20) saturate(1.14)}
+  82%{opacity:.62;filter:brightness(1.72) contrast(1.12) saturate(1.08)}
 }
-@keyframes cds-v33-east-roof-brightness{
-  0%,100%{opacity:.30;filter:brightness(1.21) saturate(1.09)}
-  24%{opacity:.59;filter:brightness(1.37) saturate(1.13)}
-  55%{opacity:.27;filter:brightness(1.17) saturate(1.06)}
-  78%{opacity:.53;filter:brightness(1.31) saturate(1.12)}
+@keyframes cds-v34-east-roof-brightness{
+  0%,100%{opacity:.57;filter:brightness(1.68) contrast(1.12) saturate(1.08)}
+  23%{opacity:.96;filter:brightness(2.25) contrast(1.20) saturate(1.14)}
+  44%{opacity:.55;filter:brightness(1.62) contrast(1.09) saturate(1.07)}
+  72%{opacity:.99;filter:brightness(2.33) contrast(1.20) saturate(1.14)}
+  88%{opacity:.61;filter:brightness(1.74) contrast(1.12) saturate(1.09)}
 }
 @media screen and (min-width:761px){
   .main .hero>.hero-roof-glow::before,
@@ -3528,14 +3532,14 @@ body{
   }
 }
 @media screen and (max-width:760px){
-  .main .hero>.hero-roof-glow::before{animation-duration:8.2s!important}
-  .main .hero>.hero-roof-glow::after{animation-duration:9.7s!important}
+  .main .hero>.hero-roof-glow::before{animation-duration:6.2s!important}
+  .main .hero>.hero-roof-glow::after{animation-duration:7.3s!important}
 }
 .main .hero>.hero-copy,
 .main .hero>.hero-art{position:relative;z-index:2}
 @media(prefers-reduced-motion:reduce){
   .main .hero>.hero-roof-glow::before,
-  .main .hero>.hero-roof-glow::after{animation:none!important;opacity:.20!important;filter:brightness(1.14)!important}
+  .main .hero>.hero-roof-glow::after{animation:none!important;opacity:.62!important;filter:brightness(1.58)!important}
 }
 @media print{
   .main .hero>.hero-roof-glow{display:none!important}
