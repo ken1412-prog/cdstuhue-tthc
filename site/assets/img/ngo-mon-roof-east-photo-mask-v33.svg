@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 667" preserveAspectRatio="xMidYMid meet">
+<!-- V33 east and central roof ornament lighting: only the illuminated roof tiles/ridges from the ORIGINAL hero photograph.
+     No base wall, gates, sky or foreground masks. Image and mask share cover positioning. -->
+<defs>
+ <filter id="feather" x="-12%" y="-70%" width="124%" height="240%">
+  <feGaussianBlur stdDeviation="4.8"/>
+ </filter>
+</defs>
+<g fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round">
+ <path d="M772 203 C810 165 848 143 884 153 C918 150 958 161 990 175" stroke-width="27" opacity="0.7" filter="url(#feather)"/>
+ <path d="M772 203 C810 165 848 143 884 153 C918 150 958 161 990 175" stroke-width="10" opacity="0.95"/>
+ <path d="M761 264 C825 252 912 247 999 263" stroke-width="31" opacity="0.68" filter="url(#feather)"/>
+ <path d="M761 264 C825 252 912 247 999 263" stroke-width="12" opacity="0.87"/>
+ <path d="M245 249 C362 244 465 252 583 246 C676 245 738 249 801 255" stroke-width="22" opacity="0.55" filter="url(#feather)"/>
+ <path d="M245 249 C362 244 465 252 583 246 C676 245 738 249 801 255" stroke-width="9" opacity="0.83"/>
+ <path d="M234 279 C365 279 514 279 770 277" stroke-width="18" opacity="0.57" filter="url(#feather)"/>
+ <path d="M234 279 C365 279 514 279 770 277" stroke-width="7" opacity="0.76"/>
+ <path d="M822 199 L874 187 L955 207" stroke-width="17" opacity="0.54" filter="url(#feather)"/>
+ <path d="M822 199 L874 187 L955 207" stroke-width="7" opacity="0.72"/>
+</g>
+</svg>

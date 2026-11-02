@@ -3447,22 +3447,16 @@ body{
   .main .hero>.hero-silk-runner{display:none!important}
 }
 
-/* CDSTUHUE V32 — NGỌ MÔN ROOF-ONLY GOLDEN LANTERN SHIMMER.
-   User-approved site photograph stays unchanged: deliberately REMOVE both
-   moving light streams AND their static crossing-wave underlay.
-   Two soft independent warm roof glows cycle in-place, with matching initial
-   and final keyframes. Only the roof is masked; walls/text never flicker.
-   Applies to desktop and mobile, respects reduce-motion and print. */
-.main .hero::after{
-  display:none!important;
-  content:none!important;
-  background-image:none!important;
-  animation:none!important;
-}
-.main .hero>.hero-silk-runner{
-  display:none!important;
-  animation:none!important;
-}
+
+/* CDSTUHUE V33 — ROOF LIGHTS FROM REAL PHOTO, NO COLOR PAINT.
+   Critical: keep the live Ngọ Môn JPG UNCHANGED; do not draw golden blobs.
+   The overlay is a duplicate of exactly that JPG, color-corrected by
+   brightness only and narrowly feather-masked to the ALREADY LIT eaves.
+   Two roof groups breathe independently; first/last frames match exactly.
+   Desktop/mobile image and masks use matching cover-position coordinates.
+   Prior silk runners/static waves must remain entirely invisible. */
+.main .hero::after,
+.main .hero>.hero-silk-runner,
 .main .hero>.hero-silk-runner::before,
 .main .hero>.hero-silk-runner::after{
   display:none!important;
@@ -3470,16 +3464,13 @@ body{
   animation:none!important;
 }
 .main .hero>.hero-roof-glow{
-  display:block;
   position:absolute!important;
   inset:0;
   z-index:1!important;
-  padding:0;
-  margin:0;
-  pointer-events:none;
+  display:block!important;
   overflow:hidden;
-  border-radius:inherit;
-  mix-blend-mode:screen;
+  pointer-events:none!important;
+  mix-blend-mode:normal!important;
   animation:none!important;
 }
 .main .hero>.hero-roof-glow::before,
@@ -3489,67 +3480,62 @@ body{
   position:absolute;
   inset:0;
   pointer-events:none;
-  border-radius:inherit;
-  -webkit-mask-image:url('./img/ngo-mon-roof-mask-mobile-v32.svg');
-  mask-image:url('./img/ngo-mon-roof-mask-mobile-v32.svg');
-  -webkit-mask-size:100% 100%;
-  mask-size:100% 100%;
-  -webkit-mask-position:center;
-  mask-position:center;
-  -webkit-mask-repeat:no-repeat;
-  mask-repeat:no-repeat;
+  background-image:url('https://images.pexels.com/photos/14021268/pexels-photo-14021268.jpeg?auto=compress&cs=tinysrgb&w=1800')!important;
+  background-color:transparent!important;
+  background-size:cover!important;
+  background-repeat:no-repeat!important;
+  background-position:center 42%!important;
+  -webkit-mask-size:cover!important;
+  mask-size:cover!important;
+  -webkit-mask-position:center 42%!important;
+  mask-position:center 42%!important;
+  -webkit-mask-repeat:no-repeat!important;
+  mask-repeat:no-repeat!important;
   mask-mode:alpha;
-  background-repeat:no-repeat;
+  mix-blend-mode:screen;
+  transform:none!important;
 }
-/* Low-frequency warm-gold breathing only ON the lit eaves and ridge. */
 .main .hero>.hero-roof-glow::before{
-  background:
-    radial-gradient(ellipse 42% 42% at 18% 35%,rgba(255,211,81,.83),transparent 85%),
-    radial-gradient(ellipse 53% 44% at 50% 34%,rgba(255,201,45,.68),transparent 87%),
-    radial-gradient(ellipse 42% 42% at 83% 34%,rgba(255,222,96,.79),transparent 85%),
-    linear-gradient(105deg,rgba(241,163,31,.26),rgba(255,222,98,.55),rgba(245,163,31,.26));
-  opacity:.63;
-  animation:cds-v32-roof-amber-breathe 8.4s ease-in-out infinite!important;
+  -webkit-mask-image:url('./img/ngo-mon-roof-west-photo-mask-v33.svg')!important;
+  mask-image:url('./img/ngo-mon-roof-west-photo-mask-v33.svg')!important;
+  animation:cds-v33-west-roof-brightness 7.6s ease-in-out infinite!important;
 }
-/* A second softer white-gold flicker at different roof points, no sweep. */
 .main .hero>.hero-roof-glow::after{
-  background:
-    radial-gradient(ellipse 17% 24% at 12% 32%,rgba(255,254,228,.87),transparent 90%),
-    radial-gradient(ellipse 24% 24% at 37% 37%,rgba(255,246,181,.72),transparent 92%),
-    radial-gradient(ellipse 25% 28% at 56% 30%,rgba(255,253,230,.84),transparent 92%),
-    radial-gradient(ellipse 25% 28% at 80% 35%,rgba(255,248,185,.74),transparent 90%),
-    radial-gradient(ellipse 16% 28% at 92% 34%,rgba(255,250,198,.84),transparent 90%);
-  opacity:.54;
-  animation:cds-v32-roof-ivory-twinkle 10.1s ease-in-out infinite!important;
+  -webkit-mask-image:url('./img/ngo-mon-roof-east-photo-mask-v33.svg')!important;
+  mask-image:url('./img/ngo-mon-roof-east-photo-mask-v33.svg')!important;
+  animation:cds-v33-east-roof-brightness 9.3s ease-in-out infinite!important;
 }
-@keyframes cds-v32-roof-amber-breathe{
-  0%,100%{opacity:.60;filter:brightness(.99) saturate(1.04) hue-rotate(0deg)}
-  24%{opacity:.79;filter:brightness(1.15) saturate(1.13) hue-rotate(-5deg)}
-  51%{opacity:.68;filter:brightness(1.07) saturate(1.03) hue-rotate(3deg)}
-  78%{opacity:.86;filter:brightness(1.21) saturate(1.16) hue-rotate(-3deg)}
+/* Smooth natural fluctuation in existing roof lamps, not flashing/repainting
+   the building. Never go fully dark: the original photograph stays visible. */
+@keyframes cds-v33-west-roof-brightness{
+  0%,100%{opacity:.20;filter:brightness(1.16) saturate(1.06)}
+  28%{opacity:.55;filter:brightness(1.31) saturate(1.11)}
+  54%{opacity:.32;filter:brightness(1.22) saturate(1.08)}
+  79%{opacity:.63;filter:brightness(1.35) saturate(1.13)}
 }
-@keyframes cds-v32-roof-ivory-twinkle{
-  0%,100%{opacity:.51;filter:brightness(.98) saturate(.97)}
-  27%{opacity:.73;filter:brightness(1.14) saturate(1.02)}
-  56%{opacity:.58;filter:brightness(1.04) saturate(.99)}
-  81%{opacity:.77;filter:brightness(1.20) saturate(1.04)}
+@keyframes cds-v33-east-roof-brightness{
+  0%,100%{opacity:.30;filter:brightness(1.21) saturate(1.09)}
+  24%{opacity:.59;filter:brightness(1.37) saturate(1.13)}
+  55%{opacity:.27;filter:brightness(1.17) saturate(1.06)}
+  78%{opacity:.53;filter:brightness(1.31) saturate(1.12)}
 }
 @media screen and (min-width:761px){
   .main .hero>.hero-roof-glow::before,
   .main .hero>.hero-roof-glow::after{
-    -webkit-mask-image:url('./img/ngo-mon-roof-mask-desktop-v32.svg');
-    mask-image:url('./img/ngo-mon-roof-mask-desktop-v32.svg');
+    background-position:53% 48%!important;
+    -webkit-mask-position:53% 48%!important;
+    mask-position:53% 48%!important;
   }
 }
 @media screen and (max-width:760px){
-  .main .hero>.hero-roof-glow::before{animation-duration:9.1s!important}
-  .main .hero>.hero-roof-glow::after{animation-duration:10.8s!important}
+  .main .hero>.hero-roof-glow::before{animation-duration:8.2s!important}
+  .main .hero>.hero-roof-glow::after{animation-duration:9.7s!important}
 }
 .main .hero>.hero-copy,
 .main .hero>.hero-art{position:relative;z-index:2}
 @media(prefers-reduced-motion:reduce){
   .main .hero>.hero-roof-glow::before,
-  .main .hero>.hero-roof-glow::after{animation:none!important;opacity:.53!important;filter:none!important}
+  .main .hero>.hero-roof-glow::after{animation:none!important;opacity:.20!important;filter:brightness(1.14)!important}
 }
 @media print{
   .main .hero>.hero-roof-glow{display:none!important}

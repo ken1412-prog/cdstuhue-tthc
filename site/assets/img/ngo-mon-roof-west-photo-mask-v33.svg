@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 667" preserveAspectRatio="xMidYMid meet">
+<!-- V33 west and central tiled roof: only the illuminated roof tiles/ridges from the ORIGINAL hero photograph.
+     No base wall, gates, sky or foreground masks. Image and mask share cover positioning. -->
+<defs>
+ <filter id="feather" x="-12%" y="-70%" width="124%" height="240%">
+  <feGaussianBlur stdDeviation="4.8"/>
+ </filter>
+</defs>
+<g fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round">
+ <path d="M25 165 C69 151 104 139 135 149 C169 143 200 164 225 205" stroke-width="26" opacity="0.7" filter="url(#feather)"/>
+ <path d="M25 165 C69 151 104 139 135 149 C169 143 200 164 225 205" stroke-width="9" opacity="0.95"/>
+ <path d="M13 253 C80 239 153 247 233 274" stroke-width="29" opacity="0.65" filter="url(#feather)"/>
+ <path d="M13 253 C80 239 153 247 233 274" stroke-width="13" opacity="0.85"/>
+ <path d="M200 226 C320 230 424 207 535 216 C651 207 711 225 795 230" stroke-width="27" opacity="0.68" filter="url(#feather)"/>
+ <path d="M200 226 C320 230 424 207 535 216 C651 207 711 225 795 230" stroke-width="12" opacity="0.86"/>
+ <path d="M184 297 C333 311 529 302 779 302" stroke-width="31" opacity="0.61" filter="url(#feather)"/>
+ <path d="M184 297 C333 311 529 302 779 302" stroke-width="13" opacity="0.78"/>
+ <path d="M91 184 L166 184 L205 215" stroke-width="16" opacity="0.54" filter="url(#feather)"/>
+ <path d="M91 184 L166 184 L205 215" stroke-width="7" opacity="0.7"/>
+</g>
+</svg>
