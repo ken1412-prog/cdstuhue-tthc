@@ -1,0 +1,11 @@
+const assert=require('node:assert/strict'),fs=require('node:fs');
+const js=fs.readFileSync('site/assets/tthc-20261105.js','utf8');
+const items=JSON.parse(fs.readFileSync('site/data/approved.json','utf8')).items;
+assert.equal(items.length,245);
+for(const id of ['QA007','QA017','QA026','QA030','QA110','QA122']) assert(js.includes(id+':'));
+assert(js.includes('KHÔNG phải chờ'));
+assert(js.includes('Xem câu trả lời trước cập nhật'));
+assert(js.includes('fixCards()')&&js.includes('fixModal()'));
+assert(!js.includes("QA115:"));
+for(const name of ['index.html','hoi-dap.html']) assert.equal((fs.readFileSync('site/'+name,'utf8').match(/20261105-v40-current/g)||[]).length,2);
+console.log('New dues QA shown first, source content retained (245 QA)');
