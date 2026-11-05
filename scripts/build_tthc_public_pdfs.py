@@ -50,10 +50,29 @@ def extract(section):
     # Avoid the download link itself becoming source text in the PDF.
     for link in source.find_all("a"):
         link.decompose()
+    training = section.find("div", class_="training-block")
+    training_points = []
+    if training:
+        summary = training.find("div", class_="training-summary")
+        if summary:
+            training_points.append(summary.get_text(" ", strip=True))
+        for lane in training.select(".training-lane"):
+            heading = lane.select_one(".training-lane-head strong")
+            actions = [x.get_text(" ",strip=True) for x in lane.select(".training-step")]
+            if heading and actions:
+                training_points.append(heading.get_text(" ",strip=True)+": "+" → ".join(actions))
+        for card in training.select(".training-card")[:3]:
+            heading = card.find("header")
+            body = card.select_one(".training-body")
+            if heading and body:
+                training_points.append(heading.get_text(" ",strip=True)+": "+body.get_text(" ",strip=True))
+        for role in training.select(".training-role"):
+            training_points.append(role.get_text(" ",strip=True))
     return {
         "title":title.get_text(" ",strip=True),
         "lead":lead.get_text(" ",strip=True),
         "steps":steps,
+        "training_points":training_points,
         "note":note.get_text(" ",strip=True),
         "source":source.get_text(" ",strip=True),
     }
@@ -71,12 +90,17 @@ def make_pdf(dest, number, data, font):
         p(f"{number} — {data['title']}",title),
         p(data["lead"],lead)
     ]
+    if data["training_points"]:
+        story.append(p("Nội dung cần nhớ từ tài liệu đào tạo:",lead))
+        for fact in data["training_points"]:
+            story.append(p("• "+fact,body))
+        story.append(Spacer(1,8))
     for i,step in enumerate(data["steps"],1):
         story.append(p(f"{i}. {step}",body))
     story.extend([
         Spacer(1,12),p(data["note"],body),Spacer(1,4),
         p(data["source"],meta),
-        p("Bản tóm tắt công khai biên soạn từ tài liệu tập huấn; không phải PDF nguồn và không thay thế quy định chính thức.",meta)
+        p("Hướng dẫn sử dụng TTHC • CDSTUHUE",meta)
     ])
     def footer(canvas,doc):
         canvas.saveState()
