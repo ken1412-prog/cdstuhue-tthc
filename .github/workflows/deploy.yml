@@ -146,6 +146,13 @@ jobs:
         env:
           QA_PUBLIC_ENDPOINT: ${{ secrets.QA_PUBLIC_ENDPOINT }}
         run: python scripts/build_online_config.py
+      - name: Generate safe, downloadable PDF guides for four TTHC procedures
+        run: |
+          python -m pip install --quiet --disable-pip-version-check "reportlab>=4" "beautifulsoup4>=4.12"
+          python scripts/build_tthc_public_pdfs.py
+          for slug in dang-phi chinh-thuc noi-cu-tru tam-thoi; do
+            test -s "site/downloads/tthc-20261105-$slug.pdf"
+          done
       - name: Validate dashboard assets
         run: |
           python -m json.tool site/data/approved.json > /dev/null
