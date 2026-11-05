@@ -1,0 +1,10 @@
+const assert=require('node:assert/strict'),fs=require('node:fs');
+const html=fs.readFileSync('site/cap-nhat-tthc-2026-11.html','utf8');
+assert.equal((html.match(/<section id=/g)||[]).length,4);
+assert.equal((html.match(/class="training-block"/g)||[]).length,3);
+assert(html.includes('00:00 ngày 06'));
+assert(html.includes('Tổng 7 ngày')&&html.includes('Tổng 6 ngày')&&html.includes('Tổng 3 ngày'));
+assert(html.includes('60 ngày làm việc')&&html.includes('giấy giới thiệu điện tử'));
+for(const id of ['dang-phi','noi-cu-tru','chinh-thuc','tam-thoi']) assert(html.includes('downloads/tthc-20261105-'+id+'.pdf'));
+assert(html.includes('Quy trình 3')||html.includes('03 · Nhận xét cuối năm'));
+console.log('Three TTHC visual training supplements verified');
