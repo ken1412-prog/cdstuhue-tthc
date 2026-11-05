@@ -12,8 +12,8 @@ function applyModal(){
  if(answer.textContent.trim()!==current)answer.textContent=current;
  answer.classList.add('tthc-current-answer');
  const heading=answer.previousElementSibling;
- if(heading?.tagName==='H3')heading.textContent='Trả lời cập nhật 05/11/2026';
- const title=document.getElementById('modalTitle');if(title&&patch.question)title.textContent=patch.question;
+ if(heading?.tagName==='H3'&&heading.textContent!=='Trả lời cập nhật 05/11/2026')heading.textContent='Trả lời cập nhật 05/11/2026';
+ const title=document.getElementById('modalTitle');if(title&&patch.question&&title.textContent!==patch.question)title.textContent=patch.question;
  for(const old of body.querySelectorAll('.tthc-20261105-alert,.tthc-archive-answer,.qa-click-guide'))old.remove();
  if(!body.querySelector('.tthc-source-current')){
   const source=document.createElement('div');source.className='tthc-source-current';
