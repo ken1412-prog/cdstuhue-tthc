@@ -12,3 +12,7 @@
 .tthc-source-current{font-size:12px;margin:12px 0;color:#64788b}
 .tthc-source-current a{font-weight:800;color:#0d6286}
 .tthc-source-current p{font-size:11px;margin:4px 0}
+
+/* v41: full current QA answer renders with source's paragraph breaks. */
+.answer.tthc-current-answer{white-space:pre-line;line-height:1.8;color:#21334b}
+.tthc-current-answer+.tthc-source-current{margin-top:15px;padding-top:9px;border-top:1px solid #e8ebf1}
