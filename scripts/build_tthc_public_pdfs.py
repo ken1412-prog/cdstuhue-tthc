@@ -84,7 +84,7 @@ def make_pdf(dest, number, data, font):
         canvas.line(42,45,A4[0]-42,45)
         canvas.setFont(font,7.6)
         canvas.setFillColor(muted)
-        canvas.drawString(42,32,"CDSTUHUE · Bản tóm tắt TTHC ngày 05/11/2026")
+        canvas.drawString(42,32,"CDSTUHUE · Hướng dẫn thao tác TTHC 05/11/2026")
         canvas.drawRightString(A4[0]-42,32,str(doc.page))
         canvas.restoreState()
     pdf=SimpleDocTemplate(
