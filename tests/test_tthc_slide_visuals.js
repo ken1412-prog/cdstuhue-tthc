@@ -21,7 +21,10 @@ const section=html.slice(html.indexOf('<section id="noi-cu-tru"'),html.indexOf('
 assert(section.indexOf('id="y-kien-can-bo"') < section.indexOf('id="cuoi-nam"'), 'First visible workflow must start with chi bo noi sinh hoat lap danh sach');
 assert(section.includes('<div id="y-kien-can-bo" class="ncr-main-flow">'), 'Process 02 should be visible without opening a collapsed control');
 assert(section.includes('<details class="ncr-alt ncr-secondary" id="cuoi-nam">'), 'Separate year-end process 03 must be collapsed');
-assert(section.includes('02 · Bắt đầu: chi bộ lập danh sách'), 'Navigation must prioritize the list-initiated workflow');
+assert(section.includes('class="ncr-choice-grid"'), 'Chooser must show three separate situation cards');
+assert(section.includes('Chi bộ <b>nơi cư trú chủ động lập phiếu</b>'), 'Year-end must start from residence branch');
+assert(section.includes('Không lập danh sách khởi tạo; <b>tiếp nhận kết quả</b>'), 'Working branch must still participate in year-end review');
+assert(section.includes('Chi bộ nơi công tác chỉ <strong>lập danh sách khởi tạo</strong> ở Quy trình 2'), 'Procedure 2 and 3 must be distinct');
 assert(section.includes('Lập danh sách (n)') && section.includes('Lập danh sách và trình lên cấp trên'));
 
 assert(!/Georgia\s*,\s*serif/.test(html));
