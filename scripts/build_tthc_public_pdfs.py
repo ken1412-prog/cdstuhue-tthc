@@ -9,6 +9,7 @@ import html
 from pathlib import Path
 from bs4 import BeautifulSoup
 from reportlab.lib import colors
+from svglib.svglib import svg2rlg
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.styles import ParagraphStyle
 from reportlab.pdfbase import pdfmetrics
@@ -46,7 +47,19 @@ def extract(section):
         raise RuntimeError("Incomplete public training section")
     steps = [li.get_text(" ", strip=True) for li in section.find_all("li")]
     residence_groups = []
+    process2 = []
     if section.get("id") == "noi-cu-tru":
+        for item in section.select("#y-kien-can-bo .role-step"):
+            heading = item.select_one(".role-step-title h4")
+            paragraph = item.select_one("p")
+            visual = item.select_one("img")
+            if heading and paragraph:
+                process2.append({
+                    "title": heading.get_text(" ",strip=True),
+                    "text": paragraph.get_text(" ",strip=True),
+                    "image": visual.get("src") if visual else None,
+                })
+
         # Keep all year-end information and role-specific permissions together.
         # Avoid flattening four different actors into one generic numbered list.
         steps = []
@@ -105,6 +118,7 @@ def extract(section):
         "lead":lead.get_text(" ",strip=True),
         "steps":steps,
         "residence_groups":residence_groups,
+        "process2":process2,
         "training_points":training_points,
         "note":note.get_text(" ",strip=True),
         "source":source.get_text(" ",strip=True),
@@ -128,6 +142,25 @@ def make_pdf(dest, number, data, font):
         for fact in data["training_points"]:
             story.append(p("• "+fact,body))
         story.append(Spacer(1,8))
+    if data["process2"]:
+        story.append(p("QUY TRÌNH 02 - LẤY Ý KIẾN PHỤC VỤ CÔNG TÁC CÁN BỘ",lead))
+        for i,item in enumerate(data["process2"],1):
+            story.append(Spacer(1,11))
+            story.append(p(f"Bước {i}. {item['title']}",lead))
+            story.append(p(item["text"],body))
+            if item["image"]:
+                local=ROOT/"site"/item["image"]
+                if local.is_file():
+                    drawing=svg2rlg(str(local))
+                    if drawing and drawing.width:
+                        z=min(1,430/drawing.width)
+                        drawing.scale(z,z)
+                        drawing.width*=z
+                        drawing.height*=z
+                        story.append(drawing)
+        if data["residence_groups"]:
+            story.append(Spacer(1,16))
+            story.append(p("QUY TRÌNH 03 - NHẬN XÉT ĐỊNH KỲ CUỐI NĂM (KHÁC QUY TRÌNH 02)",lead))
     if data["residence_groups"]:
         for heading, items in data["residence_groups"]:
             story.append(Spacer(1,9))
@@ -169,6 +202,18 @@ def main():
         make_pdf(output,number,extract(section),font)
         if output.stat().st_size<1500:raise RuntimeError("PDF unexpectedly empty: "+str(output))
         print("Created public PDF:",output,output.stat().st_size,"bytes")
+        if slug=="noi-cu-tru":
+            item=extract(section)
+            item["residence_groups"]=[]
+            item["steps"]=[]
+            item["note"]="Quy trình 02 do chi bộ nơi sinh hoạt lập danh sách; không nhầm với nhận xét định kỳ cuối năm."
+            item["title"]="Lấy ý kiến nơi cư trú - Quy trình 02"
+            item["lead"]="Từ chi bộ nơi sinh hoạt lập danh sách đến ký xác nhận và nhận kết quả."
+            output2=DEST/"tthc-20261105-lay-y-kien-can-bo.pdf"
+            make_pdf(output2,"02",item,font)
+            if output2.stat().st_size<1500:raise RuntimeError("Process 02 PDF too small")
+            print("Created visual process 02 PDF:",output2,output2.stat().st_size,"bytes")
+
 
 if __name__=="__main__":
     main()
