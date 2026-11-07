@@ -17,6 +17,11 @@ assert(html.includes('trước ngày 30/11'));
 assert(html.includes('trong <strong>30 ngày</strong>'));
 assert(html.includes('id="gioi-thieu-noi-cu-tru"'));
 assert(html.includes('id="y-kien-can-bo"'));
+const section=html.slice(html.indexOf('<section id="noi-cu-tru"'),html.indexOf('</section>',html.indexOf('<section id="noi-cu-tru"')));
+assert(section.indexOf('id="cuoi-nam"') < section.indexOf('id="y-kien-can-bo"'), 'Year-end procedure 03 must appear before process 02');
+assert(section.includes('<details class="ncr-alt ncr-secondary" id="y-kien-can-bo">'), 'Process 02 should be separately expandable');
+assert(section.includes('03 · Nhận xét cuối năm — xem trước'), 'Year-end nav link must be first');
+
 assert(!/Georgia\s*,\s*serif/.test(html));
 assert(html.includes('background:#f6f7fb;color:#21334b'));
 assert(html.includes('font-family:inherit;font-size:clamp(20px,2.6vw,24px)'));

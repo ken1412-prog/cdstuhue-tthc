@@ -87,6 +87,8 @@ def extract(section):
         if troubleshooting:
             residence_groups.append(("Khi không thấy nút hoặc hồ sơ", [li.get_text(" ", strip=True) for li in troubleshooting.find_all("li")]))
         for alternate in section.select("details.ncr-alt"):
+            if alternate.get("id") == "y-kien-can-bo":
+                continue
             summary = alternate.find("summary")
             if summary:
                 residence_groups.append((summary.get_text(" ", strip=True), [li.get_text(" ", strip=True) for li in alternate.find_all("li")]))
@@ -142,8 +144,17 @@ def make_pdf(dest, number, data, font):
         for fact in data["training_points"]:
             story.append(p("• "+fact,body))
         story.append(Spacer(1,8))
+    if data["residence_groups"]:
+        story.append(p("QUY TRÌNH 03 - NHẬN XÉT ĐỊNH KỲ CUỐI NĂM",lead))
+        for heading, items in data["residence_groups"]:
+            story.append(Spacer(1,9))
+            story.append(p(heading,lead))
+            for i,step in enumerate(items,1):
+                story.append(p(f"{i}. {step}",body))
     if data["process2"]:
-        story.append(p("QUY TRÌNH 02 - LẤY Ý KIẾN PHỤC VỤ CÔNG TÁC CÁN BỘ",lead))
+        if data["residence_groups"]:
+            story.append(Spacer(1,18))
+        story.append(p("QUY TRÌNH 02 - LẤY Ý KIẾN PHỤC VỤ CÔNG TÁC CÁN BỘ (QUY TRÌNH RIÊNG)",lead))
         for i,item in enumerate(data["process2"],1):
             story.append(Spacer(1,11))
             story.append(p(f"Bước {i}. {item['title']}",lead))
@@ -158,16 +169,7 @@ def make_pdf(dest, number, data, font):
                         drawing.width*=z
                         drawing.height*=z
                         story.append(drawing)
-        if data["residence_groups"]:
-            story.append(Spacer(1,16))
-            story.append(p("QUY TRÌNH 03 - NHẬN XÉT ĐỊNH KỲ CUỐI NĂM (KHÁC QUY TRÌNH 02)",lead))
-    if data["residence_groups"]:
-        for heading, items in data["residence_groups"]:
-            story.append(Spacer(1,9))
-            story.append(p(heading,lead))
-            for i,step in enumerate(items,1):
-                story.append(p(f"{i}. {step}",body))
-    else:
+    if not data["residence_groups"] and not data["process2"]:
         for i,step in enumerate(data["steps"],1):
             story.append(p(f"{i}. {step}",body))
     story.extend([
