@@ -63,10 +63,10 @@ def extract(section):
             permission = role.select_one(".ncr-role-head small")
             content = [li.get_text(" ", strip=True) for li in role.select(".ncr-role-body li")]
             if role_name:
-                title = role_name.get_text(" ", strip=True)
+                role_title = role_name.get_text(" ", strip=True)
                 if permission:
-                    title += " — " + permission.get_text(" ", strip=True)
-                residence_groups.append((title, content))
+                    role_title += " — " + permission.get_text(" ", strip=True)
+                residence_groups.append((role_title, content))
         deadline = section.select_one("#cuoi-nam .ncr-tips")
         if deadline:
             residence_groups.append(("Thời hạn và điều kiện hoàn tất", [deadline.get_text(" ", strip=True)]))
