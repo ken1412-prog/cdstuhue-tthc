@@ -87,7 +87,7 @@ def extract(section):
         if troubleshooting:
             residence_groups.append(("Khi không thấy nút hoặc hồ sơ", [li.get_text(" ", strip=True) for li in troubleshooting.find_all("li")]))
         for alternate in section.select("details.ncr-alt"):
-            if alternate.get("id") == "y-kien-can-bo":
+            if alternate.get("id") != "gioi-thieu-noi-cu-tru":
                 continue
             summary = alternate.find("summary")
             if summary:
