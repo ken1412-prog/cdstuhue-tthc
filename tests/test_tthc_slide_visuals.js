@@ -8,7 +8,7 @@ assert.equal((html.match(/class="procedure-details"/g)||[]).length,4,'Four expan
 assert(html.includes('class="site-bar"')&&html.includes('class="hero-art"'),'Dashboard nav/hero must be visible');
 assert(html.includes('class="preview-meta"')&&html.includes('class="preview-flow"')&&html.includes('class="preview-steps"')&&html.includes('class="preview-result"'));
 assert(html.includes('procedure-noi-cu-tru{--accent:#10865c')&&html.includes('procedure-tam-thoi{--accent:#754bb2'));
-assert(html.includes('const parent=target.closest("details.procedure-details")'),'Deep links must expand detailed instructions');
+assert(html.includes('const parent=target.matches("section.procedure")?target.querySelector("details.procedure-details"):target.closest("details.procedure-details")'),'Deep links must expand detailed instructions');
 
 for(const [slug,pic] of [
  ['dang-phi','tthc-flow-dang-phi-v47.svg'],
