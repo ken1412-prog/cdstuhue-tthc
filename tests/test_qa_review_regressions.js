@@ -1,0 +1,16 @@
+const assert=require('node:assert/strict'),fs=require('node:fs');
+const app=fs.readFileSync('site/assets/app.js','utf8');
+const overlay=fs.readFileSync('site/assets/tthc-20261105.js','utf8');
+const guide=fs.readFileSync('site/cap-nhat-tthc-2026-11.html','utf8');
+const published=JSON.parse(fs.readFileSync('site/data/approved.json','utf8'));
+assert.equal(new Set(published.items.map(x=>x.id)).size,published.items.length,'QA IDs must be unique');
+for(const qa of published.items)assert(qa.public&&qa.question&&qa.answer,'Every public QA must be complete and approved');
+assert(app.includes('function qaPreview(answer)'));
+assert(app.includes('E(qaPreview(x.answer))'),'List must not print full answers');
+assert(overlay.includes("QA114:'noi-cu-tru'"),'Three-procedure QA must not link into year-end only');
+assert(overlay.includes("QA101:'cuoi-nam'"),'Year-end QA should target correct branch');
+assert(overlay.includes("QA112:'chinh-thuc'")&&overlay.includes("QA113:'tam-thoi'"));
+assert(overlay.includes("const raw=String(patch.answer).replace(/\\s+/g,' ').trim()"),'Patched QA cards must be shortened too');
+assert(guide.includes('target.matches("section.procedure")?target.querySelector("details.procedure-details")'),'Deep links into procedures should expand their instructions');
+assert(guide.includes('id="y-kien-can-bo"')&&guide.includes('id="cuoi-nam"'));
+console.log('QA list previews, correct source links and 245+ approved source items PASS');

@@ -17,7 +17,7 @@ function applyModal(){
  for(const old of body.querySelectorAll('.tthc-20261105-alert,.tthc-archive-answer,.qa-click-guide'))old.remove();
  if(!body.querySelector('.tthc-source-current')){
   const source=document.createElement('div');source.className='tthc-source-current';
-  const link=document.createElement('a');link.textContent='Xem hướng dẫn thao tác 04 TTHC';link.href=['QA101','QA103','QA114'].includes(id)?'cap-nhat-tthc-2026-11.html#cuoi-nam':'cap-nhat-tthc-2026-11.html';link.rel='noopener noreferrer';link.target='_blank';source.append(link);answer.after(source);
+  const link=document.createElement('a');link.textContent='Xem hướng dẫn thao tác 04 TTHC';const sectionByQA={QA007:'dang-phi',QA026:'dang-phi',QA052:'dang-phi',QA110:'dang-phi',QA101:'cuoi-nam',QA103:'noi-cu-tru',QA114:'noi-cu-tru',QA112:'chinh-thuc',QA113:'tam-thoi'};link.href='cap-nhat-tthc-2026-11.html'+(sectionByQA[id]?'#'+sectionByQA[id]:'');link.rel='noopener noreferrer';link.target='_blank';source.append(link);answer.after(source);
  }
 }
 function applyCards(){
@@ -25,7 +25,7 @@ function applyCards(){
  for(const card of page.querySelectorAll('.qa-item[data-qa]')){
   const patch=corrections[card.dataset.qa];if(!patch)continue;
   const h=card.querySelector('h3');if(h&&patch.question&&h.textContent!==patch.question)h.textContent=patch.question;
-  const p=card.querySelector('p');const brief=String(patch.answer).split(/\n\s*\n/)[0];
+  const p=card.querySelector('p');const raw=String(patch.answer).replace(/\s+/g,' ').trim();const brief=raw.length>210?raw.slice(0,207).trimEnd()+'…':raw;
   if(p&&p.textContent!==brief)p.textContent=brief;
  }
 }
