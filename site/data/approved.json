@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "generatedAt": "2026-11-05T10:09:52.690Z",
+  "generatedAt": "2026-11-07T00:52:56.484Z",
   "source": "Approved-only Google Sheets publication",
   "items": [
     {
@@ -2893,11 +2893,11 @@
       "id": "QA101",
       "group": "tthc",
       "topic": "Quy trình điện tử lấy ý kiến/nhận xét nơi cư trú (213)",
-      "question": "Lấy ý kiến nhận xét nơi cư trú theo Quy định 221 gồm mấy quy trình và luân chuyển thế nào?",
-      "answer": "Trước tiên phải cập nhật thông tin chi bộ nơi cư trú. Theo tài liệu đào tạo, ĐẢNG VIÊN không tự khởi tạo thủ tục nhận xét; chi bộ/tổ chức có quyền tạo và xử lý.\n\nQUY TRÌNH 1 – Giới thiệu sinh hoạt nơi cư trú (7 ngày): chi bộ nơi đang sinh hoạt tạo hồ sơ, đảng ủy nơi công tác ký duyệt, đảng ủy nơi cư trú ký phiếu giới thiệu và chi bộ nơi cư trú tiếp nhận; đảng viên theo dõi/nhận phiếu.\n\nQUY TRÌNH 2 – Lấy ý kiến phục vụ công tác cán bộ (6 ngày): chi bộ nơi công tác lập danh sách, cấp ủy cấp trên duyệt; chi bộ nơi cư trú nhận xét Mẫu 1/Mẫu 2; đảng ủy nơi cư trú xác nhận, ký, đóng dấu; chi bộ nơi công tác nhận và thông báo.\n\nQUY TRÌNH 3 – Nhận xét cuối năm (3 ngày, trước 30/11): chi bộ nơi cư trú chủ động tạo phiếu, đảng ủy nơi cư trú xác nhận/đóng dấu, chi bộ nơi công tác nhận và thông báo khi kiểm điểm; đảng viên nhận kết quả trên hệ thống.",
+      "question": "Nhận xét nơi cư trú cuối năm: đảng viên, chi bộ nơi công tác, chi bộ nơi cư trú và đảng ủy làm gì? Ai có quyền thao tác?",
+      "answer": "Nhận xét nơi cư trú cuối năm là QUY TRÌNH DO CHI BỘ NƠI CƯ TRÚ CHỦ ĐỘNG KHỞI TẠO, không phải đảng viên tự kê khai hoặc chi bộ nơi công tác xin nhận xét.\n\nCHUẨN BỊ THÔNG TIN NƠI CƯ TRÚ:\n- Đảng viên tự cập nhật chi bộ nơi thường trú/tạm trú lần đầu khi chưa có dữ liệu, hoặc khi chỗ ở thay đổi. Nếu đã khai đúng và không đổi thì không cập nhật lặp lại hằng năm. Khi thay đổi nơi cư trú, phải cập nhật/bổ sung trong vòng 30 ngày.\n- Bí thư chi bộ nơi công tác hoặc cán bộ được ủy quyền có thể khai báo thay: Quản lý đảng viên → Quản lý đảng viên → Cập nhật Chi bộ nơi cư trú.\n\nTRÁCH NHIỆM TỪNG BÊN:\n1. ĐẢNG VIÊN (tài khoản cá nhân): kiểm tra dữ liệu nơi cư trú; theo dõi, nhận phiếu đã xác nhận; không tự tạo hoặc ký phiếu nhận xét. Có quyền giải trình nếu nội dung chưa khách quan.\n2. CHI BỘ NƠI CÔNG TÁC/ĐANG SINH HOẠT (Bí thư hoặc cán bộ được ủy quyền): kiểm tra thông tin chi bộ cư trú; cập nhật nếu thiếu; không lập phiếu nhận xét định kỳ thay nơi cư trú; tiếp nhận phiếu đã được ký xác nhận và thông báo tại cuộc họp kiểm điểm.\n3. CHI BỘ NƠI CƯ TRÚ (chi ủy, hoặc Bí thư nếu không có chi ủy; tài khoản có quyền): họp với Ban công tác Mặt trận thôn/tổ dân phố để nhận xét trung thực. Mở Quản lý đảng viên → Quản lý đảng viên sinh hoạt nơi cư trú → tìm người → Hành động: Nhận xét → điền tiêu chí, nhận xét khác, ngày/người xử lý → Xem trước → Lưu phiếu và gửi lên cấp ủy.\n4. ĐẢNG ỦY NƠI CƯ TRÚ/CẤP TRÊN TRỰC TIẾP (tài khoản ký số có quyền): mở Chờ xử lý, tổng hợp/xác nhận, ký số, đóng dấu và phê duyệt phiếu; chuyển kết quả về chi bộ nơi công tác.\n\nHẠN THỰC HIỆN: chi bộ nơi cư trú gửi nhận xét lên cấp trên trực tiếp trước ngày 30/11 hằng năm. Quy trình điện tử được tài liệu tập huấn mô tả 3 ngày. Phiếu chỉ hoàn tất sau khi cấp ủy nơi cư trú xác nhận, ký/đóng dấu, chuyển về nơi công tác.\n\nXem toàn bộ các bước theo vai trò, nút thao tác và hai quy trình còn lại tại: https://ken1412-prog.github.io/cdstuhue-tthc/cap-nhat-tthc-2026-11.html#cuoi-nam",
       "keywords": "",
       "alternatives": "",
-      "updated": "2026-11-05",
+      "updated": "2026-11-07",
       "sourceUrl": "",
       "publicNote": "",
       "public": true
@@ -2919,11 +2919,11 @@
       "id": "QA103",
       "group": "tthc",
       "topic": "Kiểm tra ai chưa cập nhật thông tin nơi cư trú",
-      "question": "Muốn biết ai chưa cập nhật thông tin tổ chức đảng nơi cư trú thì kiểm tra thế nào?",
-      "answer": "Trước khi lập hồ sơ lấy ý kiến nhận xét nơi cư trú, đảng viên phải có thông tin chi bộ nơi cư trú trên hệ thống.\n\nTài khoản chi bộ/Bí thư được phân quyền vào Quản lý đảng viên để kiểm tra trường Tổ chức đảng/Chi bộ nơi cư trú; trường trống là dấu hiệu chưa cập nhật. Đảng viên cũng có thể tự cập nhật thông tin chi bộ nơi thường trú hoặc tạm trú trên giao diện nếu được mở chức năng.\n\nNếu thiếu, cán bộ hoặc đảng viên cập nhật đúng đơn vị cư trú trước khi chọn một trong ba quy trình nhận xét; tránh tự chọn đại một chi bộ để vượt bước.",
+      "question": "Thông tin chi bộ nơi cư trú cập nhật một lần hay mỗi năm? Đảng viên hoặc cán bộ chi bộ cập nhật thế nào?",
+      "answer": "Thông tin chi bộ nơi cư trú phải được ghi nhận trước khi lập thủ tục nhận xét. Đây là thông tin quản lý dùng lại, KHÔNG phải hồ sơ phải khai mới mỗi cuối năm nếu thông tin vẫn đúng.\n\n- ĐẢNG VIÊN: đăng nhập, khi được yêu cầu “Cập nhật thông tin chi bộ sinh hoạt nơi cư trú” thì chọn đúng chi bộ nơi thường trú hoặc tạm trú và lưu. Khi thay đổi nơi cư trú, cập nhật trong vòng 30 ngày.\n- CHI BỘ NƠI ĐANG SINH HOẠT: Bí thư hoặc cán bộ được ủy quyền vào Quản lý đảng viên → Quản lý đảng viên, kiểm tra cột Chi bộ/Tổ chức đảng nơi cư trú; người còn trống/sai thì chọn Cập nhật Chi bộ nơi cư trú, chọn đúng tổ chức và Cập nhật.\n- CHI BỘ NƠI CƯ TRÚ: chỉ nhận được hồ sơ/đối tượng đúng khi dữ liệu định tuyến đã có và đúng. Quy trình nhận xét cuối năm do chi bộ nơi cư trú chủ động thực hiện, đảng viên không tự lập phiếu.\n\nNếu đã đúng dữ liệu nhưng không thấy đảng viên trong danh sách nơi cư trú, kiểm tra đồng bộ và quyền tài khoản được cấp; không tạo trùng hồ sơ.\n\nHướng dẫn đầy đủ: https://ken1412-prog.github.io/cdstuhue-tthc/cap-nhat-tthc-2026-11.html#cuoi-nam",
       "keywords": "",
       "alternatives": "",
-      "updated": "2026-11-05",
+      "updated": "2026-11-07",
       "sourceUrl": "",
       "publicNote": "",
       "public": true
@@ -3062,11 +3062,11 @@
       "id": "QA114",
       "group": "tthc",
       "topic": "Lấy ý kiến nhận xét nơi cư trú - chọn đúng nội dung",
-      "question": "Lấy ý kiến nhận xét nơi cư trú: chọn đúng thủ tục nào và ai tạo hồ sơ?",
-      "answer": "Có 3 quy trình, không phải chỉ hai lựa chọn chung:\n\n1. GIỚI THIỆU SINH HOẠT NƠI CƯ TRÚ: chi bộ nơi đảng viên đang sinh hoạt khởi tạo khi mới giới thiệu hoặc thay đổi nơi cư trú; đảng ủy hai nơi xử lý, chi bộ nơi cư trú tiếp nhận (tổng 7 ngày theo tài liệu).\n2. LẤY Ý KIẾN PHỤC VỤ CÔNG TÁC CÁN BỘ: chi bộ nơi công tác lập danh sách xin ý kiến, cấp trên duyệt, nơi cư trú nhận xét và xác nhận (tổng 6 ngày).\n3. NHẬN XÉT ĐỊNH KỲ CUỐI NĂM: chi bộ nơi cư trú chủ động tạo phiếu, đảng ủy nơi cư trú ký xác nhận, chi bộ nơi công tác nhận (tổng 3 ngày, trước 30/11).\n\nTrước khi thực hiện phải có thông tin chi bộ nơi cư trú. Đảng viên chỉ theo dõi/nhận kết quả, không tự khai hồ sơ nhận xét.",
+      "question": "Ba quy trình lấy ý kiến nơi cư trú khác nhau thế nào? Ai khởi tạo từng quy trình?",
+      "answer": "Có 3 QUY TRÌNH ĐỘC LẬP, không phải ba bước của một hồ sơ:\n\n1. GIỚI THIỆU VỀ NƠI CƯ TRÚ (7 ngày): chi bộ nơi đảng viên đang sinh hoạt khởi tạo khi giới thiệu mới hoặc thay đổi chỗ ở → đảng ủy nơi công tác xét/duyệt → đảng ủy nơi cư trú ký xác nhận → chi bộ cư trú tiếp nhận; đảng viên nhận giấy.\n2. LẤY Ý KIẾN PHỤC VỤ CÔNG TÁC CÁN BỘ (6 ngày): chi bộ nơi công tác lập và trình danh sách → cấp trên phê duyệt → chi bộ nơi cư trú nhận xét → đảng ủy nơi cư trú ký/đóng dấu → chi bộ nơi công tác nhận kết quả.\n3. NHẬN XÉT ĐỊNH KỲ CUỐI NĂM (3 ngày; gửi cấp trên trước 30/11): CHI BỘ NƠI CƯ TRÚ chủ động lập phiếu → đảng ủy nơi cư trú ký xác nhận → chi bộ nơi công tác nhận, thông báo khi kiểm điểm → đảng viên nhận phiếu.\n\nĐiều kiện chung: đảng viên hoặc Bí thư/cán bộ được ủy quyền ở chi bộ nơi công tác cập nhật đúng chi bộ nơi cư trú trước khi chạy thủ tục. Không phải kê khai lại mỗi năm khi không đổi, nhưng phải cập nhật trong vòng 30 ngày nếu thay đổi nơi cư trú.\n\nHướng dẫn đầy đủ từng vai trò và nút bấm: https://ken1412-prog.github.io/cdstuhue-tthc/cap-nhat-tthc-2026-11.html#cuoi-nam",
       "keywords": "",
       "alternatives": "",
-      "updated": "2026-11-05",
+      "updated": "2026-11-07",
       "sourceUrl": "",
       "publicNote": "",
       "public": true
