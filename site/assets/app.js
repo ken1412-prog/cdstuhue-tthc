@@ -846,7 +846,7 @@ function scoreQA(item,q){const f=fold(q).trim();if(!f)return 1;let question=fold
     (words.length>=2&&words.filter(w=>question.includes(w)).length>=2)))score+=12;
  return score}
 /* Training 05/11/2026: these approved QA have a separate reviewed process-update supplement. */
-const TTHC_REVISED_QA=new Set(["QA006","QA007","QA017","QA026","QA030","QA033","QA042","QA063","QA104","QA110","QA111","QA120","QA122","QA003","QA005","QA008","QA012","QA014","QA018","QA022","QA027","QA028","QA034","QA036","QA047","QA052","QA053","QA056","QA057","QA058","QA059","QA060","QA061","QA062","QA087","QA093","QA094","QA095","QA101","QA103","QA112","QA113","QA114","QA115"]);
+const TTHC_REVISED_QA=new Set(["QA006","QA007","QA017","QA026","QA030","QA033","QA042","QA063","QA104","QA110","QA111","QA120","QA122","QA003","QA005","QA008","QA012","QA014","QA018","QA022","QA027","QA028","QA034","QA036","QA047","QA052","QA053","QA056","QA057","QA058","QA059","QA060","QA061","QA062","QA087","QA093","QA094","QA095","QA101","QA103","QA112","QA113","QA114","QA115","QA004","QA029","QA031","QA089","QA090","QA106","QA121"]);
 const qaIsNew=x=>/^2026-11-(0[5-9]|[12][0-9]|30)$/.test(String(x.updated||''))&&!TTHC_REVISED_QA.has(x.id);
 const qaPriority=x=>x&&x.group==='tthc'?(qaIsNew(x)?2:(TTHC_REVISED_QA.has(x.id)?1:0)):0;
 function qaPreview(answer){

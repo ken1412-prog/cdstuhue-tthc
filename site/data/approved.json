@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "generatedAt": "2026-11-07T00:52:56.484Z",
+  "generatedAt": "2026-11-07T04:48:20.556Z",
   "source": "Approved-only Google Sheets publication",
   "items": [
     {
@@ -1538,6 +1538,19 @@
       "public": true
     },
     {
+      "id": "STDV091",
+      "group": "stdv",
+      "topic": "OTP hiển thị/gửi về số điện thoại khác",
+      "question": "Khi gửi OTP nhưng hệ thống lại hiển thị hoặc gửi về số điện thoại khác với số của đảng viên thì xử lý thế nào?",
+      "answer": "Không nên kết luận ngay là lỗi mapping. Theo hướng dẫn OTP, Admin vào Quản trị > Quản lý người dùng > tìm CCCD > Sửa và kiểm tra số điện thoại của tài khoản. Nếu màn OTP hiển thị số kết thúc xxxx789 và bản ghi đang dùng số điện thoại mặc định do hệ thống gán do lúc tạo tài khoản không nhập số điện thoại, hoặc số trong bản ghi đang sai, sửa về số đúng bắt đầu bằng 0 (đầu 84 đổi về 0) rồi nhấn Ghi lại. Nếu Admin thấy số đã đúng, vẫn nhấn Ghi lại và chờ 1–2 phút rồi thử OTP lại. Nếu sau đó OTP vẫn hiển thị/gửi về số khác hoặc vẫn không nhận được thì chuyển BO/dự án/đội hỗ trợ, kèm CCCD, số điện thoại đúng và ảnh màn OTP để kiểm tra mapping.",
+      "keywords": "",
+      "alternatives": "",
+      "updated": "2026-11-07",
+      "sourceUrl": "",
+      "publicNote": "",
+      "public": true
+    },
+    {
       "id": "STDV092",
       "group": "stdv",
       "topic": "Đăng ký cuộc họp báo lỗi “ID là bắt buộc”",
@@ -1763,10 +1776,10 @@
       "group": "tthc",
       "topic": "Tỷ lệ phân bổ sai do Loại/Phân loại cơ quan, đơn vị không đúng",
       "question": "Tỷ lệ phân bổ đảng phí trên TTHC hiển thị sai hoặc không cho sửa trực tiếp thì cần kiểm tra gì?",
-      "answer": "Tỷ lệ trên TTHC không nên sửa tay. Theo phản hồi hỗ trợ, tỷ lệ được sinh từ dữ liệu nguồn trên CSDL 4.0, đặc biệt là hai trường “Loại cơ quan, đơn vị” và “Phân loại cơ quan, đơn vị”. Nếu một trong hai trường bị gán sai hoặc hai trường không phù hợp với thực tế tổ chức thì tỷ lệ sinh ra cũng có thể sai. Cách xử lý: kiểm tra đúng loại hình và phân loại của đơn vị trên 4.0 → sửa dữ liệu nguồn nếu sai → đồng bộ lại TTHC → kiểm tra tỷ lệ mới → chỉ xác nhận khi đã đúng. Ví dụ: tên/loại là một tổ chức đảng cấp xã nhưng trường Phân loại lại đang gán sang một nhóm đơn vị không phù hợp như “Đơn vị sự nghiệp công lập”; hoặc tên là “chi bộ” nhưng Loại lại là “đảng bộ”. Đây là dấu hiệu cần sửa dữ liệu nguồn, không phải tự đổi % trên TTHC. Nếu 4.0 đã đúng mà TTHC vẫn sai thì gửi ảnh hai đầu cho hỗ trợ kiểm tra đồng bộ.",
+      "answer": "Đối chiếu quyết định loại hình, hai trường “Loại/Phân loại cơ quan, đơn vị” trên CSDL 4.0, đồng bộ TTHC và chỉ xác nhận tỷ lệ nếu đúng. Không sửa trực tiếp % trên TTHC để che lỗi nguồn.\n\nCẬP NHẬT 07/11/2026 — CÔNG VĂN 6163-CV/VPTW (01/11/2026): Công văn hướng dẫn PHÂN BỔ đảng phí, không phải thay đổi mức đóng của từng đảng viên. Tổ chức CHƯA có quyết định xác định lại loại hình theo Quy định 208 tiếp tục Điều 6 Quy định 01-QĐ/TW. Tổ chức ĐÃ được xác định lại phải GIỮ NGUYÊN số đảng phí ĐÃ phân bổ kỳ trước; chỉ khoản CHƯA phân bổ mới theo tỷ lệ: chi bộ đặc thù được liệt kê 70%, chi bộ còn lại 50%, đảng ủy bộ phận 30%, đảng ủy trực thuộc cơ sở 70%, đảng ủy cơ sở xã/phường/đặc khu 70%, đảng ủy cơ sở còn lại 50%. Cấp trên tính phần trăm trên số CÒN LẠI sau khi trừ số cấp dưới được giữ, không áp dụng trên tổng số thu ban đầu. Xem hướng dẫn và trường hợp Bộ Ngoại giao tại https://ken1412-prog.github.io/cdstuhue-tthc/cap-nhat-tthc-2026-11.html#phan-bo-dang-phi.",
       "keywords": "",
       "alternatives": "",
-      "updated": "2026-10-24",
+      "updated": "2026-11-07",
       "sourceUrl": "",
       "publicNote": "",
       "public": true
@@ -2088,10 +2101,10 @@
       "group": "tthc",
       "topic": "Chi bộ có dấu nhưng không có token/chữ ký số",
       "question": "Chi bộ/đảng bộ có con dấu nhưng không có token, trong khi phần mềm yêu cầu token để ký thì làm thế nào?",
-      "answer": "Nếu phần mềm yêu cầu ký thì trước hết phải xác định đơn vị đang ở loại tổ chức nào và hồ sơ đang nằm ở bước xử lý nào. Theo trao đổi trong nhóm, nhiều chi bộ sau cơ cấu mới không còn bước ký số; nhưng tài liệu hướng dẫn chung vẫn quy định đơn vị có bước ký thì phải dùng chữ ký số/thiết bị được cấp. Vì vậy không nên suy từ việc “có con dấu” hay “là chi bộ” để kết luận ngay. Nếu hệ thống vẫn hiện bước ký mà đơn vị chưa có chứng thư/token phù hợp, cần kiểm tra lại loại đơn vị, quyền và đầu mối cấp chữ ký số.",
+      "answer": "Nếu có con dấu mà chưa có token, kiểm tra ĐÚNG THỦ TỤC và VỊ TRÍ ký: chuyển sinh hoạt chính thức, chi bộ phê duyệt điện tử ở ô 1/6, không ký số ở hai ô này; chuyển tạm thời, các ô 1–8 ký số theo đúng vai trò, kể cả tại chi bộ; lấy ý kiến nơi cư trú, cấp ủy nơi cư trú ký/xác nhận và dùng chữ ký số tổ chức khi đóng dấu; nộp đảng phí thông thường không cần chữ ký Bí thư. Nếu bước thực tế yêu cầu ký mà chưa có chứng thư hợp lệ, liên hệ đầu mối cấp chữ ký số, không tự dùng/mượn token khác.",
       "keywords": "",
       "alternatives": "",
-      "updated": "2026-10-24",
+      "updated": "2026-11-07",
       "sourceUrl": "",
       "publicNote": "",
       "public": true
@@ -2114,10 +2127,10 @@
       "group": "tthc",
       "topic": "Đảng viên quét QR nhưng tiền không vào tài khoản chi bộ",
       "question": "Đảng viên quét mã QR để nộp đảng phí nhưng tiền không vào tài khoản chi bộ thì có phải lỗi không?",
-      "answer": "Không phải lỗi nếu tiền chưa vào ngay tài khoản chi bộ. Tiền nộp qua TTHC vào tài khoản trung gian/TW trước; chi bộ nhận phần được phân bổ lại. Kiểm tra trạng thái thanh toán và điều kiện phân bổ.",
+      "answer": "Không phải lỗi chỉ vì tiền chưa về ngay tài khoản chi bộ. Thanh toán qua cổng được ghi nhận trước; phần đảng phí của tổ chức được phân bổ theo dữ liệu, kỳ và tài khoản đã xác nhận. Kiểm tra trạng thái Đã nộp/biên lai, rồi kiểm tra dữ liệu phân bổ; đã trừ tiền nhưng chưa hiện trạng thái thì không nộp lần hai.\n\nCẬP NHẬT 07/11/2026 — CÔNG VĂN 6163-CV/VPTW (01/11/2026): Công văn hướng dẫn PHÂN BỔ đảng phí, không phải thay đổi mức đóng của từng đảng viên. Tổ chức CHƯA có quyết định xác định lại loại hình theo Quy định 208 tiếp tục Điều 6 Quy định 01-QĐ/TW. Tổ chức ĐÃ được xác định lại phải GIỮ NGUYÊN số đảng phí ĐÃ phân bổ kỳ trước; chỉ khoản CHƯA phân bổ mới theo tỷ lệ: chi bộ đặc thù được liệt kê 70%, chi bộ còn lại 50%, đảng ủy bộ phận 30%, đảng ủy trực thuộc cơ sở 70%, đảng ủy cơ sở xã/phường/đặc khu 70%, đảng ủy cơ sở còn lại 50%. Cấp trên tính phần trăm trên số CÒN LẠI sau khi trừ số cấp dưới được giữ, không áp dụng trên tổng số thu ban đầu. Xem hướng dẫn và trường hợp Bộ Ngoại giao tại https://ken1412-prog.github.io/cdstuhue-tthc/cap-nhat-tthc-2026-11.html#phan-bo-dang-phi.",
       "keywords": "",
       "alternatives": "",
-      "updated": "2026-10-24",
+      "updated": "2026-11-07",
       "sourceUrl": "",
       "publicNote": "",
       "public": true
@@ -2751,10 +2764,10 @@
       "group": "tthc",
       "topic": "Trạng thái Chưa xác nhận ở dữ liệu phân bổ",
       "question": "Đã thêm tài khoản ngân hàng nhưng cột Tình trạng xác nhận dữ liệu phân bổ vẫn ghi Chưa xác nhận thì cần làm gì?",
-      "answer": "Cần vào chức năng Xác nhận dữ liệu phân bổ để kiểm tra tỷ lệ giữ lại/nộp lên và thực hiện xác nhận theo đơn vị. Việc nhận phân bổ còn phụ thuộc tài khoản ngân hàng đã khai báo/xác thực đầy đủ.",
+      "answer": "Việc thêm tài khoản ngân hàng KHÔNG tự chuyển “Chưa xác nhận dữ liệu phân bổ” thành “Đã xác nhận”. Cần kiểm tra tài khoản, đơn vị, loại hình và tỷ lệ tại màn Xác nhận dữ liệu phân bổ. Nếu tỷ lệ hoặc dữ liệu nguồn sai, chưa xác nhận để tránh phân bổ sai.\n\nCẬP NHẬT 07/11/2026 — CÔNG VĂN 6163-CV/VPTW (01/11/2026): Công văn hướng dẫn PHÂN BỔ đảng phí, không phải thay đổi mức đóng của từng đảng viên. Tổ chức CHƯA có quyết định xác định lại loại hình theo Quy định 208 tiếp tục Điều 6 Quy định 01-QĐ/TW. Tổ chức ĐÃ được xác định lại phải GIỮ NGUYÊN số đảng phí ĐÃ phân bổ kỳ trước; chỉ khoản CHƯA phân bổ mới theo tỷ lệ: chi bộ đặc thù được liệt kê 70%, chi bộ còn lại 50%, đảng ủy bộ phận 30%, đảng ủy trực thuộc cơ sở 70%, đảng ủy cơ sở xã/phường/đặc khu 70%, đảng ủy cơ sở còn lại 50%. Cấp trên tính phần trăm trên số CÒN LẠI sau khi trừ số cấp dưới được giữ, không áp dụng trên tổng số thu ban đầu. Xem hướng dẫn và trường hợp Bộ Ngoại giao tại https://ken1412-prog.github.io/cdstuhue-tthc/cap-nhat-tthc-2026-11.html#phan-bo-dang-phi.",
       "keywords": "",
       "alternatives": "",
-      "updated": "2026-10-24",
+      "updated": "2026-11-07",
       "sourceUrl": "",
       "publicNote": "",
       "public": true
@@ -2764,10 +2777,10 @@
       "group": "tthc",
       "topic": "Đổi loại hình tổ chức có phải kiểm tra/xác nhận lại tỷ lệ phân bổ?",
       "question": "Sau khi đơn vị đổi loại hình/phân loại trên CSDL 4.0 thì tỷ lệ phân bổ đã xác nhận trước đó có cần kiểm tra hoặc xác nhận lại không?",
-      "answer": "Có thay đổi loại hình/phân loại thì phải kiểm tra lại tỷ lệ sau khi dữ liệu mới đồng bộ sang TTHC. Tỷ lệ không phải giá trị cố định theo lần xác nhận cũ mà được sinh từ Loại/Phân loại cơ quan, đơn vị trên 4.0. Vì vậy: sửa đúng 4.0 → đồng bộ → mở lại màn xác nhận tỷ lệ → chỉ xác nhận khi tỷ lệ mới hiển thị đúng. Nếu vẫn còn tỷ lệ cũ hoặc sai thì chưa xác nhận và gửi hỗ trợ kiểm tra. Không dùng tỷ lệ cũ chỉ vì trước đó đã từng xác nhận.",
+      "answer": "Đơn vị đổi loại hình cần đối chiếu quyết định xác định lại loại hình, chuẩn hóa trên CSDL 4.0, đồng bộ TTHC, rồi kiểm tra tỷ lệ trước khi xác nhận. KHÔNG tự tính lại khoản đã phân bổ ở kỳ trước.\n\nCẬP NHẬT 07/11/2026 — CÔNG VĂN 6163-CV/VPTW (01/11/2026): Công văn hướng dẫn PHÂN BỔ đảng phí, không phải thay đổi mức đóng của từng đảng viên. Tổ chức CHƯA có quyết định xác định lại loại hình theo Quy định 208 tiếp tục Điều 6 Quy định 01-QĐ/TW. Tổ chức ĐÃ được xác định lại phải GIỮ NGUYÊN số đảng phí ĐÃ phân bổ kỳ trước; chỉ khoản CHƯA phân bổ mới theo tỷ lệ: chi bộ đặc thù được liệt kê 70%, chi bộ còn lại 50%, đảng ủy bộ phận 30%, đảng ủy trực thuộc cơ sở 70%, đảng ủy cơ sở xã/phường/đặc khu 70%, đảng ủy cơ sở còn lại 50%. Cấp trên tính phần trăm trên số CÒN LẠI sau khi trừ số cấp dưới được giữ, không áp dụng trên tổng số thu ban đầu. Xem hướng dẫn và trường hợp Bộ Ngoại giao tại https://ken1412-prog.github.io/cdstuhue-tthc/cap-nhat-tthc-2026-11.html#phan-bo-dang-phi.",
       "keywords": "",
       "alternatives": "",
-      "updated": "2026-10-24",
+      "updated": "2026-11-07",
       "sourceUrl": "",
       "publicNote": "",
       "public": true
@@ -2920,7 +2933,7 @@
       "group": "tthc",
       "topic": "Kiểm tra ai chưa cập nhật thông tin nơi cư trú",
       "question": "Thông tin chi bộ nơi cư trú cập nhật một lần hay mỗi năm? Đảng viên hoặc cán bộ chi bộ cập nhật thế nào?",
-      "answer": "Thông tin chi bộ nơi cư trú phải được ghi nhận trước khi lập thủ tục nhận xét. Đây là thông tin quản lý dùng lại, KHÔNG phải hồ sơ phải khai mới mỗi cuối năm nếu thông tin vẫn đúng.\n\n- ĐẢNG VIÊN: đăng nhập, khi được yêu cầu “Cập nhật thông tin chi bộ sinh hoạt nơi cư trú” thì chọn đúng chi bộ nơi thường trú hoặc tạm trú và lưu. Khi thay đổi nơi cư trú, cập nhật trong vòng 30 ngày.\n- CHI BỘ NƠI ĐANG SINH HOẠT: Bí thư hoặc cán bộ được ủy quyền vào Quản lý đảng viên → Quản lý đảng viên, kiểm tra cột Chi bộ/Tổ chức đảng nơi cư trú; người còn trống/sai thì chọn Cập nhật Chi bộ nơi cư trú, chọn đúng tổ chức và Cập nhật.\n- CHI BỘ NƠI CƯ TRÚ: chỉ nhận được hồ sơ/đối tượng đúng khi dữ liệu định tuyến đã có và đúng. Quy trình nhận xét cuối năm do chi bộ nơi cư trú chủ động thực hiện, đảng viên không tự lập phiếu.\n\nNếu đã đúng dữ liệu nhưng không thấy đảng viên trong danh sách nơi cư trú, kiểm tra đồng bộ và quyền tài khoản được cấp; không tạo trùng hồ sơ.\n\nHướng dẫn đầy đủ: https://ken1412-prog.github.io/cdstuhue-tthc/cap-nhat-tthc-2026-11.html#cuoi-nam",
+      "answer": "Thông tin chi bộ nơi cư trú phải được ghi nhận trước khi lập thủ tục nhận xét. Đây là thông tin quản lý dùng lại, KHÔNG phải hồ sơ phải khai mới mỗi cuối năm nếu thông tin vẫn đúng.\n\n- ĐẢNG VIÊN: đăng nhập, khi được yêu cầu “Cập nhật thông tin chi bộ sinh hoạt nơi cư trú” thì chọn đúng chi bộ nơi thường trú hoặc tạm trú và lưu. Khi thay đổi nơi cư trú, cập nhật trong vòng 30 ngày.\n- CHI BỘ NƠI ĐANG SINH HOẠT: Bí thư hoặc cán bộ được ủy quyền vào Quản lý đảng viên → Quản lý đảng viên, kiểm tra cột Chi bộ/Tổ chức đảng nơi cư trú; người còn trống/sai thì chọn Cập nhật Chi bộ nơi cư trú, chọn đúng tổ chức và Cập nhật.\n- CHI BỘ NƠI CƯ TRÚ: chỉ nhận được hồ sơ/đối tượng đúng khi dữ liệu định tuyến đã có và đúng. Quy trình nhận xét cuối năm do chi bộ nơi cư trú chủ động thực hiện, đảng viên không tự lập phiếu.\n\nNếu đã đúng dữ liệu nhưng không thấy đảng viên trong danh sách nơi cư trú, kiểm tra đồng bộ và quyền tài khoản được cấp; không tạo trùng hồ sơ.\n\nHướng dẫn đầy đủ: https://ken1412-prog.github.io/cdstuhue-tthc/cap-nhat-tthc-2026-11.html#noi-cu-tru",
       "keywords": "",
       "alternatives": "",
       "updated": "2026-11-07",
@@ -2959,10 +2972,10 @@
       "group": "tthc",
       "topic": "9 trường hợp mức đóng và tỷ lệ đảng phí được để lại theo Quy định 01-QĐ/TW",
       "question": "Theo Quy định 01-QĐ/TW ngày 03/02/2026, 6 nhóm đảng viên đóng bao nhiêu đảng phí và 3 nhóm tổ chức đảng được để lại tỷ lệ bao nhiêu?",
-      "answer": "Căn cứ Điều 3 và Điều 6 Quy định số 01-QĐ/TW ngày 03/02/2026 của Bộ Chính trị (có hiệu lực từ 01/02/2026), phân biệt MỨC ĐÓNG của đảng viên và TỶ LỆ ĐƯỢC ĐỂ LẠI tại tổ chức đảng:\n\nI. MỨC ĐÓNG ĐẢNG PHÍ CỦA ĐẢNG VIÊN\n1) Thuộc diện tham gia BHXH bắt buộc: đóng 1% tiền lương làm căn cứ đóng BHXH bắt buộc của tháng trước liền kề (không tính 1% riêng trên từng khoản phụ cấp).\n2) Đang hưởng lương hưu: đóng 0,5% số tiền lương hưu được hưởng.\n3) Không thuộc diện BHXH bắt buộc, chưa đến tuổi nghỉ hưu, không hưởng lương hưu: từ 01/01/2026 đến 31/12/2027 đóng 0,3% mức lương tối thiểu tháng theo vùng nơi sinh hoạt đảng.\n4) Cùng nhóm ở mục 3: từ 01/01/2028 đóng 0,5% mức lương tối thiểu tháng theo vùng.\n5) Không thuộc diện BHXH bắt buộc, đã đủ tuổi nghỉ hưu nhưng không hưởng lương hưu: từ 01/01/2026 đến 31/12/2027 đóng 0,2% mức lương tối thiểu tháng theo vùng.\n6) Cùng nhóm ở mục 5: từ 01/01/2028 đóng 0,3% mức lương tối thiểu tháng theo vùng.\n\nII. TỶ LỆ ĐẢNG PHÍ TỔ CHỨC ĐẢNG ĐƯỢC ĐỂ LẠI\n7) Chi bộ thôn, tổ dân phố (khóm, ấp theo tên gọi địa phương) và các chi bộ đặc thù khác được liệt kê tại Điểm 1.1 Khoản 1 Điều 6: để lại 70% số đảng phí thu được của đảng viên trong chi bộ.\n8) Các chi bộ còn lại không phải chi bộ cơ sở: để lại 50% số đảng phí thu được của đảng viên trong chi bộ.\n9) Chi bộ cơ sở, đảng ủy cơ sở, đảng ủy cơ sở được giao một số quyền của cấp trên cơ sở và đảng ủy cấp trên cơ sở xã/phường/đặc khu: được để lại 70% SỐ ĐẢNG PHÍ CÒN LẠI sau khi trừ số đã để lại cho tổ chức đảng cấp dưới, không phải 70% tổng số tiền thu ban đầu. Các loại tổ chức đảng khác phải áp dụng tỷ lệ tương ứng theo Điều 6.\n\nLƯU Ý ĐỐI TƯỢNG VÀ LỖI HỆ THỐNG\n• Các mức 0,3%/0,5%/0,2% nêu trên chỉ áp dụng đúng nhóm đối tượng tương ứng; học sinh, sinh viên đóng 5.000 đồng/tháng; người có công hoặc hưởng trợ cấp thuộc diện quy định có cách tính riêng (bằng 50% mức tương ứng); trường hợp miễn/giảm theo Điều 5 không thể suy trực tiếp từ bảng chín mục.\n• Nghỉ ốm đau hoặc thai sản không đóng BHXH bắt buộc mà hưởng trợ cấp BHXH: đóng 1% tiền trợ cấp do BHXH chi trả trong thời gian đó.\n• Nếu hệ thống tính 1% đối với người chỉ tham gia BHXH TỰ NGUYỆN hoặc người đang hưởng lương hưu, cần kiểm tra và chọn đúng đối tượng, đối chiếu căn cứ thực tế trước khi phê duyệt; có trường hợp API BHXH trả sai nhóm nên phải yêu cầu hỗ trợ điều chỉnh. Không tự suy BHXH tự nguyện thuộc diện BHXH bắt buộc.\n• Tỷ lệ phân bổ trên TTHC phụ thuộc loại/phân loại tổ chức trong CSDL 4.0; nếu phần mềm hiển thị sai, kiểm tra dữ liệu nguồn và đồng bộ trước khi xác nhận (xem QA004).",
+      "answer": "LƯU Ý VỀ PHÂN BỔ MỚI: CẬP NHẬT 07/11/2026 — CÔNG VĂN 6163-CV/VPTW (01/11/2026): Công văn hướng dẫn PHÂN BỔ đảng phí, không phải thay đổi mức đóng của từng đảng viên. Tổ chức CHƯA có quyết định xác định lại loại hình theo Quy định 208 tiếp tục Điều 6 Quy định 01-QĐ/TW. Tổ chức ĐÃ được xác định lại phải GIỮ NGUYÊN số đảng phí ĐÃ phân bổ kỳ trước; chỉ khoản CHƯA phân bổ mới theo tỷ lệ: chi bộ đặc thù được liệt kê 70%, chi bộ còn lại 50%, đảng ủy bộ phận 30%, đảng ủy trực thuộc cơ sở 70%, đảng ủy cơ sở xã/phường/đặc khu 70%, đảng ủy cơ sở còn lại 50%. Cấp trên tính phần trăm trên số CÒN LẠI sau khi trừ số cấp dưới được giữ, không áp dụng trên tổng số thu ban đầu. Xem hướng dẫn và trường hợp Bộ Ngoại giao tại https://ken1412-prog.github.io/cdstuhue-tthc/cap-nhat-tthc-2026-11.html#phan-bo-dang-phi.\n\nBẢNG MỨC ĐÓNG VÀ CĂN CỨ THEO QUY ĐỊNH 01-QĐ/TW (GIỮ ĐỂ TRA CỨU):\nCăn cứ Điều 3 và Điều 6 Quy định số 01-QĐ/TW ngày 03/02/2026 của Bộ Chính trị (có hiệu lực từ 01/02/2026), phân biệt MỨC ĐÓNG của đảng viên và TỶ LỆ ĐƯỢC ĐỂ LẠI tại tổ chức đảng:\n\nI. MỨC ĐÓNG ĐẢNG PHÍ CỦA ĐẢNG VIÊN\n1) Thuộc diện tham gia BHXH bắt buộc: đóng 1% tiền lương làm căn cứ đóng BHXH bắt buộc của tháng trước liền kề (không tính 1% riêng trên từng khoản phụ cấp).\n2) Đang hưởng lương hưu: đóng 0,5% số tiền lương hưu được hưởng.\n3) Không thuộc diện BHXH bắt buộc, chưa đến tuổi nghỉ hưu, không hưởng lương hưu: từ 01/01/2026 đến 31/12/2027 đóng 0,3% mức lương tối thiểu tháng theo vùng nơi sinh hoạt đảng.\n4) Cùng nhóm ở mục 3: từ 01/01/2028 đóng 0,5% mức lương tối thiểu tháng theo vùng.\n5) Không thuộc diện BHXH bắt buộc, đã đủ tuổi nghỉ hưu nhưng không hưởng lương hưu: từ 01/01/2026 đến 31/12/2027 đóng 0,2% mức lương tối thiểu tháng theo vùng.\n6) Cùng nhóm ở mục 5: từ 01/01/2028 đóng 0,3% mức lương tối thiểu tháng theo vùng.\n\nII. TỶ LỆ ĐẢNG PHÍ TỔ CHỨC ĐẢNG ĐƯỢC ĐỂ LẠI\n7) Chi bộ thôn, tổ dân phố (khóm, ấp theo tên gọi địa phương) và các chi bộ đặc thù khác được liệt kê tại Điểm 1.1 Khoản 1 Điều 6: để lại 70% số đảng phí thu được của đảng viên trong chi bộ.\n8) Các chi bộ còn lại không phải chi bộ cơ sở: để lại 50% số đảng phí thu được của đảng viên trong chi bộ.\n9) Chi bộ cơ sở, đảng ủy cơ sở, đảng ủy cơ sở được giao một số quyền của cấp trên cơ sở và đảng ủy cấp trên cơ sở xã/phường/đặc khu: được để lại 70% SỐ ĐẢNG PHÍ CÒN LẠI sau khi trừ số đã để lại cho tổ chức đảng cấp dưới, không phải 70% tổng số tiền thu ban đầu. Các loại tổ chức đảng khác phải áp dụng tỷ lệ tương ứng theo Điều 6.\n\nLƯU Ý ĐỐI TƯỢNG VÀ LỖI HỆ THỐNG\n• Các mức 0,3%/0,5%/0,2% nêu trên chỉ áp dụng đúng nhóm đối tượng tương ứng; học sinh, sinh viên đóng 5.000 đồng/tháng; người có công hoặc hưởng trợ cấp thuộc diện quy định có cách tính riêng (bằng 50% mức tương ứng); trường hợp miễn/giảm theo Điều 5 không thể suy trực tiếp từ bảng chín mục.\n• Nghỉ ốm đau hoặc thai sản không đóng BHXH bắt buộc mà hưởng trợ cấp BHXH: đóng 1% tiền trợ cấp do BHXH chi trả trong thời gian đó.\n• Nếu hệ thống tính 1% đối với người chỉ tham gia BHXH TỰ NGUYỆN hoặc người đang hưởng lương hưu, cần kiểm tra và chọn đúng đối tượng, đối chiếu căn cứ thực tế trước khi phê duyệt; có trường hợp API BHXH trả sai nhóm nên phải yêu cầu hỗ trợ điều chỉnh. Không tự suy BHXH tự nguyện thuộc diện BHXH bắt buộc.\n• Tỷ lệ phân bổ trên TTHC phụ thuộc loại/phân loại tổ chức trong CSDL 4.0; nếu phần mềm hiển thị sai, kiểm tra dữ liệu nguồn và đồng bộ trước khi xác nhận (xem QA004).",
       "keywords": "9 mức đảng phí; Quy định 01-QĐ/TW; mức đóng đảng phí; 1%; 0,5%; 0,3%; 0,2%; BHXH bắt buộc; BHXH tự nguyện; lương hưu; lương tối thiểu vùng; từ 2028; tỷ lệ để lại đảng phí; 70%; 50%; chi bộ thôn khóm ấp; chi bộ trường học y tế; đảng bộ phường; đảng ủy cơ sở; phân bổ còn lại; lỗi BHXH tính sai mức",
       "alternatives": "",
-      "updated": "2026-10-29",
+      "updated": "2026-11-07",
       "sourceUrl": "https://ubkttw.vn/upload/104764/20260212/qudtw01_b6312.pdf",
       "publicNote": "BẢN CHUẨN ƯU TIÊN — Đã ghép QA085, QA086 vào QA106; đối chiếu Điều 3 và Điều 6 Quy định 01-QĐ/TW",
       "public": true
@@ -3063,7 +3076,7 @@
       "group": "tthc",
       "topic": "Lấy ý kiến nhận xét nơi cư trú - chọn đúng nội dung",
       "question": "Ba quy trình lấy ý kiến nơi cư trú khác nhau thế nào? Ai khởi tạo từng quy trình?",
-      "answer": "Có 3 QUY TRÌNH ĐỘC LẬP, không phải ba bước của một hồ sơ:\n\n1. GIỚI THIỆU VỀ NƠI CƯ TRÚ (7 ngày): chi bộ nơi đảng viên đang sinh hoạt khởi tạo khi giới thiệu mới hoặc thay đổi chỗ ở → đảng ủy nơi công tác xét/duyệt → đảng ủy nơi cư trú ký xác nhận → chi bộ cư trú tiếp nhận; đảng viên nhận giấy.\n2. LẤY Ý KIẾN PHỤC VỤ CÔNG TÁC CÁN BỘ (6 ngày): chi bộ nơi công tác lập và trình danh sách → cấp trên phê duyệt → chi bộ nơi cư trú nhận xét → đảng ủy nơi cư trú ký/đóng dấu → chi bộ nơi công tác nhận kết quả.\n3. NHẬN XÉT ĐỊNH KỲ CUỐI NĂM (3 ngày; gửi cấp trên trước 30/11): CHI BỘ NƠI CƯ TRÚ chủ động lập phiếu → đảng ủy nơi cư trú ký xác nhận → chi bộ nơi công tác nhận, thông báo khi kiểm điểm → đảng viên nhận phiếu.\n\nĐiều kiện chung: đảng viên hoặc Bí thư/cán bộ được ủy quyền ở chi bộ nơi công tác cập nhật đúng chi bộ nơi cư trú trước khi chạy thủ tục. Không phải kê khai lại mỗi năm khi không đổi, nhưng phải cập nhật trong vòng 30 ngày nếu thay đổi nơi cư trú.\n\nHướng dẫn đầy đủ từng vai trò và nút bấm: https://ken1412-prog.github.io/cdstuhue-tthc/cap-nhat-tthc-2026-11.html#cuoi-nam",
+      "answer": "Có 3 QUY TRÌNH ĐỘC LẬP, không phải ba bước của một hồ sơ:\n\n1. GIỚI THIỆU VỀ NƠI CƯ TRÚ (7 ngày): chi bộ nơi đảng viên đang sinh hoạt khởi tạo khi giới thiệu mới hoặc thay đổi chỗ ở → đảng ủy nơi công tác xét/duyệt → đảng ủy nơi cư trú ký xác nhận → chi bộ cư trú tiếp nhận; đảng viên nhận giấy.\n2. LẤY Ý KIẾN PHỤC VỤ CÔNG TÁC CÁN BỘ (6 ngày): chi bộ nơi công tác lập và trình danh sách → cấp trên phê duyệt → chi bộ nơi cư trú nhận xét → đảng ủy nơi cư trú ký/đóng dấu → chi bộ nơi công tác nhận kết quả.\n3. NHẬN XÉT ĐỊNH KỲ CUỐI NĂM (3 ngày; gửi cấp trên trước 30/11): CHI BỘ NƠI CƯ TRÚ chủ động lập phiếu → đảng ủy nơi cư trú ký xác nhận → chi bộ nơi công tác nhận, thông báo khi kiểm điểm → đảng viên nhận phiếu.\n\nĐiều kiện chung: đảng viên hoặc Bí thư/cán bộ được ủy quyền ở chi bộ nơi công tác cập nhật đúng chi bộ nơi cư trú trước khi chạy thủ tục. Không phải kê khai lại mỗi năm khi không đổi, nhưng phải cập nhật trong vòng 30 ngày nếu thay đổi nơi cư trú.\n\nHướng dẫn đầy đủ từng vai trò và nút bấm: https://ken1412-prog.github.io/cdstuhue-tthc/cap-nhat-tthc-2026-11.html#noi-cu-tru",
       "keywords": "",
       "alternatives": "",
       "updated": "2026-11-07",
@@ -3154,10 +3167,10 @@
       "group": "tthc",
       "topic": "Loại cơ quan, đơn vị và Phân loại cơ quan, đơn vị không phù hợp nhau",
       "question": "Nếu “Loại cơ quan, đơn vị” và “Phân loại cơ quan, đơn vị” trên dữ liệu nguồn không phù hợp với thực tế tổ chức thì ảnh hưởng gì và xử lý thế nào?",
-      "answer": "Hai trường này phải phản ánh đúng bản chất tổ chức. Khi Loại hoặc Phân loại bị gán sai, TTHC có thể kéo theo kết quả sai ở các chức năng phụ thuộc dữ liệu tổ chức, rõ nhất là tỷ lệ phân bổ đảng phí; một số trường hợp sai loại hình còn làm lệch luồng xử lý hoặc yêu cầu ký số. Không sửa theo phần kết quả ở TTHC để che lỗi nguồn. Hãy xác định đúng loại hình/phân loại của đơn vị theo hồ sơ tổ chức và quy định hiện hành → sửa trên CSDL 4.0 → đồng bộ lại → kiểm tra các chức năng liên quan rồi mới xác nhận. Ví dụ nhận diện: (1) tên/loại thể hiện là tổ chức đảng cấp xã nhưng Phân loại lại là một nhóm không phù hợp như “Đơn vị sự nghiệp công lập”; (2) tên hiển thị là “chi bộ” nhưng Loại lại là “đảng bộ”. Các ví dụ này dùng để phát hiện dữ liệu bất hợp lý; tỷ lệ đúng cụ thể vẫn phải căn cứ loại/phân loại đúng sau khi chuẩn hóa, không suy ngược chỉ từ tên đơn vị.",
+      "answer": "Hai trường “Loại cơ quan, đơn vị” và “Phân loại cơ quan, đơn vị” trên CSDL 4.0 cần phản ánh đúng quyết định xác định loại hình. Sai dữ liệu nguồn có thể gây sai tỷ lệ phân bổ, phân quyền và tuyến xử lý. Sửa nguồn 4.0, đồng bộ TTHC, kiểm tra lại trước khi xác nhận, không sửa tay tỷ lệ để che sai nguồn.\n\nCẬP NHẬT 07/11/2026 — CÔNG VĂN 6163-CV/VPTW (01/11/2026): Công văn hướng dẫn PHÂN BỔ đảng phí, không phải thay đổi mức đóng của từng đảng viên. Tổ chức CHƯA có quyết định xác định lại loại hình theo Quy định 208 tiếp tục Điều 6 Quy định 01-QĐ/TW. Tổ chức ĐÃ được xác định lại phải GIỮ NGUYÊN số đảng phí ĐÃ phân bổ kỳ trước; chỉ khoản CHƯA phân bổ mới theo tỷ lệ: chi bộ đặc thù được liệt kê 70%, chi bộ còn lại 50%, đảng ủy bộ phận 30%, đảng ủy trực thuộc cơ sở 70%, đảng ủy cơ sở xã/phường/đặc khu 70%, đảng ủy cơ sở còn lại 50%. Cấp trên tính phần trăm trên số CÒN LẠI sau khi trừ số cấp dưới được giữ, không áp dụng trên tổng số thu ban đầu. Xem hướng dẫn và trường hợp Bộ Ngoại giao tại https://ken1412-prog.github.io/cdstuhue-tthc/cap-nhat-tthc-2026-11.html#phan-bo-dang-phi.",
       "keywords": "",
       "alternatives": "",
-      "updated": "2026-10-24",
+      "updated": "2026-11-07",
       "sourceUrl": "",
       "publicNote": "",
       "public": true
@@ -3186,6 +3199,19 @@
       "updated": "2026-10-24",
       "sourceUrl": "",
       "publicNote": "",
+      "public": true
+    },
+    {
+      "id": "QA124",
+      "group": "tthc",
+      "topic": "Phân bổ đảng phí theo Công văn 6163-CV/VPTW",
+      "question": "Công văn 6163-CV/VPTW hướng dẫn phân bổ đảng phí thế nào khi tổ chức đảng đang xác định lại loại hình?",
+      "answer": "Công văn 6163-CV/VPTW ngày 01/11/2026 hướng dẫn PHÂN BỔ/ĐỂ LẠI đảng phí trong thời gian xác định lại loại hình tổ chức đảng, không thay đổi cách tính mức đóng của cá nhân.\n\nA. Tổ chức CHƯA được cấp có thẩm quyền xác định lại loại hình theo Quy định 208-QĐ/TW: tiếp tục tỷ lệ tại Điều 6 Quy định 01-QĐ/TW.\n\nB. Tổ chức ĐÃ được xác định lại loại hình: giữ NGUYÊN số đã phân bổ ở các kỳ trước. Chỉ với khoản CHƯA PHÂN BỔ mới áp dụng:\n1. Chi bộ thôn, tổ dân phố, sinh viên và các chi bộ đặc thù được Công văn liệt kê: GIỮ 70% số thu tại chi bộ.\n2. Các chi bộ còn lại: GIỮ 50% số thu tại chi bộ.\n3. Đảng ủy bộ phận: GIỮ 30% số CÒN LẠI sau khi trừ phần chi bộ.\n4. Đảng ủy trực thuộc cơ sở: GIỮ 70% số CÒN LẠI sau khi trừ cấp dưới.\n5. Đảng ủy cơ sở xã, phường, đặc khu: GIỮ 70% số CÒN LẠI sau khi trừ cấp dưới.\n6. Các đảng ủy cơ sở còn lại: GIỮ 50% số CÒN LẠI sau khi trừ cấp dưới.\n\nC. Tổ chức ở nước ngoài thuộc Đảng bộ Bộ Ngoại giao: chi bộ và đảng ủy bộ phận trực thuộc đảng ủy nước sở tại giữ 50%, nộp 50%; đảng ủy nước sở tại giữ 70%, nộp 30% về Đảng ủy Bộ Ngoại giao; Đảng ủy Bộ Ngoại giao nộp 100% số thu từ các tổ chức ở nước ngoài về Văn phòng Trung ương Đảng.\n\nKHÔNG NHẦM: trong một sơ đồ hình ảnh có dòng “Đảng ủy trực thuộc cơ sở nộp 70%, giữ 30%” — điều này ngược Công văn 6163. Đúng là GIỮ 70% phần còn lại (và phần không giữ được chuyển tiếp theo tuyến).\n\nVí dụ: chi bộ thôn có 100.000 đồng được phân bổ, giữ 70.000 đồng; phần còn lại 30.000 đồng mới đưa đến cấp trên theo tuyến thực tế. Nếu tuyến có đảng ủy bộ phận, cấp này giữ 30% của 30.000 = 9.000 đồng, KHÔNG lấy 30% của 100.000 đồng.\n\nXem bảng minh họa gọn: https://ken1412-prog.github.io/cdstuhue-tthc/cap-nhat-tthc-2026-11.html#phan-bo-dang-phi. Nguồn: Công văn 6163-CV/VPTW, mục 1, 2.1, 2.2.1 và 2.2.2.",
+      "keywords": "Công văn 6163; phân bổ đảng phí; 70%; 50%; 30%; loại hình; Quy định 208; tiền chưa phân bổ",
+      "alternatives": "",
+      "updated": "2026-11-07",
+      "sourceUrl": "https://thuvienphapluat.vn/phap-luat/ho-tro-phap-luat/cong-van-6163cvvptw-ngay-01112026-huong-dan-phan-bo-dang-phi-trong-thoi-gian-xac-dinh-lai-loai-hinh-300026.html",
+      "publicNote": "Nguồn: Công văn 6163-CV/VPTW ngày 01/11/2026",
       "public": true
     }
   ]
