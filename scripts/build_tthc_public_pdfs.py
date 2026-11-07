@@ -144,17 +144,8 @@ def make_pdf(dest, number, data, font):
         for fact in data["training_points"]:
             story.append(p("• "+fact,body))
         story.append(Spacer(1,8))
-    if data["residence_groups"]:
-        story.append(p("QUY TRÌNH 03 - NHẬN XÉT ĐỊNH KỲ CUỐI NĂM",lead))
-        for heading, items in data["residence_groups"]:
-            story.append(Spacer(1,9))
-            story.append(p(heading,lead))
-            for i,step in enumerate(items,1):
-                story.append(p(f"{i}. {step}",body))
     if data["process2"]:
-        if data["residence_groups"]:
-            story.append(Spacer(1,18))
-        story.append(p("QUY TRÌNH 02 - LẤY Ý KIẾN PHỤC VỤ CÔNG TÁC CÁN BỘ (QUY TRÌNH RIÊNG)",lead))
+        story.append(p("QUY TRÌNH 02 - CHI BỘ NƠI SINH HOẠT LẬP DANH SÁCH ĐẦU TIÊN",lead))
         for i,item in enumerate(data["process2"],1):
             story.append(Spacer(1,11))
             story.append(p(f"Bước {i}. {item['title']}",lead))
@@ -169,6 +160,14 @@ def make_pdf(dest, number, data, font):
                         drawing.width*=z
                         drawing.height*=z
                         story.append(drawing)
+    if data["residence_groups"]:
+        story.append(Spacer(1,18))
+        story.append(p("QUY TRÌNH 03 - NHẬN XÉT ĐỊNH KỲ CUỐI NĂM (LUỒNG RIÊNG)",lead))
+        for heading, items in data["residence_groups"]:
+            story.append(Spacer(1,9))
+            story.append(p(heading,lead))
+            for i,step in enumerate(items,1):
+                story.append(p(f"{i}. {step}",body))
     if not data["residence_groups"] and not data["process2"]:
         for i,step in enumerate(data["steps"],1):
             story.append(p(f"{i}. {step}",body))
