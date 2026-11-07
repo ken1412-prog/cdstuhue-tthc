@@ -101,7 +101,24 @@
 .ncr-src{font-size:11px;color:#698097;margin-top:15px}
 .ncr-src a{color:#1f658d}
 @media(max-width:720px){.ncr-guide{padding:13px}.ncr-guide h3{font-size:20px}.ncr-compact,.ncr-flow{grid-template-columns:1fr}.ncr-role{grid-template-columns:1fr}.ncr-role-head{border-right:none;border-bottom:1px solid #dce6ee;padding:11px 13px}.ncr-role-body{padding:10px 15px}.ncr-nav a{padding:6px 9px}}
-</style></head><body><header><a href="index.html">← CDSTUHUE / Trang chủ</a><h1>Hướng dẫn 04 quy trình TTHC</h1><p>Chọn thủ tục cần thực hiện để xem thao tác theo tài khoản, tên menu, nút bấm và hình hướng dẫn.</p><nav><a href="#dang-phi">01 · Thu, nộp đảng phí</a><a href="#chinh-thuc">02 · Chuyển sinh hoạt đảng chính thức</a><a href="#noi-cu-tru">03 · Lấy ý kiến nhận xét nơi cư trú</a><a href="#tam-thoi">04 · Chuyển sinh hoạt đảng tạm thời</a></nav></header><main><div class="training-intro">
+/* v43 — quy trình lấy ý kiến từ đầu đến cuối, phân tách khỏi nhận xét định kỳ */
+.role-guide{scroll-margin-top:12px;background:#fff;border:1px solid #d8e4ed;padding:19px;border-radius:15px;margin:18px 0 22px}
+.role-guide h3{font-family:inherit;font-size:clamp(19px,3vw,24px);font-weight:800;line-height:1.4;letter-spacing:normal;color:#213d58;margin:8px 0}
+.role-summary{font-size:14px;color:#3d5c73;line-height:1.75}
+.role-warning{background:#fff7e8;border:1px solid #eed0a0;border-radius:10px;padding:13px;margin:14px 0;font-size:13px}
+.role-phase{background:#e8f2fa;border-left:4px solid #3478a6;padding:10px 12px;color:#1e4d70;font-size:15px;font-weight:800;margin:20px 0 11px;border-radius:0 8px 8px 0}
+.role-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}
+.role-step{border:1px solid #dce6ef;border-radius:13px;background:#fefefe;padding:13px;min-width:0}
+.role-step-title{display:flex;gap:10px;align-items:flex-start}
+.role-step-title>b{display:grid;place-items:center;background:#2b76a3;color:#fff;border-radius:50%;min-width:32px;height:32px;font-size:16px}
+.role-step-title h4{font-size:15px;color:#1d4563;line-height:1.4;margin:0}
+.role-step-title small{display:block;font-size:11px;color:#668093}
+.role-step p{font-size:13px;line-height:1.8;margin:10px 0}
+.role-figure{border:1px solid #e1e8ee;background:#f4f7fb;padding:5px;border-radius:9px;margin:12px 0 0}
+.role-figure img{display:block;width:100%;height:auto}
+.role-figure figcaption{font-size:11px;color:#60788b;margin-top:5px}
+.role-end{border-radius:10px;background:#ebf7ed;color:#2d6238;padding:13px;margin-top:16px;font-size:13px}
+@media(max-width:740px){.role-guide{padding:12px}.role-grid{grid-template-columns:1fr}}</style></head><body><header><a href="index.html">← CDSTUHUE / Trang chủ</a><h1>Hướng dẫn 04 quy trình TTHC</h1><p>Chọn thủ tục cần thực hiện để xem thao tác theo tài khoản, tên menu, nút bấm và hình hướng dẫn.</p><nav><a href="#dang-phi">01 · Thu, nộp đảng phí</a><a href="#chinh-thuc">02 · Chuyển sinh hoạt đảng chính thức</a><a href="#noi-cu-tru">03 · Lấy ý kiến nhận xét nơi cư trú</a><a href="#tam-thoi">04 · Chuyển sinh hoạt đảng tạm thời</a></nav></header><main><div class="training-intro">
 <div class="training-eyebrow">Tài liệu đào tạo · 05/11/2026</div>
 <h2>Ba thủ tục được giải thích bằng sơ đồ từng bước</h2>
 <p>Chọn đúng thủ tục, xem ai thực hiện và hồ sơ chuyển sang đâu. Mỗi khối có phần ngắn để đọc nhanh và phần mở rộng khi cần xử lý chi tiết.</p>
@@ -147,7 +164,7 @@
 <span class="tag">Thủ tục 03</span>
 <h2>Lấy ý kiến nhận xét nơi cư trú</h2>
 <p class="lead">Ba quy trình khác nhau, không phải ba bước của một thủ tục. Chọn đúng tình huống để xem đầy đủ người thực hiện, tài khoản được phép thao tác và kết quả cần nhận.</p>
-<div class="ncr-nav" aria-label="Chọn quy trình"><a class="ncr-primary" href="#cuoi-nam">03 · Nhận xét cuối năm</a><a href="#gioi-thieu-noi-cu-tru">01 · Giới thiệu về nơi cư trú</a><a href="#y-kien-can-bo">02 · Nhận xét phục vụ công tác cán bộ</a></div>
+<div class="ncr-nav" aria-label="Chọn quy trình"><a class="ncr-primary" href="#y-kien-can-bo">02 · Chi bộ lập danh sách</a><a href="#cuoi-nam">03 · Nhận xét cuối năm (khác)</a><a href="#gioi-thieu-noi-cu-tru">01 · Giới thiệu về nơi cư trú</a></div>
 <div class="ncr-guide">
 <div class="ncr-kicker">Điều kiện chung cho cả ba quy trình</div>
 <h3>Cập nhật thông tin chi bộ nơi cư trú — làm trước, không lặp lại hằng năm</h3>
@@ -158,8 +175,37 @@
 </div>
 <p class="ncr-lead">Thông tin này là điều kiện định tuyến hồ sơ đến đúng chi bộ nơi cư trú. Đảng viên không tự tạo phiếu nhận xét cuối năm.</p>
 </div>
-<div id="cuoi-nam" class="ncr-guide">
-<div class="ncr-kicker">Quy trình 03 · Ưu tiên xem · Dùng cho kiểm điểm cuối năm</div>
+<div id="y-kien-can-bo" class="role-guide">
+<div class="ncr-kicker">QUY TRÌNH 02 · Lấy ý kiến phục vụ công tác cán bộ</div>
+<h3>Hướng dẫn từ đầu đến cuối: chi bộ nơi sinh hoạt lập danh sách trước</h3>
+<p class="role-summary">Đây là thủ tục dùng <strong>nút xanh “Lập danh sách lấy ý kiến nơi cư trú”</strong> trong ảnh bạn cung cấp. Khác với nhận xét cuối năm (Quy trình 03), ở đây <strong>chi bộ nơi sinh hoạt phải lập danh sách và trình cấp trên duyệt</strong> trước khi chi bộ nơi cư trú nhận hồ sơ.</p>
+<div class="role-warning"><strong>Điều kiện:</strong> Đảng viên đã có thông tin chi bộ nơi cư trú và không có hồ sơ lấy ý kiến khác đang trong luồng xử lý. Nếu đã cập nhật đúng và nơi cư trú không đổi thì không phải khai lại mỗi năm.</div>
+<h4 class="role-phase">A. Chi bộ nơi sinh hoạt / công tác — bước 1 đến 4</h4>
+<div class="role-grid">
+<article class="role-step"><div class="role-step-title"><b>1</b><div><h4>Mở chức năng Quản lý Đảng viên</h4><small>Tài khoản chi bộ nơi sinh hoạt được cấp quyền</small></div></div><p>Menu trái → <strong>Quản lý Đảng viên → Quản lý Đảng viên</strong>. Chọn mục con Quản lý Đảng viên, không chọn “Quản lý đảng viên sinh hoạt nơi cư trú”.</p><figure class="role-figure"><a href="assets/img/lay-y-kien-menu-v43.svg" target="_blank" rel="noopener noreferrer"><img loading="lazy" src="assets/img/lay-y-kien-menu-v43.svg" alt="Hai vị trí Quản lý Đảng viên trên menu"></a><figcaption>Hai vị trí Quản lý Đảng viên trên menu (chạm để phóng lớn)</figcaption></figure></article>
+<article class="role-step"><div class="role-step-title"><b>2</b><div><h4>Mở cửa sổ lập danh sách</h4><small>Màn hình Quản lý Đảng viên</small></div></div><p>Trong vùng Kết quả tìm kiếm, bấm nút xanh <strong>Lập danh sách lấy ý kiến nơi cư trú</strong>.</p><figure class="role-figure"><a href="assets/img/lay-y-kien-nut-v43.svg" target="_blank" rel="noopener noreferrer"><img loading="lazy" src="assets/img/lay-y-kien-nut-v43.svg" alt="Nút xanh lập danh sách"></a><figcaption>Nút xanh lập danh sách (chạm để phóng lớn)</figcaption></figure></article>
+<article class="role-step"><div class="role-step-title"><b>3</b><div><h4>Chọn đảng viên</h4><small>Tài khoản chi bộ có quyền</small></div></div><p>Tích chọn những người cần lấy ý kiến; kiểm tra <strong>Chi bộ nơi cư trú</strong>. Danh sách chỉ hiện người có dữ liệu cư trú đầy đủ, không có hồ sơ cùng thủ tục đang xử lý. Bấm <strong>Lập danh sách (n)</strong>.</p></article>
+<article class="role-step"><div class="role-step-title"><b>4</b><div><h4>Kiểm tra và trình danh sách</h4><small>Chi bộ nơi sinh hoạt</small></div></div><p>Màn <strong>Danh sách đảng viên tạo phiếu</strong> cho phép Thêm đảng viên hoặc xóa người đã chọn. Khi đã đúng, bấm <strong>Lập danh sách và trình lên cấp trên → Đóng</strong>. Lúc này hồ sơ <strong>chưa</strong> chuyển đến nơi cư trú.</p></article>
+</div>
+<h4 class="role-phase">B. Cấp ủy cấp trên của chi bộ nơi sinh hoạt — bước 5</h4>
+<div class="role-grid">
+<article class="role-step"><div class="role-step-title"><b>5</b><div><h4>Duyệt hoặc từ chối danh sách</h4><small>Tài khoản cấp ủy được phân quyền</small></div></div><p>Vào <strong>Quản lý hồ sơ TTHC khác → Phê duyệt danh sách lấy ý kiến nơi cư trú</strong>. Lọc trạng thái <strong>Chờ phê duyệt</strong>, tìm hồ sơ rồi bấm <strong>Phê duyệt</strong> hoặc <strong>Từ chối</strong>. Nếu duyệt, hệ thống tự chuyển về nơi cư trú.</p><figure class="role-figure"><a href="assets/img/lay-y-kien-duyet-v43.svg" target="_blank" rel="noopener noreferrer"><img loading="lazy" src="assets/img/lay-y-kien-duyet-v43.svg" alt="Menu duyệt danh sách tại cấp trên"></a><figcaption>Menu duyệt danh sách tại cấp trên (chạm để phóng lớn)</figcaption></figure></article>
+</div>
+<h4 class="role-phase">C. Chi bộ nơi cư trú — bước 6</h4>
+<div class="role-grid">
+<article class="role-step"><div class="role-step-title"><b>6</b><div><h4>Lập phiếu và nhận xét</h4><small>Tài khoản chi bộ nơi cư trú được phân quyền</small></div></div><p>Vào <strong>Quản lý hồ sơ TTHC khác → Chờ xử lý → Xử lý hồ sơ</strong>. Trong <strong>Tài liệu kết quả xử lý</strong> bấm <strong>Nhấn để tạo kết quả xử lý</strong>. Điền tiêu chí theo đúng mẫu, địa danh, ngày lập phiếu, <strong>T/M Chi bộ – Người xử lý</strong> → <strong>Xem trước → Lưu</strong>. Trở lại hồ sơ bấm <strong>Phê duyệt hồ sơ</strong>.</p><figure class="role-figure"><a href="assets/img/lay-y-kien-xuly-v43.svg" target="_blank" rel="noopener noreferrer"><img loading="lazy" src="assets/img/lay-y-kien-xuly-v43.svg" alt="Mục Chờ xử lý và vị trí tạo kết quả"></a><figcaption>Mục Chờ xử lý và vị trí tạo kết quả (chạm để phóng lớn)</figcaption></figure></article>
+</div>
+<h4 class="role-phase">D. Đảng ủy nơi cư trú — bước 7</h4>
+<div class="role-grid">
+<article class="role-step"><div class="role-step-title"><b>7</b><div><h4>Ký xác nhận, sau đó đóng dấu</h4><small>Người xử lý được cấp quyền ký và chữ ký số tổ chức</small></div></div><p>Vào <strong>Quản lý hồ sơ TTHC khác → Chờ xử lý → Xử lý hồ sơ</strong>. Mở Phiếu nhận xét trong <strong>Tài liệu kết quả xử lý</strong> → nhập <strong>Đơn vị xử lý, Người xử lý</strong> → <strong>Xem trước → Ký số → Lưu → Phê duyệt hồ sơ</strong>. Bước đóng dấu thực hiện riêng bằng <strong>chữ ký số tổ chức đảng</strong> (nút <strong>Đóng dấu</strong>).</p><figure class="role-figure"><a href="assets/img/lay-y-kien-kyso-v43.svg" target="_blank" rel="noopener noreferrer"><img loading="lazy" src="assets/img/lay-y-kien-kyso-v43.svg" alt="Thao tác ký số và đóng dấu"></a><figcaption>Thao tác ký số và đóng dấu (chạm để phóng lớn)</figcaption></figure></article>
+</div>
+<h4 class="role-phase">E. Chi bộ nơi sinh hoạt nhận kết quả — bước 8</h4>
+<div class="role-grid">
+<article class="role-step"><div class="role-step-title"><b>8</b><div><h4>Tiếp nhận và thông báo</h4><small>Chi bộ nơi đang sinh hoạt; đảng viên nhận thông báo</small></div></div><p>Sau khi nơi cư trú xác nhận và đóng dấu, <strong>chi bộ nơi sinh hoạt</strong> nhận phiếu, thông báo cho đảng viên và dùng đúng mục đích đã xin ý kiến. Đảng viên nhận phiếu đã xác nhận trên hệ thống.</p></article>
+</div>
+<div class="role-end"><strong>Luồng đúng:</strong> Chi bộ nơi sinh hoạt lập danh sách → cấp trên phê duyệt → chi bộ nơi cư trú nhận xét → đảng ủy nơi cư trú ký, đóng dấu → nơi sinh hoạt nhận kết quả.</div>
+</div><div id="cuoi-nam" class="ncr-guide">
+<div class="ncr-kicker">Quy trình 03 · KHÁC quy trình lập danh sách · Dùng cho kiểm điểm cuối năm</div>
 <h3>Nhận xét đảng viên nơi cư trú cuối năm</h3>
 <div class="ncr-gold"><strong>Ai khởi tạo?</strong> Chi bộ nơi cư trú chủ động. <strong>Ai ký xác nhận?</strong> Cấp ủy cấp trên trực tiếp nơi cư trú. <strong>Ai nhận để sử dụng?</strong> Chi bộ, đảng bộ nơi đảng viên đang sinh hoạt/công tác. <strong>Đảng viên:</strong> theo dõi và nhận kết quả, không tự lập phiếu.</div>
 <div class="ncr-flow" aria-label="Luồng nhận xét cuối năm">
@@ -178,7 +224,7 @@
 <div class="ncr-checks"><b>Nếu không thấy nút hoặc không thấy đảng viên</b><ul><li>Đảng viên chưa có dữ liệu chi bộ nơi cư trú → cập nhật trước; kiểm tra đúng tổ chức.</li><li>Chi bộ nơi cư trú không thấy nút <strong>Nhận xét</strong> → kiểm tra đang dùng đúng tài khoản chi bộ và quyền xử lý, không dùng tài khoản đảng viên để lập phiếu.</li><li>Đảng ủy chưa thấy hồ sơ → kiểm tra chi bộ đã <strong>Lưu phiếu/gửi lên</strong> và hồ sơ nằm đúng mục <strong>Chờ xử lý</strong>.</li><li>Nơi công tác chưa thấy kết quả → kiểm tra phiếu đã được ký số, đóng dấu, phê duyệt và luân chuyển hoàn tất hay chưa.</li></ul></div>
 </div>
 <details class="ncr-alt" id="gioi-thieu-noi-cu-tru"><summary>Quy trình 01 · Giới thiệu đảng viên về sinh hoạt nơi cư trú (7 ngày)</summary><ol class="ncr-steps"><li><b>Đảng viên:</b> kiểm tra thông tin chi bộ nơi cư trú; không tự tạo hồ sơ giới thiệu.</li><li><b>Chi bộ nơi đang sinh hoạt (Bí thư/cán bộ được phân quyền):</b> vào Quản lý hồ sơ TTHC khác → Chờ xử lý → Tạo mới hồ sơ; chọn đúng đảng viên, cơ quan tiếp nhận, lập hồ sơ giới thiệu.</li><li><b>Đảng ủy nơi đang sinh hoạt:</b> xét đối tượng, ký duyệt theo thẩm quyền.</li><li><b>Đảng ủy nơi cư trú:</b> xác nhận, ký duyệt phiếu giới thiệu về chi bộ thôn/tổ dân phố.</li><li><b>Chi bộ nơi cư trú:</b> tiếp nhận và thông báo cho đảng viên; đảng viên theo dõi, nhận phiếu hoàn chỉnh.</li></ol></details>
-<details class="ncr-alt" id="y-kien-can-bo"><summary>Quy trình 02 · Lấy ý kiến phục vụ công tác cán bộ (6 ngày)</summary><ol class="ncr-steps"><li><b>Chi bộ nơi công tác:</b> Quản lý đảng viên → Lập danh sách lấy ý kiến nơi cư trú → chọn đảng viên → Lập danh sách (n) → kiểm tra → Lập danh sách và trình lên cấp trên.</li><li><b>Cấp ủy cấp trên nơi công tác:</b> Quản lý hồ sơ TTHC khác → Phê duyệt danh sách lấy ý kiến nơi cư trú → xét duyệt/từ chối theo phân quyền.</li><li><b>Chi bộ nơi cư trú:</b> nhận danh sách, nhận xét đảng viên theo mẫu đúng đối tượng và tạo phiếu trên hệ thống.</li><li><b>Đảng ủy nơi cư trú:</b> tổng hợp, xác nhận, ký số/đóng dấu; chuyển phiếu về nơi công tác.</li><li><b>Chi bộ nơi công tác và đảng viên:</b> tiếp nhận/được thông báo kết quả theo luồng.</li></ol></details>
+
 <aside>Lưu ý khi phân quyền: chi bộ nơi công tác và chi bộ nơi cư trú là hai đơn vị khác nhau, không dùng quyền của đơn vị này để khởi tạo hoặc ký thay đơn vị kia. Nếu thiếu nút trên giao diện, kiểm tra vai trò được cấp trước khi báo kỹ thuật.</aside>
 <p class="src"><span>Hướng dẫn theo Quy định 221-QĐ/TW và tài liệu tập huấn tháng 11/2026</span><a class="pdf-download" href="downloads/tthc-20261105-noi-cu-tru.pdf" download="tthc-20261105-noi-cu-tru.pdf" type="application/pdf">↓ Tải hướng dẫn PDF</a></p>
 <p class="ncr-src">Căn cứ: <a href="https://xaydungchinhsach.chinhphu.vn/toan-van-quy-dinh-221-qd-tw-ve-trach-nhiem-cua-dang-vien-doi-voi-to-chuc-dang-va-nhan-dan-noi-cu-tru-119261009124037313.htm" target="_blank" rel="noopener noreferrer">Quy định 221-QĐ/TW ngày 05/10/2026</a>; tài liệu đào tạo 3 TTHC, phần 2, trang 16–22.</p>
