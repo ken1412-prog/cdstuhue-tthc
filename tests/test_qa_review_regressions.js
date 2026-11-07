@@ -14,3 +14,7 @@ assert(overlay.includes("const raw=String(patch.answer).replace(/\\s+/g,' ').tri
 assert(guide.includes('target.matches("section.procedure")?target.querySelector("details.procedure-details")'),'Deep links into procedures should expand their instructions');
 assert(guide.includes('id="y-kien-can-bo"')&&guide.includes('id="cuoi-nam"'));
 console.log('QA list previews, correct source links and 245+ approved source items PASS');
+assert(guide.includes('id="phan-bo-dang-phi"'),'CV6163 table must be on web');
+assert(overlay.includes("QA124:'phan-bo-dang-phi'"),'CV6163 QA must point to correct area');
+assert(published.items.some(x=>x.id==='STDV091'),'Verified STDV091 must be in fallback');
+assert(published.items.some(x=>x.id==='QA124'),'New CV6163 FAQ must be public');

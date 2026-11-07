@@ -72,6 +72,15 @@ def extract(section):
                 if ps:
                     chapters.append((txt(detail.find("summary")),
                                      [(None,x,None) for x in ps]))
+    if section.get("id")=="dang-phi":
+        allocation=section.find("details",id="phan-bo-dang-phi")
+        if allocation:
+            notes=[(None,txt(p),None) for p in allocation.select(".alloc-cases p")]
+            for tr in allocation.select("table.alloc-table tbody tr"):
+                cells=[txt(c) for c in tr.find_all("td")]
+                if len(cells)==3: notes.append((None," | ".join(cells),None))
+            notes.extend((None,txt(p),None) for p in allocation.select(".alloc-notes p"))
+            if notes: chapters.append(("BỔ SUNG: PHÂN BỔ ĐẢNG PHÍ THEO CÔNG VĂN 6163-CV/VPTW",notes))
     if not chapters or not any(c[1] for c in chapters):
         raise RuntimeError("No instruction steps found in "+section.get("id","?"))
     return {
