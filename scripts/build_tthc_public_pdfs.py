@@ -1,220 +1,145 @@
 #!/usr/bin/env python3
-"""Build safe public TTHC PDF handouts from already-published website text.
-
-These PDFs are independently authored summaries, NOT copies of raw training
-PDFs, Zalo screenshots, attached Word documents, or private user data.
-"""
+"""Generate public, privacy-safe TTHC PDF handouts from the four current website procedures."""
 from __future__ import annotations
 import html
 from pathlib import Path
 from bs4 import BeautifulSoup
 from reportlab.lib import colors
-from svglib.svglib import svg2rlg
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.styles import ParagraphStyle
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
-from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer
+from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer, KeepTogether
+from svglib.svglib import svg2rlg
 
 ROOT = Path(__file__).resolve().parents[1]
-HTML = ROOT / "site" / "cap-nhat-tthc-2026-11.html"
-DEST = ROOT / "site" / "downloads"
-SECTIONS = (
+PAGE = ROOT / "site" / "cap-nhat-tthc-2026-11.html"
+OUTPUT = ROOT / "site" / "downloads"
+SECTIONS = [
     ("dang-phi", "01"),
-    ("chinh-thuc", "02"),
-    ("noi-cu-tru", "03"),
+    ("noi-cu-tru", "02"),
+    ("chinh-thuc", "03"),
     ("tam-thoi", "04"),
-)
-
-def register_font():
-    paths = (
-        "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
-        "/usr/share/fonts/truetype/dejavu/DejaVuSansCondensed.ttf",
-        "/usr/share/fonts/truetype/liberation2/LiberationSans-Regular.ttf",
-    )
-    candidate = next((p for p in paths if Path(p).exists()), None)
-    if not candidate:
-        raise RuntimeError("No Unicode TTF font to render Vietnamese PDF")
-    pdfmetrics.registerFont(TTFont("TTHCViet", candidate))
-    return "TTHCViet"
-
+]
+def font_name():
+    for path in ["/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
+                 "/usr/share/fonts/truetype/liberation2/LiberationSans-Regular.ttf"]:
+        if Path(path).is_file():
+            pdfmetrics.registerFont(TTFont("VietUI",path))
+            return "VietUI"
+    raise RuntimeError("Vietnamese Unicode font unavailable")
+def txt(node):
+    return node.get_text(" ",strip=True) if node else ""
+def as_steps(ol):
+    rows=[]
+    for li in ol.find_all("li",class_="step",recursive=False):
+        rows.append((txt(li.select_one(".step-actor")),
+                     txt(li.select_one(".step-action")),
+                     txt(li.select_one("p"))))
+    return rows
 def extract(section):
-    title = section.find("h2")
-    lead = section.find("p", class_="lead")
-    note = section.find("aside")
-    source = section.find("p", class_="src")
-    if not all((title,lead,note,source)):
-        raise RuntimeError("Incomplete public training section")
-    steps = [li.get_text(" ", strip=True) for li in section.find_all("li")]
-    residence_groups = []
-    process2 = []
-    if section.get("id") == "noi-cu-tru":
-        for item in section.select("#y-kien-can-bo .role-step"):
-            heading = item.select_one(".role-step-title h4")
-            paragraph = item.select_one("p")
-            visual = item.select_one("img")
-            if heading and paragraph:
-                process2.append({
-                    "title": heading.get_text(" ",strip=True),
-                    "text": paragraph.get_text(" ",strip=True),
-                    "image": visual.get("src") if visual else None,
-                })
-
-        # Keep all year-end information and role-specific permissions together.
-        # Avoid flattening four different actors into one generic numbered list.
-        steps = []
-        prerequisite = section.select_one(".ncr-guide .ncr-gold")
-        if prerequisite:
-            residence_groups.append(("Điều kiện chung: cập nhật thông tin nơi cư trú", [prerequisite.get_text(" ", strip=True)]))
-        for info in section.select(".ncr-intro-card"):
-            residence_groups.append((info.find("h4").get_text(" ", strip=True), [info.find("p").get_text(" ", strip=True)]))
-        flow = section.select_one("#cuoi-nam .ncr-gold")
-        if flow:
-            residence_groups.append(("Nhận xét cuối năm: ai khởi tạo và ai nhận kết quả?", [flow.get_text(" ", strip=True)]))
-        for role in section.select("#cuoi-nam .ncr-role"):
-            role_name = role.select_one(".ncr-role-head b")
-            permission = role.select_one(".ncr-role-head small")
-            content = [li.get_text(" ", strip=True) for li in role.select(".ncr-role-body li")]
-            if role_name:
-                role_title = role_name.get_text(" ", strip=True)
-                if permission:
-                    role_title += " — " + permission.get_text(" ", strip=True)
-                residence_groups.append((role_title, content))
-        deadline = section.select_one("#cuoi-nam .ncr-tips")
-        if deadline:
-            residence_groups.append(("Thời hạn và điều kiện hoàn tất", [deadline.get_text(" ", strip=True)]))
-        troubleshooting = section.select_one("#cuoi-nam .ncr-checks")
-        if troubleshooting:
-            residence_groups.append(("Khi không thấy nút hoặc hồ sơ", [li.get_text(" ", strip=True) for li in troubleshooting.find_all("li")]))
-        for alternate in section.select("details.ncr-alt"):
-            if alternate.get("id") != "gioi-thieu-noi-cu-tru":
-                continue
-            summary = alternate.find("summary")
-            if summary:
-                residence_groups.append((summary.get_text(" ", strip=True), [li.get_text(" ", strip=True) for li in alternate.find_all("li")]))
-    if not steps and not residence_groups:
-        raise RuntimeError("Empty public training steps")
-    # Avoid the download link itself becoming source text in the PDF.
-    for link in source.find_all("a"):
-        link.decompose()
-    training = section.find("div", class_="training-block")
-    training_points = []
-    if training:
-        summary = training.find("div", class_="training-summary")
-        if summary:
-            training_points.append(summary.get_text(" ", strip=True))
-        for lane in training.select(".training-lane"):
-            heading = lane.select_one(".training-lane-head strong")
-            actions = [x.get_text(" ",strip=True) for x in lane.select(".training-step")]
-            if heading and actions:
-                training_points.append(heading.get_text(" ",strip=True)+": "+" → ".join(actions))
-        for card in training.select(".training-card")[:3]:
-            heading = card.find("header")
-            body = card.select_one(".training-body")
-            if heading and body:
-                training_points.append(heading.get_text(" ",strip=True)+": "+body.get_text(" ",strip=True))
-        for role in training.select(".training-role"):
-            training_points.append(role.get_text(" ",strip=True))
+    title=txt(section.find("h2"))
+    lead=txt(section.select_one("p.lead"))
+    diagram=section.select_one("figure.diagram img")
+    if not title or not lead or diagram is None:
+        raise RuntimeError("Incomplete TTHC section "+section.get("id","?"))
+    chapters=[]
+    if section.get("id")=="noi-cu-tru":
+        prep=section.select_one(".shared-prep")
+        if prep:
+            chapters.append(("Điều kiện chung: thông tin chi bộ nơi cư trú",
+                             [(None,txt(p),None) for p in prep.find_all("p")]))
+        for id in ["gioi-thieu-noi-cu-tru","y-kien-can-bo","cuoi-nam"]:
+            flow=section.find("details",id=id)
+            if flow is None:
+                raise RuntimeError("Missing distinct residence process "+id)
+            ol=flow.select_one("ol.steps")
+            if ol is None:
+                raise RuntimeError("Missing numbered steps in "+id)
+            chapters.append((txt(flow.find("summary")),as_steps(ol)))
+    else:
+        for ol in section.select("ol.steps"):
+            parent=ol.find_parent("details",class_="branch")
+            if parent:
+                heading=txt(parent.find("summary"))
+            else:
+                h3=ol.find_previous_sibling("h3",class_="section-subtitle")
+                heading=txt(h3) if h3 else "Trình tự thực hiện"
+            chapters.append((heading,as_steps(ol)))
+        for detail in section.select("details.branch"):
+            if detail.find("ol",class_="steps") is None:
+                ps=[txt(p) for p in detail.select(".plain-info p")]
+                if ps:
+                    chapters.append((txt(detail.find("summary")),
+                                     [(None,x,None) for x in ps]))
+    if not chapters or not any(c[1] for c in chapters):
+        raise RuntimeError("No instruction steps found in "+section.get("id","?"))
     return {
-        "title":title.get_text(" ",strip=True),
-        "lead":lead.get_text(" ",strip=True),
-        "steps":steps,
-        "residence_groups":residence_groups,
-        "process2":process2,
-        "training_points":training_points,
-        "note":note.get_text(" ",strip=True),
-        "source":source.get_text(" ",strip=True),
+        "title":title,"lead":lead,"chapters":chapters,
+        "diagram":diagram.get("src"),
+        "note":txt(section.find("aside",class_="procedural-note")),
+        "source":txt(section.select_one(".source-note")).split("↓ Tải")[0].strip(),
     }
-
-def make_pdf(dest, number, data, font):
-    navy = colors.HexColor("#173950")
-    muted = colors.HexColor("#456b7e")
-    title = ParagraphStyle("Title",fontName=font,fontSize=17,leading=25,textColor=navy,spaceAfter=11)
-    lead = ParagraphStyle("Lead",fontName=font,fontSize=10.3,leading=17,textColor=navy,spaceAfter=14)
-    body = ParagraphStyle("Body",fontName=font,fontSize=9.5,leading=17,textColor=navy,spaceAfter=9)
-    meta = ParagraphStyle("Meta",fontName=font,fontSize=8,leading=14,textColor=muted,spaceAfter=9)
-    def p(s,style):return Paragraph(html.escape(s),style)
-    story=[
-        p("HƯỚNG DẪN TTHC • TẬP HUẤN 05/11/2026",meta),
-        p(f"{number} — {data['title']}",title),
-        p(data["lead"],lead)
-    ]
-    if data["training_points"]:
-        story.append(p("Nội dung cần nhớ từ tài liệu đào tạo:",lead))
-        for fact in data["training_points"]:
-            story.append(p("• "+fact,body))
-        story.append(Spacer(1,8))
-    if data["process2"]:
-        story.append(p("QUY TRÌNH 02 - CHI BỘ NƠI SINH HOẠT LẬP DANH SÁCH ĐẦU TIÊN",lead))
-        for i,item in enumerate(data["process2"],1):
-            story.append(Spacer(1,11))
-            story.append(p(f"Bước {i}. {item['title']}",lead))
-            story.append(p(item["text"],body))
-            if item["image"]:
-                local=ROOT/"site"/item["image"]
-                if local.is_file():
-                    drawing=svg2rlg(str(local))
-                    if drawing and drawing.width:
-                        z=min(1,430/drawing.width)
-                        drawing.scale(z,z)
-                        drawing.width*=z
-                        drawing.height*=z
-                        story.append(drawing)
-    if data["residence_groups"]:
-        story.append(Spacer(1,18))
-        story.append(p("QUY TRÌNH 03 - NHẬN XÉT ĐỊNH KỲ CUỐI NĂM (LUỒNG RIÊNG)",lead))
-        for heading, items in data["residence_groups"]:
-            story.append(Spacer(1,9))
-            story.append(p(heading,lead))
-            for i,step in enumerate(items,1):
-                story.append(p(f"{i}. {step}",body))
-    if not data["residence_groups"] and not data["process2"]:
-        for i,step in enumerate(data["steps"],1):
-            story.append(p(f"{i}. {step}",body))
-    story.extend([
-        Spacer(1,12),p(data["note"],body),Spacer(1,4),
-        p(data["source"],meta),
-        p("Hướng dẫn sử dụng TTHC • CDSTUHUE",meta)
-    ])
-    def footer(canvas,doc):
-        canvas.saveState()
-        canvas.setStrokeColor(colors.HexColor("#d3e6ee"))
-        canvas.line(42,45,A4[0]-42,45)
-        canvas.setFont(font,7.6)
-        canvas.setFillColor(muted)
-        canvas.drawString(42,32,"CDSTUHUE · Hướng dẫn thao tác TTHC 05/11/2026")
-        canvas.drawRightString(A4[0]-42,32,str(doc.page))
-        canvas.restoreState()
-    pdf=SimpleDocTemplate(
-        str(dest),pagesize=A4,rightMargin=42,leftMargin=42,
-        topMargin=48,bottomMargin=65,
-        title=f"Hướng dẫn TTHC 05/11/2026 — {data['title']}",
-        author="CDSTUHUE",pageCompression=1)
-    pdf.build(story,onFirstPage=footer,onLaterPages=footer)
-
+def make_pdf(dest,num,data,font,short=False):
+    blue=colors.HexColor("#214a6b")
+    muted=colors.HexColor("#607c8f")
+    styles={
+        "k":ParagraphStyle("K",fontName=font,fontSize=8.4,leading=13,textColor=muted,spaceAfter=9),
+        "t":ParagraphStyle("T",fontName=font,fontSize=16,leading=24,textColor=blue,spaceAfter=11),
+        "l":ParagraphStyle("L",fontName=font,fontSize=9.8,leading=16,textColor=blue,spaceAfter=10),
+        "h":ParagraphStyle("H",fontName=font,fontSize=11,leading=18,textColor=blue,spaceBefore=14,spaceAfter=8,keepWithNext=True),
+        "s":ParagraphStyle("S",fontName=font,fontSize=9.5,leading=16,textColor=blue,spaceAfter=7),
+        "b":ParagraphStyle("B",fontName=font,fontSize=9.2,leading=15,textColor=blue,spaceAfter=9)
+    }
+    def para(t,style):return Paragraph(html.escape(str(t)),styles[style])
+    story=[para("HƯỚNG DẪN TTHC · TẬP HUẤN THÁNG 11/2026","k"),para(f"{num} — {data['title']}","t"),para(data["lead"],"l")]
+    path=ROOT/"site"/data["diagram"]
+    if path.is_file():
+        drawing=svg2rlg(str(path))
+        if drawing and drawing.width>0:
+            scale=min(1.0,495.0/drawing.width)
+            drawing.scale(scale,scale);drawing.width*=scale;drawing.height*=scale
+            story.append(drawing);story.append(Spacer(1,8))
+    for title,steps in data["chapters"]:
+        story.append(para(title,"h"))
+        for i,(actor,heading,body) in enumerate(steps,1):
+            if heading is None:
+                story.append(para(actor or "", "b"))
+            else:
+                chunks=[para(f"{i}. {heading} — {actor}","s")]
+                if body:chunks.append(para(body,"b"))
+                story.append(KeepTogether(chunks))
+    if data["note"]:story.extend([Spacer(1,8),para(data["note"],"b")])
+    if data["source"]:story.append(para(data["source"],"k"))
+    def footer(c,d):
+        c.saveState();c.setStrokeColor(colors.HexColor("#e0e8ef"))
+        c.line(40,43,A4[0]-40,43);c.setFont(font,7.5);c.setFillColor(muted)
+        c.drawString(40,30,"CDSTUHUE · 04 thủ tục TTHC")
+        c.drawRightString(A4[0]-40,30,str(d.page));c.restoreState()
+    doc=SimpleDocTemplate(str(dest),pagesize=A4,leftMargin=40,rightMargin=40,
+        topMargin=42,bottomMargin=58,title=data["title"],author="CDSTUHUE",pageCompression=1)
+    doc.build(story,onFirstPage=footer,onLaterPages=footer)
+    if dest.stat().st_size<2000:raise RuntimeError("Empty PDF "+str(dest))
 def main():
-    font=register_font()
-    soup=BeautifulSoup(HTML.read_text(encoding="utf-8"),"html.parser")
-    DEST.mkdir(parents=True,exist_ok=True)
-    for slug,number in SECTIONS:
+    font=font_name()
+    soup=BeautifulSoup(PAGE.read_text(encoding="utf-8"),"html.parser")
+    OUTPUT.mkdir(parents=True,exist_ok=True)
+    for slug,num in SECTIONS:
         section=soup.find("section",id=slug)
-        if section is None:raise RuntimeError("Missing TTHC section: "+slug)
-        output=DEST/f"tthc-20261105-{slug}.pdf"
-        make_pdf(output,number,extract(section),font)
-        if output.stat().st_size<1500:raise RuntimeError("PDF unexpectedly empty: "+str(output))
-        print("Created public PDF:",output,output.stat().st_size,"bytes")
+        if section is None:raise RuntimeError("Missing "+slug)
+        data=extract(section)
+        dest=OUTPUT/f"tthc-20261105-{slug}.pdf"
+        make_pdf(dest,num,data,font)
+        print("Created",dest.name,dest.stat().st_size)
         if slug=="noi-cu-tru":
-            item=extract(section)
-            item["residence_groups"]=[]
-            item["steps"]=[]
-            item["note"]="Quy trình 02 do chi bộ nơi sinh hoạt lập danh sách; không nhầm với nhận xét định kỳ cuối năm."
-            item["title"]="Lấy ý kiến nơi cư trú - Quy trình 02"
-            item["lead"]="Từ chi bộ nơi sinh hoạt lập danh sách đến ký xác nhận và nhận kết quả."
-            output2=DEST/"tthc-20261105-lay-y-kien-can-bo.pdf"
-            make_pdf(output2,"02",item,font)
-            if output2.stat().st_size<1500:raise RuntimeError("Process 02 PDF too small")
-            print("Created visual process 02 PDF:",output2,output2.stat().st_size,"bytes")
-
-
+            single=dict(data)
+            single["chapters"]=[chap for chap in data["chapters"] if "QUY TRÌNH 2" in chap[0]]
+            if len(single["chapters"])!=1:raise RuntimeError("No standalone process 2")
+            single["title"]="Lấy ý kiến nơi cư trú — Quy trình 2"
+            single["lead"]="Chi bộ nơi sinh hoạt lập danh sách trước; cấp trên phê duyệt rồi mới chuyển đến nơi cư trú nhận xét."
+            single["note"]="Quy trình 3 nhận xét cuối năm là nhánh riêng, do chi bộ nơi cư trú chủ động khởi tạo."
+            dest2=OUTPUT/"tthc-20261105-lay-y-kien-can-bo.pdf"
+            make_pdf(dest2,"02.2",single,font)
+            print("Created",dest2.name,dest2.stat().st_size)
 if __name__=="__main__":
     main()

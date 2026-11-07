@@ -1,34 +1,29 @@
 const assert=require('node:assert/strict'),fs=require('node:fs');
 const html=fs.readFileSync('site/cap-nhat-tthc-2026-11.html','utf8');
-assert.equal((html.match(/<section id=/g)||[]).length,4);
-assert.equal((html.match(/class="training-block"/g)||[]).length,2);
+const sections=[...html.matchAll(/<section id="([^"]+)" class="procedure"/g)].map(m=>m[1]);
+assert.deepEqual(sections,['dang-phi','noi-cu-tru','chinh-thuc','tam-thoi']);
+assert.equal((html.match(/class="diagram"/g)||[]).length,4,'exactly one compact diagram per procedure');
+for(const [slug,pic] of [
+ ['dang-phi','tthc-flow-dang-phi-v47.svg'],
+ ['noi-cu-tru','tthc-flow-noi-cu-tru-v47.svg'],
+ ['chinh-thuc','tthc-flow-chinh-thuc-v47.svg'],
+ ['tam-thoi','tthc-flow-tam-thoi-v47.svg']]){
+ assert(html.includes('downloads/tthc-20261105-'+slug+'.pdf'));
+ assert(html.includes('assets/img/'+pic));
+ assert(fs.existsSync('site/assets/img/'+pic));
+ const svg=fs.readFileSync('site/assets/img/'+pic,'utf8');
+ assert(svg.startsWith('<svg')&&svg.endsWith('</svg>'));
+}
+const start=html.indexOf('<section id="noi-cu-tru"'),end=html.indexOf('</section>',start),part=html.slice(start,end);
+for(const id of ['gioi-thieu-noi-cu-tru','y-kien-can-bo','cuoi-nam'])assert(part.includes('id="'+id+'"'));
+assert(part.indexOf('id="gioi-thieu-noi-cu-tru"')<part.indexOf('id="y-kien-can-bo"'));
+assert(part.indexOf('id="y-kien-can-bo"')<part.indexOf('id="cuoi-nam"'));
+assert(part.includes('Lập danh sách lấy ý kiến nơi cư trú'));
+assert(part.includes('Lập danh sách và trình lên cấp trên'));
+assert(part.includes('Chi bộ nơi cư trú')&&part.includes('Không đợi chi bộ nơi công tác lập danh sách'));
+assert(html.includes('Ô 1 phê duyệt điện tử, không ký số'));
+assert(html.includes('chiều về do chi bộ nơi tạm thời chủ động'));
 assert(html.includes('00:00 ngày 06'));
-assert(html.includes('60 ngày làm việc'));
-for(const id of ['dang-phi','noi-cu-tru','chinh-thuc','tam-thoi'])
-  assert(html.includes('downloads/tthc-20261105-'+id+'.pdf'));
-assert(html.includes('id="cuoi-nam"'));
-assert(html.includes('Cập nhật thông tin chi bộ nơi cư trú — làm trước'));
-assert(html.includes('Chi bộ nơi công tác / đang sinh hoạt'));
-assert(html.includes('Chi bộ nơi cư trú'));
-assert(html.includes('Đảng ủy / cấp ủy cấp trên trực tiếp nơi cư trú'));
-assert(html.includes('Quản lý đảng viên sinh hoạt nơi cư trú'));
-assert(html.includes('Lưu phiếu'));
-assert(html.includes('trước ngày 30/11'));
-assert(html.includes('trong <strong>30 ngày</strong>'));
-assert(html.includes('id="gioi-thieu-noi-cu-tru"'));
-assert(html.includes('id="y-kien-can-bo"'));
-const section=html.slice(html.indexOf('<section id="noi-cu-tru"'),html.indexOf('</section>',html.indexOf('<section id="noi-cu-tru"')));
-assert(section.indexOf('id="y-kien-can-bo"') < section.indexOf('id="cuoi-nam"'), 'First visible workflow must start with chi bo noi sinh hoat lap danh sach');
-assert(section.includes('<div id="y-kien-can-bo" class="ncr-main-flow">'), 'Process 02 should be visible without opening a collapsed control');
-assert(section.includes('<details class="ncr-alt ncr-secondary" id="cuoi-nam">'), 'Separate year-end process 03 must be collapsed');
-assert(section.includes('class="ncr-choice-grid"'), 'Chooser must show three separate situation cards');
-assert(section.includes('Chi bộ <b>nơi cư trú chủ động lập phiếu</b>'), 'Year-end must start from residence branch');
-assert(section.includes('Không lập danh sách khởi tạo; <b>tiếp nhận kết quả</b>'), 'Working branch must still participate in year-end review');
-assert(section.includes('Chi bộ nơi công tác chỉ <strong>lập danh sách khởi tạo</strong> ở Quy trình 2'), 'Procedure 2 and 3 must be distinct');
-assert(section.includes('Lập danh sách (n)') && section.includes('Lập danh sách và trình lên cấp trên'));
-
+assert(html.includes('background:var(--canvas)'));
 assert(!/Georgia\s*,\s*serif/.test(html));
-assert(html.includes('background:#f6f7fb;color:#21334b'));
-assert(html.includes('font-family:inherit;font-size:clamp(20px,2.6vw,24px)'));
-assert(html.includes('.training-block{background:#fff;border:1px solid #e6eaf0'));
-console.log('Four TTHC, year-end residence roles and original site theme PASS');
+console.log('Four clear TTHC procedures, three independent residence flows and exactly four vector diagrams PASS');
