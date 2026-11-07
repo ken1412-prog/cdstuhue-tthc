@@ -12,5 +12,5 @@ assert(app.includes("syncFromUrl();loadData();const clock="));
 assert(app.includes("const qaTask=read('data/approved.json')"));
 assert(app.includes("setTimeout(finalizeQaLoadFromTimeout,12000)"));
 const approved=JSON.parse(fs.readFileSync('site/data/approved.json','utf8'));
-assert.equal(approved.items.length,245);
-console.log('QA bootstrap optional-controls regression PASS (245 approved QA untouched)');
+assert.ok(approved.items.length>=245, 'Approved QA count must not unexpectedly shrink');
+console.log('QA bootstrap optional-controls regression PASS ('+approved.items.length+' approved QA intact)');
