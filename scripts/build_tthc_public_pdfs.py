@@ -45,7 +45,39 @@ def extract(section):
     if not all((title,lead,note,source)):
         raise RuntimeError("Incomplete public training section")
     steps = [li.get_text(" ", strip=True) for li in section.find_all("li")]
-    if not steps:
+    residence_groups = []
+    if section.get("id") == "noi-cu-tru":
+        # Keep all year-end information and role-specific permissions together.
+        # Avoid flattening four different actors into one generic numbered list.
+        steps = []
+        prerequisite = section.select_one(".ncr-guide .ncr-gold")
+        if prerequisite:
+            residence_groups.append(("Điều kiện chung: cập nhật thông tin nơi cư trú", [prerequisite.get_text(" ", strip=True)]))
+        for info in section.select(".ncr-intro-card"):
+            residence_groups.append((info.find("h4").get_text(" ", strip=True), [info.find("p").get_text(" ", strip=True)]))
+        flow = section.select_one("#cuoi-nam .ncr-gold")
+        if flow:
+            residence_groups.append(("Nhận xét cuối năm: ai khởi tạo và ai nhận kết quả?", [flow.get_text(" ", strip=True)]))
+        for role in section.select("#cuoi-nam .ncr-role"):
+            role_name = role.select_one(".ncr-role-head b")
+            permission = role.select_one(".ncr-role-head small")
+            content = [li.get_text(" ", strip=True) for li in role.select(".ncr-role-body li")]
+            if role_name:
+                title = role_name.get_text(" ", strip=True)
+                if permission:
+                    title += " — " + permission.get_text(" ", strip=True)
+                residence_groups.append((title, content))
+        deadline = section.select_one("#cuoi-nam .ncr-tips")
+        if deadline:
+            residence_groups.append(("Thời hạn và điều kiện hoàn tất", [deadline.get_text(" ", strip=True)]))
+        troubleshooting = section.select_one("#cuoi-nam .ncr-checks")
+        if troubleshooting:
+            residence_groups.append(("Khi không thấy nút hoặc hồ sơ", [li.get_text(" ", strip=True) for li in troubleshooting.find_all("li")]))
+        for alternate in section.select("details.ncr-alt"):
+            summary = alternate.find("summary")
+            if summary:
+                residence_groups.append((summary.get_text(" ", strip=True), [li.get_text(" ", strip=True) for li in alternate.find_all("li")]))
+    if not steps and not residence_groups:
         raise RuntimeError("Empty public training steps")
     # Avoid the download link itself becoming source text in the PDF.
     for link in source.find_all("a"):
@@ -72,6 +104,7 @@ def extract(section):
         "title":title.get_text(" ",strip=True),
         "lead":lead.get_text(" ",strip=True),
         "steps":steps,
+        "residence_groups":residence_groups,
         "training_points":training_points,
         "note":note.get_text(" ",strip=True),
         "source":source.get_text(" ",strip=True),
@@ -95,8 +128,15 @@ def make_pdf(dest, number, data, font):
         for fact in data["training_points"]:
             story.append(p("• "+fact,body))
         story.append(Spacer(1,8))
-    for i,step in enumerate(data["steps"],1):
-        story.append(p(f"{i}. {step}",body))
+    if data["residence_groups"]:
+        for heading, items in data["residence_groups"]:
+            story.append(Spacer(1,9))
+            story.append(p(heading,lead))
+            for i,step in enumerate(items,1):
+                story.append(p(f"{i}. {step}",body))
+    else:
+        for i,step in enumerate(data["steps"],1):
+            story.append(p(f"{i}. {step}",body))
     story.extend([
         Spacer(1,12),p(data["note"],body),Spacer(1,4),
         p(data["source"],meta),
