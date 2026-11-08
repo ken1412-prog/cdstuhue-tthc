@@ -9,7 +9,7 @@ from reportlab.lib.pagesizes import A4
 from reportlab.lib.styles import ParagraphStyle
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
-from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer, KeepTogether
+from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer, KeepTogether, Table, TableStyle, PageBreak, Flowable
 from svglib.svglib import svg2rlg
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -150,5 +150,148 @@ def main():
             dest2=OUTPUT/"tthc-20261105-lay-y-kien-can-bo.pdf"
             make_pdf(dest2,"02.2",single,font)
             print("Created",dest2.name,dest2.stat().st_size)
+    combined=[(slug,num,extract(soup.find("section",id=slug))) for slug,num in SECTIONS]
+    make_combined_pdf(OUTPUT/"cam-nang-04-tthc-2026-11.pdf",combined,font)
+# Unified 04-TTHC handbook; legacy individual PDFs remain for backward-compatible links.
+PALETTE={
+    "dang-phi":("#146da8","#eaf4fc","01"),
+    "noi-cu-tru":("#10865c","#ecf8f1","02"),
+    "chinh-thuc":("#db7618","#fff2e6","03"),
+    "tam-thoi":("#754bb2","#f3edfa","04"),
+}
+
+class ChapterBookmark(Flowable):
+    def __init__(self,key,title):
+        super().__init__()
+        self.key,self.title=key,title
+        self.width=self.height=0
+    def wrap(self,aw,ah):
+        return (0,0)
+    def draw(self):
+        self.canv.bookmarkPage(self.key)
+        self.canv.addOutlineEntry(self.title,self.key,level=0,closed=False)
+
+def make_combined_pdf(destination,sections,font):
+    from xml.sax.saxutils import escape as xml_escape
+    paper=colors.HexColor("#213c57")
+    muted=colors.HexColor("#637b8d")
+    styles={
+        "eyebrow":ParagraphStyle("EyebrowUnified",fontName=font,fontSize=10,leading=17,textColor=muted,spaceAfter=13),
+        "title":ParagraphStyle("TitleUnified",fontName=font,fontSize=27,leading=39,textColor=paper,spaceAfter=16),
+        "subtitle":ParagraphStyle("SubUnified",fontName=font,fontSize=12,leading=19,textColor=muted,spaceAfter=19),
+        "ch":ParagraphStyle("ChUnified",fontName=font,fontSize=17,leading=27,textColor=colors.white),
+        "toc":ParagraphStyle("TocUnified",fontName=font,fontSize=11,leading=19,textColor=paper),
+        "body":ParagraphStyle("BodyUnified",fontName=font,fontSize=9.2,leading=15.3,textColor=paper,spaceAfter=9),
+        "step":ParagraphStyle("StepUnified",fontName=font,fontSize=10,leading=16,textColor=paper,spaceAfter=4),
+        "actor":ParagraphStyle("ActorUnified",fontName=font,fontSize=8,leading=13,textColor=muted,spaceAfter=5),
+        "note":ParagraphStyle("NoteUnified",fontName=font,fontSize=8.8,leading=14,textColor=muted,spaceAfter=8),
+    }
+    P=lambda v,k:Paragraph(xml_escape(str(v)),styles[k])
+    story=[
+        Spacer(1,38),
+        P("CDSTUHUE · CẨM NANG TRA CỨU VÀ THAO TÁC","eyebrow"),
+        P("HƯỚNG DẪN TOÀN BỘ 04 THỦ TỤC TTHC","title"),
+        P("Hướng dẫn từ bước đầu đến bước cuối · Tài khoản thực hiện · Nút thao tác · Kết quả bàn giao","subtitle"),
+        Spacer(1,8),
+    ]
+    for slug,num,data in sections:
+        accent,bg,_=PALETTE[slug]
+        line=Table([[P(num,"toc"),P(data["title"],"toc")]],colWidths=[55,445],rowHeights=[46])
+        line.setStyle(TableStyle([
+            ("BACKGROUND",(0,0),(0,0),colors.HexColor(accent)),
+            ("BACKGROUND",(1,0),(1,0),colors.HexColor(bg)),
+            ("TEXTCOLOR",(0,0),(0,0),colors.white),
+            ("VALIGN",(0,0),(-1,-1),"MIDDLE"),
+            ("BOX",(0,0),(-1,-1),0.5,colors.HexColor(bg)),
+            ("LEFTPADDING",(0,0),(-1,-1),13),
+        ]))
+        story.extend([line,Spacer(1,8)])
+    story.extend([
+        Spacer(1,26),
+        P("MỤC LỤC","eyebrow"),
+        P("01 · Thu, nộp đảng phí: nộp thông thường, điều chỉnh, phân bổ theo Công văn 6163","body"),
+        P("02 · Nhận xét nơi cư trú: quy trình 1 giới thiệu, quy trình 2 phục vụ công tác cán bộ, quy trình 3 cuối năm","body"),
+        P("03 · Chuyển sinh hoạt chính thức: giấy giới thiệu điện tử 6 ô","body"),
+        P("04 · Chuyển sinh hoạt tạm thời: chiều đi ô 1–4, chiều về ô 5–8","body"),
+        Spacer(1,12),
+        P("Các quy trình trong Thủ tục 02 là các trường hợp độc lập, không phải ba bước thực hiện liên tiếp. Tỷ lệ phân bổ đảng phí phải tính theo từng cấp trên phần còn lại; khoản đã phân bổ kỳ trước không phân bổ lại.","note")
+    ])
+    for slug,num,data in sections:
+        accent,bg,_=PALETTE[slug]
+        mainColor=colors.HexColor(accent)
+        lightColor=colors.HexColor(bg)
+        story.extend([PageBreak(),ChapterBookmark("chapter_"+num,num+" - "+data["title"])])
+        titlebar=Table([[Paragraph(num,ParagraphStyle("Num"+num,fontName=font,fontSize=23,leading=30,textColor=colors.white)),
+                         P(data["title"],"ch")]],colWidths=[60,440])
+        titlebar.setStyle(TableStyle([
+            ("BACKGROUND",(0,0),(-1,-1),mainColor),
+            ("VALIGN",(0,0),(-1,-1),"MIDDLE"),
+            ("LEFTPADDING",(0,0),(-1,-1),16),
+            ("TOPPADDING",(0,0),(-1,-1),15),
+            ("BOTTOMPADDING",(0,0),(-1,-1),15),
+        ]))
+        story.extend([titlebar,Spacer(1,13),P(data["lead"],"body"),Spacer(1,7)])
+        svg=ROOT/"site"/data["diagram"]
+        if svg.exists():
+            drawing=svg2rlg(str(svg))
+            if drawing and drawing.width>0:
+                scale=min(1,500.0/drawing.width)
+                drawing.scale(scale,scale)
+                drawing.width*=scale
+                drawing.height*=scale
+                story.extend([drawing,Spacer(1,12)])
+        secStyle=ParagraphStyle("Subchapter"+num,fontName=font,fontSize=11.6,
+            leading=18,textColor=mainColor,spaceBefore=13,spaceAfter=9,keepWithNext=True)
+        nrStyle=ParagraphStyle("Nr"+num,fontName=font,fontSize=15,
+            leading=21,textColor=mainColor)
+        for title,steps in data["chapters"]:
+            headingbox=Table([[Paragraph(xml_escape(str(title)),secStyle)]],colWidths=[500])
+            headingbox.setStyle(TableStyle([
+                ("BACKGROUND",(0,0),(-1,-1),lightColor),
+                ("LINEBEFORE",(0,0),(0,0),3,mainColor),
+                ("LEFTPADDING",(0,0),(-1,-1),11),
+                ("RIGHTPADDING",(0,0),(-1,-1),8),
+                ("TOPPADDING",(0,0),(-1,-1),8),
+                ("BOTTOMPADDING",(0,0),(-1,-1),8)
+            ]))
+            story.extend([Spacer(1,12),headingbox,Spacer(1,8)])
+            for ix,(actor,heading,body) in enumerate(steps,1):
+                if heading is None:
+                    if actor:story.append(P(actor,"body"))
+                    continue
+                contents=[P(heading,"step"),P(actor or "Theo tài khoản được phân quyền","actor")]
+                if body:contents.append(P(body,"body"))
+                row=Table([[Paragraph(f"{ix:02}",nrStyle),contents]],colWidths=[41,459])
+                row.setStyle(TableStyle([
+                    ("BACKGROUND",(0,0),(-1,-1),colors.HexColor("#fbfcff")),
+                    ("LINEBELOW",(0,0),(-1,-1),0.5,colors.HexColor("#dbe5ed")),
+                    ("VALIGN",(0,0),(-1,-1),"TOP"),
+                    ("LEFTPADDING",(0,0),(0,0),9),
+                    ("LEFTPADDING",(1,0),(1,0),12),
+                    ("RIGHTPADDING",(1,0),(1,0),9),
+                    ("TOPPADDING",(0,0),(-1,-1),9),
+                    ("BOTTOMPADDING",(0,0),(-1,-1),8),
+                ]))
+                story.append(Spacer(1,5))
+                story.append(row)
+        if data["note"]:story.extend([Spacer(1,12),P(data["note"],"note")])
+        if data["source"]:story.append(P(data["source"],"note"))
+    def footer(canvas,doc):
+        canvas.saveState()
+        canvas.setStrokeColor(colors.HexColor("#e0e8ef"))
+        canvas.line(40,41,A4[0]-40,41)
+        canvas.setFont(font,8)
+        canvas.setFillColor(muted)
+        canvas.drawString(40,28,"CDSTUHUE | Cẩm nang 04 thủ tục TTHC | 11/2026")
+        canvas.drawRightString(A4[0]-40,28,str(doc.page))
+        canvas.restoreState()
+    doc=SimpleDocTemplate(str(destination),pagesize=A4,
+        leftMargin=40,rightMargin=40,topMargin=40,bottomMargin=55,
+        title="Cẩm nang 04 thủ tục TTHC - CDSTUHUE",author="CDSTUHUE",pageCompression=1)
+    doc.build(story,onFirstPage=footer,onLaterPages=footer)
+    if not destination.is_file() or destination.stat().st_size<9000:
+        raise RuntimeError("Unified TTHC PDF missing or unexpectedly small")
+    print("Created unified PDF:",destination.name,destination.stat().st_size,"bytes")
+
 if __name__=="__main__":
     main()
