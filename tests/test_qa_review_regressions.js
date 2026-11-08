@@ -11,7 +11,7 @@ assert(overlay.includes("QA114:'noi-cu-tru'"),'Three-procedure QA must not link 
 assert(overlay.includes("QA101:'cuoi-nam'"),'Year-end QA should target correct branch');
 assert(overlay.includes("QA112:'chinh-thuc'")&&overlay.includes("QA113:'tam-thoi'"));
 assert(overlay.includes("const raw=String(patch.answer).replace(/\\s+/g,' ').trim()"),'Patched QA cards must be shortened too');
-assert(guide.includes('target.matches("section.procedure")?target.querySelector("details.procedure-details")'),'Deep links into procedures should expand their instructions');
+assert(guide.includes("d.open=true;d.addEventListener('toggle'"),'All guide details must remain open without clicks');
 assert(guide.includes('id="y-kien-can-bo"')&&guide.includes('id="cuoi-nam"'));
 console.log('QA list previews, correct source links and 245+ approved source items PASS');
 assert(guide.includes('id="phan-bo-dang-phi"'),'CV6163 table must be on web');
