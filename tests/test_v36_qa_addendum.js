@@ -10,7 +10,7 @@ vm.runInNewContext(raw,env);
 const data=env.window.CDSTUHUE_V36_QA;
 assert(data&&data.date==='2026-11-10');
 const revised=['QA101','QA104','QA110','QA111','QA112','QA114','QA115','QA116'];
-const added=['QA125','QA126','QA127','QA128'];
+const added=['QA125','QA126','QA127','QA128','QA129'];
 assert.deepEqual(Object.keys(data.revisions).sort(),revised.sort());
 assert.deepEqual(Array.from(data.newItems,x=>x.id).sort(),added.sort());
 assert(data.newItems.every(x=>x.public===true&&x.group==='tthc'&&x.answer.length>100));
@@ -42,7 +42,19 @@ assert(!data.media.QA113&&!data.media.QA128,'Do not assign 6-cell screenshot to 
 assert(Object.keys(data.media).length>=11,'At least 11 QA have targeted UI images');
 assert(Object.values(data.media).flat().length>=25,'At least 25 step-specific photo references');
 assert(new Set(Object.values(data.media).flat().map(x=>x.src)).size===20,'Exactly 20 unique reviewed screenshots');
-assert(data.revisions.QA110.answer.includes('Bước 1')&&data.revisions.QA101.answer.includes('CHI BỘ'),'Guides must be role-based and step-specific');
+assert(data.revisions.QA110.answer.includes('1. ĐẢNG VIÊN')&&data.revisions.QA101.answer.includes('ĐẢNG ỦY XÃ/PHƯỜNG NƠI CƯ TRÚ'),'Guides must name actors and explicit actions');
+for(const id of ['QA101','QA114','QA115','QA125','QA126','QA127','QA129']){
+  const q=data.revisions[id]||data.newItems.find(x=>x.id===id);
+  assert(/Quy trình [123]/i.test(q.question),'Question must name TTHC 02 sub-process: '+id);
+}
+assert(data.revisions.QA114.answer.includes('QUY TRÌNH 1')&&data.revisions.QA114.answer.includes('QUY TRÌNH 2')&&data.revisions.QA114.answer.includes('QUY TRÌNH 3'));
+assert(data.newItems.some(x=>x.id==='QA129'),'Process 1 has dedicated detailed QA');
+assert(data.media.QA129.some(x=>x.src.includes('v36-photo-117-gioi-thieu-')),'Introduction form is assigned to process 1');
+assert(!data.media.QA126.some(x=>x.src.includes('v36-photo-117-')),'Do not mislabel introduction as process 2');
+for(const q of [...Object.values(data.revisions),...data.newItems]){
+  assert(!/video|V36_\d{3}|\d{2}:\d{2}:\d{2}|cấp có quyền|người có quyền|hình dựng lại|theo QA nền/i.test(q.question+' '+q.answer),'No internal source notes or undefined authority in QA: '+q.question);
+}
+for(const pics of Object.values(data.media))for(const p of pics)assert(!/video|\d{2}:\d{2}:\d{2}|V36_\d{3}/i.test(p.caption+' '+p.alt),'No source annotations in public image captions');
 const old=fs.readFileSync(path.join(base,'site/assets/qa-click-guides-v35.js'),'utf8');
 assert(old.includes('window.CDSTUHUE_V36_QA?.revisions?.[id]'),'Old contradictory guide must be disabled');
-console.log('V36 corrected: 8 edited + 4 new QA, 20 real redacted screenshots, named click targets PASS');
+console.log('V36 verified: 8 revised + 5 new QA, residence procedures 1/2/3 separated, exact authorities and clean photo captions PASS');
