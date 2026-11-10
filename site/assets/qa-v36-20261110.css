@@ -1,0 +1,9 @@
+/* Safe V36 visual summaries. Actual screenshots with personal data remain offline. */
+.qa-v36-visuals{background:#f8fbfd;border:1px solid #d9e3ea;border-radius:13px;padding:12px;margin:8px 0 17px}
+.qa-v36-visuals h3{color:#174b76;font-size:15px;font-weight:800;margin:0 0 10px}
+.qa-v36-visuals figure{margin:0 0 10px;border:1px solid #dae2ea;background:#fff;border-radius:9px;overflow:hidden}
+.qa-v36-visuals img{display:block;width:100%;height:auto}
+.qa-v36-visuals figcaption{font-size:12px;line-height:1.6;padding:8px 10px;color:#43627c}
+.qa-v36-note{font-size:11.5px;color:#815221;line-height:1.55;margin:4px 0}
+.qa-v36-featured{color:#8a4b0d;background:#fff0d7;border-radius:7px;padding:3px 7px;font-size:10px;font-weight:800;border:1px solid #eed0a7}
+@media(prefers-reduced-motion:reduce){.qa-flash-star{animation:none!important}}

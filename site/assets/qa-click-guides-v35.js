@@ -9,7 +9,7 @@ function supplement(){
  if(!body||!idNode||body.querySelector('.qa-click-guide'))return;
  const id=(idNode.textContent||'').trim().split(/\s+/)[0];
  if((idNode.textContent||'').includes('MINH HỌA'))return;
- const guide=GUIDES[id];if(!guide)return;
+ const guide=GUIDES[id];if(!guide||window.CDSTUHUE_V36_QA?.revisions?.[id])return;
  const section=make('section','qa-click-guide');
  section.setAttribute('aria-label','Hướng dẫn bấm nút tham khảo');
  section.append(make('h3','qa-click-heading','Hướng dẫn bấm nút · '+guide.title),

@@ -7,6 +7,7 @@ function applyModal(){
  const body=document.getElementById('modalBody'),idNode=document.getElementById('modalId');
  if(!body||!idNode||idNode.textContent.includes('MINH HỌA'))return;
  const id=String(idNode.textContent||'').trim().split(/\s+/)[0],patch=corrections[id],answer=body.querySelector('.answer');
+ if(window.CDSTUHUE_V36_QA?.revisions?.[id])return;
  if(!patch||!answer)return;
  const current=String(patch.answer).trim();
  if(answer.textContent.trim()!==current)answer.textContent=current;
@@ -23,7 +24,7 @@ function applyModal(){
 function applyCards(){
  const page=document.getElementById('page');if(!page)return;
  for(const card of page.querySelectorAll('.qa-item[data-qa]')){
-  const patch=corrections[card.dataset.qa];if(!patch)continue;
+  const patch=corrections[card.dataset.qa];if(!patch||window.CDSTUHUE_V36_QA?.revisions?.[card.dataset.qa])continue;
   const h=card.querySelector('h3');if(h&&patch.question&&h.textContent!==patch.question)h.textContent=patch.question;
   const p=card.querySelector('p');const raw=String(patch.answer).replace(/\s+/g,' ').trim();const brief=raw.length>210?raw.slice(0,207).trimEnd()+'…':raw;
   if(p&&p.textContent!==brief)p.textContent=brief;
