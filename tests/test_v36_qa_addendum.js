@@ -9,7 +9,7 @@ const env={window:{}};
 vm.runInNewContext(raw,env);
 const data=env.window.CDSTUHUE_V36_QA;
 assert(data&&data.date==='2026-11-10');
-const revised=['QA101','QA104','QA110','QA112','QA114','QA115','QA116'];
+const revised=['QA101','QA104','QA110','QA111','QA112','QA114','QA115','QA116'];
 const added=['QA125','QA126','QA127','QA128'];
 assert.deepEqual(Object.keys(data.revisions).sort(),revised.sort());
 assert.deepEqual(Array.from(data.newItems,x=>x.id).sort(),added.sort());
@@ -27,15 +27,22 @@ assert(app.includes('v36Gallery(x)'));
 for(const [id,images] of Object.entries(data.media)){
  assert(revised.includes(id)||added.includes(id),'Only V36 QA can receive a graphic');
  for(const item of images){
-  assert(/^assets\/img\/v36-qa-[a-z-]+\.svg$/.test(item.src),'Local picture must be whitelisted');
+  assert(/^assets\/img\/v36-photo-\d{2,3}-[a-z0-9-]+\.(?:png|jpe?g)$/.test(item.src),'Only reviewed local photo crops are supported');
   const imagePath=path.join(base,'site',item.src);
   assert(fs.existsSync(imagePath),'Missing '+item.src);
-  const svg=fs.readFileSync(imagePath,'utf8');
-  assert(svg.includes('<svg')&&svg.includes('KHÔNG PHẢI ẢNH CHỤP'),'Must clearly label source diagram');
-  assert(!/NGUYỄN THỊ NGỌC ANH|HỒ MỘNG TOÀN|040301000715|CCCD:[0-9]{9,12}/i.test(svg),'No private identifiers');
+  const bytes=fs.readFileSync(imagePath);
+  assert(bytes.length>=12000 && bytes.length<1000000,'Real sanitized crop must have plausible size');
+  assert(item.reviewed===true,'Every photo must be individually approved for this QA');
+  const isJpeg=bytes[0]===0xff&&bytes[1]===0xd8;
+  const isPng=bytes[0]===137&&bytes[1]===80&&bytes[2]===78&&bytes[3]===71;
+  assert(isJpeg||isPng,'Invalid sanitized raster');
  }
 }
 assert(!data.media.QA113&&!data.media.QA128,'Do not assign 6-cell screenshot to temporary 8-cell procedure');
+assert(Object.keys(data.media).length>=11,'At least 11 QA have targeted UI images');
+assert(Object.values(data.media).flat().length>=25,'At least 25 step-specific photo references');
+assert(new Set(Object.values(data.media).flat().map(x=>x.src)).size===20,'Exactly 20 unique reviewed screenshots');
+assert(data.revisions.QA110.answer.includes('Bước 1')&&data.revisions.QA101.answer.includes('CHI BỘ'),'Guides must be role-based and step-specific');
 const old=fs.readFileSync(path.join(base,'site/assets/qa-click-guides-v35.js'),'utf8');
 assert(old.includes('window.CDSTUHUE_V36_QA?.revisions?.[id]'),'Old contradictory guide must be disabled');
-console.log('V36 editorial QA (7 edited + 4 new), top priority, picture privacy and sources PASS');
+console.log('V36 corrected: 8 edited + 4 new QA, 20 real redacted screenshots, named click targets PASS');
