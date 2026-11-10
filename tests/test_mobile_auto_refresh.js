@@ -94,7 +94,7 @@ async function main(){
  assert(src.includes('if(!liveSourceAccepted.qa){'));
  assert(src.includes('if(!liveSourceAccepted.menu)state.menu='));
  assert(src.includes('if(hadError)scheduleDataLoadRecovery();'));
- assert(html.includes('20261110-real-screens-v2'));
+ assert(html.includes('20261110-qt123-roles-v3'));
  const qaGuard=between('function finalizeQaLoadFromTimeout(){','\nfunction boot(){');
  const guarded={state:{qaLoading:true,demo:false,qa:[],qaLoadError:false},
    updateGlobal:()=>{},render:()=>{}};
