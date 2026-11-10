@@ -10,7 +10,7 @@ assert(js.includes('applyCards()')&&js.includes('applyModal()'));
 assert(!js.includes('Xem câu trả lời trước cập nhật'));
 for(const name of ['index.html','hoi-dap.html']){
  const html=fs.readFileSync('site/'+name,'utf8');
- assert(html.includes('assets/tthc-20261105.js?v=20261107-v50-6163'));
+ assert(html.includes('assets/tthc-20261105.js?v=20261110-v36'));
  assert(html.includes('assets/tthc-20261105.css?v=20261107-v50-6163'));
 }
 console.log('Current TTHC corrections present: 52; '+data.items.length+' QA source items intact');
