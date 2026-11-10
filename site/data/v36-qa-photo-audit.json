@@ -1,0 +1,281 @@
+{
+  "schema": 1,
+  "project": "CDSTUHUE V36",
+  "date": "2026-11-10",
+  "source": "VIDEO_01_GOC_1.mp4 / VIDEO_01_DANH_MUC_ANH.csv",
+  "sourceImageCount": 146,
+  "selectedCleanImageCount": 20,
+  "reviewStatus": "Cropped, solid-pixel redaction applied to sensitive portions and manually checked in rendered output; only selected images audited",
+  "webUse": "QA guidance screenshots only",
+  "notPublished": "Unredacted source images and video 2",
+  "files": [
+    {
+      "src": "assets/img/v36-photo-035-cu-tru-cap-nhat.png",
+      "sourceFrame": "V36_035_T00-41-06.jpg",
+      "videoTime": "00:41:06",
+      "action": "Cập nhật thông tin chi bộ nơi cư trú",
+      "qaIds": [
+        "QA101"
+      ],
+      "reviewed": true,
+      "sanitized": true,
+      "format": "Flattened raster; no source file embedded",
+      "redOutline": "Position of control on source UI"
+    },
+    {
+      "src": "assets/img/v36-photo-037-dang-vien-menu-ho-so.jpg",
+      "sourceFrame": "V36_037_T00-43-30.jpg",
+      "videoTime": "00:43:30",
+      "action": "Menu Hồ sơ đã nộp",
+      "qaIds": [
+        "QA116"
+      ],
+      "reviewed": true,
+      "sanitized": true,
+      "format": "Flattened raster; no source file embedded",
+      "redOutline": "Position of control on source UI"
+    },
+    {
+      "src": "assets/img/v36-photo-037-dang-vien-trang-thai-ho-so.jpg",
+      "sourceFrame": "V36_037_T00-43-30.jpg",
+      "videoTime": "00:43:30",
+      "action": "Tìm kiếm và trạng thái hồ sơ",
+      "qaIds": [
+        "QA116"
+      ],
+      "reviewed": true,
+      "sanitized": true,
+      "format": "Flattened raster; no source file embedded",
+      "redOutline": "Position of control on source UI"
+    },
+    {
+      "src": "assets/img/v36-photo-044-cu-tru-danh-sach.png",
+      "sourceFrame": "V36_044_T00-45-22.jpg",
+      "videoTime": "00:45:22",
+      "action": "Cột Hành động → Nhận xét",
+      "qaIds": [
+        "QA101",
+        "QA114"
+      ],
+      "reviewed": true,
+      "sanitized": true,
+      "format": "Flattened raster; no source file embedded",
+      "redOutline": "Position of control on source UI"
+    },
+    {
+      "src": "assets/img/v36-photo-045-cu-tru-mau2.png",
+      "sourceFrame": "V36_045_T00-46-10.jpg",
+      "videoTime": "00:46:10",
+      "action": "Mẫu 2 không miễn sinh hoạt",
+      "qaIds": [
+        "QA101",
+        "QA125"
+      ],
+      "reviewed": true,
+      "sanitized": true,
+      "format": "Flattened raster; no source file embedded",
+      "redOutline": "Position of control on source UI"
+    },
+    {
+      "src": "assets/img/v36-photo-049-cu-tru-luu-trang-thai.png",
+      "sourceFrame": "V36_049_T00-47-38.jpg",
+      "videoTime": "00:47:38",
+      "action": "Thông báo đã lưu, chờ chuyển cấp xác nhận",
+      "qaIds": [
+        "QA101",
+        "QA127"
+      ],
+      "reviewed": true,
+      "sanitized": true,
+      "format": "Flattened raster; no source file embedded",
+      "redOutline": "Position of control on source UI"
+    },
+    {
+      "src": "assets/img/v36-photo-051-cu-tru-xem-truoc-luu.png",
+      "sourceFrame": "V36_051_T00-48-18.jpg",
+      "videoTime": "00:48:18",
+      "action": "Xem trước và Lưu phiếu",
+      "qaIds": [
+        "QA101",
+        "QA127"
+      ],
+      "reviewed": true,
+      "sanitized": true,
+      "format": "Flattened raster; no source file embedded",
+      "redOutline": "Position of control on source UI"
+    },
+    {
+      "src": "assets/img/v36-photo-055-cu-tru-mau1.png",
+      "sourceFrame": "V36_055_T00-48-50.jpg",
+      "videoTime": "00:48:50",
+      "action": "Mẫu 1 được miễn sinh hoạt",
+      "qaIds": [
+        "QA125"
+      ],
+      "reviewed": true,
+      "sanitized": true,
+      "format": "Flattened raster; no source file embedded",
+      "redOutline": "Position of control on source UI"
+    },
+    {
+      "src": "assets/img/v36-photo-73-gioi-thieu-noi-cu-tru.jpg",
+      "sourceFrame": "V36_073_T00-55-30.jpg",
+      "videoTime": "00:55:30",
+      "action": "Giấy giới thiệu nhiệm vụ nơi cư trú",
+      "qaIds": [
+        "QA114"
+      ],
+      "reviewed": true,
+      "sanitized": true,
+      "format": "Flattened raster; no source file embedded",
+      "redOutline": "Position of control on source UI"
+    },
+    {
+      "src": "assets/img/v36-photo-077-cu-tru-ky-so.png",
+      "sourceFrame": "V36_077_T00-56-10.jpg",
+      "videoTime": "00:56:10",
+      "action": "Ký số phiếu nhận xét",
+      "qaIds": [
+        "QA127"
+      ],
+      "reviewed": true,
+      "sanitized": true,
+      "format": "Flattened raster; no source file embedded",
+      "redOutline": "Position of control on source UI"
+    },
+    {
+      "src": "assets/img/v36-photo-103-y-kien-lap.png",
+      "sourceFrame": "V36_103_T01-02-12.jpg",
+      "videoTime": "01:02:12",
+      "action": "Lập danh sách lấy ý kiến",
+      "qaIds": [
+        "QA114",
+        "QA126"
+      ],
+      "reviewed": true,
+      "sanitized": true,
+      "format": "Flattened raster; no source file embedded",
+      "redOutline": "Position of control on source UI"
+    },
+    {
+      "src": "assets/img/v36-photo-106-y-kien-chon.png",
+      "sourceFrame": "V36_106_T01-03-12.jpg",
+      "videoTime": "01:03:12",
+      "action": "Chọn đảng viên vào danh sách",
+      "qaIds": [
+        "QA126"
+      ],
+      "reviewed": true,
+      "sanitized": true,
+      "format": "Flattened raster; no source file embedded",
+      "redOutline": "Position of control on source UI"
+    },
+    {
+      "src": "assets/img/v36-photo-111-y-kien-phe-duyet.png",
+      "sourceFrame": "V36_111_T01-05-32.jpg",
+      "videoTime": "01:05:32",
+      "action": "Phê duyệt danh sách lấy ý kiến",
+      "qaIds": [
+        "QA126"
+      ],
+      "reviewed": true,
+      "sanitized": true,
+      "format": "Flattened raster; no source file embedded",
+      "redOutline": "Position of control on source UI"
+    },
+    {
+      "src": "assets/img/v36-photo-114-can-bo-menu-cho-xu-ly.jpg",
+      "sourceFrame": "V36_114_T01-06-52.jpg",
+      "videoTime": "01:06:52",
+      "action": "Menu Chờ xử lý",
+      "qaIds": [
+        "QA115"
+      ],
+      "reviewed": true,
+      "sanitized": true,
+      "format": "Flattened raster; no source file embedded",
+      "redOutline": "Position of control on source UI"
+    },
+    {
+      "src": "assets/img/v36-photo-114-can-bo-xu-ly-ho-so.jpg",
+      "sourceFrame": "V36_114_T01-06-52.jpg",
+      "videoTime": "01:06:52",
+      "action": "Nút Xử lý hồ sơ đúng dòng",
+      "qaIds": [
+        "QA115"
+      ],
+      "reviewed": true,
+      "sanitized": true,
+      "format": "Flattened raster; no source file embedded",
+      "redOutline": "Position of control on source UI"
+    },
+    {
+      "src": "assets/img/v36-photo-117-y-kien-thong-tin-tiep-nhan.jpg",
+      "sourceFrame": "V36_117_T01-08-32.jpg",
+      "videoTime": "01:08:32",
+      "action": "Thông tin cơ quan tiếp nhận",
+      "qaIds": [
+        "QA126"
+      ],
+      "reviewed": true,
+      "sanitized": true,
+      "format": "Flattened raster; no source file embedded",
+      "redOutline": "Position of control on source UI"
+    },
+    {
+      "src": "assets/img/v36-photo-127-chinh-thuc-chon-noi-den.jpg",
+      "sourceFrame": "V36_127_T01-13-52.jpg",
+      "videoTime": "01:13:52",
+      "action": "Chọn nơi đến và Tiếp theo",
+      "qaIds": [
+        "QA112"
+      ],
+      "reviewed": true,
+      "sanitized": true,
+      "format": "Flattened raster; no source file embedded",
+      "redOutline": "Position of control on source UI"
+    },
+    {
+      "src": "assets/img/v36-photo-134-chinh-thuc-mau-6-o.jpg",
+      "sourceFrame": "V36_134_T01-16-32.jpg",
+      "videoTime": "01:16:32",
+      "action": "Giấy giới thiệu chính thức 6 ô và hồ sơ kèm",
+      "qaIds": [
+        "QA112"
+      ],
+      "reviewed": true,
+      "sanitized": true,
+      "format": "Flattened raster; no source file embedded",
+      "redOutline": "Position of control on source UI"
+    },
+    {
+      "src": "assets/img/v36-photo-140-thu-nop-chon-nhanh.jpg",
+      "sourceFrame": "V36_140_T01-19-32.jpg",
+      "videoTime": "01:19:32",
+      "action": "Thu nộp cho bản thân hoặc nộp hộ",
+      "qaIds": [
+        "QA104",
+        "QA110",
+        "QA111"
+      ],
+      "reviewed": true,
+      "sanitized": true,
+      "format": "Flattened raster; no source file embedded",
+      "redOutline": "Position of control on source UI"
+    },
+    {
+      "src": "assets/img/v36-photo-143-dang-phi-nghia-vu.jpg",
+      "sourceFrame": "V36_143_T01-20-52.jpg",
+      "videoTime": "01:20:52",
+      "action": "Điều chỉnh hay Đóng đảng phí",
+      "qaIds": [
+        "QA104",
+        "QA110"
+      ],
+      "reviewed": true,
+      "sanitized": true,
+      "format": "Flattened raster; no source file embedded",
+      "redOutline": "Position of control on source UI"
+    }
+  ]
+}
