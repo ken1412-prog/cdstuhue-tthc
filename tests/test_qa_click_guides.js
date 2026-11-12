@@ -7,7 +7,8 @@ assert(app.includes("MutationObserver"),'Attach only after approved answer rende
 assert(app.includes("document.createElement"),'Build DOM without source HTML injection');
 assert(app.includes("body.querySelector('.qa-click-guide')"),'No duplicate guide');
 assert(app.includes('MINH HỌA'),'Do not leak real info into demo');
-assert(app.includes('không thay thế câu trả lời đã duyệt'),'Maintain QA approval distinction');
+assert(app.includes("body.querySelector('.answer')?.append(section)"),'Only append optional practical steps within the approved answer');
+assert(!app.includes("sources.append(make('b','','Tài liệu đối chiếu:'))"),'Do not re-add source blocks');
 assert(app.includes('qa-dang-phi-5-buoc-v35.svg'));
 const orig=JSON.parse(fs.readFileSync('site/data/approved.json','utf8'));
 assert.ok(orig.items.length>=245, 'Approved QA count must not unexpectedly shrink');
