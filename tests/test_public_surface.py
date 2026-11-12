@@ -66,7 +66,7 @@ class PublicSurfaceTests(unittest.TestCase):
         self.assertIn("loadData();}",app)
         for page in ("index.html","hoi-dap.html"):
             html=(SITE/page).read_text(encoding="utf-8")
-            self.assertIn("assets/app.js?v=20261110-qt123-roles-v3",html)
+            self.assertIn("assets/app.js?v=20261112-qa-inline-v4",html)
 
 
     def test_cyan_photos_are_true_recolored_files_not_blue_overlays(self):
@@ -294,7 +294,7 @@ class PublicSurfaceTests(unittest.TestCase):
             self.assertIn('id="lastApprovedDateMobile" aria-live="polite">—</span>',html)
             self.assertIn('id="lastApprovedDate" aria-live="polite">—</span>',html)
             self.assertNotIn('id="lastApprovedDate" aria-live="polite">24/10/2026</span>',html)
-            self.assertIn("assets/app.js?v=20261110-qt123-roles-v3",html)
+            self.assertIn("assets/app.js?v=20261112-qa-inline-v4",html)
             self.assertIn("assets/styles.css?v=20261102-brighter-real-roof-lamps-v34",html)
         self.assertIn("const approvedDate=state.stats?.period===currentReportMonth()?state.stats.approvedDate:null;",js)
         self.assertIn("if(fullDate)fullDate.textContent=approvedFull;",js)
@@ -324,7 +324,7 @@ class PublicSurfaceTests(unittest.TestCase):
             html=(SITE / page).read_text(encoding="utf-8")
             self.assertIn('>Thống kê đảng phí <span>↗</span>',html)
             self.assertNotIn("Khám phá thống kê",html)
-            self.assertIn("assets/app.js?v=20261110-qt123-roles-v3",html)
+            self.assertIn("assets/app.js?v=20261112-qa-inline-v4",html)
         # The repeated three KPI cards in the detail view are removed.
         self.assertNotIn("const viewCards=",js)
         self.assertNotIn("'+viewCards+'",js)
@@ -582,7 +582,7 @@ class PublicSurfaceTests(unittest.TestCase):
             self.assertIn('<span>Đang online:</span>', html)
             self.assertNotIn('title="Chưa kết nối được bộ đếm trực tuyến"', html)
             self.assertNotIn('Hoạt động 15 phút (ước tính):', html)
-            self.assertIn("assets/app.js?v=20261110-qt123-roles-v3", html)
+            self.assertIn("assets/app.js?v=20261112-qa-inline-v4", html)
         self.assertIn(".footer-online{", css)
         self.assertIn('position:fixed!important', css)
         self.assertIn('id="sidebarVisitCount"', (SITE / 'index.html').read_text(encoding='utf-8'))
@@ -636,7 +636,7 @@ class PublicSurfaceTests(unittest.TestCase):
         for page in ("index.html", "hoi-dap.html"):
             html = (SITE / page).read_text(encoding="utf-8")
             self.assertIn("assets/styles.css?v=20261102-brighter-real-roof-lamps-v34", html)
-            self.assertIn("assets/app.js?v=20261110-qt123-roles-v3", html)
+            self.assertIn("assets/app.js?v=20261112-qa-inline-v4", html)
 
     def test_v13_gloss_trails_follow_existing_paths_without_touching_sources(self):
         import xml.etree.ElementTree as ET
@@ -680,7 +680,7 @@ class PublicSurfaceTests(unittest.TestCase):
         for page in ("index.html", "hoi-dap.html"):
             html = (SITE / page).read_text(encoding="utf-8")
             self.assertIn("assets/styles.css?v=20261102-brighter-real-roof-lamps-v34", html)
-            self.assertIn("assets/app.js?v=20261110-qt123-roles-v3", html)
+            self.assertIn("assets/app.js?v=20261112-qa-inline-v4", html)
 
     def test_v14_silk_waves_keep_real_photos_and_are_accessible(self):
         import xml.etree.ElementTree as ET
@@ -715,7 +715,7 @@ class PublicSurfaceTests(unittest.TestCase):
         for page in ("index.html","hoi-dap.html"):
             html=(SITE/page).read_text(encoding="utf-8")
             self.assertIn("assets/styles.css?v=20261102-brighter-real-roof-lamps-v34",html)
-            self.assertIn("assets/app.js?v=20261110-qt123-roles-v3",html)
+            self.assertIn("assets/app.js?v=20261112-qa-inline-v4",html)
 
     def test_v15_panorama_light_is_stronger_and_clipped_to_curves(self):
         import xml.etree.ElementTree as ET
@@ -749,7 +749,7 @@ class PublicSurfaceTests(unittest.TestCase):
             html=(SITE/page).read_text(encoding="utf-8")
             self.assertEqual(html.count('class="hero-silk-runner" aria-hidden="true"'),1)
             self.assertIn("assets/styles.css?v=20261102-brighter-real-roof-lamps-v34",html)
-            self.assertIn("assets/app.js?v=20261110-qt123-roles-v3",html)
+            self.assertIn("assets/app.js?v=20261112-qa-inline-v4",html)
 
     def test_v16_sidebar_and_stats_strong_silk_light_travel(self):
         import xml.etree.ElementTree as ET
@@ -811,7 +811,7 @@ class PublicSurfaceTests(unittest.TestCase):
         for page in ("index.html","hoi-dap.html"):
             html=(SITE/page).read_text(encoding="utf-8")
             self.assertIn("assets/styles.css?v=20261102-brighter-real-roof-lamps-v34",html)
-            self.assertIn("assets/app.js?v=20261110-qt123-roles-v3",html)
+            self.assertIn("assets/app.js?v=20261112-qa-inline-v4",html)
             self.assertEqual(html.count('class="hero-silk-runner" aria-hidden="true"'),1)
 
     def test_v18_light_is_under_menu_labels_with_natural_silk_wave(self):
@@ -838,7 +838,7 @@ class PublicSurfaceTests(unittest.TestCase):
         for p in ("index.html","hoi-dap.html"):
             html=(SITE/p).read_text(encoding="utf-8")
             self.assertIn("assets/styles.css?v=20261102-brighter-real-roof-lamps-v34",html)
-            self.assertIn("assets/app.js?v=20261110-qt123-roles-v3",html)
+            self.assertIn("assets/app.js?v=20261112-qa-inline-v4",html)
             self.assertIn('class="sidebar-bridge-gleam" aria-hidden="true"',html)
 
     def test_v19_two_bridge_spotlights_stay_below_navigation(self):
@@ -873,7 +873,7 @@ class PublicSurfaceTests(unittest.TestCase):
             html=(SITE/page).read_text(encoding="utf-8")
             self.assertEqual(html.count('class="sidebar-twin-spotlights" aria-hidden="true"'),1)
             self.assertIn("assets/styles.css?v=20261102-brighter-real-roof-lamps-v34",html)
-            self.assertIn("assets/app.js?v=20261110-qt123-roles-v3",html)
+            self.assertIn("assets/app.js?v=20261112-qa-inline-v4",html)
             self.assertEqual(html.count('class="sidebar-bridge-gleam" aria-hidden="true"'),1)
 
     def test_v20_independent_bridge_searchlights_really_sweep_from_fixed_lamps(self):
@@ -919,7 +919,7 @@ class PublicSurfaceTests(unittest.TestCase):
             html=(SITE/name).read_text(encoding="utf-8")
             self.assertIn("assets/styles.css?v=20261102-brighter-real-roof-lamps-v34",html)
             self.assertEqual(html.count('class="sidebar-twin-spotlights" aria-hidden="true"'),1)
-            self.assertIn("assets/app.js?v=20261110-qt123-roles-v3",html)
+            self.assertIn("assets/app.js?v=20261112-qa-inline-v4",html)
 
     def test_v21_content_is_not_blinking_or_repainting_without_request(self):
         css=(SITE/"assets/styles.css").read_text(encoding="utf-8")
@@ -955,7 +955,7 @@ class PublicSurfaceTests(unittest.TestCase):
         for page in ("index.html","hoi-dap.html"):
             html=(SITE/page).read_text(encoding="utf-8")
             self.assertIn("assets/styles.css?v=20261102-brighter-real-roof-lamps-v34",html)
-            self.assertIn("assets/app.js?v=20261110-qt123-roles-v3",html)
+            self.assertIn("assets/app.js?v=20261112-qa-inline-v4",html)
             self.assertEqual(html.count('class="sidebar-twin-spotlights" aria-hidden="true"'),1)
             self.assertEqual(html.count('class="hero-silk-runner" aria-hidden="true"'),1)
 
@@ -994,7 +994,7 @@ class PublicSurfaceTests(unittest.TestCase):
         for page in ("index.html","hoi-dap.html"):
             html=(SITE/page).read_text(encoding="utf-8")
             self.assertIn("assets/styles.css?v=20261102-brighter-real-roof-lamps-v34",html)
-            self.assertIn("assets/app.js?v=20261110-qt123-roles-v3",html)
+            self.assertIn("assets/app.js?v=20261112-qa-inline-v4",html)
             self.assertEqual(html.count('class="side-assist"'),1)
             self.assertEqual(html.count('class="assistant-mobile-fab"'),1)
             self.assertEqual(html.count('class="hero-silk-runner" aria-hidden="true"'),1)
@@ -1034,7 +1034,7 @@ class PublicSurfaceTests(unittest.TestCase):
         for page in ("index.html","hoi-dap.html"):
             html=(SITE/page).read_text(encoding="utf-8")
             self.assertIn("assets/styles.css?v=20261102-brighter-real-roof-lamps-v34",html)
-            self.assertIn("assets/app.js?v=20261110-qt123-roles-v3",html)
+            self.assertIn("assets/app.js?v=20261112-qa-inline-v4",html)
             self.assertEqual(html.count('class="hero-silk-runner" aria-hidden="true"'),1)
 
     def test_v25_quick_qa_buttons_gently_twinkle_without_layout_shift(self):
@@ -1067,7 +1067,7 @@ class PublicSurfaceTests(unittest.TestCase):
             self.assertIn("assets/styles.css?v=20261102-brighter-real-roof-lamps-v34",html)
             self.assertEqual(html.count('class="side-assist"'),1)
             self.assertEqual(html.count('class="assistant-mobile-fab"'),1)
-            self.assertIn("assets/app.js?v=20261110-qt123-roles-v3",html)
+            self.assertIn("assets/app.js?v=20261112-qa-inline-v4",html)
 
     def test_v26_ngo_mon_night_hero_preserves_sidebar_and_source(self):
         css=(SITE/"assets/styles.css").read_text(encoding="utf-8")
@@ -1095,7 +1095,7 @@ class PublicSurfaceTests(unittest.TestCase):
         for page in ("index.html","hoi-dap.html"):
             html=(SITE/page).read_text(encoding="utf-8")
             self.assertIn("assets/styles.css?v=20261102-brighter-real-roof-lamps-v34",html)
-            self.assertIn("assets/app.js?v=20261110-qt123-roles-v3",html)
+            self.assertIn("assets/app.js?v=20261112-qa-inline-v4",html)
             self.assertEqual(html.count('class="hero-silk-runner" aria-hidden="true"'),1)
 
     def test_v27_ngo_mon_is_brighter_without_affecting_stats_or_ui(self):
@@ -1128,7 +1128,7 @@ class PublicSurfaceTests(unittest.TestCase):
         for page in ("index.html","hoi-dap.html"):
             html=(SITE/page).read_text(encoding="utf-8")
             self.assertIn("assets/styles.css?v=20261102-brighter-real-roof-lamps-v34",html)
-            self.assertIn("assets/app.js?v=20261110-qt123-roles-v3",html)
+            self.assertIn("assets/app.js?v=20261112-qa-inline-v4",html)
             self.assertEqual(html.count('class="hero-silk-runner" aria-hidden="true"'),1)
 
 
@@ -1146,7 +1146,7 @@ class PublicSurfaceTests(unittest.TestCase):
         self.assertNotIn(r'/^20\\d{2}-(0[1-9]|1[0-2])$/.test(x.period)',app)
         for page in ("index.html","hoi-dap.html"):
             html=(SITE/page).read_text(encoding="utf-8")
-            self.assertIn("assets/app.js?v=20261110-qt123-roles-v3",html)
+            self.assertIn("assets/app.js?v=20261112-qa-inline-v4",html)
 
     def test_v29_ngo_mon_gold_lights_move_on_both_media_sizes(self):
         css=(SITE/"assets/styles.css").read_text(encoding="utf-8")
@@ -1185,7 +1185,7 @@ class PublicSurfaceTests(unittest.TestCase):
         for page in ("index.html","hoi-dap.html"):
             html=(SITE/page).read_text(encoding="utf-8")
             self.assertIn("assets/styles.css?v=20261102-brighter-real-roof-lamps-v34",html)
-            self.assertIn("assets/app.js?v=20261110-qt123-roles-v3",html)
+            self.assertIn("assets/app.js?v=20261112-qa-inline-v4",html)
             self.assertEqual(html.count('class="hero-silk-runner" aria-hidden="true"'),1)
 
     def test_v30_two_reference_shaped_gold_ribbons_run_opposite_and_seamlessly(self):
@@ -1237,7 +1237,7 @@ class PublicSurfaceTests(unittest.TestCase):
         for page in ("index.html","hoi-dap.html"):
             html=(SITE/page).read_text(encoding="utf-8")
             self.assertIn("assets/styles.css?v=20261102-brighter-real-roof-lamps-v34",html)
-            self.assertIn("assets/app.js?v=20261110-qt123-roles-v3",html)
+            self.assertIn("assets/app.js?v=20261112-qa-inline-v4",html)
             self.assertEqual(html.count('class="hero-silk-runner" aria-hidden="true"'),1)
 
 
@@ -1263,7 +1263,7 @@ class PublicSurfaceTests(unittest.TestCase):
         self.assertIn("preserve_if_unchanged",script)
         for page in ("index.html","hoi-dap.html"):
             html=(SITE/page).read_text(encoding="utf-8")
-            self.assertIn("assets/app.js?v=20261110-qt123-roles-v3",html)
+            self.assertIn("assets/app.js?v=20261112-qa-inline-v4",html)
             self.assertIn("assets/styles.css?v=20261102-brighter-real-roof-lamps-v34",html)
 
     def test_v34_original_ngo_mon_roof_lamps_bright_with_visible_smooth_flicker(self):
@@ -1319,7 +1319,7 @@ class PublicSurfaceTests(unittest.TestCase):
         for page in ("index.html","hoi-dap.html"):
             html=(SITE/page).read_text(encoding="utf-8")
             self.assertIn("assets/styles.css?v=20261102-brighter-real-roof-lamps-v34",html)
-            self.assertIn("assets/app.js?v=20261110-qt123-roles-v3",html)
+            self.assertIn("assets/app.js?v=20261112-qa-inline-v4",html)
             self.assertEqual(html.count('class="hero-roof-glow" aria-hidden="true"'),1)
             self.assertEqual(html.count('class="hero-silk-runner" aria-hidden="true"'),1)
 
