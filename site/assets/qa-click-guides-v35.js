@@ -12,14 +12,13 @@ function supplement(){
  const guide=GUIDES[id];if(!guide||window.CDSTUHUE_V36_QA?.revisions?.[id])return;
  const section=make('section','qa-click-guide');
  section.setAttribute('aria-label','Hướng dẫn bấm nút tham khảo');
- section.append(make('h3','qa-click-heading','Hướng dẫn bấm nút · '+guide.title),
-   make('p','qa-click-explain','Bổ sung tham khảo từ nguồn công khai, đối chiếu 02/11/2026; không thay thế câu trả lời đã duyệt.'));
+ section.append(make('h3','qa-click-heading','Các bước thực hiện'));
  if(guide.diagram){
   const fig=make('figure','qa-click-flow');
   const img=make('img');img.src='assets/img/qa-dang-phi-5-buoc-v35.svg';
   img.alt='Sơ đồ minh họa 5 bước: đăng nhập, kê khai, chờ phê duyệt, thanh toán và biên lai';
   img.loading='lazy';
-  fig.append(img,make('figcaption','', 'Sơ đồ minh họa quy trình, không phải ảnh chụp giao diện thực tế.'));
+  fig.append(img);
   section.append(fig);
  }
  const list=make('ol','qa-click-list');
@@ -29,14 +28,7 @@ function supplement(){
   list.append(li);
  }
  section.append(list,make('p','qa-click-note','Lưu ý: '+guide.notes));
- const sources=make('div','qa-click-sources');
- sources.append(make('b','','Tài liệu đối chiếu:'));
- for(const [name,url,date] of guide.sources){
-  const a=make('a','',name+' · '+date+' ↗');
-  a.href=url;a.target='_blank';a.rel='noopener noreferrer';
-  sources.append(a);
- }
- section.append(sources);body.append(section);
+ body.querySelector('.answer')?.append(section);
 }
 function install(){
  const body=document.getElementById('modalBody');
