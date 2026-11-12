@@ -8,8 +8,8 @@ const raw=fs.readFileSync(path.join(base,'site/assets/qa-v36-20261110.js'),'utf8
 const env={window:{}};
 vm.runInNewContext(raw,env);
 const data=env.window.CDSTUHUE_V36_QA;
-assert(data&&data.date==='2026-11-10');
-const revised=['QA101','QA104','QA110','QA111','QA112','QA114','QA115','QA116'];
+assert(data&&data.date==='2026-11-12');
+const revised=['QA101','QA104','QA110','QA111','QA112','QA114','QA115','QA116','QA124'];
 const added=['QA125','QA126','QA127','QA128','QA129'];
 assert.deepEqual(Object.keys(data.revisions).sort(),revised.sort());
 assert.deepEqual(Array.from(data.newItems,x=>x.id).sort(),added.sort());
@@ -62,4 +62,4 @@ for(const q of [...Object.values(data.revisions),...data.newItems]){
 for(const pics of Object.values(data.media))for(const p of pics)assert(!/video|\d{2}:\d{2}:\d{2}|V36_\d{3}/i.test(p.caption+' '+p.alt),'No source annotations in public image captions');
 const old=fs.readFileSync(path.join(base,'site/assets/qa-click-guides-v35.js'),'utf8');
 assert(old.includes('window.CDSTUHUE_V36_QA?.revisions?.[id]'),'Old contradictory guide must be disabled');
-console.log('V36 verified: 8 revised + 5 new QA, residence procedures 1/2/3 separated, exact authorities and clean photo captions PASS');
+console.log('V36 verified: 9 revised + 5 new QA, residence procedures 1/2/3 separated, exact authorities and clean photo captions PASS');
