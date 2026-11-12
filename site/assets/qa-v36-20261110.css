@@ -21,3 +21,12 @@
 .qa-inline-answer .qa-inline-photo img{display:block;max-width:100%;width:100%;height:auto;object-fit:contain}
 .qa-inline-answer .qa-inline-photo figcaption{padding:9px 12px;font-size:13px;font-weight:700;line-height:1.55;color:#2d506d;background:#f5f9fc}
 @media(max-width:600px){.qa-inline-answer .qa-step-photos{margin-bottom:16px}.qa-inline-answer .qa-inline-photo figcaption{font-size:12px}}
+
+.qa-alloc-inline{margin:18px 0 24px;padding:13px;background:#f7fafc;border:1px solid #dce6ef;border-radius:10px;white-space:normal}
+.qa-alloc-inline h4{font-size:16px;color:#274b6c;margin:0 0 10px}
+.qa-alloc-scroll{width:100%;overflow-x:auto}
+.qa-alloc-inline table{width:100%;border-collapse:collapse;font-size:13px;min-width:530px}
+.qa-alloc-inline th,.qa-alloc-inline td{padding:8px 10px;border:1px solid #d3e0ea;text-align:left;vertical-align:top;line-height:1.55}
+.qa-alloc-inline th{background:#e5f0f8;color:#234768}
+.qa-alloc-inline td:first-child{font-variant-numeric:tabular-nums;color:#955018;white-space:nowrap}
+.qa-alloc-inline p{margin:11px 0 0;font-size:13px;line-height:1.65}
