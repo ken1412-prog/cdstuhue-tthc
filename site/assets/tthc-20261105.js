@@ -9,24 +9,21 @@ function applyModal(){
  const id=String(idNode.textContent||'').trim().split(/\s+/)[0],patch=corrections[id],answer=body.querySelector('.answer');
  if(window.CDSTUHUE_V36_QA?.revisions?.[id])return;
  if(!patch||!answer)return;
- const current=String(patch.answer).trim();
+ const current=window.CDSTUHUE_CLEAN_QA?window.CDSTUHUE_CLEAN_QA(patch.answer):String(patch.answer).trim();
  if(answer.textContent.trim()!==current)answer.textContent=current;
  answer.classList.add('tthc-current-answer');
  const heading=answer.previousElementSibling;
- if(heading?.tagName==='H3'&&heading.textContent!=='Trả lời cập nhật 05/11/2026')heading.textContent='Trả lời cập nhật 05/11/2026';
+ if(heading?.tagName==='H3'&&heading.textContent!=='Trả lời')heading.textContent='Trả lời';
  const title=document.getElementById('modalTitle');if(title&&patch.question&&title.textContent!==patch.question)title.textContent=patch.question;
- for(const old of body.querySelectorAll('.tthc-20261105-alert,.tthc-archive-answer,.qa-click-guide'))old.remove();
- if(!body.querySelector('.tthc-source-current')){
-  const source=document.createElement('div');source.className='tthc-source-current';
-  const link=document.createElement('a');link.textContent='Xem hướng dẫn thao tác 04 TTHC';const sectionByQA={QA007:'dang-phi',QA026:'dang-phi',QA052:'dang-phi',QA110:'dang-phi',QA101:'cuoi-nam',QA103:'noi-cu-tru',QA114:'noi-cu-tru',QA004:'phan-bo-dang-phi',QA031:'phan-bo-dang-phi',QA089:'phan-bo-dang-phi',QA090:'phan-bo-dang-phi',QA106:'phan-bo-dang-phi',QA121:'phan-bo-dang-phi',QA124:'phan-bo-dang-phi',QA112:'chinh-thuc',QA113:'tam-thoi'};link.href='cap-nhat-tthc-2026-11.html'+(sectionByQA[id]?'#'+sectionByQA[id]:'');link.rel='noopener noreferrer';link.target='_blank';source.append(link);answer.after(source);
- }
+ for(const old of body.querySelectorAll('.tthc-20261105-alert,.tthc-archive-answer,.qa-click-guide,.tthc-source-current'))old.remove();
+
 }
 function applyCards(){
  const page=document.getElementById('page');if(!page)return;
  for(const card of page.querySelectorAll('.qa-item[data-qa]')){
   const patch=corrections[card.dataset.qa];if(!patch||window.CDSTUHUE_V36_QA?.revisions?.[card.dataset.qa])continue;
   const h=card.querySelector('h3');if(h&&patch.question&&h.textContent!==patch.question)h.textContent=patch.question;
-  const p=card.querySelector('p');const raw=String(patch.answer).replace(/\s+/g,' ').trim();const brief=raw.length>210?raw.slice(0,207).trimEnd()+'…':raw;
+  const p=card.querySelector('p');const raw=String(window.CDSTUHUE_CLEAN_QA?window.CDSTUHUE_CLEAN_QA(patch.answer):patch.answer).replace(/\s+/g,' ').trim();const brief=raw.length>210?raw.slice(0,207).trimEnd()+'…':raw;
   if(p&&p.textContent!==brief)p.textContent=brief;
  }
 }

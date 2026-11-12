@@ -58,10 +58,10 @@ class QAImageManifestTest(unittest.TestCase):
         self.assertIn(".qa-media-grid{",css)
         for page in ("index.html","hoi-dap.html"):
             html=(SITE/page).read_text(encoding="utf-8")
-            self.assertIn("assets/qa-image-gallery-v36.js?v=20261102-v36",html)
+            self.assertIn("assets/qa-image-gallery-v36.js?v=20261112-qa-inline-v4",html)
             self.assertIn("assets/qa-image-gallery-v36.css?v=20261102-v36",html)
-            self.assertIn("assets/app.js?v=20261110-qt123-roles-v3",html)
-            self.assertIn("assets/qa-click-guides-v35.js?v=20261110-v36",html)
+            self.assertIn("assets/app.js?v=20261112-qa-inline-v4",html)
+            self.assertIn("assets/qa-click-guides-v35.js?v=20261112-qa-inline-v4",html)
 
 if __name__=="__main__":
     unittest.main()

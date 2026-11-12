@@ -169,6 +169,7 @@ jobs:
           node --check site/assets/tthc-20261105.js
           node --check site/assets/qa-v36-20261110.js
           node tests/test_v36_qa_addendum.js
+          node tests/test_qa_inline_public.js
           node --check < apps-script/ExcelIntake.gs
           node --check < apps-script/Code.gs
           node --check < apps-script/CDSTUHUE_DEPLOY_SINGLE.gs

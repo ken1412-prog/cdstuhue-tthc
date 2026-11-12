@@ -8,8 +8,8 @@ const raw=fs.readFileSync(path.join(base,'site/assets/qa-v36-20261110.js'),'utf8
 const env={window:{}};
 vm.runInNewContext(raw,env);
 const data=env.window.CDSTUHUE_V36_QA;
-assert(data&&data.date==='2026-11-10');
-const revised=['QA101','QA104','QA110','QA111','QA112','QA114','QA115','QA116'];
+assert(data&&data.date==='2026-11-12');
+const revised=['QA101','QA104','QA110','QA111','QA112','QA114','QA115','QA116','QA124'];
 const added=['QA125','QA126','QA127','QA128','QA129'];
 assert.deepEqual(Object.keys(data.revisions).sort(),revised.sort());
 assert.deepEqual(Array.from(data.newItems,x=>x.id).sort(),added.sort());
@@ -23,7 +23,8 @@ const app=fs.readFileSync(path.join(base,'site/assets/app.js'),'utf8');
 assert(app.includes('state.qa=withV36QA(filtered)'));
 assert(app.includes('const next=withV36QA(parsed)'));
 assert(app.includes('V36_NEW.has(x.id)?5:V36_EDITED.has(x.id)?4'));
-assert(app.includes('v36Gallery(x)'));
+assert(app.includes('qaAnswerContent(x)'),'Answer must include images inline after relevant step');
+assert(!app.includes('v36Gallery(x)'),'Do not prepend an unrelated image gallery');
 for(const [id,images] of Object.entries(data.media)){
  assert(revised.includes(id)||added.includes(id),'Only V36 QA can receive a graphic');
  for(const item of images){
@@ -33,6 +34,10 @@ for(const [id,images] of Object.entries(data.media)){
   const bytes=fs.readFileSync(imagePath);
   assert(bytes.length>=12000 && bytes.length<1000000,'Real sanitized crop must have plausible size');
   assert(item.reviewed===true,'Every photo must be individually approved for this QA');
+  assert(typeof item.after==='string'&&item.after.length>5,'Photo must be anchored to an exact QA step');
+  const qa=data.revisions[id]||data.newItems.find(x=>x.id===id);
+  const hit=qa.answer.split(/\n+/).map(line=>line.trim()).filter(line=>line.startsWith(item.after));
+  assert(hit.length===1,'Photo must resolve to exactly one answer step in '+id+': '+item.after);
   const isJpeg=bytes[0]===0xff&&bytes[1]===0xd8;
   const isPng=bytes[0]===137&&bytes[1]===80&&bytes[2]===78&&bytes[3]===71;
   assert(isJpeg||isPng,'Invalid sanitized raster');
@@ -57,4 +62,4 @@ for(const q of [...Object.values(data.revisions),...data.newItems]){
 for(const pics of Object.values(data.media))for(const p of pics)assert(!/video|\d{2}:\d{2}:\d{2}|V36_\d{3}/i.test(p.caption+' '+p.alt),'No source annotations in public image captions');
 const old=fs.readFileSync(path.join(base,'site/assets/qa-click-guides-v35.js'),'utf8');
 assert(old.includes('window.CDSTUHUE_V36_QA?.revisions?.[id]'),'Old contradictory guide must be disabled');
-console.log('V36 verified: 8 revised + 5 new QA, residence procedures 1/2/3 separated, exact authorities and clean photo captions PASS');
+console.log('V36 verified: 9 revised + 5 new QA, residence procedures 1/2/3 separated, exact authorities and clean photo captions PASS');
