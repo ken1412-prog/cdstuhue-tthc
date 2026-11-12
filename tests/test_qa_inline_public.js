@@ -50,7 +50,7 @@ const render=new Function('state','window','E',app.slice(from,to)+'return qaAnsw
  {demo:false},{CDSTUHUE_V36_QA:qa},
  x=>String(x).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')
 );
-const example=qa.revisions.QA101;
+const example={id:'QA101',...qa.revisions.QA101};
 const page=render(example);
 assert(page.includes('qa-inline-photo'),'Images are embedded inside answer');
 assert(page.indexOf('1. ĐẢNG VIÊN')<page.indexOf('v36-photo-035')&&page.indexOf('v36-photo-035')<page.indexOf('2. BÍ THƯ'),'First photograph appears after the correct step');
