@@ -87,7 +87,16 @@ const progress = ()=>(state.demo?demoProgress:state.progress).filter(x=>state.me
 const finance = ()=>state.demo?demoFinance:state.finance;
 const qgroup = item => ({'QA TTHC':'tthc','QA STDV':'stdv','QA CSDL 4.0':'csdl'}[item?.group]||item?.group||'');
 const safeUrl = url => {try{const u=new URL(String(url||''));return ['https:','http:'].includes(u.protocol)?u.href:''}catch{return''}};
-const normQA = item=>{const id=String(item.id||'').trim(),base={id,group:qgroup(item),topic:String(item.topic||'').trim(),question:String(item.question||'').trim(),answer:String(item.answer||'').trim(),keywords:String(item.keywords||''),alternatives:String(item.alternatives||''),updated:String(item.updated||''),sourceUrl:safeUrl(item.sourceUrl),publicNote:String(item.publicNote||'')};const current=!window.location.search.includes('demo=1')&&base.group==='tthc'?window.CDSTUHUE_TTHC_CORRECTIONS?.[id]:null;const prev=current?{...base,question:String(current.question||base.question),answer:String(current.answer||base.answer),updated:String(current.updated||'2026-11-05')}:base;const v36=window.CDSTUHUE_V36_QA?.revisions?.[id];return !state.demo&&v36?{...prev,...v36,publicNote:'Hiệu đính V36 • 10/11/2026'}:prev;};
+/* Keep approved source data unchanged; hide only our own publishing links from public QA. */
+function cleanPublishedQA(value){
+ let out=String(value||'');
+ const prelude=/(?:Xem toàn bộ các bước theo vai trò, nút thao tác và hai quy trình còn lại tại:|Hướng dẫn đầy đủ từng vai trò và nút bấm:|Hướng dẫn đầy đủ:|Xem hướng dẫn và trường hợp Bộ Ngoại giao tại|Xem bảng minh họa gọn:)\s*(?=https?:\/\/(?:ken1412-prog\.github\.io|github\.com))/gi;
+ out=out.replace(prelude,'');
+ out=out.replace(/https?:\/\/(?:ken1412-prog\.github\.io\/cdstuhue-tthc|github\.com\/ken1412-prog\/cdstuhue-tthc)\/[^\s]*/gi,'');
+ return out.split('\n').map(line=>line.trim()).join('\n').replace(/\n{3,}/g,'\n\n').trim();
+}
+window.CDSTUHUE_CLEAN_QA=cleanPublishedQA;
+const normQA = item=>{const id=String(item.id||'').trim(),base={id,group:qgroup(item),topic:String(item.topic||'').trim(),question:String(item.question||'').trim(),answer:String(item.answer||'').trim(),keywords:String(item.keywords||''),alternatives:String(item.alternatives||''),updated:String(item.updated||''),sourceUrl:safeUrl(item.sourceUrl),publicNote:String(item.publicNote||'')};const current=!window.location.search.includes('demo=1')&&base.group==='tthc'?window.CDSTUHUE_TTHC_CORRECTIONS?.[id]:null;const prev=current?{...base,question:String(current.question||base.question),answer:String(current.answer||base.answer),updated:String(current.updated||'2026-11-05')}:base;const v36=window.CDSTUHUE_V36_QA?.revisions?.[id];const merged=!state.demo&&v36?{...prev,...v36}:prev;return {...merged,answer:cleanPublishedQA(merged.answer)};};
 function withV36QA(items){if(state.demo)return items;const add=window.CDSTUHUE_V36_QA?.newItems||[];const known=new Set(items.map(x=>x.id));for(const q of add){if(q.public===true&&q.group==='tthc'&&!known.has(q.id)){items.push(normQA(q));known.add(q.id)}}return items;}
 const validProgress = item=>Boolean(item&&item.public===true&&String(item.unit||'').trim()&&PROCEDURES[item.procedure]&&Number.isFinite(Number(item.progress))&&Number(item.progress)>=0&&Number(item.progress)<=100);
 // One startup/retry fetch at a time; mobile reconnects should recover without tapping ↻.
@@ -906,8 +915,22 @@ function syncFromUrl(){
  const id=url.searchParams.get('id');
  if(id&&state.menuReady&&state.view.startsWith('qa-')){if(state.qaLoading)pendingQuestionId=id;else setTimeout(()=>openQA(id),0)};
 }
-function v36Gallery(x){if(state.demo)return '';const pics=window.CDSTUHUE_V36_QA?.media?.[x.id];if(!Array.isArray(pics)||!pics.length)return '';const safe=pics.filter(p=>/^assets\/img\/v36-photo-\d{2,3}-[a-z0-9-]+\.(?:png|jpe?g)$/.test(p.src)&&p.reviewed===true);if(!safe.length)return '';return '<section class="qa-v36-visuals"><h3>Hình ảnh hướng dẫn thao tác</h3>'+safe.map(p=>'<figure><a href="'+E(p.src)+'" target="_blank" rel="noopener noreferrer" aria-label="Mở hình thao tác kích thước đầy đủ"><img src="'+E(p.src)+'" alt="'+E(p.alt)+'" loading="lazy"></a><figcaption>'+E(p.caption)+'</figcaption></figure>').join('')+'</section>';}
-function openQA(id){const x=published().find(x=>x.id===id);if(!x){toast('Không tìm thấy mã QA này trong bản công khai');return}$('#modalTitle').textContent=x.question;$('#modalGroup').textContent=GROUPS[x.group]?.full||x.group;$('#modalId').textContent=x.id+(state.demo?' · MINH HỌA':'');$('#modalBody').innerHTML=`<h3>Trả lời</h3>${v36Gallery(x)}<div class="answer">${E(x.answer)}</div>${x.publicNote?`<div class="small-note">${E(x.publicNote)}</div>`:''}${x.sourceUrl?`<div class="source-label"><b>Nguồn công khai:</b> <a href="${E(x.sourceUrl)}" target="_blank" rel="noopener noreferrer">${E(x.sourceUrl)}</a></div>`:''}`;$('#qaModal').classList.remove('hidden');document.body.style.overflow='hidden';}
+function qaAnswerContent(x){
+ const photoSet=state.demo?[]:(window.CDSTUHUE_V36_QA?.media?.[x.id]||[]);
+ const pics=photoSet.filter(p=>p.reviewed===true&&/^assets\/img\/v36-photo-\d{2,3}-[a-z0-9-]+\.(?:png|jpe?g)$/.test(p.src)&&typeof p.after==='string');
+ if(!pics.length)return '<div class="answer">'+E(x.answer)+'</div>';
+ const lines=String(x.answer||'').split(/\n+/).map(line=>line.trim()).filter(Boolean);
+ const grouped=new Map();
+ for(const pic of pics){
+  const ix=lines.findIndex(line=>line.startsWith(pic.after));
+  if(ix<0)continue;
+  if(!grouped.has(ix))grouped.set(ix,[]);
+  grouped.get(ix).push(pic);
+ }
+ const photograph=(pic)=>'<figure class="qa-inline-photo"><a href="'+E(pic.src)+'" target="_blank" rel="noopener noreferrer" aria-label="Xem ảnh thao tác kích thước lớn"><img loading="lazy" decoding="async" src="'+E(pic.src)+'" alt="'+E(pic.alt)+'"></a><figcaption>'+E(pic.caption)+'</figcaption></figure>';
+ return '<div class="answer qa-inline-answer">'+lines.map((line,i)=>'<p class="qa-answer-step">'+E(line)+'</p>'+(grouped.has(i)?'<div class="qa-step-photos">'+grouped.get(i).map(photograph).join('')+'</div>':'')).join('')+'</div>';
+}
+function openQA(id){const x=published().find(x=>x.id===id);if(!x){toast('Không tìm thấy mã QA này trong bản công khai');return}$('#modalTitle').textContent=x.question;$('#modalGroup').textContent=GROUPS[x.group]?.full||x.group;$('#modalId').textContent=x.id+(state.demo?' · MINH HỌA':'');$('#modalBody').innerHTML=`<h3>Trả lời</h3>${qaAnswerContent(x)}`;$('#qaModal').classList.remove('hidden');document.body.style.overflow='hidden';}
 function closeQA(){if($('#qaModal').classList.contains('hidden'))return;$('#qaModal').classList.add('hidden');document.body.style.overflow='';}
 function closeMobile(){$('#sidebar').classList.remove('mobile-open');$('#shade').classList.remove('mobile-open')}
 function toast(msg){let el=$('#toast');el.textContent=msg;el.classList.remove('hidden');clearTimeout(toast._timer);toast._timer=setTimeout(()=>el.classList.add('hidden'),2600)}
