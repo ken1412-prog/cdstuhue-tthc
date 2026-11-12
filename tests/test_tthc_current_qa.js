@@ -5,7 +5,8 @@ const data=JSON.parse(fs.readFileSync('site/data/approved.json','utf8'));
 assert.ok(data.items.length>=245, 'Approved QA count must not unexpectedly shrink');
 for(const id of ['QA007','QA017','QA026','QA030','QA110','QA122','QA101','QA112','QA113','QA114'])assert(mapping[id]&&mapping[id].answer.length>80);
 assert(mapping.QA007.answer.includes('KHÔNG phải chờ'));
-assert(js.includes('Trả lời cập nhật 05/11/2026'));
+assert(js.includes("heading.textContent!=='Trả lời'"),'Use normal answer heading');
+assert(!js.includes('Trả lời cập nhật 05/11/2026'),'Do not expose internal edit dates');
 assert(js.includes('applyCards()')&&js.includes('applyModal()'));
 assert(!js.includes('Xem câu trả lời trước cập nhật'));
 for(const name of ['index.html','hoi-dap.html']){
