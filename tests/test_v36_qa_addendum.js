@@ -23,7 +23,8 @@ const app=fs.readFileSync(path.join(base,'site/assets/app.js'),'utf8');
 assert(app.includes('state.qa=withV36QA(filtered)'));
 assert(app.includes('const next=withV36QA(parsed)'));
 assert(app.includes('V36_NEW.has(x.id)?5:V36_EDITED.has(x.id)?4'));
-assert(app.includes('v36Gallery(x)'));
+assert(app.includes('qaAnswerContent(x)'),'Answer must include images inline after relevant step');
+assert(!app.includes('v36Gallery(x)'),'Do not prepend an unrelated image gallery');
 for(const [id,images] of Object.entries(data.media)){
  assert(revised.includes(id)||added.includes(id),'Only V36 QA can receive a graphic');
  for(const item of images){
@@ -33,6 +34,10 @@ for(const [id,images] of Object.entries(data.media)){
   const bytes=fs.readFileSync(imagePath);
   assert(bytes.length>=12000 && bytes.length<1000000,'Real sanitized crop must have plausible size');
   assert(item.reviewed===true,'Every photo must be individually approved for this QA');
+  assert(typeof item.after==='string'&&item.after.length>5,'Photo must be anchored to an exact QA step');
+  const qa=data.revisions[id]||data.newItems.find(x=>x.id===id);
+  const hit=qa.answer.split(/\n+/).map(line=>line.trim()).filter(line=>line.startsWith(item.after));
+  assert(hit.length===1,'Photo must resolve to exactly one answer step in '+id+': '+item.after);
   const isJpeg=bytes[0]===0xff&&bytes[1]===0xd8;
   const isPng=bytes[0]===137&&bytes[1]===80&&bytes[2]===78&&bytes[3]===71;
   assert(isJpeg||isPng,'Invalid sanitized raster');
