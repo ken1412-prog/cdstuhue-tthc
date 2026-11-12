@@ -915,7 +915,23 @@ function syncFromUrl(){
  const id=url.searchParams.get('id');
  if(id&&state.menuReady&&state.view.startsWith('qa-')){if(state.qaLoading)pendingQuestionId=id;else setTimeout(()=>openQA(id),0)};
 }
+function qaAllocationVisual(){
+ const rows=[
+  ['70%','Chi bộ thôn, tổ dân phố, sinh viên và nhóm đặc thù được quy định','Trên số thu tại chi bộ'],
+  ['50%','Các chi bộ còn lại','Trên số thu tại chi bộ'],
+  ['30%','Đảng ủy bộ phận','Trên phần còn lại sau khi chi bộ được giữ'],
+  ['70%','Đảng ủy trực thuộc cơ sở','Trên phần còn lại sau cấp dưới'],
+  ['70%','Đảng ủy cơ sở xã, phường, đặc khu','Trên phần còn lại sau cấp dưới'],
+  ['50%','Các đảng ủy cơ sở còn lại','Trên phần còn lại sau cấp dưới']
+ ];
+ return '<div class="qa-alloc-inline"><h4>Bảng tỷ lệ phân bổ cần đối chiếu</h4><div class="qa-alloc-scroll"><table><thead><tr><th>Giữ lại</th><th>Loại tổ chức đảng</th><th>Cơ sở tính</th></tr></thead><tbody>'+rows.map(r=>'<tr><td><strong>'+E(r[0])+'</strong></td><td>'+E(r[1])+'</td><td>'+E(r[2])+'</td></tr>').join('')+'</tbody></table></div><p><strong>Ví dụ:</strong> Thu 100.000 đồng → Chi bộ thôn giữ 70.000 đồng → Chuyển lên 30.000 đồng → Nếu có Đảng ủy bộ phận, cấp này giữ 9.000 đồng (30% × 30.000 đồng).</p></div>';
+}
+function qaLegalAnswer(x){
+ const lines=String(x.answer||'').split(/\n+/).map(z=>z.trim()).filter(Boolean);
+ return '<div class="answer qa-inline-answer">'+lines.map(line=>'<p class="qa-answer-step">'+E(line)+'</p>'+(line.startsWith('6. Các đảng ủy cơ sở còn lại')?qaAllocationVisual():'')).join('')+'</div>';
+}
 function qaAnswerContent(x){
+ if(x.id==='QA124')return qaLegalAnswer(x);
  const photoSet=state.demo?[]:(window.CDSTUHUE_V36_QA?.media?.[x.id]||[]);
  const pics=photoSet.filter(p=>p.reviewed===true&&/^assets\/img\/v36-photo-\d{2,3}-[a-z0-9-]+\.(?:png|jpe?g)$/.test(p.src)&&typeof p.after==='string');
  if(!pics.length)return '<div class="answer">'+E(x.answer)+'</div>';
