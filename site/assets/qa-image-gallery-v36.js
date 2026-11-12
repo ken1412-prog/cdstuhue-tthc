@@ -40,7 +40,7 @@ function render(){
  const section=make('section','qa-media-gallery');
  section.setAttribute('aria-label','Ảnh minh họa đã duyệt');
  section.append(make('h3','qa-media-heading','Ảnh minh họa theo câu hỏi'));
- section.append(make('p','qa-media-info','Hình nguồn đã đối chiếu với QA và kiểm tra thông tin công khai. Chạm để xem kích thước đầy đủ.'));
+
  const grid=make('div','qa-media-grid');
  for(const img of entry.images){
   const fig=make('figure','qa-media-card');
@@ -59,7 +59,7 @@ function render(){
   grid.append(fig);
  }
  section.append(grid);
- body.append(section);
+ body.querySelector('.answer')?.append(section);
 }
 async function getManifest(){
  try{
