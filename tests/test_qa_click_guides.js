@@ -13,7 +13,7 @@ const orig=JSON.parse(fs.readFileSync('site/data/approved.json','utf8'));
 assert.ok(orig.items.length>=245, 'Approved QA count must not unexpectedly shrink');
 for(const page of ['site/index.html','site/hoi-dap.html']){
  const html=fs.readFileSync(page,'utf8');
- assert(html.includes('assets/qa-click-guides-v35.js?v=20261110-v36'));
+ assert(html.includes('assets/qa-click-guides-v35.js?v=20261112-qa-inline-v4'));
  assert(html.includes('assets/qa-click-guides-v35.css?v=20261102-v35'));
 }
 console.log('QA click guides PASS: '+orig.items.length+' approved QA, safe DOM and diagram');
