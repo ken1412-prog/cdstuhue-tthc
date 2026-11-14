@@ -34,7 +34,7 @@ const overlayUI=overlay.slice(overlay.indexOf('function applyModal()'),overlay.i
 assert(!overlayUI.includes('Xem hướng dẫn thao tác 04 TTHC'),'Do not auto-append handbook links');
 assert(overlayUI.includes('CDSTUHUE_CLEAN_QA'),'Old overlay must use the same text sanitizer');
 const pics=Object.values(qa.media).flat();
-assert(pics.length===29,'Preserve all reviewed photo placements');
+assert(pics.length===35,'Preserve existing 29 placements and six additional QA130/QA131 screenshots');
 for(const [id,items] of Object.entries(qa.media)){
  const answer=(qa.revisions[id]||qa.newItems.find(x=>x.id===id)).answer;
  const lines=answer.split(/\n+/).map(line=>line.trim()).filter(Boolean);
