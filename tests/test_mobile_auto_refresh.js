@@ -94,7 +94,7 @@ async function main(){
  assert(src.includes('if(!liveSourceAccepted.qa){'));
  assert(src.includes('if(!liveSourceAccepted.menu)state.menu='));
  assert(src.includes('if(hadError)scheduleDataLoadRecovery();'));
- assert(html.includes('20261112-qa-inline-v4'));
+ assert(html.includes('20261114-qa-results-v5'));
  const qaGuard=between('function finalizeQaLoadFromTimeout(){','\nfunction boot(){');
  const guarded={state:{qaLoading:true,demo:false,qa:[],qaLoadError:false},
    updateGlobal:()=>{},render:()=>{}};
