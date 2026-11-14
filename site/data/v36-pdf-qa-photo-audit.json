@@ -1,0 +1,420 @@
+{
+  "project": "CDSTUHUE V36",
+  "date": "2026-11-14",
+  "assets": [
+    {
+      "image": "assets/img/v36-pdf-tai-phieu-menu-ca-nhan.jpg",
+      "source": "HƯỚNG DẪN ĐẢNG VIÊN TẢI PHIẾU NHẬN XÉT ĐẢNG VIÊN NƠI CƯ TRÚ TẠI ĐỊA CHỈ dichvucong.dcs.vn.pdf",
+      "page": 1,
+      "qa": [
+        {
+          "qa": "QA131",
+          "caption": "1. Mở Thủ tục hành chính của tôi"
+        }
+      ],
+      "reviewed": true,
+      "pixelCrop": true,
+      "personalIdentifyingFieldsExcluded": true,
+      "containsPayableQr": false
+    },
+    {
+      "image": "assets/img/v36-pdf-tai-phieu-ho-so-da-nop.jpg",
+      "source": "HƯỚNG DẪN ĐẢNG VIÊN TẢI PHIẾU NHẬN XÉT ĐẢNG VIÊN NƠI CƯ TRÚ TẠI ĐỊA CHỈ dichvucong.dcs.vn.pdf",
+      "page": 2,
+      "qa": [
+        {
+          "qa": "QA116",
+          "caption": "1. Vào Hồ sơ đã nộp"
+        },
+        {
+          "qa": "QA131",
+          "caption": "2. Vào Hồ sơ đã nộp"
+        }
+      ],
+      "reviewed": true,
+      "pixelCrop": true,
+      "personalIdentifyingFieldsExcluded": true,
+      "containsPayableQr": false
+    },
+    {
+      "image": "assets/img/v36-pdf-tai-phieu-ho-so-da-xu-ly.jpg",
+      "source": "HƯỚNG DẪN ĐẢNG VIÊN TẢI PHIẾU NHẬN XÉT ĐẢNG VIÊN NƠI CƯ TRÚ TẠI ĐỊA CHỈ dichvucong.dcs.vn.pdf",
+      "page": 2,
+      "qa": [
+        {
+          "qa": "QA116",
+          "caption": "2. Chọn hồ sơ Đã xử lý xong"
+        },
+        {
+          "qa": "QA131",
+          "caption": "3. Chọn hồ sơ Đã xử lý xong"
+        }
+      ],
+      "reviewed": true,
+      "pixelCrop": true,
+      "personalIdentifyingFieldsExcluded": true,
+      "containsPayableQr": false
+    },
+    {
+      "image": "assets/img/v36-pdf-tai-phieu-tab-chi-tiet.jpg",
+      "source": "HƯỚNG DẪN ĐẢNG VIÊN TẢI PHIẾU NHẬN XÉT ĐẢNG VIÊN NƠI CƯ TRÚ TẠI ĐỊA CHỈ dichvucong.dcs.vn.pdf",
+      "page": 3,
+      "qa": [
+        {
+          "qa": "QA116",
+          "caption": "3. Chọn Chi tiết giấy tờ"
+        },
+        {
+          "qa": "QA131",
+          "caption": "4. Mở Chi tiết giấy tờ"
+        }
+      ],
+      "reviewed": true,
+      "pixelCrop": true,
+      "personalIdentifyingFieldsExcluded": true,
+      "containsPayableQr": false
+    },
+    {
+      "image": "assets/img/v36-pdf-tai-phieu-xem-va-tai.jpg",
+      "source": "HƯỚNG DẪN ĐẢNG VIÊN TẢI PHIẾU NHẬN XÉT ĐẢNG VIÊN NƠI CƯ TRÚ TẠI ĐỊA CHỈ dichvucong.dcs.vn.pdf",
+      "page": 3,
+      "qa": [
+        {
+          "qa": "QA116",
+          "caption": "4. Xem bằng biểu tượng mắt hoặc tải kết quả"
+        },
+        {
+          "qa": "QA131",
+          "caption": "5. Xem phiếu hoặc tải tệp kết quả"
+        }
+      ],
+      "reviewed": true,
+      "pixelCrop": true,
+      "personalIdentifyingFieldsExcluded": true,
+      "containsPayableQr": false
+    },
+    {
+      "image": "assets/img/v36-pdf-bi-thu-danh-sach-cho-xu-ly.jpg",
+      "source": "HƯỚNG DẪN BÍ THƯ CHI BỘ TỔ DÂN PHỐ NHẬN XÉT ĐẢNG VIÊN NƠI CƯ TRÚ THEO QUY ĐỊNH 221-QĐTW.pdf",
+      "page": 5,
+      "qa": [
+        {
+          "qa": "QA115",
+          "caption": "1. Quy trình 2: chọn Chi tiết ở Hồ sơ chờ xử lý"
+        }
+      ],
+      "reviewed": true,
+      "pixelCrop": true,
+      "personalIdentifyingFieldsExcluded": true,
+      "containsPayableQr": false
+    },
+    {
+      "image": "assets/img/v36-pdf-bi-thu-xu-ly-ho-so.jpg",
+      "source": "HƯỚNG DẪN BÍ THƯ CHI BỘ TỔ DÂN PHỐ NHẬN XÉT ĐẢNG VIÊN NƠI CƯ TRÚ THEO QUY ĐỊNH 221-QĐTW.pdf",
+      "page": 6,
+      "qa": [
+        {
+          "qa": "QA115",
+          "caption": "2. Bấm Xử lý hồ sơ ở đúng dòng"
+        }
+      ],
+      "reviewed": true,
+      "pixelCrop": true,
+      "personalIdentifyingFieldsExcluded": true,
+      "containsPayableQr": false
+    },
+    {
+      "image": "assets/img/v36-pdf-bi-thu-tao-ket-qua.jpg",
+      "source": "HƯỚNG DẪN BÍ THƯ CHI BỘ TỔ DÂN PHỐ NHẬN XÉT ĐẢNG VIÊN NƠI CƯ TRÚ THEO QUY ĐỊNH 221-QĐTW.pdf",
+      "page": 7,
+      "qa": [
+        {
+          "qa": "QA115",
+          "caption": "3. Chọn Nhấn để tạo kết quả xử lý"
+        }
+      ],
+      "reviewed": true,
+      "pixelCrop": true,
+      "personalIdentifyingFieldsExcluded": true,
+      "containsPayableQr": false
+    },
+    {
+      "image": "assets/img/v36-pdf-bi-thu-danh-gia-phieu.jpg",
+      "source": "HƯỚNG DẪN BÍ THƯ CHI BỘ TỔ DÂN PHỐ NHẬN XÉT ĐẢNG VIÊN NƠI CƯ TRÚ THEO QUY ĐỊNH 221-QĐTW.pdf",
+      "page": 8,
+      "qa": [
+        {
+          "qa": "QA101",
+          "caption": "2. Chọn mức đánh giá theo Mẫu 2"
+        },
+        {
+          "qa": "QA115",
+          "caption": "4. Điền các tiêu chí nhận xét"
+        }
+      ],
+      "reviewed": true,
+      "pixelCrop": true,
+      "personalIdentifyingFieldsExcluded": true,
+      "containsPayableQr": false
+    },
+    {
+      "image": "assets/img/v36-pdf-bi-thu-xem-truoc-luu.jpg",
+      "source": "HƯỚNG DẪN BÍ THƯ CHI BỘ TỔ DÂN PHỐ NHẬN XÉT ĐẢNG VIÊN NƠI CƯ TRÚ THEO QUY ĐỊNH 221-QĐTW.pdf",
+      "page": 8,
+      "qa": [
+        {
+          "qa": "QA101",
+          "caption": "3. Xem trước, kiểm tra phiếu và Lưu"
+        },
+        {
+          "qa": "QA115",
+          "caption": "5. Xem trước rồi Lưu"
+        },
+        {
+          "qa": "QA127",
+          "caption": "2. Xem trước và Lưu phiếu"
+        }
+      ],
+      "reviewed": true,
+      "pixelCrop": true,
+      "personalIdentifyingFieldsExcluded": true,
+      "containsPayableQr": false
+    },
+    {
+      "image": "assets/img/v36-pdf-bi-thu-phe-duyet.jpg",
+      "source": "HƯỚNG DẪN BÍ THƯ CHI BỘ TỔ DÂN PHỐ NHẬN XÉT ĐẢNG VIÊN NƠI CƯ TRÚ THEO QUY ĐỊNH 221-QĐTW.pdf",
+      "page": 9,
+      "qa": [
+        {
+          "qa": "QA115",
+          "caption": "6. Chọn Phê duyệt hồ sơ"
+        }
+      ],
+      "reviewed": true,
+      "pixelCrop": true,
+      "personalIdentifyingFieldsExcluded": true,
+      "containsPayableQr": false
+    },
+    {
+      "image": "assets/img/v36-pdf-bi-thu-nhan-xet-chu-dong.jpg",
+      "source": "HƯỚNG DẪN BÍ THƯ CHI BỘ TỔ DÂN PHỐ NHẬN XÉT ĐẢNG VIÊN NƠI CƯ TRÚ THEO QUY ĐỊNH 221-QĐTW.pdf",
+      "page": 10,
+      "qa": [
+        {
+          "qa": "QA101",
+          "caption": "1. Quy trình 3: chọn Nhận xét tại đúng đảng viên"
+        },
+        {
+          "qa": "QA127",
+          "caption": "1. Quy trình 3: chọn Nhận xét"
+        }
+      ],
+      "reviewed": true,
+      "pixelCrop": true,
+      "personalIdentifyingFieldsExcluded": true,
+      "containsPayableQr": false
+    },
+    {
+      "image": "assets/img/v36-pdf-app-cai-dat.jpg",
+      "source": "HƯỚNG DẪN ĐẢNG VIÊN CẬP NHẬT SINH HOẠT ĐẢNG NƠI CƯ TRÚ - TỰ NỘP ĐẢNG PHÍ CHO BẢN THÂN 11-11-2026.pdf",
+      "page": 8,
+      "qa": [
+        {
+          "qa": "QA132",
+          "caption": "1. Vào Cài đặt"
+        }
+      ],
+      "reviewed": true,
+      "pixelCrop": true,
+      "personalIdentifyingFieldsExcluded": true,
+      "containsPayableQr": false
+    },
+    {
+      "image": "assets/img/v36-pdf-app-thong-tin-ca-nhan.jpg",
+      "source": "HƯỚNG DẪN ĐẢNG VIÊN CẬP NHẬT SINH HOẠT ĐẢNG NƠI CƯ TRÚ - TỰ NỘP ĐẢNG PHÍ CHO BẢN THÂN 11-11-2026.pdf",
+      "page": 9,
+      "qa": [
+        {
+          "qa": "QA132",
+          "caption": "2. Chọn Thông tin cá nhân"
+        }
+      ],
+      "reviewed": true,
+      "pixelCrop": true,
+      "personalIdentifyingFieldsExcluded": true,
+      "containsPayableQr": false
+    },
+    {
+      "image": "assets/img/v36-pdf-app-thong-tin-chi-bo-cu-tru.jpg",
+      "source": "HƯỚNG DẪN ĐẢNG VIÊN CẬP NHẬT SINH HOẠT ĐẢNG NƠI CƯ TRÚ - TỰ NỘP ĐẢNG PHÍ CHO BẢN THÂN 11-11-2026.pdf",
+      "page": 10,
+      "qa": [
+        {
+          "qa": "QA132",
+          "caption": "3. Mở phần Thông tin chi bộ sinh hoạt nơi cư trú"
+        }
+      ],
+      "reviewed": true,
+      "pixelCrop": true,
+      "personalIdentifyingFieldsExcluded": true,
+      "containsPayableQr": false
+    },
+    {
+      "image": "assets/img/v36-pdf-app-cap-nhat-chi-bo.jpg",
+      "source": "HƯỚNG DẪN ĐẢNG VIÊN CẬP NHẬT SINH HOẠT ĐẢNG NƠI CƯ TRÚ - TỰ NỘP ĐẢNG PHÍ CHO BẢN THÂN 11-11-2026.pdf",
+      "page": 11,
+      "qa": [
+        {
+          "qa": "QA132",
+          "caption": "4. Chọn đúng tổ chức Đảng và bấm Cập nhật"
+        }
+      ],
+      "reviewed": true,
+      "pixelCrop": true,
+      "personalIdentifyingFieldsExcluded": true,
+      "containsPayableQr": false
+    },
+    {
+      "image": "assets/img/v36-pdf-app-menu-nghia-vu.jpg",
+      "source": "HƯỚNG DẪN ĐẢNG VIÊN CẬP NHẬT SINH HOẠT ĐẢNG NƠI CƯ TRÚ - TỰ NỘP ĐẢNG PHÍ CHO BẢN THÂN 11-11-2026.pdf",
+      "page": 13,
+      "qa": [
+        {
+          "qa": "QA110",
+          "caption": "1. Mở Xem nghĩa vụ nộp đảng phí"
+        },
+        {
+          "qa": "QA133",
+          "caption": "1. Xem nghĩa vụ nộp đảng phí"
+        }
+      ],
+      "reviewed": true,
+      "pixelCrop": true,
+      "personalIdentifyingFieldsExcluded": true,
+      "containsPayableQr": false
+    },
+    {
+      "image": "assets/img/v36-pdf-app-dong-hoac-dieu-chinh.jpg",
+      "source": "HƯỚNG DẪN ĐẢNG VIÊN CẬP NHẬT SINH HOẠT ĐẢNG NƠI CƯ TRÚ - TỰ NỘP ĐẢNG PHÍ CHO BẢN THÂN 11-11-2026.pdf",
+      "page": 14,
+      "qa": [
+        {
+          "qa": "QA104",
+          "caption": "1. Số tiền sai: chọn Yêu cầu điều chỉnh"
+        },
+        {
+          "qa": "QA110",
+          "caption": "2. Số tiền đúng: chọn Đóng đảng phí"
+        },
+        {
+          "qa": "QA133",
+          "caption": "2. Số đúng: Đóng đảng phí"
+        },
+        {
+          "qa": "QA134",
+          "caption": "1. Số tiền chưa đúng: chọn Yêu cầu điều chỉnh"
+        }
+      ],
+      "reviewed": true,
+      "pixelCrop": true,
+      "personalIdentifyingFieldsExcluded": true,
+      "containsPayableQr": false
+    },
+    {
+      "image": "assets/img/v36-pdf-app-chon-qr.jpg",
+      "source": "HƯỚNG DẪN ĐẢNG VIÊN CẬP NHẬT SINH HOẠT ĐẢNG NƠI CƯ TRÚ - TỰ NỘP ĐẢNG PHÍ CHO BẢN THÂN 11-11-2026.pdf",
+      "page": 15,
+      "qa": [
+        {
+          "qa": "QA110",
+          "caption": "3. Chọn chuyển khoản bằng QR code"
+        },
+        {
+          "qa": "QA133",
+          "caption": "3. Chọn phương thức QR"
+        }
+      ],
+      "reviewed": true,
+      "pixelCrop": true,
+      "personalIdentifyingFieldsExcluded": true,
+      "containsPayableQr": false
+    },
+    {
+      "image": "assets/img/v36-pdf-app-tiep-tuc-thanh-toan.jpg",
+      "source": "HƯỚNG DẪN ĐẢNG VIÊN CẬP NHẬT SINH HOẠT ĐẢNG NƠI CƯ TRÚ - TỰ NỘP ĐẢNG PHÍ CHO BẢN THÂN 11-11-2026.pdf",
+      "page": 15,
+      "qa": [
+        {
+          "qa": "QA110",
+          "caption": "4. Chọn Tiếp tục"
+        },
+        {
+          "qa": "QA133",
+          "caption": "4. Bấm Tiếp tục"
+        }
+      ],
+      "reviewed": true,
+      "pixelCrop": true,
+      "personalIdentifyingFieldsExcluded": true,
+      "containsPayableQr": false
+    },
+    {
+      "image": "assets/img/v36-pdf-app-tai-ma-qr.jpg",
+      "source": "HƯỚNG DẪN ĐẢNG VIÊN CẬP NHẬT SINH HOẠT ĐẢNG NƠI CƯ TRÚ - TỰ NỘP ĐẢNG PHÍ CHO BẢN THÂN 11-11-2026.pdf",
+      "page": 16,
+      "qa": [
+        {
+          "qa": "QA110",
+          "caption": "5. Tải mã QR của giao dịch về điện thoại"
+        },
+        {
+          "qa": "QA133",
+          "caption": "5. Tải xuống mã QR"
+        }
+      ],
+      "reviewed": true,
+      "pixelCrop": true,
+      "personalIdentifyingFieldsExcluded": true,
+      "containsPayableQr": false
+    },
+    {
+      "image": "assets/img/v36-pdf-ngan-hang-thu-vien-anh.jpg",
+      "source": "HƯỚNG DẪN ĐẢNG VIÊN CẬP NHẬT SINH HOẠT ĐẢNG NƠI CƯ TRÚ - TỰ NỘP ĐẢNG PHÍ CHO BẢN THÂN 11-11-2026.pdf",
+      "page": 18,
+      "qa": [
+        {
+          "qa": "QA110",
+          "caption": "6. Trong ứng dụng ngân hàng, chọn QR từ Thư viện ảnh"
+        },
+        {
+          "qa": "QA133",
+          "caption": "6. Chọn mã đã lưu từ Thư viện ảnh"
+        }
+      ],
+      "reviewed": true,
+      "pixelCrop": true,
+      "personalIdentifyingFieldsExcluded": true,
+      "containsPayableQr": false
+    },
+    {
+      "image": "assets/img/v36-pdf-app-yeu-cau-dieu-chinh.jpg",
+      "source": "HƯỚNG DẪN ĐẢNG VIÊN CẬP NHẬT SINH HOẠT ĐẢNG NƠI CƯ TRÚ - TỰ NỘP ĐẢNG PHÍ CHO BẢN THÂN 11-11-2026.pdf",
+      "page": 19,
+      "qa": [
+        {
+          "qa": "QA104",
+          "caption": "2. Điền loại điều chỉnh, số tiền, lý do và gửi yêu cầu"
+        },
+        {
+          "qa": "QA134",
+          "caption": "2. Hoàn thiện biểu mẫu và bấm Gửi yêu cầu"
+        }
+      ],
+      "reviewed": true,
+      "pixelCrop": true,
+      "personalIdentifyingFieldsExcluded": true,
+      "containsPayableQr": false
+    }
+  ],
+  "description": "Screenshots are small real UI regions. Originals are not included in public files. No live payment QR is published."
+}

@@ -13,7 +13,7 @@ assert(app.includes('window.CDSTUHUE_TTHC_CORRECTIONS?.[id]'));
 for(const [id,v] of Object.entries(mapping.changes))assert(v.answer.length>=70&&approved.items.some(x=>x.id===id));
 for(const name of ['index.html','hoi-dap.html']){
  const html=fs.readFileSync('site/'+name,'utf8');
- const patchTag='assets/tthc-20261105.js?v=20261114-qa-results-v5',appTag='assets/app.js?v=20261114-qa-results-v5';
+ const patchTag='assets/tthc-20261105.js?v=20261114-qa-pdf-guides-v6',appTag='assets/app.js?v=20261114-qa-pdf-guides-v6';
  assert(html.includes(patchTag)&&html.includes(appTag));
  assert(html.indexOf(patchTag)<html.indexOf(appTag),'Patch must load before app to update source QA on first render');
 }
