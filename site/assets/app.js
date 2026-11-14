@@ -859,7 +859,7 @@ function scoreQA(item,q){const f=fold(q).trim();if(!f)return 1;let question=fold
 /* Training 05/11/2026: these approved QA have a separate reviewed process-update supplement. */
 const TTHC_REVISED_QA=new Set(["QA006","QA007","QA017","QA026","QA030","QA033","QA042","QA063","QA104","QA110","QA111","QA120","QA122","QA003","QA005","QA008","QA012","QA014","QA018","QA022","QA027","QA028","QA034","QA036","QA047","QA052","QA053","QA056","QA057","QA058","QA059","QA060","QA061","QA062","QA087","QA093","QA094","QA095","QA101","QA103","QA112","QA113","QA114","QA115","QA004","QA029","QA031","QA089","QA090","QA106","QA121"]);
 const V36_EDITED=new Set(['QA101','QA104','QA110','QA111','QA112','QA114','QA115','QA116','QA124']);
-const V36_NEW=new Set(['QA125','QA126','QA127','QA128','QA129','QA130','QA131']);
+const V36_NEW=new Set(['QA125','QA126','QA127','QA128','QA129','QA130','QA131','QA132','QA133']);
 const qaIsNew=x=>V36_NEW.has(x.id)||(/^2026-11-(0[5-9]|[12][0-9]|30)$/.test(String(x.updated||''))&&!TTHC_REVISED_QA.has(x.id)&&!V36_EDITED.has(x.id));
 const qaPriority=x=>x&&x.group==='tthc'?(V36_NEW.has(x.id)?5:V36_EDITED.has(x.id)?4:qaIsNew(x)?2:TTHC_REVISED_QA.has(x.id)?1:0):0;
 function qaPreview(answer){
@@ -933,7 +933,7 @@ function qaLegalAnswer(x){
 function qaAnswerContent(x){
  if(x.id==='QA124')return qaLegalAnswer(x);
  const photoSet=state.demo?[]:(window.CDSTUHUE_V36_QA?.media?.[x.id]||[]);
- const pics=photoSet.filter(p=>p.reviewed===true&&/^assets\/img\/v36-photo-\d{2,3}-[a-z0-9-]+\.(?:png|jpe?g)$/.test(p.src)&&typeof p.after==='string');
+ const pics=photoSet.filter(p=>p.reviewed===true&&/^(?:assets\/img\/v36-photo-\d{2,3}-[a-z0-9-]+\.(?:png|jpe?g)|assets\/img\/qa-pdf-20261114-[a-z0-9-]+\.jpg)$/.test(p.src)&&typeof p.after==='string');
  if(!pics.length)return '<div class="answer">'+E(x.answer)+'</div>';
  const lines=String(x.answer||'').split(/\n+/).map(line=>line.trim()).filter(Boolean);
  const grouped=new Map();
