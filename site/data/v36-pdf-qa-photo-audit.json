@@ -8,8 +8,8 @@
       "page": 1,
       "qa": [
         {
-          "qa": "QA131",
-          "caption": "1. Mở Thủ tục hành chính của tôi"
+          "qa": "QA115",
+          "caption": "Bước 16: Mở Thủ tục hành chính của tôi"
         }
       ],
       "reviewed": true,
@@ -23,8 +23,8 @@
       "page": 2,
       "qa": [
         {
-          "qa": "QA131",
-          "caption": "2. Vào Hồ sơ đã nộp"
+          "qa": "QA115",
+          "caption": "Bước 16: Chọn Hồ sơ đã nộp"
         }
       ],
       "reviewed": true,
@@ -38,8 +38,8 @@
       "page": 2,
       "qa": [
         {
-          "qa": "QA131",
-          "caption": "3. Chọn hồ sơ Đã xử lý xong"
+          "qa": "QA115",
+          "caption": "Bước 17: Chọn hồ sơ Đã xử lý xong"
         }
       ],
       "reviewed": true,
@@ -53,8 +53,8 @@
       "page": 3,
       "qa": [
         {
-          "qa": "QA131",
-          "caption": "4. Mở Chi tiết giấy tờ"
+          "qa": "QA115",
+          "caption": "Bước 18: Mở Chi tiết giấy tờ và Kết quả"
         }
       ],
       "reviewed": true,
@@ -68,8 +68,8 @@
       "page": 3,
       "qa": [
         {
-          "qa": "QA131",
-          "caption": "5. Xem phiếu hoặc tải tệp kết quả"
+          "qa": "QA115",
+          "caption": "Bước 19: Xem phiếu hoặc tải tệp kết quả"
         }
       ],
       "reviewed": true,
@@ -360,5 +360,5 @@
       "containsPayableQr": false
     }
   ],
-  "description": "Ảnh cắt từ 3 PDF theo từng bước trong QA tổng hợp; không tạo QA trùng lặp chỉ vì khác nút hoặc màn hình."
+  "description": "Ảnh PDF đã che thông tin, gắn trong câu QA quy trình tổng hợp. Các QA rời theo bước và theo vai trò tải kết quả được đưa vào quy trình chính."
 }
