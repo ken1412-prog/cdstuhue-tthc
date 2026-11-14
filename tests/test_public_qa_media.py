@@ -60,7 +60,7 @@ class QAImageManifestTest(unittest.TestCase):
             html=(SITE/page).read_text(encoding="utf-8")
             self.assertIn("assets/qa-image-gallery-v36.js?v=20261114-qa-results-v5",html)
             self.assertIn("assets/qa-image-gallery-v36.css?v=20261102-v36",html)
-            self.assertIn("assets/app.js?v=20261114-qa-results-v5",html)
+            self.assertIn("assets/app.js?v=20261114-threepdf-v6",html)
             self.assertIn("assets/qa-click-guides-v35.js?v=20261114-qa-results-v5",html)
 
 if __name__=="__main__":
