@@ -34,7 +34,7 @@ const overlayUI=overlay.slice(overlay.indexOf('function applyModal()'),overlay.i
 assert(!overlayUI.includes('Xem hướng dẫn thao tác 04 TTHC'),'Do not auto-append handbook links');
 assert(overlayUI.includes('CDSTUHUE_CLEAN_QA'),'Old overlay must use the same text sanitizer');
 const pics=Object.values(qa.media).flat();
-assert(pics.length===35,'Preserve existing 29 placements and six additional QA130/QA131 screenshots');
+assert(pics.length===57,'Preserve reviewed images and 40 new step-specific PDF screenshot placements');
 for(const [id,items] of Object.entries(qa.media)){
  const answer=(qa.revisions[id]||qa.newItems.find(x=>x.id===id)).answer;
  const lines=answer.split(/\n+/).map(line=>line.trim()).filter(Boolean);
@@ -53,8 +53,8 @@ const render=new Function('state','window','E',app.slice(from,to)+'return qaAnsw
 const example={id:'QA101',...qa.revisions.QA101};
 const page=render(example);
 assert(page.includes('qa-inline-photo'),'Images are embedded inside answer');
-assert(page.indexOf('1. ĐẢNG VIÊN')<page.indexOf('v36-photo-035')&&page.indexOf('v36-photo-035')<page.indexOf('2. BÍ THƯ'),'First photograph appears after the correct step');
-assert((page.match(/class="qa-inline-photo"/g)||[]).length===5,'All five process 3 photos appear');
+assert(page.indexOf('2. Vào Quản lý Đảng viên')<page.indexOf('v36-pdf-bi-thu-nhan-xet-chu-dong')&&page.indexOf('v36-pdf-bi-thu-nhan-xet-chu-dong')<page.indexOf('3. Kiểm tra'),'First process 3 photo follows the correct action');
+assert((page.match(/class="qa-inline-photo"/g)||[]).length===3,'Three focused process 3 screenshots appear');
 const finance=render({...native,answer:clean(corrections.QA124.answer)});
 assert(finance.includes('qa-alloc-inline')&&finance.includes('<table>'),'Financial comparison is embedded rather than linked');
 assert(finance.includes('30% × 30.000 đồng')&&!finance.includes('github.io'),'Correct remainder calculation without external navigation');
