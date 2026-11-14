@@ -9,7 +9,7 @@ const env={window:{}};
 vm.runInNewContext(raw,env);
 const data=env.window.CDSTUHUE_V36_QA;
 assert(data&&data.date==='2026-11-14');
-const revised=['QA101','QA104','QA110','QA111','QA112','QA114','QA115','QA116','QA124'];
+const revised=['QA007','QA101','QA104','QA110','QA111','QA112','QA113','QA114','QA115','QA116','QA124','STDV028','CSDL043'];
 const added=['QA128','QA129','QA132'];
 assert.deepEqual(Object.keys(data.revisions).sort(),revised.sort());
 assert.deepEqual(Array.from(data.newItems,x=>x.id).sort(),added.sort());
@@ -72,4 +72,7 @@ assert(!Object.values(data.media).flat().some(p=>p.src.includes('ma-qr-that')),'
 assert(!data.newItems.some(x=>['QA125','QA126','QA127','QA130','QA131','QA133','QA134'].includes(x.id)),'Do not publish duplicate fragments or separate result-step QAs');
 assert(data.revisions.QA115.answer.includes('CHI BỘ NƠI CÔNG TÁC')&&data.revisions.QA115.answer.includes('CHI BỘ NƠI CƯ TRÚ')&&data.revisions.QA115.answer.includes('CHỜ PHÊ DUYỆT')===false,'Process 2 is complete end-to-end without placeholder status');
 assert(data.media.QA101.length===9&&data.media.QA115.length===18,'Integrate result steps and relevant screenshots into complete workflows');
-console.log('V36: 9 revised + 3 complete new QA; download steps integrated into main processes PASS');
+assert(Object.keys(data.mergedInto).length===6,'Six truly redundant cards must redirect into main workflows');
+assert(data.mergedInto.QA103==='QA132'&&data.mergedInto.QA017==='QA104','Known aliases must resolve to canonical answers');
+assert(data.revisions.STDV028.answer.includes('HỌP CHI ỦY')&&data.revisions.QA113.answer.includes('CHIỀU VỀ'),'STDV and temporary transfer must be end-to-end');
+console.log('V36: 13 revised + 3 main new QA; six redundant cards folded into canonical workflows PASS');

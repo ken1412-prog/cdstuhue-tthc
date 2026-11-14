@@ -97,7 +97,7 @@ function cleanPublishedQA(value){
 }
 window.CDSTUHUE_CLEAN_QA=cleanPublishedQA;
 const normQA = item=>{const id=String(item.id||'').trim(),base={id,group:qgroup(item),topic:String(item.topic||'').trim(),question:String(item.question||'').trim(),answer:String(item.answer||'').trim(),keywords:String(item.keywords||''),alternatives:String(item.alternatives||''),updated:String(item.updated||''),sourceUrl:safeUrl(item.sourceUrl),publicNote:String(item.publicNote||'')};const current=!window.location.search.includes('demo=1')&&base.group==='tthc'?window.CDSTUHUE_TTHC_CORRECTIONS?.[id]:null;const prev=current?{...base,question:String(current.question||base.question),answer:String(current.answer||base.answer),updated:String(current.updated||'2026-11-05')}:base;const v36=window.CDSTUHUE_V36_QA?.revisions?.[id];const merged=!state.demo&&v36?{...prev,...v36}:prev;return {...merged,answer:cleanPublishedQA(merged.answer)};};
-function withV36QA(items){if(state.demo)return items;const add=window.CDSTUHUE_V36_QA?.newItems||[];const known=new Set(items.map(x=>x.id));for(const q of add){if(q.public===true&&q.group==='tthc'&&!known.has(q.id)){items.push(normQA(q));known.add(q.id)}}return items;}
+function withV36QA(items){if(state.demo)return items;const aliases=window.CDSTUHUE_V36_QA?.mergedInto||{};const visible=items.filter(x=>!Object.prototype.hasOwnProperty.call(aliases,x.id));const add=window.CDSTUHUE_V36_QA?.newItems||[];const known=new Set(visible.map(x=>x.id));for(const q of add){if(q.public===true&&q.group==='tthc'&&!known.has(q.id)){visible.push(normQA(q));known.add(q.id)}}return visible;}
 const validProgress = item=>Boolean(item&&item.public===true&&String(item.unit||'').trim()&&PROCEDURES[item.procedure]&&Number.isFinite(Number(item.progress))&&Number(item.progress)>=0&&Number(item.progress)<=100);
 // One startup/retry fetch at a time; mobile reconnects should recover without tapping ↻.
 let dataLoadPromise=null,dataLoadRetryTimer=null,dataLoadRetryAttempts=0;
@@ -173,7 +173,7 @@ async function loadDataCore(){
   }else{state.qaLoadError=!liveSourceAccepted.qa}
   state.qaLoading=false;
   updateGlobal();render();
-  if(pendingQuestionId&&state.qa.some(x=>x.id===pendingQuestionId)){
+  if(pendingQuestionId&&state.qa.some(x=>x.id===(window.CDSTUHUE_V36_QA?.mergedInto?.[pendingQuestionId]||pendingQuestionId))){
    const id=pendingQuestionId;pendingQuestionId=null;openQA(id);
   }
  });
@@ -403,7 +403,7 @@ function applyLiveQA(feed){
  state.generatedAt=String(feed.generatedAt||'').slice(0,40);
  state.page=0;
  if(!firstPublicSync){updateGlobal();render();}
- if(pendingQuestionId&&state.qa.some(x=>x.id===pendingQuestionId)){const id=pendingQuestionId;pendingQuestionId=null;openQA(id)}
+ if(pendingQuestionId&&state.qa.some(x=>x.id===(window.CDSTUHUE_V36_QA?.mergedInto?.[pendingQuestionId]||pendingQuestionId))){const id=pendingQuestionId;pendingQuestionId=null;openQA(id)}
  return true;
 }
 function applyLiveMenu(feed){
@@ -858,7 +858,7 @@ function scoreQA(item,q){const f=fold(q).trim();if(!f)return 1;let question=fold
  return score}
 /* Training 05/11/2026: these approved QA have a separate reviewed process-update supplement. */
 const TTHC_REVISED_QA=new Set(["QA006","QA007","QA017","QA026","QA030","QA033","QA042","QA063","QA104","QA110","QA111","QA120","QA122","QA003","QA005","QA008","QA012","QA014","QA018","QA022","QA027","QA028","QA034","QA036","QA047","QA052","QA053","QA056","QA057","QA058","QA059","QA060","QA061","QA062","QA087","QA093","QA094","QA095","QA101","QA103","QA112","QA113","QA114","QA115","QA004","QA029","QA031","QA089","QA090","QA106","QA121"]);
-const V36_EDITED=new Set(['QA101','QA104','QA110','QA111','QA112','QA114','QA115','QA116','QA124']);
+const V36_EDITED=new Set(['QA007','QA101','QA104','QA110','QA111','QA112','QA113','QA114','QA115','QA116','QA124']);
 const V36_NEW=new Set(['QA128','QA129','QA132']);
 const qaIsNew=x=>V36_NEW.has(x.id)||(/^2026-11-(0[5-9]|[12][0-9]|30)$/.test(String(x.updated||''))&&!TTHC_REVISED_QA.has(x.id)&&!V36_EDITED.has(x.id));
 const qaPriority=x=>x&&x.group==='tthc'?(V36_NEW.has(x.id)?5:V36_EDITED.has(x.id)?4:qaIsNew(x)?2:TTHC_REVISED_QA.has(x.id)?1:0):0;
@@ -946,7 +946,7 @@ function qaAnswerContent(x){
  const photograph=(pic)=>'<figure class="qa-inline-photo"><a href="'+E(pic.src)+'" target="_blank" rel="noopener noreferrer" aria-label="Xem ảnh thao tác kích thước lớn"><img loading="lazy" decoding="async" src="'+E(pic.src)+'" alt="'+E(pic.alt)+'"></a><figcaption>'+E(pic.caption)+'</figcaption></figure>';
  return '<div class="answer qa-inline-answer">'+lines.map((line,i)=>'<p class="qa-answer-step">'+E(line)+'</p>'+(grouped.has(i)?'<div class="qa-step-photos">'+grouped.get(i).map(photograph).join('')+'</div>':'')).join('')+'</div>';
 }
-function openQA(id){const x=published().find(x=>x.id===id);if(!x){toast('Không tìm thấy mã QA này trong bản công khai');return}$('#modalTitle').textContent=x.question;$('#modalGroup').textContent=GROUPS[x.group]?.full||x.group;$('#modalId').textContent=x.id+(state.demo?' · MINH HỌA':'');$('#modalBody').innerHTML=`<h3>Trả lời</h3>${qaAnswerContent(x)}`;$('#qaModal').classList.remove('hidden');document.body.style.overflow='hidden';}
+function openQA(id){const resolved=window.CDSTUHUE_V36_QA?.mergedInto?.[id]||id;const x=published().find(x=>x.id===resolved);if(!x){toast('Không tìm thấy mã QA này trong bản công khai');return}$('#modalTitle').textContent=x.question;$('#modalGroup').textContent=GROUPS[x.group]?.full||x.group;$('#modalId').textContent=x.id+(state.demo?' · MINH HỌA':'');$('#modalBody').innerHTML=`<h3>Trả lời</h3>${qaAnswerContent(x)}`;$('#qaModal').classList.remove('hidden');document.body.style.overflow='hidden';}
 function closeQA(){if($('#qaModal').classList.contains('hidden'))return;$('#qaModal').classList.add('hidden');document.body.style.overflow='';}
 function closeMobile(){$('#sidebar').classList.remove('mobile-open');$('#shade').classList.remove('mobile-open')}
 function toast(msg){let el=$('#toast');el.textContent=msg;el.classList.remove('hidden');clearTimeout(toast._timer);toast._timer=setTimeout(()=>el.classList.add('hidden'),2600)}
